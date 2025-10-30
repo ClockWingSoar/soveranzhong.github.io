@@ -1,18 +1,18 @@
 ---
 layout: page
 title: About
-description: 打码改变世界
-keywords: Zhuang Ma, 马壮
+description: 认真写代码，什么也不怕
+keywords: Soveran Zhong, Yi Xiang Zhong, 钟翼翔, SRE, DevOps
 comments: true
 menu: 关于
 permalink: /about/
 ---
 
-我是马壮，码而生，码而立。
+我是钟翼翔，生来倔强，逆风飞翔。
 
-仰慕「优雅编码的艺术」。
+爱就码上行动，何须嘴上逞强。
 
-坚信熟能生巧，努力改变人生。
+我的人生永远在路上。
 
 ## 联系
 
@@ -22,8 +22,8 @@ permalink: /about/
 {% endfor %}
 {% if site.url contains 'mazhuang.org' %}
 <li>
-微信公众号：<br />
-<img style="height:192px;width:192px;border:1px solid lightgrey;" src="{{ site.url }}/assets/images/qrcode.jpg" alt="闷骚的程序员" />
+<!--微信公众号：<br />
+ <img style="height:192px;width:192px;border:1px solid lightgrey;" src="{{ site.url }}/assets/images/qrcode.jpg" alt="闷骚的程序员" /> -->
 </li>
 {% endif %}
 </ul>
