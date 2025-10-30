@@ -34,20 +34,20 @@ mindmap2: false
 ### 1.1 下载 VMware Workstation Pro
 
 1. **访问官方网站**：
-   - 打开浏览器，访问 VMware [官方网站](https://www.vmware.com)，然后搜索 DESKTOP HYPERVISORS，或者直接点击 [workstation pro evaluation page](https://www.vmware.com/products/workstation-pro/workstation-pro-evaluation.html)![image-20251028212859309](./vmware-installation-guide.assets/image-20251028212859309.png)
-   - 选择列表中的第一项，进入如下页面，选择Fusion and Workstation<img src="./vmware-installation-guide.assets/image-20251028212921636.png" alt="image-20251028212921636" style="zoom:50%;" />
-   - 点击 "DOWNLOAD NOW" 按钮![image-20251028212945523](./vmware-installation-guide.assets/image-20251028212945523.png)
-   - VMware被博通收购了，所以需要注册博通账号，点击REGISTER按钮![image-20251028213001188](./vmware-installation-guide.assets/image-20251028213001188.png)
-   - 填入邮箱信息和验证码![image-20251028213017540](./vmware-installation-guide.assets/image-20251028213017540.png)
-   - 进入邮箱，获取验证码![image-20251028213032579](./vmware-installation-guide.assets/image-20251028213032579.png)
+   - 打开浏览器，访问 VMware [官方网站](https://www.vmware.com)，然后搜索 DESKTOP HYPERVISORS，或者直接点击 [workstation pro evaluation page](https://www.vmware.com/products/workstation-pro/workstation-pro-evaluation.html)![image-20251028212859309](/images/posts/./vmware-installation-guide.assets/image-20251028212859309.png)
+   - 选择列表中的第一项，进入如下页面，选择Fusion and Workstation<img src="/images/posts/./vmware-installation-guide.assets/image-20251028212921636.png" alt="image-20251028212921636" style="zoom:50%;" />
+   - 点击 "DOWNLOAD NOW" 按钮![image-20251028212945523](/images/posts/./vmware-installation-guide.assets/image-20251028212945523.png)
+   - VMware被博通收购了，所以需要注册博通账号，点击REGISTER按钮![image-20251028213001188](/images/posts/./vmware-installation-guide.assets/image-20251028213001188.png)
+   - 填入邮箱信息和验证码![image-20251028213017540](/images/posts/./vmware-installation-guide.assets/image-20251028213017540.png)
+   - 进入邮箱，获取验证码![image-20251028213032579](/images/posts/./vmware-installation-guide.assets/image-20251028213032579.png)
    - 输入其他个人信息，完成账号注册，然后进入下载页面(My Downloads)，打开速度很慢，可能需要魔法上网
-   - 输入关键词VMware Workstation Pro ![image-20251028213046791](./vmware-installation-guide.assets/image-20251028213046791.png)
+   - 输入关键词VMware Workstation Pro ![image-20251028213046791](/images/posts/./vmware-installation-guide.assets/image-20251028213046791.png)
    - 选择windows版的vmware17 pro
-     ![image-20251028213102870](./vmware-installation-guide.assets/image-20251028213102870.png)
-   - 选择最新的17.6.4![image-20251028213240081](./vmware-installation-guide.assets/image-20251028213240081.png)
-   - 进入下载页，需要先点击term链接，勾选同意，再下载![image-20251028213256567](./vmware-installation-guide.assets/image-20251028213256567.png)
-   - 弹出页面，选择yes![image-20251028213314240](./vmware-installation-guide.assets/image-20251028213314240.png)
-   - 进入地址信息填写，填完提交，终于可以让你下载了![image-20251028213333090](./vmware-installation-guide.assets/image-20251028213333090.png)
+     ![image-20251028213102870](/images/posts/./vmware-installation-guide.assets/image-20251028213102870.png)
+   - 选择最新的17.6.4![image-20251028213240081](/images/posts/./vmware-installation-guide.assets/image-20251028213240081.png)
+   - 进入下载页，需要先点击term链接，勾选同意，再下载![image-20251028213256567](/images/posts/./vmware-installation-guide.assets/image-20251028213256567.png)
+   - 弹出页面，选择yes![image-20251028213314240](/images/posts/./vmware-installation-guide.assets/image-20251028213314240.png)
+   - 进入地址信息填写，填完提交，终于可以让你下载了![image-20251028213333090](/images/posts/./vmware-installation-guide.assets/image-20251028213333090.png)
    - 如果下载速度较慢，可以复制下载链接到迅雷等下载工具中加速下载
 
 2. **版本选择建议**：
@@ -62,41 +62,41 @@ mindmap2: false
 
 2. 在欢迎页面点击 "下一步"
 
-   <img src="./vmware-installation-guide.assets/image-20251028222431240.png" alt="image-20251028222431240" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028222431240.png" alt="image-20251028222431240" style="zoom:50%;" />
 
    
 
 3. 阅读并接受许可协议，点击 "下一步"
 
-   <img src="./vmware-installation-guide.assets/image-20251028222534222.png" alt="image-20251028222534222" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028222534222.png" alt="image-20251028222534222" style="zoom:50%;" />
 
 4. 选择安装位置（建议保留默认位置）
 
-   <img src="./vmware-installation-guide.assets/image-20251028222624731.png" alt="image-20251028222624731" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028222624731.png" alt="image-20251028222624731" style="zoom:50%;" />
 
 5. 取消更新软件和客户体验提升计划选项
 
-   <img src="./vmware-installation-guide.assets/image-20251028222846566.png" alt="image-20251028222846566" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028222846566.png" alt="image-20251028222846566" style="zoom:50%;" />
 
    
 
 6. 创建桌面快捷键和开始菜单程序文件夹快捷方式，点击下一步
 
-   <img src="./vmware-installation-guide.assets/image-20251028223002515.png" alt="image-20251028223002515" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028223002515.png" alt="image-20251028223002515" style="zoom:50%;" />
 
 7. 点击 "安装" 开始安装过程
 
-   <img src="./vmware-installation-guide.assets/image-20251028223123259.png" alt="image-20251028223123259" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028223123259.png" alt="image-20251028223123259" style="zoom:50%;" />
 
-   <img src="./vmware-installation-guide.assets/image-20251028223316922.png" alt="image-20251028223316922" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028223316922.png" alt="image-20251028223316922" style="zoom:50%;" />
 
 8. 安装完成后，点击 "完成"
 
-   <img src="./vmware-installation-guide.assets/image-20251028223543932.png" alt="image-20251028223543932" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028223543932.png" alt="image-20251028223543932" style="zoom:50%;" />
 
 9. 双击VMware图标，打开软件，无需注册即可免费使用
 
-   ![image-20251028223726029](./vmware-installation-guide.assets/image-20251028223726029.png)
+   ![image-20251028223726029](/images/posts/./vmware-installation-guide.assets/image-20251028223726029.png)
 
 #### 1.2.2 Linux 系统安装步骤
 
@@ -129,36 +129,36 @@ mindmap2: false
 
 2. 点击 "创建新的虚拟机"
 
-   ![image-20251028221904343](./vmware-installation-guide.assets/image-20251028221904343.png)
+   ![image-20251028221904343](/images/posts/./vmware-installation-guide.assets/image-20251028221904343.png)
 
 3. 选择 "典型（推荐）"，点击 "下一步"
 
-   <img src="./vmware-installation-guide.assets/image-20251028224124333.png" alt="image-20251028224124333" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028224124333.png" alt="image-20251028224124333" style="zoom:50%;" />
 
 4. 选择 "安装程序光盘映像文件（iso）"，点击 "浏览" 找到下载的 Rocky Linux ISO 文件，VMware 会自动检测操作系统，确认是 Rocky Linux，点击 "下一步"
 
-   <img src="./vmware-installation-guide.assets/image-20251028225852578.png" alt="image-20251028225852578" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028225852578.png" alt="image-20251028225852578" style="zoom:50%;" />
 
 5. 输入虚拟机名称和存放位置
 
-   <img src="./vmware-installation-guide.assets/image-20251028230100258.png" alt="image-20251028230100258" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028230100258.png" alt="image-20251028230100258" style="zoom:50%;" />
 
 6. 输入硬盘容量200G，这并不会马上分配200G的硬盘，VMware会按照你实际使用的容量分配，但是如果一开始输入的值过小，再扩容会很麻烦, 选择创建单个文件，点击下一步
 
-   <img src="./vmware-installation-guide.assets/image-20251028230348691.png" alt="image-20251028230348691" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028230348691.png" alt="image-20251028230348691" style="zoom:50%;" />
 
 7. 选择自定义硬件，按照自身电脑配置调整cpu，内存等大小
 
-   <img src="./vmware-installation-guide.assets/image-20251028230554455.png" alt="image-20251028230554455" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028230554455.png" alt="image-20251028230554455" style="zoom:50%;" />
 
 8. 我这里给4G的内存，这里只是起始内存，后期也都可以随时调整
    
 
-  <img src="./vmware-installation-guide.assets/image-20251028230725424.png" alt="image-20251028230725424" style="zoom:50%;" />
+  <img src="/images/posts/./vmware-installation-guide.assets/image-20251028230725424.png" alt="image-20251028230725424" style="zoom:50%;" />
 
 9. 点击关闭，然后回到新建虚拟机向导，选择完成
 
-   <img src="./vmware-installation-guide.assets/image-20251028231006686.png" alt="image-20251028231006686" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028231006686.png" alt="image-20251028231006686" style="zoom:50%;" />
 
    ​            
 
@@ -166,25 +166,25 @@ mindmap2: false
 
 1. 右键点击刚新建的虚拟机，或者直接点击，在右侧的主页面开启虚拟机
 
-   <img src="./vmware-installation-guide.assets/image-20251028231142081.png" alt="image-20251028231142081" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028231142081.png" alt="image-20251028231142081" style="zoom:50%;" />
 
 
 
 2. 在启动菜单中选择 "Install Rocky Linux 9.6"，默认选项是Test this media & Install Rocky Linux 9.6，建议选择第一项，会省很多时间，注意白色代表选中
 
-   <img src="./vmware-installation-guide.assets/image-20251028232154226.png" alt="image-20251028232154226" style="zoom: 67%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028232154226.png" alt="image-20251028232154226" style="zoom: 67%;" />
 
 3. 如果你没有勾选，会进入自检环节，会持续数小时
 
-   <img src="./vmware-installation-guide.assets/image-20251028231919009.png" alt="image-20251028231919009" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028231919009.png" alt="image-20251028231919009" style="zoom:50%;" />
 
 4. 选中第一项后按enter，等待大概10分钟左右，看到图形界面，选择安装语言（推荐英语或中文）
 
-   <img src="./vmware-installation-guide.assets/image-20251028232801128.png" alt="image-20251028232801128" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028232801128.png" alt="image-20251028232801128" style="zoom:50%;" />
 
 5. 进入安装摘要页面：
 
-   <img src="./vmware-installation-guide.assets/image-20251028233128098.png" alt="image-20251028233128098" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028233128098.png" alt="image-20251028233128098" style="zoom:50%;" />
 
 - **时间和日期**：选择您的时区，如果你在上一步选择了中文，这里默认为亚洲上海时区
 
@@ -192,29 +192,29 @@ mindmap2: false
 
 - **安装目标**：然后是需要点击并配置的地方，第1，选择自动分区或自定义分区
 
-  <img src="./vmware-installation-guide.assets/image-20251028233356166.png" alt="image-20251028233356166" style="zoom:50%;" />
+  <img src="/images/posts/./vmware-installation-guide.assets/image-20251028233356166.png" alt="image-20251028233356166" style="zoom:50%;" />
 
 - **网络和主机名**：第2，启用网络连接，设置为ipv4手动地址，设置主机名为Rocky9.6-15, ip地址为10.0.0.15，网关10.0.0.2，子网掩码可以是24，或者255.255.255.0， DNS服务器可以填阿里云的DNS地址223.5.5.5，223.6.6.6
 
-  ![image-20251028233833161](./vmware-installation-guide.assets/image-20251028233833161.png)![image-20251028234131427](./vmware-installation-guide.assets/image-20251028234131427.png)
+  ![image-20251028233833161](/images/posts/./vmware-installation-guide.assets/image-20251028233833161.png)![image-20251028234131427](/images/posts/./vmware-installation-guide.assets/image-20251028234131427.png)
 
 - **根密码**：第3， 设置根用户密码
 
-  <img src="./vmware-installation-guide.assets/image-20251028234244284.png" alt="image-20251028234244284" style="zoom:50%;" />
+  <img src="/images/posts/./vmware-installation-guide.assets/image-20251028234244284.png" alt="image-20251028234244284" style="zoom:50%;" />
 
 - **用户创建**：第4， 创建普通用户并设置密码
 
-  <img src="./vmware-installation-guide.assets/image-20251028234346715.png" alt="image-20251028234346715" style="zoom:50%;" />
+  <img src="/images/posts/./vmware-installation-guide.assets/image-20251028234346715.png" alt="image-20251028234346715" style="zoom:50%;" />
 
 6. 点击 "开始安装"
 
-   <img src="./vmware-installation-guide.assets/image-20251028234459640.png" alt="image-20251028234459640" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028234459640.png" alt="image-20251028234459640" style="zoom:50%;" />
 
-   <img src="./vmware-installation-guide.assets/image-20251028234712868.png" alt="image-20251028234712868" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251028234712868.png" alt="image-20251028234712868" style="zoom:50%;" />
 
 7. 等待大概半小时，安装完成后，点击 "重启系统"
 
-   <img src="./vmware-installation-guide.assets/image-20251029062203924.png" alt="image-20251029062203924"  /><img src="./vmware-installation-guide.assets/image-20251029062447871.png" alt="image-20251029062447871" style="zoom:50%;" />![image-20251029062539362](./vmware-installation-guide.assets/image-20251029062539362.png)
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029062203924.png" alt="image-20251029062203924"  /><img src="/images/posts/./vmware-installation-guide.assets/image-20251029062447871.png" alt="image-20251029062447871" style="zoom:50%;" />![image-20251029062539362](/images/posts/./vmware-installation-guide.assets/image-20251029062539362.png)
 
 注意，安装的过程会提示你安装VMware Tools, 大部分时候是要手动安装的，方法如下，有的系统比如Rocky，自动安装了，最直观的效果是屏幕和分辨率会变得更大，跟正常的系统一样。
 
@@ -268,21 +268,21 @@ mindmap2: false
 
 4. 选择 "安装程序光盘映像文件（iso）"，点击 "浏览" 找到下载的 Ubuntu ISO 文件
 
-   <img src="./vmware-installation-guide.assets/image-20251029222828542.png" alt="image-20251029222828542" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029222828542.png" alt="image-20251029222828542" style="zoom:50%;" />
 
 5. VMware 会自动检测操作系统，确认是 Ubuntu，点击 "下一步"
 
 6. 输入简易安装信息（这里的信息只是摆设，不会真的应用到系统中）
 
-   <img src="./vmware-installation-guide.assets/image-20251029223117134.png" alt="image-20251029223117134" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029223117134.png" alt="image-20251029223117134" style="zoom:50%;" />
 
 7. 输入虚拟机的名字，并找到存放的文件夹
 
-   <img src="./vmware-installation-guide.assets/image-20251029223324702.png" alt="image-20251029223324702" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029223324702.png" alt="image-20251029223324702" style="zoom:50%;" />
 
 8. 其余设置参考Rocky Linux的安装过程
 
-   <img src="./vmware-installation-guide.assets/image-20251029223510155.png" alt="image-20251029223510155" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029223510155.png" alt="image-20251029223510155" style="zoom:50%;" />
 
 9. 点击完成，结束虚拟机的创建
 
@@ -294,85 +294,85 @@ mindmap2: false
 
 2. Ubuntu 安装程序会自动启动
 
-   <img src="./vmware-installation-guide.assets/image-20251029223640351.png" alt="image-20251029223640351" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029223640351.png" alt="image-20251029223640351" style="zoom:50%;" />
 
 3. 选择安装语言（推荐英语或中文）
 
-   <img src="./vmware-installation-guide.assets/image-20251029223846952.png" alt="image-20251029223846952" style="zoom:50%;" /><img src="./vmware-installation-guide.assets/image-20251029224037361.png" alt="image-20251029224037361" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029223846952.png" alt="image-20251029223846952" style="zoom:50%;" /><img src="/images/posts/./vmware-installation-guide.assets/image-20251029224037361.png" alt="image-20251029224037361" style="zoom:50%;" />
 
 4. 可访问下直接点击下一步
 
-   <img src="./vmware-installation-guide.assets/image-20251029224137455.png" alt="image-20251029224137455" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224137455.png" alt="image-20251029224137455" style="zoom:50%;" />
 
 5. 键盘布局，也是直接下一步
 
-   <img src="./vmware-installation-guide.assets/image-20251029224219122.png" alt="image-20251029224219122" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224219122.png" alt="image-20251029224219122" style="zoom:50%;" />
 
 6. 可以暂时不连接互联网，后面在配置，这样可以加速安装进程
 
-   <img src="./vmware-installation-guide.assets/image-20251029224305607.png" alt="image-20251029224305607" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224305607.png" alt="image-20251029224305607" style="zoom:50%;" />
 
 7. 试用或安装ubuntu，选择默认选项，下一步
 
-   <img src="./vmware-installation-guide.assets/image-20251029224353590.png" alt="image-20251029224353590" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224353590.png" alt="image-20251029224353590" style="zoom:50%;" />
 
 8. 选择安装类型（推荐 "交互式安装"）
 
-   <img src="./vmware-installation-guide.assets/image-20251029224418167.png" alt="image-20251029224418167" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224418167.png" alt="image-20251029224418167" style="zoom:50%;" />
 
 9. 应用程序与更新，默认集合就行，后期可以按需求安装其他软件
 
-   <img src="./vmware-installation-guide.assets/image-20251029224607988.png" alt="image-20251029224607988" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224607988.png" alt="image-20251029224607988" style="zoom:50%;" />
 
 10. 优化计算机，直接下一步
 
-    <img src="./vmware-installation-guide.assets/image-20251029224659238.png" alt="image-20251029224659238" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224659238.png" alt="image-20251029224659238" style="zoom:50%;" />
 
 11. 选择磁盘分区方式（推荐 "清除整个磁盘并安装 Ubuntu"）
 
-    <img src="./vmware-installation-guide.assets/image-20251029224739675.png" alt="image-20251029224739675" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224739675.png" alt="image-20251029224739675" style="zoom:50%;" />
 
 12. 设置账户信息，默认root用户是禁用的，后面可以命令行配置
 
-    <img src="./vmware-installation-guide.assets/image-20251029224858012.png" alt="image-20251029224858012" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224858012.png" alt="image-20251029224858012" style="zoom:50%;" />
 
     
 
 13. 选择您的时区为中国上海
 
-    <img src="./vmware-installation-guide.assets/image-20251029224936981.png" alt="image-20251029224936981" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029224936981.png" alt="image-20251029224936981" style="zoom:50%;" />
 
 14. 确认用户信息（已在之前步骤中设置）
 
-    <img src="./vmware-installation-guide.assets/image-20251029225004420.png" alt="image-20251029225004420" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029225004420.png" alt="image-20251029225004420" style="zoom:50%;" />
 
 15. 点击安装并等待安装完成
 
-    <img src="./vmware-installation-guide.assets/image-20251029225042622.png" alt="image-20251029225042622" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029225042622.png" alt="image-20251029225042622" style="zoom:50%;" />
 
 16. 大概2分钟后，安装完成，点击 "现在重启"
 
-    <img src="./vmware-installation-guide.assets/image-20251029225303660.png" alt="image-20251029225303660" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029225303660.png" alt="image-20251029225303660" style="zoom:50%;" />
 
 17. 启动完成，输入账号密码，进入系统
 
-    <img src="./vmware-installation-guide.assets/image-20251029225541258.png" alt="image-20251029225541258" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029225541258.png" alt="image-20251029225541258" style="zoom:50%;" />
 
 18. 设置网络信息，右上角关机按钮邮件选择有线连接中的有线设置
 
-    <img src="./vmware-installation-guide.assets/image-20251029225927840.png" alt="image-20251029225927840" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029225927840.png" alt="image-20251029225927840" style="zoom:50%;" />
 
 19. 选择网络-->有线-->齿轮图标
 
-    <img src="./vmware-installation-guide.assets/image-20251029230111494.png" alt="image-20251029230111494" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029230111494.png" alt="image-20251029230111494" style="zoom:50%;" />
 
 20. 设置为ipv4手动地址，设置 ip地址为10.0.0.22，网关10.0.0.2，子网掩码可以是24，或者255.255.255.0， DNS服务器可以填阿里云的DNS地址223.5.5.5，223.6.6.6,设置完成点击应用
 
-    <img src="./vmware-installation-guide.assets/image-20251029230344128.png" alt="image-20251029230344128" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029230344128.png" alt="image-20251029230344128" style="zoom:50%;" />
 
 21. 显示网络已连接（注意在做这些之前你需要设置VMware的网关地址）
 
-    <img src="./vmware-installation-guide.assets/image-20251029230518145.png" alt="image-20251029230518145" style="zoom:50%;" />
+    <img src="/images/posts/./vmware-installation-guide.assets/image-20251029230518145.png" alt="image-20251029230518145" style="zoom:50%;" />
 
     ​                
 
@@ -380,7 +380,7 @@ mindmap2: false
 
 1. 打开一个bash终端
 
-   <img src="./vmware-installation-guide.assets/image-20251029230818159.png" alt="image-20251029230818159" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029230818159.png" alt="image-20251029230818159" style="zoom:50%;" />
 
 2. 在 bash中输入如下命令,输入用户密码，等待系统更新之后安装open-vm-tools
 
@@ -388,11 +388,11 @@ mindmap2: false
    sudo apt udpate && sudo apt install open-vm-tools -y
    ```
 
-   <img src="./vmware-installation-guide.assets/image-20251029231011470.png" alt="image-20251029231011470" style="zoom:50%;" />
+   <img src="/images/posts/./vmware-installation-guide.assets/image-20251029231011470.png" alt="image-20251029231011470" style="zoom:50%;" />
 
 3. 安装完成后系统屏幕和分辨率会变得更正常系统一致
 
-   ![image-20251029231352689](./vmware-installation-guide.assets/image-20251029231352689.png)
+   ![image-20251029231352689](/images/posts/./vmware-installation-guide.assets/image-20251029231352689.png)
 
 ## 4. 远程连接工具配置与使用
 
