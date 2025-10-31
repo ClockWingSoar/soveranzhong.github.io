@@ -5,7 +5,7 @@ baseurl:
 url: https://blog.clockwingsoar.cyou
 date_format: "ordinal"
 title: codezhong
-subtitle: "认真写代码，什么也不怕"
+subtitle: "keeping coding, keep growing."
 description: "钟翼翔的个人博客，记录编程、开源、生活等方面的点滴。"
 keywords: codezhong, zhongyixiang, soveranzhong, devops, sre
 timezone: Asia/Shanghai

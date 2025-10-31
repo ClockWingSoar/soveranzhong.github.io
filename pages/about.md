@@ -1,16 +1,15 @@
 ---
 layout: page
 title: About
-description: 认真写代码，什么也不怕
-keywords: Soveran Zhong, Yi Xiang Zhong, 钟翼翔, SRE, DevOps
+description: keep coding, keep growing
+keywords: Soveran Zhong, SRE, DevOps
 comments: true
 menu: 关于
 permalink: /about/
 ---
+I am Soveran Zhong, I was nobody, trying to be somebody
+生来倔强，逆风飞翔。
 
-我是钟翼翔，翅膀很硬，喜欢逆风飞翔。
-
-码农这条路很难，但既然下定决心走下去，那就码上行动，不能嘴上逞强。
 
 
 ## 联系
