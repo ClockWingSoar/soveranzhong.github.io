@@ -24,7 +24,7 @@ This guide provides a comprehensive overview of the most useful Bash shortcuts, 
 
 Cursor movement is fundamental to command-line operations. Mastering these shortcuts allows you to quickly navigate to any position in a command without relying on arrow keys or mouse.
 
-| Shortcut | Action | Practical Application |
+| Shortcut                   | Action | Practical Application |
 |----------|--------|----------------------|
 | `Ctrl + A` | Move to the beginning of the line immediately | Quickly modify options or parameters at the start of a command, such as adding `sudo` to an already entered long command |
 | `Ctrl + E` | Move to the end of the line immediately | Quickly add parameters or redirection symbols at the end of a line |
@@ -37,9 +37,9 @@ Cursor movement is fundamental to command-line operations. Mastering these short
 
 ## 3. Text Editing Shortcuts
 
-Text editing shortcuts enable you to efficiently modify already entered commands without deleting and retyping the entire command.
+Text editing shortcuts allow you to efficiently modify entered commands without deleting and retyping the entire command.
 
-| Shortcut | Action | Practical Application |
+| Shortcut                   | Action | Practical Application |
 |----------|--------|----------------------|
 | `Ctrl + U` | Delete all content from cursor position to the beginning of the line | Quickly clear and restart when you've entered an incorrect prefix for a long command |
 | `Ctrl + K` | Delete all content from cursor position to the end of the line | Quickly clear and re-enter when the latter part of a command is incorrect |
@@ -56,7 +56,7 @@ Text editing shortcuts enable you to efficiently modify already entered commands
 
 Bash maintains a command history, allowing you to easily repeat previously executed commands. Mastering history-related shortcuts can significantly boost productivity.
 
-| Shortcut/Symbol | Action | Practical Application |
+| Shortcut/Symbol            | Action | Practical Application |
 |----------------|--------|----------------------|
 | `Ctrl + P` | Display the previous command in history (equivalent to the up arrow) | Quickly scroll back through a sequence of commands |
 | `Ctrl + N` | Display the next command in history (equivalent to the down arrow) | Browse forward through command history |
@@ -82,7 +82,7 @@ $ cp another_file.txt /backup/
 
 These shortcuts are used to control running processes in the command line, making them essential tools for system administration and debugging.
 
-| Shortcut | Action | Practical Application |
+| Shortcut                   | Action | Practical Application |
 |----------|--------|----------------------|
 | `Ctrl + C` | Send SIGINT signal to the current process, typically terminating it | Cancel a running command, such as a long-running loop or query |
 | `Ctrl + Z` | Send SIGTSTP signal to the current process, suspending it and moving to background | Temporarily suspend a running command to perform other operations before resuming |
@@ -99,7 +99,7 @@ These shortcuts are used to control running processes in the command line, makin
 
 Modern terminal emulators (like GNOME Terminal, Konsole, iTerm2, etc.) offer tab and window management features. The following shortcuts help you work efficiently in multi-tasking environments:
 
-| Shortcut | Action | Compatible Terminals |
+| Shortcut                   | Action | Compatible Terminals |
 |----------|--------|---------------------|
 | `Ctrl + Shift + T` | Open a new tab | Most mainstream terminal emulators |
 | `Ctrl + PageUp` | Switch to the previous tab | Most mainstream terminal emulators |
@@ -112,7 +112,7 @@ Modern terminal emulators (like GNOME Terminal, Konsole, iTerm2, etc.) offer tab
 
 Here are some advanced but very useful shortcuts that can further enhance your command-line efficiency:
 
-| Shortcut | Action | Practical Application |
+| Shortcut                   | Action | Practical Application |
 |----------|--------|----------------------|
 | `Ctrl + X + E` | Open and edit the current command in the default editor | Use editor features to modify complex or multi-line commands |
 | `Alt + .` | Insert the last parameter of the previous command | When you need to reuse the target file or directory from the previous command |
@@ -181,7 +181,7 @@ Bash provides powerful history expansion features that allow you to reference, m
 
 ### 9.1 History Command Parameter Reference
 
-| Modifier | Action | Practical Application |
+| Modifier                   | Action | Practical Application |
 |----------|--------|----------------------|
 | `!^` | Reference the first parameter of the previous command (equivalent to `!:1`) | When you only need the source file or input parameter from the previous command |
 | `!$` | Reference the last parameter of the previous command (equivalent to `!:$`) | When you need the target file or output location from the previous command |
@@ -256,7 +256,7 @@ echo "hello world, hello everyone"
 
 ### 9.4 Filename Expansion and Completion
 
-| Shortcut/Command | Action | Practical Application |
+| Shortcut/Command           | Action | Practical Application |
 |-----------------|--------|----------------------|
 | `Esc + *` | Expand wildcards into matching file list | See which files are matched by wildcards, then edit selectively |
 | `Tab` | Command and filename completion | Quickly complete commands or paths, reducing input errors |
@@ -266,7 +266,7 @@ echo "hello world, hello everyone"
 
 ### 9.5 Advanced History Command Operations
 
-| Command/Syntax | Action | Practical Application |
+| Command/Syntax             | Action | Practical Application |
 |----------------|--------|----------------------|
 | `!command` | Execute the most recent command starting with "command" | Quickly repeat previously used specific commands |
 | `!-n` | Execute the nth command from the end | Access recent but not the most recent historical commands |
