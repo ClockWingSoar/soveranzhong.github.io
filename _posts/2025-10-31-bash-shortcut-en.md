@@ -26,12 +26,12 @@ Cursor movement is fundamental to command-line operations. Mastering these short
 
 | Shortcut | Action | Practical Application |
 |----------|--------|----------------------|
-| `Ctrl + A` | Move to line start | Quickly modify command start, like adding `sudo` |
-| `Ctrl + E` | Move to line end | Quickly add parameters or redirection symbols |
-| `Alt + B` | Move left by word | Quickly navigate to previous word |
-| `Alt + F` | Move right by word | Quickly navigate to next word |
-| `Ctrl + B` | Move left by character | Precisely adjust cursor position |
-| `Ctrl + F` | Move right by character | Precisely adjust cursor position |
+| `Ctrl + A` | Move to line start | Add `sudo` to command start |
+| `Ctrl + E` | Move to line end | Add parameters or redirection |
+| `Alt + B` | Move left by word | Navigate to previous word |
+| `Alt + F` | Move right by word | Navigate to next word |
+| `Ctrl + B` | Move left by character | Adjust cursor position |
+| `Ctrl + F` | Move right by character | Adjust cursor position |
 
 **Tips**: When working with long commands, `Ctrl + A` and `Ctrl + E` are the most frequently used cursor positioning shortcuts, allowing you to quickly reach both ends of a command. Combining them with `Alt + B` and `Alt + F` to jump between words can significantly improve editing efficiency.
 
@@ -39,14 +39,14 @@ Cursor movement is fundamental to command-line operations. Mastering these short
 
 Text editing shortcuts allow you to efficiently modify entered commands without deleting and retyping the entire command.
 
-| Shortcut                   | Action | Practical Application |
-|----------------|--------|----------------------|
-| `Ctrl + U` | Delete all content from cursor position to the beginning of the line | Quickly clear and restart when you've entered an incorrect prefix for a long command |
-| `Ctrl + K` | Delete all content from cursor position to the end of the line | Quickly clear and re-enter when the latter part of a command is incorrect |
-| `Ctrl + W` | Delete the complete word before the cursor | Quickly correct parameter names or paths in a command |
-| `Alt + D` | Delete the complete word after the cursor | Quickly correct parameter names or paths in a command |
-| `Ctrl + Y` | Paste (restore) the most recently deleted content ("yank" operation) | Quickly recover accidentally deleted content or copy parameters between multiple commands |
-| `Ctrl + _` | Undo the last editing operation | Undo incorrect deletion or modification to restore previous state |
+| Shortcut | Action | Practical Application |
+|----------|--------|----------------------|
+| `Ctrl + U` | Delete to line start | Clear command prefix |
+| `Ctrl + K` | Delete to line end | Clear command suffix |
+| `Ctrl + W` | Delete word before cursor | Correct parameter names or paths |
+| `Alt + D` | Delete word after cursor | Correct parameter names or paths |
+| `Ctrl + Y` | Paste recently deleted content | Recover deleted content |
+| `Ctrl + _` | Undo edit operation | Revert to previous state |
 
 **Tips**: These shortcuts can be combined. For example, you can use `Ctrl + W` to delete a word and then `Ctrl + Y` to paste it elsewhere in the command. This combination is particularly useful when adjusting the order of command parameters.
 
@@ -56,14 +56,14 @@ Text editing shortcuts allow you to efficiently modify entered commands without 
 
 Bash maintains a command history, allowing you to easily repeat previously executed commands. Mastering history-related shortcuts can significantly boost productivity.
 
-| Shortcut/Symbol            | Action | Practical Application |
+| Shortcut/Symbol | Action | Practical Application |
 |----------------|--------|----------------------|
-| `Ctrl + P` | Display the previous command in history (equivalent to the up arrow) | Quickly scroll back through a sequence of commands |
-| `Ctrl + N` | Display the next command in history (equivalent to the down arrow) | Browse forward through command history |
-| `Ctrl + R` | Enter reverse search mode to find commands by keyword | Quickly locate specific commands after executing many commands |
-| `Ctrl + G` | Exit history search mode, preserving current edit line | Abandon search when results don't match expectations |
-| `!!` | Execute the previous command | Faster than using arrow keys when you need to repeat the last command |
-| `!$` | Reference the last parameter of the previous command | When you need to use the target file or directory from the previous command |
+| `Ctrl + P` | Previous history command | Scroll back through commands |
+| `Ctrl + N` | Next history command | Browse forward through history |
+| `Ctrl + R` | Reverse history search | Locate specific commands quickly |
+| `Ctrl + G` | Exit search mode | Abandon search when results don't match |
+| `!!` | Execute previous command | Repeat last command quickly |
+| `!$` | Reference last parameter | Use target from previous command |
 
 **Tips**: `Ctrl + R` is the most powerful history command tool. After entering part of a command keyword, the system immediately displays matching historical commands. Press `Ctrl + R` to continue searching backward, `Enter` to execute the found command, or `Ctrl + G` to exit search and preserve the current edit line.
 
@@ -84,10 +84,10 @@ These shortcuts are used to control running processes in the command line, makin
 
 | Shortcut | Action | Practical Application |
 |----------|--------|----------------------|
-| `Ctrl + C` | Send SIGINT to terminate process | Cancel long-running commands |
-| `Ctrl + Z` | Send SIGTSTP to suspend process | Temporarily suspend command for later resumption |
-| `Ctrl + D` | Send EOF signal | Exit Shell or end input |
-| `Ctrl + L` | Clear screen and reset prompt | Quickly clean screen content |
+| `Ctrl + C` | Terminate process | Cancel long-running commands |
+| `Ctrl + Z` | Suspend process | Temporarily pause command |
+| `Ctrl + D` | Send EOF signal | Exit shell or end input |
+| `Ctrl + L` | Clear screen | Clean screen content quickly |
 
 **Tips**:
 - After suspending a process with `Ctrl + Z`, you can use the `bg` command to continue running it in the background or `fg` to bring it back to the foreground.
@@ -99,12 +99,12 @@ These shortcuts are used to control running processes in the command line, makin
 
 Modern terminal emulators (like GNOME Terminal, Konsole, iTerm2, etc.) offer tab and window management features. The following shortcuts help you work efficiently in multi-tasking environments:
 
-| Shortcut                   | Action | Compatible Terminals |
+| Shortcut | Action | Compatible Terminals |
 |----------|--------|---------------------|
-| `Ctrl + Shift + T` | Open a new tab | Most mainstream terminal emulators |
-| `Ctrl + PageUp` | Switch to the previous tab | Most mainstream terminal emulators |
-| `Ctrl + PageDown` | Switch to the next tab | Most mainstream terminal emulators |
-| `Ctrl + Shift + N` | Open a new window | Most mainstream terminal emulators |
+| `Ctrl + Shift + T` | Open new tab | Most mainstream terminals |
+| `Ctrl + PageUp` | Switch to previous tab | Most mainstream terminals |
+| `Ctrl + PageDown` | Switch to next tab | Most mainstream terminals |
+| `Ctrl + Shift + N` | Open new window | Most mainstream terminals |
 
 **Tips**: These shortcuts may vary across different terminals. For example, in macOS's Terminal.app, the shortcuts for switching tabs are `Command + Shift + [` and `Command + Shift + ]`.
 
@@ -112,15 +112,15 @@ Modern terminal emulators (like GNOME Terminal, Konsole, iTerm2, etc.) offer tab
 
 Here are some advanced but very useful shortcuts that can further enhance your command-line efficiency:
 
-| Shortcut                   | Action | Practical Application |
+| Shortcut | Action | Practical Application |
 |----------|--------|----------------------|
-| `Ctrl + X + E` | Open and edit the current command in the default editor | Use editor features to modify complex or multi-line commands |
-| `Alt + .` | Insert the last parameter of the previous command | When you need to reuse the target file or directory from the previous command |
-| `Ctrl + XX` | Quickly switch between current cursor position and the beginning of the line | When frequently jumping between the beginning and current position |
-| `Alt + T` | Swap the positions of the two words before the cursor | Quickly correct word order errors |
-| `Ctrl + V` | Input special characters (such as Tab, newline, etc.) | When you need to input special control characters in a command |
-| `Ctrl + S` | Pause terminal output (XON/XOFF flow control) | When command output is too fast to read |
-| `Ctrl + Q` | Resume terminal output (XON/XOFF flow control) | Continue viewing terminal output after pausing |
+| `Ctrl + X + E` | Edit command in editor | Modify complex commands |
+| `Alt + .` | Insert last parameter | Reuse target file or directory |
+| `Ctrl + XX` | Switch between cursor and start | Jump between beginning and current position |
+| `Alt + T` | Swap two words before cursor | Correct word order errors |
+| `Ctrl + V` | Input special characters | Enter control characters |
+| `Ctrl + S` | Pause terminal output | Stop fast scrolling |
+| `Ctrl + Q` | Resume terminal output | Continue viewing paused output |
 
 **Tips**: `Ctrl + X + E` is a powerful tool for handling complex commands. When you need to write or modify multi-line scripts or complex commands, you can use this shortcut to edit in your preferred text editor. After editing and saving, the command will be executed automatically.
 
@@ -181,14 +181,14 @@ Bash provides powerful history expansion features that allow you to reference, m
 
 ### 9.1 History Command Parameter Reference
 
-| Modifier                   | Action | Practical Application |
+| Modifier | Action | Practical Application |
 |----------|--------|----------------------|
-| `!^` | Reference the first parameter of the previous command (equivalent to `!:1`) | When you only need the source file or input parameter from the previous command |
-| `!$` | Reference the last parameter of the previous command (equivalent to `!:$`) | When you need the target file or output location from the previous command |
-| `!:n` | Reference the nth parameter of the previous command (n starts from 1) | Precisely reference a specific parameter from the previous command |
-| `!*` | Reference all parameters of the previous command (excluding the command itself) | When you need to reuse the entire parameter list |
-| `!:m-n` | Reference parameters m to n of the previous command | When you need a sequence of parameters from the previous command |
-| `!:2*` or `!:2-$` | Reference parameters 2 to last of the previous command | Skip the command name and first parameter, use all remaining parameters |
+| `!^` | Reference first parameter | Use source file from previous command |
+| `!$` | Reference last parameter | Use target file from previous command |
+| `!:n` | Reference nth parameter | Use specific parameter from previous command |
+| `!*` | Reference all parameters | Reuse entire parameter list |
+| `!:m-n` | Reference parameters m to n | Use parameter sequence |
+| `!:2*` | Reference parameters 2 to last | Skip first parameter |
 
 **Detailed Example**:
 
@@ -220,8 +220,8 @@ cp !* /another/backup/
 
 | Shortcut | Action | Practical Application |
 |----------|--------|----------------------|
-| `Alt + .` | Interactively insert the last parameter of the previous command, can press repeatedly to cycle through last parameters of historical commands | Quickly share parameters between multiple related commands without memorization |
-| `Alt + 0` to `Alt + 9` | Interactively insert the nth parameter of the previous command | Precisely locate and use a specific parameter from the previous command |
+| `Alt + .` | Insert last parameter | Share parameters between commands |
+| `Alt + 0-9` | Insert nth parameter | Use specific parameter from previous command |
 
 **Tip**: `Alt + .` is a very useful shortcut, especially when processing a series of related file operations. Pressing this shortcut consecutively allows you to iterate through the last parameters of historical commands, enabling you to quickly select the appropriate parameter.
 
@@ -229,10 +229,10 @@ cp !* /another/backup/
 
 | Modifier | Action | Practical Application |
 |----------|--------|----------------------|
-| `!!:s/old/new/` | Replace the first occurrence of `old` with `new` in the previous command | Correct spelling errors or minor mistakes in the previous command |
-| `!!:gs/old/new/` | Replace all occurrences of `old` with `new` in the previous command (global substitution) | Batch modify multiple identical parts in a command |
-| `!n:s/old/new/` | Replace matches in the nth command in history | Modify content in a specific historical command |
-| `!?string?:s/old/new/` | Replace matches in the most recent historical command containing string | Modify a historical command that contains a specific string |
+| `!!:s/old/new/` | Replace first occurrence | Correct minor mistakes |
+| `!!:gs/old/new/` | Replace all occurrences | Batch modify multiple parts |
+| `!n:s/old/new/` | Replace in nth command | Modify specific historical command |
+| `!?string?:s/old/new/` | Replace in recent command with string | Modify command containing specific string |
 
 **Detailed Example**:
 
@@ -256,22 +256,22 @@ echo "hello world, hello everyone"
 
 ### 9.4 Filename Expansion and Completion
 
-| Shortcut/Command           | Action | Practical Application |
+| Shortcut/Command | Action | Practical Application |
 |-----------------|--------|----------------------|
-| `Esc + *` | Expand wildcards into matching file list | See which files are matched by wildcards, then edit selectively |
-| `Tab` | Command and filename completion | Quickly complete commands or paths, reducing input errors |
-| `Alt + /` | Intelligent completion, similar to Tab but behavior may vary slightly | Provides better completion results in some cases |
+| `Esc + *` | Expand wildcards | See wildcard matches |
+| `Tab` | Command/filename completion | Complete commands or paths |
+| `Alt + /` | Intelligent completion | Better results in some cases |
 
 **Tip**: `Esc + *` is very useful when working with multiple files. It expands wildcards (such as `*.txt`) into actual file lists, allowing you to see which files will be operated on and make edits before execution.
 
 ### 9.5 Advanced History Command Operations
 
-| Command/Syntax             | Action | Practical Application |
+| Command/Syntax | Action | Practical Application |
 |----------------|--------|----------------------|
-| `!command` | Execute the most recent command starting with "command" | Quickly repeat previously used specific commands |
-| `!-n` | Execute the nth command from the end | Access recent but not the most recent historical commands |
-| `!n` | Execute the nth command in history | Execute a specific numbered historical command |
-| `Ctrl + R` | Reverse search through history (introduced earlier) | Find historical commands by keyword |
+| `!command` | Execute recent command starting with "command" | Repeat specific commands |
+| `!-n` | Execute nth command from end | Access recent historical commands |
+| `!n` | Execute nth command in history | Run specific numbered command |
+| `Ctrl + R` | Reverse history search | Find commands by keyword |
 
 **Detailed Example**:
 
