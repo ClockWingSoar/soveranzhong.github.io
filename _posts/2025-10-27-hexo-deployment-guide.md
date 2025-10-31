@@ -1,3 +1,16 @@
+---
+layout: post
+title: Hexo博客部署完全指南
+categories: [Hexo,Blog]
+description: 本教程将详细介绍如何下载安装 Hexo博客系统
+keywords: Blog, Hexo
+mermaid: false
+sequence: false
+flow: false
+mathjax: false
+mindmap: false
+mindmap2: false
+---
 # Hexo博客部署完全指南
 
 ## 1. 准备工作

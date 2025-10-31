@@ -1,7 +1,7 @@
 ---
 layout: post
 title: VMware 17.x pro虚拟机安装Rocky9&&Ubuntu24保姆级教程
-categories: [GitHub]
+categories: [Vmware,Rocky,Ubuntu]
 description: 本教程将详细介绍如何下载安装 VMware Workstation 17.x Pro，以及在其中安装 Rocky Linux 和 Ubuntu 系统，并使用推荐的远程工具（Windows 推荐 Xshell或MobaXterm，Mac 推荐 iTerm2）通过 IP 地址远程登录到这些 Linux 系统。
 keywords: VMware, Rocky, Ubuntu, Xshell,MobaXterm
 mermaid: false
