@@ -24,14 +24,14 @@ This guide provides a comprehensive overview of the most useful Bash shortcuts, 
 
 Cursor movement is fundamental to command-line operations. Mastering these shortcuts allows you to quickly navigate to any position in a command without relying on arrow keys or mouse.
 
-| Shortcut                   | Action | Practical Application |
+| Shortcut | Action | Practical Application |
 |----------|--------|----------------------|
-| `Ctrl + A` | Move to the beginning of the line immediately | Quickly modify options or parameters at the start of a command, such as adding `sudo` to an already entered long command |
-| `Ctrl + E` | Move to the end of the line immediately | Quickly add parameters or redirection symbols at the end of a line |
-| `Alt + B` | Move backward (left) one word | Skip through command arguments, quickly positioning at the previous word |
-| `Alt + F` | Move forward (right) one word | Skip through command arguments, quickly positioning at the next word |
-| `Ctrl + B` | Move left one character | Precisely adjust cursor position, similar to the left arrow key |
-| `Ctrl + F` | Move right one character | Precisely adjust cursor position, similar to the right arrow key |
+| `Ctrl + A` | Move to line start | Quickly modify command start, like adding `sudo` |
+| `Ctrl + E` | Move to line end | Quickly add parameters or redirection symbols |
+| `Alt + B` | Move left by word | Quickly navigate to previous word |
+| `Alt + F` | Move right by word | Quickly navigate to next word |
+| `Ctrl + B` | Move left by character | Precisely adjust cursor position |
+| `Ctrl + F` | Move right by character | Precisely adjust cursor position |
 
 **Tips**: When working with long commands, `Ctrl + A` and `Ctrl + E` are the most frequently used cursor positioning shortcuts, allowing you to quickly reach both ends of a command. Combining them with `Alt + B` and `Alt + F` to jump between words can significantly improve editing efficiency.
 
@@ -40,7 +40,7 @@ Cursor movement is fundamental to command-line operations. Mastering these short
 Text editing shortcuts allow you to efficiently modify entered commands without deleting and retyping the entire command.
 
 | Shortcut                   | Action | Practical Application |
-|----------|--------|----------------------|
+|----------------|--------|----------------------|
 | `Ctrl + U` | Delete all content from cursor position to the beginning of the line | Quickly clear and restart when you've entered an incorrect prefix for a long command |
 | `Ctrl + K` | Delete all content from cursor position to the end of the line | Quickly clear and re-enter when the latter part of a command is incorrect |
 | `Ctrl + W` | Delete the complete word before the cursor | Quickly correct parameter names or paths in a command |
@@ -82,12 +82,12 @@ $ cp another_file.txt /backup/
 
 These shortcuts are used to control running processes in the command line, making them essential tools for system administration and debugging.
 
-| Shortcut                   | Action | Practical Application |
+| Shortcut | Action | Practical Application |
 |----------|--------|----------------------|
-| `Ctrl + C` | Send SIGINT signal to the current process, typically terminating it | Cancel a running command, such as a long-running loop or query |
-| `Ctrl + Z` | Send SIGTSTP signal to the current process, suspending it and moving to background | Temporarily suspend a running command to perform other operations before resuming |
-| `Ctrl + D` | Send EOF (End of File) signal, which may cause exit from current Shell or terminate input | Exit a Shell session or end input for interactive commands |
-| `Ctrl + L` | Clear the screen, removing all content and moving the prompt to the top | Use when the screen has too much content to clear, faster than typing `clear` |
+| `Ctrl + C` | Send SIGINT to terminate process | Cancel long-running commands |
+| `Ctrl + Z` | Send SIGTSTP to suspend process | Temporarily suspend command for later resumption |
+| `Ctrl + D` | Send EOF signal | Exit Shell or end input |
+| `Ctrl + L` | Clear screen and reset prompt | Quickly clean screen content |
 
 **Tips**:
 - After suspending a process with `Ctrl + Z`, you can use the `bg` command to continue running it in the background or `fg` to bring it back to the foreground.
