@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- 背景 -->
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">Linux特殊权限位</text>
+  
+  <!-- SUID 部分 -->
+  <g transform="translate(150, 100)">
+    <rect width="200" height="180" rx="10" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#1976d2">SUID (4xxx)</text>
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="14" fill="#333">• 作用于可执行文件</text>
+    <text x="10" y="85" font-family="Arial, sans-serif" font-size="14" fill="#333">• 程序以文件所有者身份运行</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="14" fill="#333">• 显示为 's' 在所有者执行位</text>
+    <text x="10" y="135" font-family="Arial, sans-serif" font-size="14" fill="#333">• 例：/usr/bin/passwd</text>
+    <text x="100" y="170" font-family="Courier, monospace" font-size="16" text-anchor="middle" fill="#d32f2f">-rwsr-xr-x</text>
+  </g>
+  
+  <!-- SGID 部分 -->
+  <g transform="translate(500, 100)">
+    <rect width="200" height="180" rx="10" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#388e3c">SGID (2xxx)</text>
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="14" fill="#333">• 作用于文件或目录</text>
+    <text x="10" y="85" font-family="Arial, sans-serif" font-size="14" fill="#333">• 文件：以所属组身份运行</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="14" fill="#333">• 目录：新建文件继承组所有权</text>
+    <text x="10" y="135" font-family="Arial, sans-serif" font-size="14" fill="#333">• 显示为 's' 在组执行位</text>
+    <text x="100" y="170" font-family="Courier, monospace" font-size="16" text-anchor="middle" fill="#d32f2f">-rwxr-sr-x</text>
+  </g>
+  
+  <!-- Sticky Bit 部分 -->
+  <g transform="translate(325, 320)">
+    <rect width="200" height="180" rx="10" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#f57c00">Sticky Bit (1xxx)</text>
+    <text x="10" y="60" font-family="Arial, sans-serif" font-size="14" fill="#333">• 主要作用于目录</text>
+    <text x="10" y="85" font-family="Arial, sans-serif" font-size="14" fill="#333">• 用户只能删除自己的文件</text>
+    <text x="10" y="110" font-family="Arial, sans-serif" font-size="14" fill="#333">• 即使目录权限是777</text>
+    <text x="10" y="135" font-family="Arial, sans-serif" font-size="14" fill="#333">• 显示为 't' 在其他执行位</text>
+    <text x="100" y="170" font-family="Courier, monospace" font-size="16" text-anchor="middle" fill="#d32f2f">drwxrwxrwt</text>
+  </g>
+  
+  <!-- 八进制表示说明 -->
+  <g transform="translate(400, 550)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">八进制表示：SUID(4), SGID(2), Sticky Bit(1)</text>
+  </g>
+  
+  <!-- 连接线 -->
+  <line x1="250" y1="190" x2="325" y2="320" stroke="#999" stroke-width="2" stroke-dasharray="5,5"/>
+  <line x1="500" y1="190" x2="525" y2="320" stroke="#999" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- 安全提示 -->
+  <rect x="50" y="580" width="700" height="20" rx="5" fill="#ffebee" stroke="#c62828" stroke-width="1"/>
+  <text x="400" y="595" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#c62828">安全提示：特殊权限位强大但危险，请谨慎使用并定期审计系统中的特殊权限设置</text>
+</svg>
