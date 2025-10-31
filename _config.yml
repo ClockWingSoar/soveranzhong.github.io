@@ -2,7 +2,7 @@
 #   Main Configs   #
 # ---------------- #
 baseurl:
-url: http://blog.clockwingsoar.cyou
+url: https://blog.clockwingsoar.cyou
 date_format: "ordinal"
 title: codezhong
 subtitle: "认真写代码，什么也不怕"
