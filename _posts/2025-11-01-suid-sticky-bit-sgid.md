@@ -38,7 +38,7 @@ mindmap2: false
     find / -perm -4000 -type f 2>/dev/null
     ```
   - 简单 C 程序演示 RUID/EUID（编译后对可执行文件设置 SUID 来测试）：
-    ````c
+    ```c
     #include <stdio.h>
     #include <unistd.h>
 
@@ -46,7 +46,7 @@ mindmap2: false
         printf("RUID=%d EUID=%d\n", (int)getuid(), (int)geteuid());
         return 0;
     }
-    ````
+    ```
     编译：gcc demo.c -o demo  
     设置 SUID（需 root）：sudo chown root:root demo && sudo chmod 4755 demo  
     运行普通用户时可见 RUID/ EUID 差异。
@@ -112,8 +112,9 @@ ps -o pid,ruser,euser,cmd -p <pid>
 ```
 
 - 小 C 程序打印 real/effective/saved UID（编译后设置 SUID 可观察差异）：
-````c
+
 ```c
+
 #include <stdio.h>
 #include <unistd.h>
 
@@ -125,9 +126,10 @@ int main(void) {
     return 0;
 }
 ```
-````
+
 
 编译与测试（需要 root 权限设置 SUID）：
+
 ```bash
 gcc demo.c -o demo
 sudo chown root:root demo
