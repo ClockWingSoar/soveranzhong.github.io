@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700">
+  <!-- 背景和样式 -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f9f9f9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e6e6e6;stop-opacity:1" />
+    </linearGradient>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #333; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #555; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; fill: #333; }
+      .box { fill: white; stroke: #ccc; stroke-width: 2; rx: 5; ry: 5; }
+      .centos-box { fill: #f0f0ff; stroke: #0000cc; stroke-width: 2; rx: 5; ry: 5; }
+      .ubuntu-box { fill: #fff0f0; stroke: #cc0000; stroke-width: 2; rx: 5; ry: 5; }
+      .connector { stroke: #666; stroke-width: 2; fill: none; }
+      .highlight { font-weight: bold; fill: #0066cc; }
+      .centos-highlight { font-weight: bold; fill: #0000cc; }
+      .ubuntu-highlight { font-weight: bold; fill: #cc0000; }
+      .feature-label { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #333; }
+    </style>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="900" height="700" fill="url(#bgGradient)" />
+
+  <!-- 标题 -->
+  <text x="450" y="40" text-anchor="middle" class="title">Linux系统中/etc/login.defs文件配置解析</text>
+
+  <!-- 介绍部分 -->
+  <rect x="50" y="60" width="800" height="100" class="box" />
+  <text x="450" y="85" text-anchor="middle" class="subtitle">核心作用与功能</text>
+  <text x="450" y="115" text-anchor="middle" class="text">/etc/login.defs是由shadow-utils包提供的系统配置文件，用于定义用户账户和密码管理的默认行为</text>
+  <text x="450" y="140" text-anchor="middle" class="text">影响useradd、usermod、userdel、passwd等核心用户管理命令</text>
+
+  <!-- 主要功能区域 -->
+  <rect x="50" y="180" width="800" height="150" class="box" />
+  <text x="450" y="205" text-anchor="middle" class="subtitle">主要配置功能区域</text>
+
+  <!-- 功能格子 -->
+  <rect x="70" y="220" width="140" height="100" class="box" />
+  <text x="140" y="245" text-anchor="middle" class="feature-label">密码策略</text>
+  <text x="140" y="265" text-anchor="middle" class="text">PASS_MAX_DAYS</text>
+  <text x="140" y="285" text-anchor="middle" class="text">PASS_MIN_DAYS</text>
+  <text x="140" y="305" text-anchor="middle" class="text">PASS_WARN_AGE</text>
+
+  <rect x="230" y="220" width="140" height="100" class="box" />
+  <text x="300" y="245" text-anchor="middle" class="feature-label">用户/组ID</text>
+  <text x="300" y="265" text-anchor="middle" class="text">UID_MIN/UID_MAX</text>
+  <text x="300" y="285" text-anchor="middle" class="text">GID_MIN/GID_MAX</text>
+  <text x="300" y="305" text-anchor="middle" class="text">SYS_UID/SYS_GID范围</text>
+
+  <rect x="390" y="220" width="140" height="100" class="box" />
+  <text x="460" y="245" text-anchor="middle" class="feature-label">家目录配置</text>
+  <text x="460" y="265" text-anchor="middle" class="text">CREATE_HOME</text>
+  <text x="460" y="285" text-anchor="middle" class="text">UMASK</text>
+  <text x="460" y="305" text-anchor="middle" class="text">HOME_MODE</text>
+
+  <rect x="550" y="220" width="140" height="100" class="box" />
+  <text x="620" y="245" text-anchor="middle" class="feature-label">其他配置</text>
+  <text x="620" y="265" text-anchor="middle" class="text">MAIL_DIR</text>
+  <text x="620" y="285" text-anchor="middle" class="text">ENCRYPT_METHOD</text>
+  <text x="620" y="305" text-anchor="middle" class="text">USERGROUPS_ENAB</text>
+
+  <rect x="710" y="220" width="120" height="100" class="box" />
+  <text x="770" y="245" text-anchor="middle" class="feature-label">容器支持</text>
+  <text x="770" y="275" text-anchor="middle" class="text">SUB_UID/SUB_GID</text>
+  <text x="770" y="295" text-anchor="middle" class="text">（Ubuntu特有）</text>
+
+  <!-- 发行版对比区域 -->
+  <rect x="50" y="350" width="800" height="250" class="box" />
+  <text x="450" y="375" text-anchor="middle" class="subtitle">CentOS 8与Ubuntu 24.04配置对比</text>
+
+  <!-- CentOS 8 配置 -->
+  <rect x="70" y="390" width="360" height="200" class="centos-box" />
+  <text x="250" y="420" text-anchor="middle" class="centos-highlight">CentOS 8</text>
+  
+  <text x="90" y="450" class="text">MAIL_DIR:</text>
+  <text x="200" y="450" class="centos-highlight">/var/spool/mail</text>
+  
+  <text x="90" y="480" class="text">系统UID范围:</text>
+  <text x="200" y="480" class="centos-highlight">201-999</text>
+  
+  <text x="90" y="510" class="text">UMASK:</text>
+  <text x="200" y="510" class="centos-highlight">077</text>
+  <text x="240" y="510" class="text">（更安全）</text>
+  
+  <text x="90" y="540" class="text">密码最小长度:</text>
+  <text x="200" y="540" class="centos-highlight">PASS_MIN_LEN 5</text>
+  
+  <text x="90" y="570" class="text">容器支持:</text>
+  <text x="200" y="570" class="centos-highlight">无默认配置</text>
+
+  <!-- Ubuntu 24.04 配置 -->
+  <rect x="470" y="390" width="360" height="200" class="ubuntu-box" />
+  <text x="650" y="420" text-anchor="middle" class="ubuntu-highlight">Ubuntu 24.04</text>
+  
+  <text x="490" y="450" class="text">MAIL_DIR:</text>
+  <text x="600" y="450" class="ubuntu-highlight">/var/mail</text>
+  
+  <text x="490" y="480" class="text">系统UID范围:</text>
+  <text x="600" y="480" class="ubuntu-highlight">100-999</text>
+  
+  <text x="490" y="510" class="text">UMASK:</text>
+  <text x="600" y="510" class="ubuntu-highlight">022</text>
+  <text x="640" y="510" class="text">（更开放）</text>
+  
+  <text x="490" y="540" class="text">密码策略:</text>
+  <text x="600" y="540" class="ubuntu-highlight">由PAM管理</text>
+  
+  <text x="490" y="570" class="text">容器支持:</text>
+  <text x="600" y="570" class="ubuntu-highlight">SUB_UID/SUB_GID配置</text>
+
+  <!-- 最佳实践区域 -->
+  <rect x="50" y="660" width="800" height="30" class="box" />
+  <text x="450" y="680" text-anchor="middle" class="text">实际应用中，应根据安全需求和使用场景调整默认配置，并与PAM协同工作以实现全面的用户安全策略</text>
+</svg>
