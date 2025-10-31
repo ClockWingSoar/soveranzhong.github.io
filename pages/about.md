@@ -2,13 +2,13 @@
 layout: page
 title: About
 description: keep coding, keep growing
-keywords: Soveran Zhong, SRE, DevOps
+keywords: AIOps, SRE, DevOps
 comments: true
 menu: 关于
 permalink: /about/
 ---
-I am Soveran Zhong, I was nobody, trying to be somebody
-生来倔强，逆风飞翔。
+I am Soveran Zhong, I am a DevOps engineer.
+
 
 
 
