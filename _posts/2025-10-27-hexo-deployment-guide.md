@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Hexo博客部署完全指南
-categories: [Hexo,Blog]
+categories: [Blog]
 description: 本教程将详细介绍如何下载安装 Hexo博客系统
 keywords: Blog, Hexo
 mermaid: false
