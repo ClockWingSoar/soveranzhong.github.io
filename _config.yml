@@ -134,6 +134,7 @@ kramdown:
     input: GFM
 highlighter: rouge
 paginate: 10
+paginate_path: /page:num/
 lsi: false
 quiet: false
 excerpt_separator: "\n\n"
@@ -154,6 +155,9 @@ collections:
     fragments:
         output: true
         permalink: /fragment/:path/
+    posts:
+        output: true
+        sort_by: date
 
 # ---------------- #
 #      Comments    #
