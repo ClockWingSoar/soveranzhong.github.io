@@ -123,7 +123,9 @@ index:
         # background-image: "/assets/images/octicons-bg.png"
         # background-repeat: "no-repeat"
         # background-size: "cover"
-
+pagination:
+  active: true
+  paginate: 20  # Number of posts per page
 # ---------------- #
 #      Jekyll      #
 # ---------------- #
