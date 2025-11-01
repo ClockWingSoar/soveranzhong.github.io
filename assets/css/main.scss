@@ -1,11 +1,40 @@
 .previous-next {
   margin: 20px 0;
   overflow: hidden;
+  padding: 15px 0;
+
+  .previous,
+  .next {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    text-align: center;
+  }
 
   .previous {
+    float: right;
+  }
+
+  .next {
     float: left;
   }
-  .next {
-    float: right;
+
+  .previous:hover,
+  .next:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #212529;
+    transform: translateY(-1px);
+  }
+
+  .previous:empty,
+  .next:empty {
+    display: none;
   }
 }
