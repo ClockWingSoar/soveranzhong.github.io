@@ -47,6 +47,7 @@ set smartcase                " 当搜索词包含大写字母时区分大小写
 set background=dark          " 设置深色背景
 set encoding=utf-8           " 设置编码为UTF-8
 syntax on                    " 启用语法高亮
+set termguicolors            " 启用真彩色支持
 
 " 启用鼠标
 set mouse=a
@@ -192,9 +193,46 @@ autocmd FileType python nmap <buffer> <leader>r :!python %<CR>
 autocmd FileType sh nmap <buffer> <leader>r :!bash %<CR>
 ```
 
-## 四、高级配置与插件管理
+## 四、主题配置与推荐
 
-### 4.1 插件管理器配置
+### 4.1 推荐的Vim主题
+
+推荐使用对Shell语法高亮友好、对比度好的暗色主题；常见且效果不错的有：
+
+- gruvbox（暖色对比强，适合长时间阅读）
+- dracula（鲜明、现代）
+- nord（冷色系，舒适）
+- solarized（有light/dark两种）
+- one或monokai（通用且广泛支持）
+
+### 4.2 gruvbox主题安装与配置
+
+gruvbox是一款受badwolf、jellybeans和solarized启发的复古风格配色方案。它的主要设计目标是保持颜色易区分、有足够对比度，同时对眼睛友好。
+
+![gruvbox主题效果](/images/posts/vim/gruxbox-color-scheme.png)
+
+*gruvbox主题在Vim中的显示效果*
+
+安装方法（无需插件管理器）：
+```bash
+# 在终端运行（Linux）
+git clone https://github.com/morhetz/gruvbox.git ~/.vim/pack/themes/start/gruvbox
+```
+
+配置方法：
+```vim
+" 启用真彩色（如果终端支持）
+set termguicolors
+
+" 使用gruvbox主题
+colorscheme gruvbox
+```
+
+如果在终端支持真彩色，启用termguicolors可获得最佳效果。
+
+## 五、高级配置与插件管理
+
+### 5.1 插件管理器配置
 
 使用插件可以大大增强Vim的功能。以下是使用Vim-plug插件管理器的配置示例：
 
@@ -231,9 +269,11 @@ map <leader>n :NERDTreeToggle<CR>
 let NERDTreeShowHidden = 1
 
 " 颜色主题设置
-colorscheme desert
-" 如果安装了gruvbox，可以使用
-" colorscheme gruvbox
+" 首先安装gruvbox主题（可以通过插件管理器或手动安装）
+" 手动安装方法：
+" git clone https://github.com/morhetz/gruvbox.git ~/.vim/pack/themes/start/gruvbox
+set termguicolors            " 启用真彩色
+colorscheme gruvbox          " 使用gruvbox主题
 
 " 自动切换到当前编辑文件在NERDTree中的位置
 autocmd BufEnter * call NERDTreeFind()
@@ -324,6 +364,7 @@ syntax on
 set encoding=utf-8
 set mouse=a
 set undolevels=1000
+set termguicolors            " 启用真彩色支持
 
 " 领导者键设置
 let mapleader = ","
@@ -377,6 +418,9 @@ syntax on
 filetype on
 filetype plugin on
 filetype indent on
+
+" 主题设置
+colorscheme gruvbox
 
 " 自动切换到当前编辑文件在NERDTree中的位置
 " 注意：需要先安装NERDTree插件

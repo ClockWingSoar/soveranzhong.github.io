@@ -47,6 +47,7 @@ set smartcase                " Case-sensitive if search contains uppercase
 set background=dark          " Set dark background
 set encoding=utf-8           " Set encoding to UTF-8
 syntax on                    " Enable syntax highlighting
+set termguicolors            " Enable true color support
 
 " Enable mouse
 set mouse=a
@@ -192,9 +193,46 @@ autocmd FileType python nmap <buffer> <leader>r :!python %<CR>
 autocmd FileType sh nmap <buffer> <leader>r :!bash %<CR>
 ```
 
-## IV. Advanced Configuration and Plugin Management
+## IV. Theme Configuration and Recommendations
 
-### 4.1 Plugin Manager Configuration
+### 4.1 Recommended Vim Themes
+
+It is recommended to use dark themes that are friendly to Shell syntax highlighting and have good contrast; common and effective ones include:
+
+- gruvbox (warm colors with strong contrast, suitable for long reading sessions)
+- dracula (vibrant, modern)
+- nord (cool color palette, comfortable)
+- solarized (available in light/dark versions)
+- one or monokai (universal and widely supported)
+
+### 4.2 gruvbox Theme Installation and Configuration
+
+gruvbox is a retro groove color scheme heavily inspired by badwolf, jellybeans and solarized. Its main focus is to keep colors easily distinguishable, provide enough contrast, and remain pleasant for the eyes.
+
+![gruvbox theme effect](/images/posts/vim/gruxbox-color-scheme.png)
+
+*gruvbox theme display effect in Vim*
+
+Installation method (without plugin manager):
+```bash
+# Run in terminal (Linux)
+git clone https://github.com/morhetz/gruvbox.git ~/.vim/pack/themes/start/gruvbox
+```
+
+Configuration method:
+```vim
+" Enable true color (if terminal supports)
+set termguicolors
+
+" Use gruvbox theme
+colorscheme gruvbox
+```
+
+If your terminal supports true color, enabling termguicolors will give you the best results.
+
+## V. Advanced Configuration and Plugin Management
+
+### 5.1 Plugin Manager Configuration
 
 Using plugins can greatly enhance Vim's functionality. Here's a configuration example using the Vim-plug plugin manager:
 
@@ -231,9 +269,11 @@ map <leader>n :NERDTreeToggle<CR>
 let NERDTreeShowHidden = 1
 
 " Color theme settings
-colorscheme desert
-" If gruvbox is installed, you can use
-" colorscheme gruvbox
+" First install gruvbox theme (via plugin manager or manually)
+" Manual installation:
+" git clone https://github.com/morhetz/gruvbox.git ~/.vim/pack/themes/start/gruvbox
+set termguicolors            " Enable true color
+colorscheme gruvbox          " Use gruvbox theme
 
 " Automatically switch to current editing file in NERDTree
 autocmd BufEnter * call NERDTreeFind()
@@ -324,6 +364,7 @@ syntax on
 set encoding=utf-8
 set mouse=a
 set undolevels=1000
+set termguicolors            " Enable true color support
 
 " Leader key settings
 let mapleader = ","
@@ -377,6 +418,9 @@ syntax on
 filetype on
 filetype plugin on
 filetype indent on
+
+" Theme settings
+colorscheme gruvbox
 
 " Automatically switch to current editing file in NERDTree
 " Note: NERDTree plugin needs to be installed
