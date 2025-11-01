@@ -102,7 +102,7 @@ sudo newusers users.txt
 
 # 假设users.txt包含用户名列表，每行一个用户名
 echo "设置用户密码中..."
-sudo awk '{print "$1:NewPassword123"}' users.txt | sudo chpasswd
+sudo awk '{print $1":NewPassword123"}' users.txt | sudo chpasswd
 echo "密码设置完成!"
 ```
 

@@ -102,7 +102,7 @@ For users who have already been created or for scenarios where passwords need to
 
 # Assuming users.txt contains a list of usernames, one per line
 echo "Setting user passwords..."
-sudo awk '{print "$1:NewPassword123"}' users.txt | sudo chpasswd
+sudo awk '{print $1":NewPassword123"}' users.txt | sudo chpasswd
 echo "Password setting completed!"
 ```
 
