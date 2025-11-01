@@ -2,6 +2,8 @@
   margin: 30px 0;
   overflow: hidden;
   padding: 20px 0;
+  border-top: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
 
   .previous-section,
   .next-section {
@@ -20,15 +22,23 @@
     text-decoration: none;
     transition: all 0.3s ease;
     min-width: 150px;
-    text-align: center;
   }
 
-  .previous-section {
+  .previous {
+    text-align: left;
+  }
+
+  .next {
     text-align: right;
   }
 
+  .previous-section {
+    width: 100%;
+  }
+
   .next-section {
-    text-align: left;
+    width: 100%;
+    text-align: right;
   }
 
   .previous:hover,
