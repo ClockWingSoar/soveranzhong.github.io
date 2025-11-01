@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Vim Configuration Guide: Building an Efficient Text Editing Environment
+title: Vim Configuration Guide-Building an Efficient Text Editing Environment
 categories: [vim, tools, editor]
 description: A detailed guide on configuring Vim, including common settings, automatic script header generation, and best practices for efficient text editing
 keywords: vim, vimrc, editor configuration, script template, automatic function header
