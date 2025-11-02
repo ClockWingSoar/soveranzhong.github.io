@@ -663,7 +663,7 @@ set hlsearch                 " 搜索结果高亮
 set incsearch                " 边输入边搜索
 set ignorecase               " 搜索时忽略大小写
 set smartcase                " 当搜索词包含大写字母时区分大小写
-"set mouse=a                  " 启用鼠标
+set mouse=v                  " 启用鼠标, 仅在可视化模式下有效,可以选择文本然后复制删除，很有用
 set undolevels=1000          " 设置撤销历史大小
 syntax on                    " 启用语法高亮
 set background=dark

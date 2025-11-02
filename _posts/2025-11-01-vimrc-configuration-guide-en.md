@@ -398,6 +398,44 @@ Solutions:
 
 #### 6.1.3 NERDTreeFind Function Error
 
+#### 6.1.4 Mouse Setting Issues
+
+Issue: When `set mouse=a` is enabled, you may encounter problems with copying and pasting text between Vim and other applications.
+
+Explanation of `set mouse=a`:
+- This setting enables mouse support in all Vim modes (normal, insert, visual, etc.)
+- It allows you to use the mouse to move the cursor, select text, resize splits, etc.
+- The issue occurs because Vim captures all mouse events, interfering with the system's default copy-paste mechanism
+
+Solutions:
+1. **Use Vim's own copy-paste commands**:
+   - Copy: `y` (yank) in visual mode
+   - Paste: `p` (put) in normal mode
+
+2. **Selectively enable mouse functionality**:
+   ```vim
+   " Instead of enabling in all modes, enable only in normal and visual modes
+   set mouse=n,v
+   ```
+
+3. **Temporarily disable mouse**:
+   - Execute `:set mouse=` in Vim command mode
+   - To re-enable: `:set mouse=a`
+
+4. **Use terminal-specific solutions**:
+   - For many terminals, holding down the Shift key while selecting text bypasses Vim's mouse capture
+   - For Windows terminals, you might need to use specific key combinations
+
+5. **Configure clipboard registers**:
+   ```vim
+   " Enable clipboard support if available
+   if has('clipboard')
+       set clipboard=unnamedplus  " Use system clipboard by default
+   endif
+   ```
+
+Note: In the provided configuration file, this setting is commented out with a double quote: `"set mouse=a`.
+
 Error messages:
 ```
 E117: Unknown function: NERDTreeFind
