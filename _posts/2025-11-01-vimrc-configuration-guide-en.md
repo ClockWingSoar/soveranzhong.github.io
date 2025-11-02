@@ -234,7 +234,28 @@ If your terminal supports true color, enabling termguicolors will give you the b
 
 ### 5.1 Plugin Manager Configuration
 
-Using plugins can greatly enhance Vim's functionality. Here's a configuration example using the Vim-plug plugin manager:
+Before using a plugin manager, you need to install it first. Here are the steps to install the Vim-plug plugin manager:
+
+#### 5.1.1 Installing Vim-plug
+
+**For Linux/macOS systems:**
+```bash
+# Install using curl
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+# Or install using wget
+wget -qO- https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim > ~/.vim/autoload/plug.vim
+```
+
+**For Windows systems:**
+```powershell
+# Run in PowerShell
+md -Force ~\vimfiles\autoload
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim' -OutFile ~\vimfiles\autoload\plug.vim
+```
+
+Once installed, you can configure Vim-plug in your `.vimrc` file. Here's a configuration example:
 
 ```vim
 " Vim-plug configuration - start
@@ -275,8 +296,39 @@ let NERDTreeShowHidden = 1
 set termguicolors            " Enable true color
 colorscheme gruvbox          " Use gruvbox theme
 
-" Automatically switch to current editing file in NERDTree
-autocmd BufEnter * call NERDTreeFind()
+" NERDTree configuration
+map <leader>n :NERDTreeToggle<CR>
+let NERDTreeShowHidden = 1
+
+" Automatically switch to the current editing file in NERDTree (improved version)
+" Avoid triggering in NERDTree windows and non-regular files
+" Use VimEnter event to ensure plugin is loaded
+autocmd VimEnter * if !exists('t:NERDTreeBufName') || bufwinnr(t:NERDTreeBufName) == -1 | execute 'NERDTree' | endif
+
+" Manual NERDTreeFind shortcut (recommended over automatic triggering)
+nnoremap <leader>nf :NERDTreeFind<CR>
+
+" Optional automatic find function (safer version)
+function! s:OpenNERDTreeForFile()
+    if &buftype == '' && expand('%') != '' && !isdirectory(expand('%'))
+        try
+            " Check if NERDTree is loaded
+            if exists('*NERDTreeFind')
+                " Check if NERDTree window already exists
+                if !exists('t:NERDTreeBufName') || bufwinnr(t:NERDTreeBufName) == -1
+                    execute 'NERDTree' . fnameescape(expand('%:p:h'))
+                else
+                    execute 'NERDTreeFind'
+                endif
+            endif
+        catch
+            " Ignore any errors
+        endtry
+    endif
+endfunction
+
+" Enable automatic find if needed
+autocmd VimEnter,BufReadPost * call s:OpenNERDTreeForFile()
 ```
 
 ## V. File Type Specific Configuration
@@ -327,12 +379,57 @@ Solution: Change the first letter of the function name to uppercase, e.g., `Shel
 
 #### 6.1.2 Plugin Loading Failure
 
-Error message:
+Error messages:
 ```
 E117: Unknown function: plug#begin
+E492: Not an editor command: Plug
 ```
 
-Solution: Ensure that the plugin manager is correctly installed and loaded before use.
+Solutions:
+1. Ensure Vim-plug is correctly installed:
+   ```bash
+   # Linux/macOS systems
+   curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+   ```
+2. Restart Vim after installation
+3. Execute `:PlugInstall` in Vim to install all plugins
+4. Ensure there are no syntax errors in the plugin configuration section
+
+#### 6.1.3 NERDTreeFind Function Error
+
+Error messages:
+```
+E117: Unknown function: NERDTreeFind
+```
+
+Solutions:
+1. **Ensure correct plugin installation**: Execute `:PlugInstall` command to ensure NERDTree plugin is properly downloaded
+2. **Check plugin path**: Verify that NERDTree plugin files exist in the `~/.vim/plugged/nerdtree/` directory
+3. **Modify autocmd trigger conditions**: Use more precise autocmd configuration to avoid triggering in NERDTree windows and ensure the plugin is loaded:
+   ```vim
+   " Automatically switch to the current editing file in NERDTree (improved version)
+   " Avoid triggering in NERDTree windows and non-regular files
+   autocmd VimEnter * NERDTree
+   autocmd BufEnter * nested if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+   autocmd VimEnter,BufReadPost * call <SID>OpenNERDTreeForFileIfNotOpen()
+   
+   function! <SID>OpenNERDTreeForFileIfNotOpen()
+       if !exists('t:NERDTreeBufName') || bufwinnr(t:NERDTreeBufName) == -1
+           " Not in NERDTree window
+           if expand('%') != '' && !isdirectory(expand('%'))
+               NERDTreeFind
+           endif
+       endif
+   endfunction
+   ```
+4. **Simplified configuration**: If the above method still has issues, use a simpler configuration with manual NERDTreeFind trigger:
+   ```vim
+   " Manual NERDTreeFind shortcut
+   nnoremap <leader>nf :NERDTreeFind<CR>
+   ```
+5. **Delayed loading**: Use Vim's `VimEnter` event instead of `BufEnter` to ensure Vim is fully started before execution
+6. **Check plugin version**: Ensure NERDTree plugin is up to date by executing `:PlugUpdate`
 
 ### 6.2 Configuration File Debugging Tips
 
@@ -347,87 +444,182 @@ Solution: Ensure that the plugin manager is correctly installed and loaded befor
 Here's a comprehensive `.vimrc` configuration file example that integrates various settings introduced in this article:
 
 ```vim
-" Basic editing settings
-set tabstop=4
-set shiftwidth=4
-set expandtab
-set number
-set autoindent
-set cursorline
-set showmatch
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-set background=dark
-syntax on
-set encoding=utf-8
-set mouse=a
-set undolevels=1000
-set termguicolors            " Enable true color support
-
-" Leader key settings
-let mapleader = ","
-
-" Keyboard mappings
-inoremap <C-j> <Esc>
-map <leader>v <C-v>
-nmap <leader>w :w<CR>
-nmap <leader>q :wq<CR>
-nmap <leader>Q :q!<CR>
-map <C-h> <C-w>h
-map <C-j> <C-w>j
-map <C-k> <C-w>k
-map <C-l> <C-w>l
-
-" Shell script automatic header generation
+"Shell脚本自动头部生成
 autocmd BufNewFile *.sh exec ":call ShellTitle()"
-
-function! ShellTitle()
-    call append(0,"#!/bin/bash")
-    call append(1,"# **************************************")
-    call append(2,"# *  shell function script template")
-    call append(3,"# *  Author: Zhong Yixiang")
-    call append(4,"# *  Contact: clockwingsoar@outlook.com")
-    call append(5,"# *  Version: ".strftime("%Y-%m-%d"))
-    call append(6,"# **************************************")
-    call append(7,"")
+function ShellTitle()
+   call append(0,"#!/bin/bash")
+   call append(1,"# **************************************")
+   call append(2,"# *  shell功能脚本模板")
+   call append(3,"# *  作者：钟翼翔")
+   call append(4,"# *  联系：clockwingsoar@outlook.com")
+   call append(5,"# *  版本：".strftime("%Y-%m-%d"))
+   call append(6,"# **************************************")
+   call append(7,"")
 endfunction
 
-" Python script automatic header generation
+"Python脚本自动头部生成
 autocmd BufNewFile *.py exec ":call PythonTitle()"
 
 function! PythonTitle()
     call append(0,"#!/usr/bin/env python3")
     call append(1,"# -*- coding: utf-8 -*-")
-    call append(2,"# **************************************")
-    call append(3,"# *  Python function script template")
-    call append(4,"# *  Author: Zhong Yixiang")
-    call append(5,"# *  Contact: clockwingsoar@outlook.com")
-    call append(6,"# *  Version: ".strftime("%Y-%m-%d"))
-    call append(7,"# **************************************")
+    call append(2,"# ******************************")
+    call append(3,"# * Python功能脚本模板")
+    call append(4,"# * 作者: 钟翼翔")
+    call append(5,"# * 联系: clockwingsoar@outlook.com")
+    call append(6,"# * 版本: ".strftime("%Y-%m-%d"))
+    call append(7,"# ******************************")
     call append(8,"")
     call append(9,"import os")
     call append(10,"import sys")
     call append(11,"")
 endfunction
 
-" File type specific settings
-au FileType python setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
-syntax on
+" javascript 脚本头部模板
+autocmd BufNewFile *.js exec ":call JavascriptTitle()"
+
+function! JavascriptTitle()
+    call append(0,"// *****************************")
+    call append(1,"// * Javascript功能脚本模板")
+    call append(2,"// * 作者: 钟翼翔")
+    call append(3,"// * 联系: clockwingsoar@outlook.com")
+    call append(4,"// * 版本: ".strftime("%Y-%m-%d"))
+    call append(5,"// ******************************")
+    call append(6,"")
+endfunction
+
+
+
+
+"基本编辑设置
+set tabstop=4                " 制表符宽度为4个空格
+set shiftwidth=4             " 自动缩进宽度为4个空格
+set expandtab                " 将制表符转换为空格
+set number                   " 显示行号
+set autoindent               " 自动缩进
+set cursorline               " 高亮当前行
+set showmatch                " 匹配括号高亮显示
+set hlsearch                 " 搜索结果高亮
+set incsearch                " 边输入边搜索
+set ignorecase               " 搜索时忽略大小写
+set smartcase                " 当搜索词包含大写字母时区分大小写
+set mouse=a                  " 启用鼠标
+set undolevels=1000          " 设置撤销历史大小
+syntax on                    " 启用语法高亮
+set background=dark
+set termguicolors            " 启用真彩色支持
+colorscheme gruvbox          " 采用gruvbox颜色主题
+
+" 定义领导者key
+let mapleader=","
+" 正常模式下快速保存并退出
+nmap <leader>q :wq<CR>
+" 正常模式下强制退出不保存
+nmap <leader>Q :q!<CR>
+" 插入模式下快速退出，切换到正常模式
+inoremap <C-j> <Esc>
+
+" 分屏相关映射
+map <leader>s :split<CR>
+map <leader>v :vsplit<CR>
+map <C-h> <C-w>h
+map <C-l> <C-w>l
+" 这里是大写的J, 因为小写的j已经绑定了Esc
+map <C-J> <C-w>j
+map <C-k> <C-w>k
+
+"仅对python文件启用的映射
+autocmd FileType python nmap <buffer> <leader>r :!python %<CR>
+
+"仅对shell脚本启用的映射
+autocmd FileType sh nmap <buffer> <leader>r :!bash %<CR>
+
+" 文件历史
+set history=1000
+" 正常模式下快速保存
+nmap <leader>w :w!<CR>
+" F3 快速插入无序列表ul标签
+map <F3> i<ul><CR><Space><Space><li></li><CR><Esc>1i</ul><Esc>kcit
+map <F4> <Esc>o<li></li><Esc>cit
+
+"VIM plugin 配置开始
+call plug#begin('~/.vim/plugged')
+
+"语法高亮增强
+Plug 'sheerun/vim-polyglot'
+
+"文件浏览
+Plug 'preservim/nerdtree'
+
+"代码补全
+Plug 'ervandew/supertab'
+
+"Git集成
+Plug 'airblade/vim-gitgutter'
+
+"文件搜索
+Plug 'ctrlpvim/ctrlp.vim'
+
+" 状态栏
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+" 快速导航
+Plug 'easymotion/vim-easymotion'
+
+" 格式化表格
+Plug 'godlygeek/tabular'
+
+"颜色主题
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'arcticicestudio/nord-vim'
+Plug 'altercation/vim-colors-solarized'
+Plug 'rakr/vim-one'
+Plug 'sickill/vim-monokai'
+
+"
+"Vim -plug配置 - 结束
+call plug#end()
+
+" 主题切换函数
+function! CycleTheme()
+    if &background == 'dark'
+        set background=light
+    else
+        set background=dark
+    endif
+endfunction
+
+" 映射快捷键切换主题
+nnoremap <leader>bg :call CycleTheme()<CR>
+
+" 切换Solarized的暗色/亮色模式
+nnoremap <leader>solarized :set background=dark<CR>:colorscheme solarized<CR>
+nnoremap <leader>solarized_light :set background=light<CR>:colorscheme solarized<CR>
+
+"NERDTree配置
+map <leader>n :NERDTreeToggle<CR>
+let NERDTreeShowHidden = 1
+
+
+"启用文件类型检测
 filetype on
 filetype plugin on
 filetype indent on
 
-" Theme settings
-colorscheme gruvbox
+" 为特定文件类型设置缩进
+au FileType python setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
+au FileType javascript setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
+au FileType html setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
+au FileType css setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
+au FileType sh setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
 
-" Automatically switch to current editing file in NERDTree
-" Note: NERDTree plugin needs to be installed
-try
-    autocmd BufEnter * call NERDTreeFind()
-catch
-endtry
+"全局编码设置
+set encoding=utf-8
+set termencoding=utf-8
+set fileencoding=utf-8
+set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+
 ```
 
 ## VIII. Conclusion

@@ -230,11 +230,192 @@ colorscheme gruvbox
 
 如果在终端支持真彩色，启用termguicolors可获得最佳效果。
 
+### 4.3 其他推荐主题的安装与配置
+
+除了gruvbox外，以下是其他推荐主题的安装与配置方法：
+
+#### 4.3.1 Dracula主题
+
+Dracula是一款现代化、鲜明的暗色主题，广泛支持各种编辑器和终端。
+
+**使用Vim-plug安装：**
+```vim
+" 在Vim-plug配置中添加
+Plug 'dracula/vim', { 'as': 'dracula' }
+```
+
+**手动安装：**
+```bash
+# 在终端运行
+git clone https://github.com/dracula/vim.git ~/.vim/pack/themes/start/dracula
+```
+
+**配置方法：**
+```vim
+" 启用真彩色
+set termguicolors
+
+" 使用Dracula主题
+colorscheme dracula
+```
+
+#### 4.3.2 Nord主题
+
+Nord是一款冷色系主题，以舒适和易读性著称。
+
+**使用Vim-plug安装：**
+```vim
+" 在Vim-plug配置中添加
+Plug 'arcticicestudio/nord-vim'
+```
+
+**手动安装：**
+```bash
+# 在终端运行
+git clone https://github.com/arcticicestudio/nord-vim.git ~/.vim/pack/themes/start/nord-vim
+```
+
+**配置方法：**
+```vim
+" 启用真彩色
+set termguicolors
+
+" 使用Nord主题
+colorscheme nord
+```
+
+#### 4.3.3 Solarized主题
+
+Solarized提供了暗色和亮色两种模式，色彩平衡且不刺眼。
+
+**使用Vim-plug安装：**
+```vim
+" 在Vim-plug配置中添加
+Plug 'altercation/vim-colors-solarized'
+```
+
+**手动安装：**
+```bash
+# 在终端运行
+git clone https://github.com/altercation/vim-colors-solarized.git ~/.vim/pack/themes/start/vim-colors-solarized
+```
+
+**配置方法：**
+```vim
+" 启用真彩色
+set termguicolors
+
+" 设置背景模式（dark或light）
+set background=dark
+" 或
+" set background=light
+
+" 使用Solarized主题
+colorscheme solarized
+```
+
+#### 4.3.4 One主题
+
+One是一款简洁、现代的主题，有多种颜色变体。
+
+**使用Vim-plug安装：**
+```vim
+" 在Vim-plug配置中添加
+Plug 'rakr/vim-one'
+```
+
+**手动安装：**
+```bash
+# 在终端运行
+git clone https://github.com/rakr/vim-one.git ~/.vim/pack/themes/start/vim-one
+```
+
+**配置方法：**
+```vim
+" 启用真彩色
+set termguicolors
+
+" 使用One主题
+colorscheme one
+```
+
+#### 4.3.5 Monokai主题
+
+Monokai是一款高对比度的主题，常用于代码编辑器。
+
+**使用Vim-plug安装：**
+```vim
+" 在Vim-plug配置中添加
+Plug 'sickill/vim-monokai'
+```
+
+**手动安装：**
+```bash
+# 在终端运行
+git clone https://github.com/sickill/vim-monokai.git ~/.vim/pack/themes/start/vim-monokai
+```
+
+**配置方法：**
+```vim
+" 启用真彩色
+set termguicolors
+
+" 使用Monokai主题
+colorscheme monokai
+```
+
+### 4.4 主题切换技巧
+
+如果你想在多个主题之间快速切换，可以创建一个简单的函数：
+
+```vim
+" 主题切换函数
+function! CycleTheme()
+    if &background == 'dark'
+        set background=light
+    else
+        set background=dark
+    endif
+endfunction
+
+" 映射快捷键切换主题
+nnoremap <leader>bg :call CycleTheme()<CR>
+```
+
+对于Solarized主题，还可以添加以下映射：
+
+```vim
+" 切换Solarized的暗色/亮色模式
+nnoremap <leader>solarized :set background=dark<CR>:colorscheme solarized<CR>
+nnoremap <leader>solarized_light :set background=light<CR>:colorscheme solarized<CR>
+```
+
 ## 五、高级配置与插件管理
 
 ### 5.1 插件管理器配置
 
-使用插件可以大大增强Vim的功能。以下是使用Vim-plug插件管理器的配置示例：
+在使用插件管理器之前，需要先安装它。以下是安装Vim-plug插件管理器的步骤：
+
+#### 5.1.1 安装Vim-plug
+
+**Linux/macOS系统：**
+```bash
+# 使用curl安装
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+# 或者使用wget安装
+wget -qO- https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim > ~/.vim/autoload/plug.vim
+```
+
+**Windows系统：**
+```powershell
+# 在PowerShell中运行
+md -Force ~\vimfiles\autoload
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim' -OutFile ~\vimfiles\autoload\plug.vim
+```
+
+安装完成后，就可以在`.vimrc`文件中配置Vim-plug了。以下是配置示例：
 
 ```vim
 " Vim-plug配置 - 开始
@@ -275,8 +456,39 @@ let NERDTreeShowHidden = 1
 set termguicolors            " 启用真彩色
 colorscheme gruvbox          " 使用gruvbox主题
 
-" 自动切换到当前编辑文件在NERDTree中的位置
-autocmd BufEnter * call NERDTreeFind()
+" NERDTree配置
+map <leader>n :NERDTreeToggle<CR>
+let NERDTreeShowHidden = 1
+
+" 自动切换到当前编辑文件在NERDTree中的位置（改进版）
+" 避免在NERDTree窗口和非正规文件中触发
+" 使用VimEnter事件确保插件已加载
+autocmd VimEnter * if !exists('t:NERDTreeBufName') || bufwinnr(t:NERDTreeBufName) == -1 | execute 'NERDTree' | endif
+
+" 手动触发NERDTreeFind的快捷键（推荐使用这个而不是自动触发）
+nnoremap <leader>nf :NERDTreeFind<CR>
+
+" 可选的自动查找功能（更安全的版本）
+function! s:OpenNERDTreeForFile()
+    if &buftype == '' && expand('%') != '' && !isdirectory(expand('%'))
+        try
+            " 检查NERDTree是否已加载
+            if exists('*NERDTreeFind')
+                " 检查是否已有NERDTree窗口
+                if !exists('t:NERDTreeBufName') || bufwinnr(t:NERDTreeBufName) == -1
+                    execute 'NERDTree' . fnameescape(expand('%:p:h'))
+                else
+                    execute 'NERDTreeFind'
+                endif
+            endif
+        catch
+            " 忽略任何错误
+        endtry
+    endif
+endfunction
+
+" 可以根据需要启用自动查找
+autocmd VimEnter,BufReadPost * call s:OpenNERDTreeForFile()
 ```
 
 ## 五、文件类型特定配置
@@ -330,9 +542,54 @@ E193: :endfunction 不在函数内
 错误信息：
 ```
 E117: Unknown function: plug#begin
+E492: 不是编辑器的命令: Plug
 ```
 
-解决方案：确保正确安装了插件管理器，并在使用前加载它。
+解决方案：
+1. 确保正确安装了Vim-plug插件管理器：
+   ```bash
+   # Linux/macOS系统
+   curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+   ```
+2. 安装完成后，重新启动Vim
+3. 在Vim中执行`:PlugInstall`命令安装所有插件
+4. 确保插件配置部分没有语法错误
+
+#### 6.1.3 NERDTreeFind函数错误
+
+错误信息：
+```
+E117: Unknown function: NERDTreeFind
+```
+
+解决方案：
+1. **确保插件正确安装**：执行`:PlugInstall`命令，确保NERDTree插件被正确下载
+2. **检查插件路径**：确认NERDTree插件文件存在于`~/.vim/plugged/nerdtree/`目录中
+3. **修改autocmd触发条件**：使用更精确的autocmd配置，避免在NERDTree窗口本身触发，并确保插件已加载：
+   ```vim
+   " 自动切换到当前编辑文件在NERDTree中的位置（改进版）
+   " 避免在NERDTree窗口和非正规文件中触发
+   autocmd VimEnter * NERDTree
+   autocmd BufEnter * nested if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+   autocmd VimEnter,BufReadPost * call <SID>OpenNERDTreeForFileIfNotOpen()
+   
+   function! <SID>OpenNERDTreeForFileIfNotOpen()
+       if !exists('t:NERDTreeBufName') || bufwinnr(t:NERDTreeBufName) == -1
+           " 不在NERDTree窗口中
+           if expand('%') != '' && !isdirectory(expand('%'))
+               NERDTreeFind
+           endif
+       endif
+   endfunction
+   ```
+4. **简化配置**：如果上述方法仍有问题，使用更简单的配置，手动触发NERDTreeFind：
+   ```vim
+   " 手动触发NERDTreeFind的快捷键
+   nnoremap <leader>nf :NERDTreeFind<CR>
+   ```
+5. **延迟加载**：使用Vim的`VimEnter`事件而不是`BufEnter`，确保Vim完全启动后再执行
+6. **检查插件版本**：确保NERDTree插件是最新版本，执行`:PlugUpdate`更新插件
 
 ### 6.2 配置文件调试技巧
 
@@ -347,87 +604,182 @@ E117: Unknown function: plug#begin
 以下是一个功能全面的`.vimrc`配置文件示例，整合了本文介绍的各种设置：
 
 ```vim
-" 基本编辑设置
-set tabstop=4
-set shiftwidth=4
-set expandtab
-set number
-set autoindent
-set cursorline
-set showmatch
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-set background=dark
-syntax on
-set encoding=utf-8
-set mouse=a
-set undolevels=1000
-set termguicolors            " 启用真彩色支持
-
-" 领导者键设置
-let mapleader = ","
-
-" 键盘映射
-inoremap <C-j> <Esc>
-map <leader>v <C-v>
-nmap <leader>w :w<CR>
-nmap <leader>q :wq<CR>
-nmap <leader>Q :q!<CR>
-map <C-h> <C-w>h
-map <C-j> <C-w>j
-map <C-k> <C-w>k
-map <C-l> <C-w>l
-
-" Shell脚本自动头部生成
+"Shell脚本自动头部生成
 autocmd BufNewFile *.sh exec ":call ShellTitle()"
-
-function! ShellTitle()
-    call append(0,"#!/bin/bash")
-    call append(1,"# **************************************")
-    call append(2,"# *  shell功能脚本模板")
-    call append(3,"# *  作者：钟翼翔")
-    call append(4,"# *  联系：clockwingsoar@outlook.com")
-    call append(5,"# *  版本：".strftime("%Y-%m-%d"))
-    call append(6,"# **************************************")
-    call append(7,"")
+function ShellTitle()
+   call append(0,"#!/bin/bash")
+   call append(1,"# **************************************")
+   call append(2,"# *  shell功能脚本模板")
+   call append(3,"# *  作者：钟翼翔")
+   call append(4,"# *  联系：clockwingsoar@outlook.com")
+   call append(5,"# *  版本：".strftime("%Y-%m-%d"))
+   call append(6,"# **************************************")
+   call append(7,"")
 endfunction
 
-" Python脚本自动头部生成
+"Python脚本自动头部生成
 autocmd BufNewFile *.py exec ":call PythonTitle()"
 
 function! PythonTitle()
     call append(0,"#!/usr/bin/env python3")
     call append(1,"# -*- coding: utf-8 -*-")
-    call append(2,"# **************************************")
-    call append(3,"# *  Python功能脚本模板")
-    call append(4,"# *  作者：钟翼翔")
-    call append(5,"# *  联系：clockwingsoar@outlook.com")
-    call append(6,"# *  版本：".strftime("%Y-%m-%d"))
-    call append(7,"# **************************************")
+    call append(2,"# ******************************")
+    call append(3,"# * Python功能脚本模板")
+    call append(4,"# * 作者: 钟翼翔")
+    call append(5,"# * 联系: clockwingsoar@outlook.com")
+    call append(6,"# * 版本: ".strftime("%Y-%m-%d"))
+    call append(7,"# ******************************")
     call append(8,"")
     call append(9,"import os")
     call append(10,"import sys")
     call append(11,"")
 endfunction
 
-" 文件类型特定设置
-au FileType python setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
-syntax on
+" javascript 脚本头部模板
+autocmd BufNewFile *.js exec ":call JavascriptTitle()"
+
+function! JavascriptTitle()
+    call append(0,"// *****************************")
+    call append(1,"// * Javascript功能脚本模板")
+    call append(2,"// * 作者: 钟翼翔")
+    call append(3,"// * 联系: clockwingsoar@outlook.com")
+    call append(4,"// * 版本: ".strftime("%Y-%m-%d"))
+    call append(5,"// ******************************")
+    call append(6,"")
+endfunction
+
+
+
+
+"基本编辑设置
+set tabstop=4                " 制表符宽度为4个空格
+set shiftwidth=4             " 自动缩进宽度为4个空格
+set expandtab                " 将制表符转换为空格
+set number                   " 显示行号
+set autoindent               " 自动缩进
+set cursorline               " 高亮当前行
+set showmatch                " 匹配括号高亮显示
+set hlsearch                 " 搜索结果高亮
+set incsearch                " 边输入边搜索
+set ignorecase               " 搜索时忽略大小写
+set smartcase                " 当搜索词包含大写字母时区分大小写
+set mouse=a                  " 启用鼠标
+set undolevels=1000          " 设置撤销历史大小
+syntax on                    " 启用语法高亮
+set background=dark
+set termguicolors            " 启用真彩色支持
+colorscheme gruvbox          " 采用gruvbox颜色主题
+
+" 定义领导者key
+let mapleader=","
+" 正常模式下快速保存并退出
+nmap <leader>q :wq<CR>
+" 正常模式下强制退出不保存
+nmap <leader>Q :q!<CR>
+" 插入模式下快速退出，切换到正常模式
+inoremap <C-j> <Esc>
+
+" 分屏相关映射
+map <leader>s :split<CR>
+map <leader>v :vsplit<CR>
+map <C-h> <C-w>h
+map <C-l> <C-w>l
+" 这里是大写的J, 因为小写的j已经绑定了Esc
+map <C-J> <C-w>j
+map <C-k> <C-w>k
+
+"仅对python文件启用的映射
+autocmd FileType python nmap <buffer> <leader>r :!python %<CR>
+
+"仅对shell脚本启用的映射
+autocmd FileType sh nmap <buffer> <leader>r :!bash %<CR>
+
+" 文件历史
+set history=1000
+" 正常模式下快速保存
+nmap <leader>w :w!<CR>
+" F3 快速插入无序列表ul标签
+map <F3> i<ul><CR><Space><Space><li></li><CR><Esc>1i</ul><Esc>kcit
+map <F4> <Esc>o<li></li><Esc>cit
+
+"VIM plugin 配置开始
+call plug#begin('~/.vim/plugged')
+
+"语法高亮增强
+Plug 'sheerun/vim-polyglot'
+
+"文件浏览
+Plug 'preservim/nerdtree'
+
+"代码补全
+Plug 'ervandew/supertab'
+
+"Git集成
+Plug 'airblade/vim-gitgutter'
+
+"文件搜索
+Plug 'ctrlpvim/ctrlp.vim'
+
+" 状态栏
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+" 快速导航
+Plug 'easymotion/vim-easymotion'
+
+" 格式化表格
+Plug 'godlygeek/tabular'
+
+"颜色主题
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'arcticicestudio/nord-vim'
+Plug 'altercation/vim-colors-solarized'
+Plug 'rakr/vim-one'
+Plug 'sickill/vim-monokai'
+
+"
+"Vim -plug配置 - 结束
+call plug#end()
+
+" 主题切换函数
+function! CycleTheme()
+    if &background == 'dark'
+        set background=light
+    else
+        set background=dark
+    endif
+endfunction
+
+" 映射快捷键切换主题
+nnoremap <leader>bg :call CycleTheme()<CR>
+
+" 切换Solarized的暗色/亮色模式
+nnoremap <leader>solarized :set background=dark<CR>:colorscheme solarized<CR>
+nnoremap <leader>solarized_light :set background=light<CR>:colorscheme solarized<CR>
+
+"NERDTree配置
+map <leader>n :NERDTreeToggle<CR>
+let NERDTreeShowHidden = 1
+
+
+"启用文件类型检测
 filetype on
 filetype plugin on
 filetype indent on
 
-" 主题设置
-colorscheme gruvbox
+" 为特定文件类型设置缩进
+au FileType python setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
+au FileType javascript setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
+au FileType html setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
+au FileType css setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
+au FileType sh setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
 
-" 自动切换到当前编辑文件在NERDTree中的位置
-" 注意：需要先安装NERDTree插件
-try
-    autocmd BufEnter * call NERDTreeFind()
-catch
-endtry
+"全局编码设置
+set encoding=utf-8
+set termencoding=utf-8
+set fileencoding=utf-8
+set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+
 ```
 
 ## 八、总结
