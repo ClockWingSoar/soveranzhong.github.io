@@ -123,191 +123,195 @@ To meet more complex batch user creation needs, we can develop a fully functiona
 
 ### 2.2 Complete Script Implementation
 
-Here is a fully functional batch user creation script:
+Here is a fully functional batch user creation script. During actual usage, we identified and resolved several key issues to make the script more robust:
 
 ```bash
 #!/bin/bash
-
-# Batch create users and set passwords script
-# Usage:
-# 1. Specify users directly on the command line: sudo ./batch_create_users.sh user1 user2 user3 ...
-# 2. Read user list from file: sudo ./batch_create_users.sh -f users.txt
+# **************************************
+# *  Production-grade Batch User Creation and Password Setup Script
+# *  Author: Zhong Yixiang
+# *  Contact: clockwingsoar@outlook.com
+# *  Version: 2025-11-01
+# **************************************
 
 # Check if running as root
 if [ "$(id -u)" -ne 0 ]; then
-    echo "Error: Please run this script with root privileges"
+    echo "Error: Please run this script as root!"
     exit 1
 fi
 
 # Default password and user list file
 DEFAULT_PASSWORD="ChangeMe@123"
 USER_LIST_FILE=""
-USERS=()
+USERS=()  # Initialize empty array
 GENERATE_RANDOM_PASSWORD=false
 LOG_FILE="user_creation_$(date +%Y%m%d_%H%M%S).log"
 
 # Display help information
-show_help() {
-    echo "Usage: $0 [options] [user1 user2 ...]"
-    echo ""
-    echo "Options:"
-    echo "  -f, --file <file>    Read user list from specified file, one username per line"
-    echo "  -p, --password <password>  Set default password, default is 'ChangeMe@123'"
-    echo "  -r, --random         Generate random password for each user"
-    echo "  -h, --help           Display this help information"
-    echo ""
-    echo "Examples:"
-    echo "  $0 user1 user2 user3"
-    echo "  $0 -f users.txt -p SecurePass123"
-    echo "  $0 -f users.txt -r"
+show_help(){  
+  echo "Usage: $0 [options] [user1 user2...]"
+  echo ""
+  echo "Options: "
+  echo " -f, --file <file>       Read user list from specified file, one username per line"
+  echo " -p, --password <password>   Set default password, default is 'ChangeMe@123'"
+  echo " -r, --random            Generate random password for each user"
+  echo " -h, --help              Display this help information"
+  echo ""
+  echo "Examples: "
+  echo " $0 user1 user2 user3"
+  echo " $0 -f users.txt -p SecurePass123"
+  echo " $0 -f users.txt -r"
 }
 
 # Generate random password
-generate_password() {
-    local length=12
-    local password=$(openssl rand -base64 16 | tr -dc 'a-zA-Z0-9!@#$%^&*()' | head -c $length)
-    echo "$password"
+generate_password(){  
+  local length=12
+  local password=$(openssl rand -base64 16 | tr -dc 'a-zA-Z0-9!@#$%^&*()' | head -c $length)
+  echo "$password"
 }
 
+
 # Parse command line arguments
-parse_arguments() {
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            -f|--file)
-                USER_LIST_FILE="$2"
-                shift 2
-                ;;
-            -p|--password)
-                DEFAULT_PASSWORD="$2"
-                shift 2
-                ;;
-            -r|--random)
-                GENERATE_RANDOM_PASSWORD=true
-                shift
-                ;;
-            -h|--help)
-                show_help
-                exit 0
-                ;;
-            -*)
-                echo "Unknown option: $1"
-                show_help
-                exit 1
-                ;;
-            *)
-                USERS+="$1"
-                shift
-                ;;
-        esac
-    done
+parse_arguments(){  
+  while [[ $# -gt 0 ]];do
+    case $1 in
+      -f|--file)  
+        USER_LIST_FILE="$2"
+        shift 2        ;;
+      -p|--password)  
+        DEFAULT_PASSWORD="$2"
+        shift 2
+        ;;
+      -r|--random)  
+        GENERATE_RANDOM_PASSWORD=true
+        shift
+        ;;
+      -h|--help)  
+        show_help
+        exit 0
+        ;;
+      -*)  
+        echo "Unknown option: $1"
+        show_help
+        exit 1
+        ;;
+      *)  
+        USERS+=($1)  # Fix: Add as array element
+        shift
+        ;;
+    esac
+  done
 }
 
 # Read user list from file
-read_users_from_file() {
-    if [ ! -f "$USER_LIST_FILE" ]; then
-        echo "Error: User list file '$USER_LIST_FILE' does not exist"
-        exit 1
-    fi
-    
-    echo "Reading user list from file '$USER_LIST_FILE'..."
-    while IFS= read -r user || [ -n "$user" ]; do
-        # Ignore empty lines and comment lines starting with #
-        [[ -z "$user" || "$user" =~ ^# ]] && continue
-        USERS+="$user"
-    done < "$USER_LIST_FILE"
+read_users_from_file(){  
+  if [ ! -f "$USER_LIST_FILE" ]; then
+    echo "Error: User list file '$USER_LIST_FILE' does not exist"
+    exit 1
+  fi
+
+  echo "Reading user list from file '$USER_LIST_FILE'..."
+  while IFS= read -r user || [ -n "$user" ]; do
+    # Skip empty lines and comment lines starting with #
+    # Important fix: Ensure variable references are enclosed in double quotes to avoid syntax errors
+    [[ -z "$user" || "$user" =~ ^# ]] && continue
+    # Important fix: Correctly add user to array, using double quotes to ensure proper variable expansion
+    USERS+=("$user")
+  done < "$USER_LIST_FILE"
 }
 
 # Create users and set passwords
-create_users() {
-    echo "Starting to create users..."
-    echo "Creation log will be saved to: $LOG_FILE"
-    
-    # Create log file header
-    echo "User creation log - $(date)" > "$LOG_FILE"
-    echo "----------------------------------" >> "$LOG_FILE"
-    echo "Username | Password | Status" >> "$LOG_FILE"
-    echo "----------------------------------" >> "$LOG_FILE"
-    
-    # Create password file for storing usernames and passwords
-    PASSWORD_FILE="users_passwords_$(date +%Y%m%d_%H%M%S).txt"
-    echo "Username:Password" > "$PASSWORD_FILE"
-    
-    for user in "${USERS[@]}"; do
-        # Check if user already exists
-        if id "$user" &>/dev/null; then
-            echo "Warning: User '$user' already exists, skipping creation"
-            echo "$user | - | Exists" >> "$LOG_FILE"
-            continue
-        fi
-        
-        # Set password
-        if [ "$GENERATE_RANDOM_PASSWORD" = true ]; then
-            password=$(generate_password)
-        else
-            password="$DEFAULT_PASSWORD"
-        fi
-        
-        # Create user
-        useradd -m -s /bin/bash "$user" &>/dev/null
-        if [ $? -eq 0 ]; then
-            # Set password
-            echo "$user:$password" | chpasswd
-            if [ $? -eq 0 ]; then
-                echo "Success: Created user '$user' and set password"
-                echo "$user | $password | Success" >> "$LOG_FILE"
-                echo "$user:$password" >> "$PASSWORD_FILE"
-                
-                # Force user to change password on first login
-                chage -d 0 "$user"
-            else
-                echo "Error: Failed to set password for user '$user'"
-                echo "$user | - | Password set failed" >> "$LOG_FILE"
-            fi
-        else
-            echo "Error: Failed to create user '$user'"
-            echo "$user | - | Creation failed" >> "$LOG_FILE"
-        fi
-    done
-    
-    echo "----------------------------------"
-    echo "User creation completed!"
-    echo "Detailed log: $LOG_FILE"
-    echo "User password file: $PASSWORD_FILE"
-    echo "Note: Please keep the password file safe, it is recommended to delete or encrypt it immediately after creation"
+create_users(){  
+  echo "Starting to create users..."
+  echo "Creation log will be saved to: $LOG_FILE"
+
+  # Create log file header
+  echo "User creation log - $(date)" > "$LOG_FILE"
+  echo "----------------------------------" >> "$LOG_FILE"
+  echo "Username | Password | Status" >> "$LOG_FILE"
+  echo "----------------------------------" >> "$LOG_FILE"
+
+  # Create password file for storing usernames and passwords
+  PASSWORD_FILE="users_passwords_$(date +%Y%m%d_%H%M%S).txt"
+  echo "Username:Password" > "$PASSWORD_FILE"
+
+  for user in "${USERS[@]}"; do  
+    # Check if user already exists
+    if id "$user" &>/dev/null; then
+      echo "Warning: User '$user' already exists, skipping creation"
+      echo "$user | - | Exists" >> "$LOG_FILE"
+      continue
+    fi
+
+    # Set password
+    if [ "$GENERATE_RANDOM_PASSWORD" = true ]; then
+      password=$(generate_password)
+    else
+      password="$DEFAULT_PASSWORD"
+    fi
+
+    # Create user
+    useradd -m -s /bin/bash "$user" &>/dev/null
+    if [ $? -eq 0 ]; then
+      # Set password
+      echo "$user:$password" | chpasswd
+      if [ $? -eq 0 ]; then
+        echo "Success: Created user '$user' and set password"
+        echo "$user | $password | Success" >> "$LOG_FILE"
+        echo "$user:$password" >> "$PASSWORD_FILE"
+
+        # Force user to change password on first login
+        chage -d 0 "$user"
+      else
+        echo "Error: Failed to set password for user '$user'"
+        echo "$user | - | Password set failed" >> "$LOG_FILE"
+      fi
+    else
+      echo "Error: Failed to create user '$user'"
+      echo "$user | - | Creation failed" >> "$LOG_FILE"
+    fi
+  done
+
+  echo "----------------------------------"
+  echo "User creation completed!"
+  echo "Detailed log: $LOG_FILE"
+  echo "User password file: $PASSWORD_FILE"
+  echo "Note: Please keep the password file safe, it is recommended to delete or encrypt it immediately after creation"
+
 }
 
 # Main function
-main() {
-    parse_arguments "$@"
-    
-    # If file is specified, read user list from file
-    if [ -n "$USER_LIST_FILE" ]; then
-        read_users_from_file
-    fi
-    
-    # Check if there are users to create
-    if [ ${#USERS[@]} -eq 0 ]; then
-        echo "Error: No users specified to create, please use the -f option to specify a user list file or list usernames directly on the command line"
-        show_help
-        exit 1
-    fi
-    
-    # Display creation plan
-    echo "About to create the following users: ${USERS[*]}"
-    if [ "$GENERATE_RANDOM_PASSWORD" = true ]; then
-        echo "Random passwords will be generated for each user"
-    else
-        echo "Default password: $DEFAULT_PASSWORD"
-    fi
-    
-    # Confirm creation
-    read -p "Continue? (y/n) " confirm
-    if [[ "$confirm" =~ ^[Yy]$ ]]; then
-        create_users
-    else
-        echo "Operation cancelled"
-        exit 0
-    fi
+main(){  
+  parse_arguments "$@"
+
+  # If file is specified, read user list from file
+  if [ -n "$USER_LIST_FILE" ]; then
+    read_users_from_file
+  fi
+
+  # Check if there are users to create
+  if [ ${#USERS[@]} -eq 0 ]; then
+    echo "Error: No users specified to create, please use the -f option to specify a user list file or list usernames directly on the command line"
+    show_help
+    exit 1
+  fi
+
+  # Display creation plan
+  echo "About to create the following users: ${USERS[*]}"
+  if [ "$GENERATE_RANDOM_PASSWORD" = true ]; then
+    echo "Random passwords will be generated for each user"
+  else
+    echo "Default password: $DEFAULT_PASSWORD"
+  fi
+
+  # Confirm creation
+  read -p "Continue? (y/n) " confirm
+  if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    create_users
+  else
+    echo "Operation cancelled"
+    exit 0
+  fi
 }
 
 # Execute main function
@@ -345,6 +349,117 @@ main "$@"
    ```bash
    ./batch_create_users.sh --help
    ```
+
+### 2.4 Common Issues and Solutions
+
+During script usage, we might encounter some common issues. Here are the solutions:
+
+**Quick Solution:** You can directly download the fixed complete script file: [batch_create_users_fixed.sh](/code/linux/batch_create_users_fixed.sh)
+
+#### 2.4.1 Array Handling Issue
+
+**Problem**: The script attempts to create all users (e.g., `sov1 sov2`) as a single user instead of creating each user separately.
+
+**Cause**: In the `parse_arguments` function, users were incorrectly added as a string rather than array elements.
+
+**Solution**:
+```bash
+# Incorrect code
+USERS+="$1 "  # This adds all users to a single string
+
+# Fixed code
+USERS+=($1)  # Correctly adds as array element
+```
+
+#### 2.4.2 Condition Syntax Error
+
+**Problem**: Error message appears: `batch-create-users-prod.sh: line 125: [3: command not found`
+
+**Cause**: Incorrect condition syntax, missing necessary spaces.
+
+**Solution**:
+```bash
+# Incorrect code
+if [$? -eq 0 ]; then  # Missing spaces
+
+# Fixed code
+if [ $? -eq 0 ]; then  # Added spaces
+```
+
+#### 2.4.3 Variable Reference Issue
+
+**Problem**: Password file and log file not being generated correctly.
+
+**Cause**: Multiple instances in the code where `"PASSWORD_FILE"` and `"LOG_FILE"` were used instead of `"$PASSWORD_FILE"` and `"$LOG_FILE"`, resulting in writing to literal filenames.
+
+**Solution**:
+```bash
+# Incorrect code
+echo "Username:Password" > "PASSWORD_FILE"
+
+# Fixed code
+echo "Username:Password" > "$PASSWORD_FILE"
+```
+
+#### 2.4.4 File Reading Issue
+
+**Problem**: Incorrect regular expression syntax when reading user list from file, and incorrect user addition method.
+
+**Solution**:
+```bash
+# Incorrect code
+[[ -z "$user" || "$user=~^#" ]] && continue  # Wrong regex syntax
+USERS+="$user"  # Wrong addition method
+
+# Fixed code
+[[ -z "$user" || "$user" =~ ^# ]] && continue  # Correct regex syntax
+USERS+=($user)  # Correct addition as array element
+```
+
+#### 2.4.5 File Reading Syntax Error
+
+**Problem**: Error message appears: `batch-create-users-prod.sh: line 86: -r: command not found`
+
+**Cause**: In the `read_users_from_file` function, there is a missing space between `IFS=` and the `read` command, causing `IFS=read` to be treated as a single entity and `-r` to be executed as a separate command.
+
+**Solution**:
+```bash
+# Incorrect code
+while IFS=read -r user || [ -n "$user" ]; do  # Missing space
+
+# Fixed code
+while IFS= read -r user || [ -n "$user" ]; do  # Added space
+```
+
+#### 2.4.6 Variable Reference and Array Addition Syntax Error
+
+**Problem**: The script can read the file, but all usernames are incorrectly skipped as comment lines, resulting in the error "No users specified to create".
+
+**Cause**: In the conditional check, variable references are missing double quotes, causing Shell parsing errors; incorrect array addition syntax affects the correct construction of the user list.
+
+**Solution**:
+```bash
+# Incorrect code
+[[ -z $user || $user=~^# ]] && continue  # Missing double quotes, incorrect regex syntax
+USERS+=$user  # Incorrect addition method
+
+# Fixed code
+[[ -z "$user" || "$user" =~ ^# ]] && continue  # Correct regex syntax, added double quotes
+USERS+=("$user")  # Correctly added as array element, using double quotes
+```
+
+#### 2.4.7 Script Execution Flow Summary
+
+The execution flow of the fixed script is as follows:
+
+1. Check if running with root privileges
+2. Parse command line arguments, correctly build user array
+3. Optional: Read user list from file (note the required space between IFS= and read)
+4. Display creation plan and confirm
+5. Loop to create each user, correctly processing each array element
+6. Record operation logs and generate password file
+
+These fixes ensure the script can correctly handle multiple users, avoid common Shell script syntax errors, and make the script more robust and reliable.
 
 ## III. Security Best Practices
 

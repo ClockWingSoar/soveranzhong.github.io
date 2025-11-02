@@ -122,6 +122,23 @@ Here are some advanced but very useful shortcuts that can further enhance your c
 | `Ctrl + S` | Pause terminal output | Stop fast scrolling |
 | `Ctrl + Q` | Resume terminal output | Continue viewing paused output |
 
+## 8. Page Scrolling Shortcuts
+
+When dealing with long command outputs or viewing extensive text content, page scrolling shortcuts help you efficiently navigate through the information:
+
+| Shortcut | Action | Practical Application |
+|----------|--------|----------------------|
+| `Shift + PageUp` | Scroll up one page | View previous output content |
+| `Shift + PageDown` | Scroll down one page | Continue viewing more output |
+| `Ctrl + Shift + Up` | Scroll up one line | Precise viewing of adjacent lines |
+| `Ctrl + Shift + Down` | Scroll down one line | Precise viewing of adjacent lines |
+| `Ctrl + Y` | Scroll up one line (in some terminals) | Line-by-line historical output viewing |
+| `Ctrl + E` | Scroll down one line (in some terminals) | Line-by-line additional content viewing |
+
+**Tips**: `Shift + PageUp` and `Shift + PageDown` are the most commonly used page scrolling shortcuts, compatible with most terminal emulators. On some keyboards, you might need to use the `Fn` key combination, such as `Fn + Shift + Up/Down`.
+
+**Note**: Scrolling shortcuts may vary slightly across different terminal emulators. For example, in macOS's Terminal.app, you might need to use `Command + Up/Down` or `Fn + Up/Down` to scroll through pages.
+
 **Tips**: `Ctrl + X + E` is a powerful tool for handling complex commands. When you need to write or modify multi-line scripts or complex commands, you can use this shortcut to edit in your preferred text editor. After editing and saving, the command will be executed automatically.
 
 ## 8. Customizing Shortcuts and Configuration
