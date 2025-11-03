@@ -440,7 +440,9 @@ Plug 'morhetz/gruvbox'
 call plug#end()
 ```
 
-### 4.2 插件配置
+### 5.2 插件配置
+
+以下是常用插件的配置示例，包括NERDTree。要获取有关使用NERDTree的全面指南，请参阅我们的专门文章：[精通NERDTree：Vim文件浏览器完全指南]({{ site.baseurl }}/vim/tools/editor/productivity/2025/11/15/mastering-nerdtree-vim-file-explorer-zh.html)
 
 为已安装的插件进行配置：
 

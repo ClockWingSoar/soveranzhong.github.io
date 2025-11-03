@@ -280,7 +280,9 @@ Plug 'morhetz/gruvbox'
 call plug#end()
 ```
 
-### 4.2 Plugin Configuration
+### 5.2 Plugin Configuration
+
+Below are configuration examples for commonly used plugins, including NERDTree. For a comprehensive guide on using NERDTree, please see our dedicated article: [Mastering NERDTree: A Comprehensive Guide to Vim's File Explorer]({{ site.baseurl }}/vim/tools/editor/productivity/2025/11/15/mastering-nerdtree-vim-file-explorer-en.html)
 
 Configure the installed plugins:
 
