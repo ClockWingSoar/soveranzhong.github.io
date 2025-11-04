@@ -496,7 +496,7 @@ awk 'BEGIN {
     d = c ""  # 使用CONVFMT格式
     print "Float conversion:", d  # 输出12.35
 }'
-
+```
 ### 5.1.2 命名空间
 
 gawk提供简单的命名空间功能，帮助解决变量全局化的问题：
@@ -528,7 +528,7 @@ awk 'BEGIN {
     UPPERCASE = "uppercase in awk namespace"
     print "UPPERCASE in awk namespace:", awk::UPPERCASE
 }'
-
+```
 ### 5.1.3 八进制和十六进制常量
 
 可以在awk程序中使用C风格的八进制和十六进制常量：
@@ -545,7 +545,7 @@ awk 'BEGIN {
     print "Hex 0x11 = decimal", hex
     print "Sum =", octal + hex
 }'
-
+```
 ### 5.1.4 字符串常量和转义序列
 
 字符串常量用双引号括起来，支持多种转义序列：
@@ -578,7 +578,7 @@ awk 'BEGIN {
     print "\nLiteral character escape:"
     print "Backslash: \\c where c is any character"
 }'
-
+```
 ### 5.1.5 正则表达式常量
 
 正则表达式常量用斜杠（/）括起来，gawk还支持强类型正则表达式常量：
@@ -629,50 +629,50 @@ awk 'BEGIN {
     print "Check with number pattern:", check_pattern("42 is the answer", number_regex)
     print "Check with word pattern:", check_pattern("Only words here", word_regex)
 }'
-
+```
 #### 5.1.6 正则表达式语法详解
 
 以下是AWK中正则表达式的完整语法参考：
 
 ```
 [abc...]   字符列表：匹配abc...中的任意字符。可以使用破折号分隔字符来表示字符范围。要在列表中包含字面意义的破折号，请将其放在最前面或最后面。
- 
+
         [^abc...]  否定字符列表：匹配除了abc...之外的任意字符。
- 
+     
         r1|r2      选择：匹配r1或r2。
- 
+     
         r1r2       连接：匹配r1，然后匹配r2。
- 
+     
         r+         匹配一个或多个r。
     
         r*         匹配零个或多个r。
- 
+     
         r?         匹配零个或一个r。
- 
+     
         (r)        分组：匹配r。
- 
+     
         r{n}
         r{n,}
         r{n,m}     大括号内的一个或两个数字表示区间表达式。如果大括号内有一个数字，则前面的正则表达式r重复n次。如果有两个由逗号分隔的数字，则r重复n到m次。如果有一个数字后跟逗号，则r至少重复n次。
- 
+     
         \y         匹配单词开头或结尾的空字符串。
- 
+     
         \B         匹配单词内部的空字符串。
- 
+     
         \\         匹配单词开头的空字符串。
- 
+     
         \\>        匹配单词结尾的空字符串。
- 
+     
         \s         匹配任意空白字符。
- 
+     
         \S         匹配任意非空白字符。
- 
+     
         \w         匹配任意单词构成字符（字母、数字或下划线）。
- 
+     
         \W         匹配任意非单词构成字符。
- 
+     
         \`         匹配缓冲区（字符串）开头的空字符串。
- 
+     
         \'         匹配缓冲区结尾的空字符串。
 ```
 
