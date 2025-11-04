@@ -213,6 +213,8 @@ head [OPTION]... [FILE]...
 tail [OPTION]... [FILE]...
 ```
 
+> 提示：想了解tail命令的更多高级用法和详细选项，请阅读我们的[Linux tail命令完全指南](https://soveranzhong.github.io/2024/01/27/linux-tail-command-guide.html)。
+
 #### 5.2.2 常用选项
 
 - `-n, --lines=[+]K`: 显示最后K行，或从第K行开始显示
