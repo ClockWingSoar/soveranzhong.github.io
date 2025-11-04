@@ -311,6 +311,8 @@ paste -d' ' <(date +"%Y-%m-%d %H:%M:%S") message.txt
 xargs [OPTION]... [COMMAND [INITIAL-ARGS]]
 ```
 
+> 想了解xargs命令的详细用法和高级技巧，请查看我们的[Linux xargs命令完全指南](https://soveranzhong.github.io/2024/01/24/linux-xargs-command-guide.html)。
+
 ### 7.2 常用选项
 
 - `-0, --null`: 以null字符分隔输入项
