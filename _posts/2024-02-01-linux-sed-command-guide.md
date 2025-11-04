@@ -168,6 +168,8 @@ EOF
 | `r file` | 读取指定文件的内容到匹配行后 |
 | `R file` | 从文件中读取一行并追加（GNU扩展） |
 | `w file` | 将模式空间中的内容写入指定文件 |
+| `W file` | 将模式空间的第一行写入指定文件（GNU扩展） |
+| `x` | 交换模式空间和保持空间的内容 |
 | `=` | 打印当前行的行号 |
 | `l` | 以"视觉上明确"的形式列出当前行 |
 | `l width` | 以"视觉上明确"的形式列出当前行，在指定宽度处换行（GNU扩展） |
@@ -412,7 +414,7 @@ sed '2r sed_test.txt' sed_test.txt
 sed '2,4r sed_commands.txt' sed_test.txt
 ```
 
-#### 7.4.2 保存内容到文件（w命令）
+#### 7.4.2 保存内容到文件（w命令和W命令）
 
 ```bash
 # 将第2行保存到sed_output.txt
@@ -420,6 +422,15 @@ sed -n '2w sed_output.txt' sed_test.txt
 
 # 将第1-4行保存到sed_output.txt
 sed -n '1,4w sed_output.txt' sed_test.txt
+
+# 使用N和W命令只保存模式空间的第一行
+cat > multi_line_save.txt << 'EOF'
+first line with multiple
+second line with multiple
+third line with multiple
+EOF
+sed -n 'N;W first_lines.txt' multi_line_save.txt
+cat first_lines.txt  # 只包含first line with multiple和third line with multiple
 ```
 
 ## 7.5 快速退出（Q命令）
@@ -493,6 +504,25 @@ EOF
 sed -n '1{h;p};2{g;p};3{h;p};4{g;p}' num_lines.txt
 ```
 
+### 8.3 使用x命令交换缓冲区
+
+```bash
+# 创建测试文件
+cat > buffer_swap.txt << 'EOF'
+header line
+content line 1
+content line 2
+footer line
+EOF
+
+# 使用x命令交换模式空间和保持空间
+# 保存第一行到保持空间，处理完所有内容后再打印第一行
+sed -n '1{h;d};$G;p' buffer_swap.txt  # 不使用x
+
+# 使用x命令实现相同功能
+sed -n '1h;2,$p;$x;p' buffer_swap.txt  # 使用x交换
+```
+
 ## 9. 跳转和条件执行命令
 
 ### 9.1 t命令（替换成功后跳转）
@@ -543,6 +573,37 @@ sed -n '/sendfile/,6p' nginx_sample.conf
 sed -n '/sendfile/,+3p' nginx_sample.conf
 ```
 
+### 10.1.1 特殊地址匹配形式
+
+```bash
+# 0,addr2 形式：从开始到匹配addr2的行，与1,addr2不同的是如果addr2匹配第一行
+# 则0,addr2已结束，而1,addr2仍在范围内
+cat > address_test.txt << 'EOF'
+first line - match here
+second line
+third line
+EOF
+
+# 使用0,/match/ 只匹配第一行
+sed -n '0,/match/p' address_test.txt
+
+# 使用1,/match/ 同样只匹配第一行（因为第一行匹配了）
+sed -n '1,/match/p' address_test.txt
+
+# 但当第一行就匹配时，两者行为不同
+cat > first_match.txt << 'EOF'
+match here - first line
+second line
+match again
+EOF
+
+# addr1,~N 形式：匹配addr1及其后的行，直到行号是N的倍数
+# 例如匹配第一行直到下一个5的倍数行
+seq 1 10 | sed -n '1,~5p'  # 匹配1-5行
+
+# first~step 形式：从first行开始，每隔step行匹配一次（之前已介绍）
+seq 1 10 | sed -n '2~3p'  # 匹配2,5,8行
+
 ### 10.2 取反匹配
 
 ```bash
@@ -562,6 +623,34 @@ ifconfig eth0 | sed -nr 's/.*(\w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2}).*/\1/p'
 # 提取配置文件中的键值对
 sed -rn 's/^\s*([^#\s=]+)\s*=\s*(.*)/\1 => \2/p' config_test.conf
 ```
+
+### 10.3.1 正则表达式支持说明
+
+GNU sed支持标准的正则表达式，并提供了一些扩展：
+
+```bash
+# 使用\n在正则表达式中匹配换行符
+cat > multi_line_regex.txt << 'EOF'
+start
+middle
+end
+EOF
+
+sed -n '/start\nmiddle/p' multi_line_regex.txt
+
+# 使用\a, \t等转义序列
+cat > escape_seq.txt << 'EOF'
+line with tab	character
+line with newline
+EOF
+
+sed -n '/\t/p' escape_seq.txt  # 匹配包含tab的行
+
+# 使用\cregexpc形式定义正则表达式分隔符
+# 当正则表达式中包含斜杠时特别有用
+sed -n '\#/etc/p' /etc/passwd  # 使用#作为分隔符
+
+sed -n '\|/bin/bash|p' /etc/passwd  # 使用|作为分隔符
 
 ## 11. 多点操作和文件处理
 
