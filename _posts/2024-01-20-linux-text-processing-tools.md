@@ -160,6 +160,42 @@ sort file.txt
 
 # 按数值排序
 sort -n numbers.txt
+```
+
+## 五、uniq - 重复行处理工具
+
+### 5.1 基本语法
+
+> 提示：想了解更多关于uniq命令的详细用法，请查看我们的专题文章[《Linux uniq命令完全指南：文本去重与重复行处理》](/2024/01/28/linux-uniq-command-guide.html)
+
+```bash
+uniq [选项] [输入文件 [输出文件]]
+```
+
+### 5.2 常用选项
+
+- `-c, --count`: 显示每行出现的次数
+- `-d, --repeated`: 仅显示重复的行
+- `-u, --unique`: 仅显示唯一的行
+- `-i, --ignore-case`: 忽略大小写差异
+- `-f, --skip-fields=N`: 跳过前N个字段
+- `-s, --skip-chars=N`: 跳过前N个字符
+
+### 8.3 实例应用
+
+```bash
+# 基本去重（通常与sort结合使用）
+sort file.txt | uniq
+
+# 显示每行出现的次数
+sort file.txt | uniq -c
+
+# 仅显示重复的行
+sort file.txt | uniq -d
+
+# 仅显示唯一的行
+sort file.txt | uniq -u
+```
 
 # 降序排序
 sort -nr numbers.txt
@@ -188,11 +224,11 @@ ls -l | sort -nk5 -r
 sort -t'[' -k2,2 access.log
 ```
 
-## 五、head 和 tail - 查看文件片段
+## 六、head 和 tail - 查看文件片段
 
-### 5.1 head 命令
+### 6.1 head 命令
 
-#### 5.1.1 基本语法
+#### 6.1.1 基本语法
 
 ```bash
 head [OPTION]... [FILE]...
@@ -200,14 +236,14 @@ head [OPTION]... [FILE]...
 
 > 提示：想了解head命令的更多高级用法和详细选项，请阅读我们的[Linux head命令完全指南](https://soveranzhong.github.io/2024/01/26/linux-head-command-guide.html)。
 
-#### 5.1.2 常用选项
+#### 6.1.2 常用选项
 
 - `-n, --lines=[-]K`: 显示前K行，或除最后K行外的所有行
 - `-c, --bytes=[-]K`: 显示前K个字节，或除最后K个字节外的所有字节
 
-### 5.2 tail 命令
+### 6.2 tail 命令
 
-#### 5.2.1 基本语法
+#### 6.2.1 基本语法
 
 ```bash
 tail [OPTION]... [FILE]...
@@ -215,7 +251,7 @@ tail [OPTION]... [FILE]...
 
 > 提示：想了解tail命令的更多高级用法和详细选项，请阅读我们的[Linux tail命令完全指南](https://soveranzhong.github.io/2024/01/27/linux-tail-command-guide.html)。
 
-#### 5.2.2 常用选项
+#### 6.2.2 常用选项
 
 - `-n, --lines=[+]K`: 显示最后K行，或从第K行开始显示
 - `-c, --bytes=[+]K`: 显示最后K个字节，或从第K个字节开始显示
@@ -262,9 +298,9 @@ tail -f /var/log/{syslog,auth.log}
 grep "ERROR" /var/log/application.log | tail -n 100
 ```
 
-## 六、paste - 合并文件
+## 七、paste - 合并文件
 
-### 6.1 基本语法
+### 8.1 基本语法
 
 ```bash
 paste [OPTION]... [FILE]...
@@ -272,14 +308,14 @@ paste [OPTION]... [FILE]...
 
 > 提示：想了解paste命令的更多高级用法和详细选项，请阅读我们的[Linux paste命令完全指南](https://soveranzhong.github.io/2024/01/25/linux-paste-command-guide.html)。
 
-### 6.2 常用选项
+### 8.2 常用选项
 
 - `-d, --delimiters=LIST`: 指定分隔符列表，默认使用制表符
 - `-s, --serial`: 将每个文件粘贴成一行
 
-### 6.3 实例应用
+### 7.3 实例应用
 
-#### 6.3.1 基本合并
+#### 7.3.1 基本合并
 
 ```bash
 # 合并两个文件的对应行
@@ -289,7 +325,7 @@ paste file1.txt file2.txt
 paste -d',' file1.txt file2.txt
 ```
 
-#### 6.3.2 高级用法
+#### 7.3.2 自定义分隔符
 
 ```bash
 # 将一个文件的所有行合并成一行，用逗号分隔
@@ -299,7 +335,7 @@ paste -sd',' file.txt
 paste -d':,;' file1.txt file2.txt file3.txt
 ```
 
-#### 6.3.3 生产环境案例：数据整合
+#### 7.3.3 串行合并
 
 ```bash
 # 合并用户名和对应的部门信息
@@ -309,7 +345,7 @@ paste -d',' users.txt departments.txt > user_departments.csv
 paste -d' ' <(date +"%Y-%m-%d %H:%M:%S") message.txt
 ```
 
-## 七、xargs - 命令行参数构建
+## 八、xargs - 命令行参数构建
 
 ### 7.1 基本语法
 
@@ -330,7 +366,7 @@ xargs [OPTION]... [COMMAND [INITIAL-ARGS]]
 
 ### 7.3 实例应用
 
-#### 7.3.1 基本使用
+#### 8.3.1 批量处理文件
 
 ```bash
 # 删除找到的所有临时文件
@@ -340,7 +376,7 @@ find /tmp -name "*.tmp" | xargs rm
 echo "file1.txt file2.txt" | xargs cp -t /destination/
 ```
 
-#### 7.3.2 高级用法
+#### 8.3.2 与find结合使用
 
 ```bash
 # 使用自定义替换字符串
@@ -350,7 +386,7 @@ find . -name "*.txt" | xargs -I {} cp {} {}.backup
 find /large/dir -type f -name "*.log" | xargs -P 4 -I {} gzip {}
 ```
 
-#### 7.3.3 生产环境案例：批量处理和并行计算
+#### 8.3.3 系统维护脚本
 
 ```bash
 # 批量检查URL可用性
@@ -407,22 +443,22 @@ find /tmp -type f -mtime +30 -print0 | xargs -0 rm -f
 grep "Permission denied" /var/log/syslog | cut -d' ' -f10 | xargs -I {} chmod 644 {}
 ```
 
-## 九、性能优化建议
+## 十、性能优化建议
 
-### 9.1 大数据处理优化
+### 10.1 大数据处理优化
 
 - **使用合适的分隔符**: 选择高效的分隔符，避免使用复杂的正则表达式
 - **限制处理范围**: 使用head/tail先获取样本，再处理完整数据
 - **并行处理**: 使用xargs的-P选项进行并行处理
 - **避免不必要的排序**: 仅在必要时使用sort命令
 
-### 9.2 内存管理
+### 10.2 内存管理
 
 - 对于超大文件，考虑使用split命令分割后处理
 - 使用管道连接工具，避免创建中间文件
 - 对于频繁使用的命令序列，考虑编写脚本并使用缓存
 
-## 十、总结
+## 十一、总结
 
 Linux文本处理工具集（cut, tr, sort, head, tail, paste, xargs）虽然简单，但通过合理组合可以解决各种复杂的数据处理任务。这些工具是系统管理员、开发人员和数据分析师的得力助手，掌握它们将大大提高工作效率。
 
@@ -430,7 +466,7 @@ Linux文本处理工具集（cut, tr, sort, head, tail, paste, xargs）虽然简
 
 记住，最好的文本处理解决方案通常是简单、高效且可维护的。通过不断实践和学习，你将能够更加熟练地运用这些工具，解决工作中遇到的各种文本处理挑战。
 
-## 十一、进一步学习资源
+## 十二、进一步学习资源
 
 - 各命令的man手册: `man cut`, `man tr` 等
 - GNU Coreutils文档: https://www.gnu.org/software/coreutils/
