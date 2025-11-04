@@ -137,6 +137,8 @@ cat logfile | tr -cd '\11\12\15\40-\176' > clean_log
 sort [OPTION]... [FILE]...
 ```
 
+> 想了解sort命令的详细用法和高级技巧，请查看我们的[Linux sort命令完全指南](https://soveranzhong.github.io/2024/01/23/linux-sort-command-guide.html)。
+
 ### 4.2 常用选项
 
 - `-b, --ignore-leading-blanks`: 忽略前导空白
