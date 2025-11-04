@@ -254,6 +254,24 @@ sed -n '0~2p' sed_test.txt
 # 打印除第2行外的所有行
 sed -n '2!p' sed_test.txt
 
+# 实际应用示例：取反操作
+# 以下是用户在系统中执行的实际示例，展示了取反操作的效果：
+```
+0 ✓ 22:30:03 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '2!p' sed.txt 
+nihao sed1 sed2 sed3 
+nihao sed7 sed8 sed9 
+```
+
+# 对比：打印第2行的效果
+```
+0 ✓ 22:36:18 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '2p' sed.txt 
+nihao sed4 sed5 sed6 
+```
+
+# 说明：
+# 1. 感叹号(!)用于对匹配条件取反
+# 2. '2!p'表示打印除了第2行以外的所有行
+# 3. 对比'2p'命令（只打印第2行），可以看到'2!p'命令的互补效果
 # 打印从第1行到包含sed4的行
 sed -n '1,/sed4/p' sed_test.txt
 ```
@@ -266,6 +284,24 @@ sed -n -e '1p' -e '3p' sed_test.txt
 
 # 从文件中读取打印命令
 sed -n -f sed_commands.txt sed_test.txt
+
+# 实际应用示例：创建sed脚本文件并执行
+# 以下是用户在系统中执行的实际示例，展示了如何创建和使用sed脚本文件：
+```sh
+0 ✓ 22:28:52 soveran@rocky9.6-12,10.0.0.12:~ $ echo -e '1p\n3p' >sed-script.txt 
+0 ✓ 22:29:41 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed-script.txt 
+1p 
+3p 
+0 ✓ 22:29:45 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n -f sed-script.txt sed.txt 
+nihao sed1 sed2 sed3 
+nihao sed7 sed8 sed9 
+
+
+# 说明：
+# 1. 使用echo -e '1p\n3p' >sed-script.txt 创建包含两个打印命令的脚本文件
+# 2. 第一个命令1p表示打印第1行，第二个命令3p表示打印第3行
+# 3. 使用sed -n -f sed-script.txt sed.txt 执行脚本文件中的命令
+# 4. -n选项确保只输出脚本中明确指定要打印的行（第1行和第3行）
 ```
 
 ### 5.4 打印行号
@@ -273,8 +309,21 @@ sed -n -f sed_commands.txt sed_test.txt
 ```bash
 # 打印匹配行的行号
 sed -n '/sed4/=' sed_test.txt
-```
 
+
+# 实际应用示例：显示匹配行号
+# 以下是用户在系统中执行的实际示例，展示了如何显示匹配特定模式的行号：
+
+0 ✓ 22:36:31 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '/sed4/=' sed.txt 
+2
+
+
+# 说明：
+# 1. 等号(=)命令用于打印当前行的行号
+# 2. '/sed4/='表示打印所有包含'sed4'字符串的行的行号
+# 3. 在这个示例中，'sed4'出现在第2行，因此命令输出数字2
+# 4. -n选项确保只输出行号，而不输出匹配的行内容
+```
 ### 5.5 打印部分内容（P命令）
 
 ```bash
