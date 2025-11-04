@@ -187,6 +187,32 @@ find . -name "*.txt" | xargs -I {} cp {} {}.bak
 
 这个命令为每个.txt文件创建一个备份文件。
 
+**注意事项：-n和-I选项的互斥性**
+
+当同时使用`-n`和`-I`选项时，系统会发出警告，表示这两个选项是互斥的，并且会忽略`-n`选项的值。`-I`选项本身就意味着每次处理一个参数。
+
+```bash
+# 示例1：处理数字文件，为每个数字创建.bak后缀
+xargs -a num.txt -n1 -I {} echo {}.bak
+# 输出警告信息和结果：
+xargs: warning: options --max-args and --replace/-I/-i are mutually exclusive, ignoring previous --max-args value
+10.bak
+9.bak
+8.bak
+# ... 其他数字
+
+# 示例2：批量复制文件到/tmp目录并添加-bak后缀
+ls *.txt | xargs -n1 -I {} cp {} /tmp/{}-bak
+# 输出警告信息，但命令仍会成功执行
+xargs: warning: options --max-args and --replace/-I/-i are mutually exclusive, ignoring previous --max-args value
+
+# 验证结果
+ls /tmp/*bak
+# 输出：/tmp/num.txt-bak  /tmp/test.txt-bak  /tmp/uniq.txt-bak
+```
+
+虽然系统会发出警告，但命令仍然会成功执行，因为`-I`选项已经隐含了每次处理一个参数的行为。
+
 ### 3.3 执行控制选项
 
 #### -t, --verbose
