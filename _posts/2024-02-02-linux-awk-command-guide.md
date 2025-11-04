@@ -630,6 +630,91 @@ awk 'BEGIN {
     print "Check with word pattern:", check_pattern("Only words here", word_regex)
 }'
 
+#### 5.1.6 正则表达式语法详解
+
+以下是AWK中正则表达式的完整语法参考：
+
+```
+[abc...]   字符列表：匹配abc...中的任意字符。可以使用破折号分隔字符来表示字符范围。要在列表中包含字面意义的破折号，请将其放在最前面或最后面。
+ 
+        [^abc...]  否定字符列表：匹配除了abc...之外的任意字符。
+ 
+        r1|r2      选择：匹配r1或r2。
+ 
+        r1r2       连接：匹配r1，然后匹配r2。
+ 
+        r+         匹配一个或多个r。
+    
+        r*         匹配零个或多个r。
+ 
+        r?         匹配零个或一个r。
+ 
+        (r)        分组：匹配r。
+ 
+        r{n}
+        r{n,}
+        r{n,m}     大括号内的一个或两个数字表示区间表达式。如果大括号内有一个数字，则前面的正则表达式r重复n次。如果有两个由逗号分隔的数字，则r重复n到m次。如果有一个数字后跟逗号，则r至少重复n次。
+ 
+        \y         匹配单词开头或结尾的空字符串。
+ 
+        \B         匹配单词内部的空字符串。
+ 
+        \\         匹配单词开头的空字符串。
+ 
+        \\>        匹配单词结尾的空字符串。
+ 
+        \s         匹配任意空白字符。
+ 
+        \S         匹配任意非空白字符。
+ 
+        \w         匹配任意单词构成字符（字母、数字或下划线）。
+ 
+        \W         匹配任意非单词构成字符。
+ 
+        \`         匹配缓冲区（字符串）开头的空字符串。
+ 
+        \'         匹配缓冲区结尾的空字符串。
+```
+
+**POSIX字符类**：
+
+```
+[:alnum:]  字母数字字符。
+
+[:alpha:]  字母字符。
+
+[:blank:]  空格或制表符。
+
+[:cntrl:]  控制字符。
+
+[:digit:]  数字字符。
+
+[:graph:]  既可打印又可见的字符。
+
+[:lower:]  小写字母字符。
+
+[:print:]  可打印字符。
+
+[:punct:]  标点符号字符。
+
+[:space:]  空白字符。
+
+[:upper:]  大写字母字符。
+
+[:xdigit:] 十六进制数字字符。
+```
+
+**排序符号和等价类**（多字节字符集支持）：
+
+- `[[.ch.]]` - 排序符号，匹配多字符排序元素
+- `[[=e=]]` - 等价类，匹配具有相同排序权重的所有字符
+
+**正则表达式模式匹配控制**：
+
+- 默认模式：支持完整POSIX正则表达式和GNU扩展
+- `--posix`：仅支持POSIX正则表达式，GNU操作符被视为普通字符
+- `--traditional`：使用传统awk的正则表达式语法
+
 ## 6. 模式和动作
 
 AWK是一种面向行的语言，由模式和动作组成。模式在前，动作用花括号（{}）括起来。模式或动作可以缺失，但不能同时缺失。
@@ -1394,11 +1479,202 @@ END {
 
 ## 7. 控制结构
 
-### 7.1 if-else语句
+### 7.1 正则表达式模式匹配控制
+
+传统UNIX awk使用标准的正则表达式匹配。GNU操作符不被视为特殊字符，并且区间表达式不可用。由八进制和十六进制转义序列描述的字符被视为字面量，即使它们表示正则表达式元字符。
+
+```bash
+# 使用--re-interval选项启用区间表达式
+awk --re-interval '/[0-9]{2,3}/' file.txt
+```
+
+**--re-interval**
+
+允许在正则表达式中使用区间表达式，即使已提供了--traditional选项。
+
+### 7.2 运算符
+
+AWK中的运算符按优先级从高到低排列如下：
+
+```bash
+(...)       分组
+
+$           字段引用
+
+++ --       递增和递减，前缀和后缀
+
+^           幂运算（也可以使用**，以及**=作为赋值运算符）
+
++ - !       一元加号、一元减号和逻辑非
+
+* / %       乘法、除法和取模
+
++ -         加法和减法
+
+空格        字符串连接
+
+|   |&      getline、print和printf的管道I/O
+
+< > <= >= == !=
+            常规关系运算符
+
+~ !~        正则表达式匹配、否定匹配。注意：不要在~或!~的左侧使用常量正则表达式(/foo/)。只在右侧使用。表达式/foo/ ~ exp与((($0 ~ /foo/) ~ exp))具有相同的含义。这通常不是您想要的。
+
+in          数组成员资格
+
+&&          逻辑与
+
+||          逻辑或
+
+?:          C条件表达式。形式为expr1 ? expr2 : expr3。如果expr1为真，表达式的值为expr2，否则为expr3。只计算expr2和expr3中的一个。
+
+= += -= *= /= %= ^=
+            赋值。支持绝对赋值(var = value)和运算符赋值(其他形式)。
+```
+
+### 7.3 控制语句
+
+控制语句如下：
+
+```bash
+if (condition) statement [ else statement ]
+while (condition) statement
+do statement while (condition)
+for (expr1; expr2; expr3) statement
+for (var in array) statement
+break
+continue
+delete array[index]
+delete array
+exit [ expression ]
+{ statements }
+switch (expression) {
+case value|regex : statement
+...
+[ default: statement ]
+}
+```
+
+### 7.4 I/O语句
+
+输入/输出语句如下：
+
+```bash
+close(file [, how])   关闭文件、管道或协同进程。可选的how参数只应在关闭到协同进程的双向管道的一端时使用。它必须是字符串值，"to"或"from"。
+
+getline               从下一个输入记录设置$0；设置NF、NR、FNR、RT。
+
+getline <file         从文件的下一个记录设置$0；设置NF、RT。
+
+getline var           从下一个输入记录设置var；设置NR、FNR、RT。
+
+getline var <file     从文件的下一个记录设置var；设置RT。
+
+command | getline [var]
+                      运行命令，将输出通过管道传输到$0或var，并设置RT。
+
+command |& getline [var]
+                      运行命令作为协同进程，将输出通过管道传输到$0或var，并设置RT。协同进程是gawk的扩展。（命令也可以是套接字。）
+
+next                  停止处理当前输入记录。读取下一个输入记录，并从AWK程序的第一个模式开始重新处理。到达输入数据末尾时，执行任何END规则。
+
+nextfile              停止处理当前输入文件。下一个读取的输入记录来自下一个输入文件。更新FILENAME和ARGIND，将FNR重置为1，并从AWK程序的第一个模式开始重新处理。到达输入数据末尾时，执行任何ENDFILE和END规则。
+
+print                 打印当前记录。输出记录以ORS的值结束。
+
+print expr-list       打印表达式。每个表达式由OFS的值分隔。输出记录以ORS的值结束。
+
+print expr-list >file 将表达式打印到文件。每个表达式由OFS的值分隔。输出记录以ORS的值结束。
+
+printf fmt, expr-list 格式化并打印。
+
+printf fmt, expr-list >file
+                      格式化并打印到文件。
+
+system(cmd-line)      执行命令cmd-line，并返回退出状态。
+
+fflush([file])        刷新与打开的输出文件或管道文件相关联的任何缓冲区。如果file缺失或是空字符串，则刷新所有打开的输出文件和管道。
+```
+
+print和printf还允许其他输出重定向：
+
+```bash
+print ... >> file       # 将输出追加到文件
+print ... | command     # 将输出写入管道
+print ... |& command    # 将数据发送到协同进程或套接字
+```
+
+#### printf格式说明
+
+AWK版本的printf语句和sprintf()函数接受以下格式说明符：
+
+**基本格式转换符：**
+- `%a`, `%A`: 以[-]0xh.hhhhp+-dd形式的十六进制浮点数（C99格式）。%A使用大写字母。
+- `%c`: 单个字符。如果参数是数字，则将其视为字符打印；否则，假设参数是字符串，只打印第一个字符。
+- `%d`, `%i`: 十进制数字（整数部分）。
+- `%e`, `%E`: 以[-]d.dddddde[+-]dd形式的浮点数。%E使用E而不是e。
+- `%f`, `%F`: 以[-]ddd.dddddd形式的浮点数。如果系统库支持，%F也可用，对于特殊的"非数字"和"无穷大"值使用大写字母。
+- `%g`, `%G`: 使用%e或%f转换，取较短者，去除无意义的零。%G使用%E代替%e。
+- `%o`: 无符号八进制数（也是整数）。
+- `%u`: 无符号十进制数（同样是整数）。
+- `%s`: 字符串。
+- `%x`, `%X`: 无符号十六进制数（整数）。%X使用ABCDEF而不是abcdef。
+- `%%`: 单个%字符，不需要参数转换。
+
+**可选修饰符（位于%和控制字母之间）：**
+- `count$`: 在此时使用第count个参数。这称为位置指定符，主要用于翻译后的格式字符串。
+- `-`: 表达式应在其字段内左对齐。
+- `space`: 对于数值转换，正数前添加空格，负数前添加减号。
+- `+`: 始终为数值转换提供符号，即使要格式化的数据是正数。+会覆盖空格修饰符。
+- `#`: 对某些控制字母使用"备用形式"。对于%o，提供前导零。对于%x和%X，对非零结果提供前导0x或0X。对于%e、%E、%f和%F，结果始终包含小数点。对于%g和%G，不从结果中删除尾随零。
+- `0`: 前导0表示输出应使用零而不是空格填充。这仅适用于数值输出格式。
+- `'`: 单引号字符指示gawk在十进制数中插入区域设置的千位分隔符字符，并在浮点格式中使用区域设置的小数点字符。
+- `width`: 字段应填充到此宽度。默认使用空格填充，使用0标志时使用零填充。
+- `.prec`: 指定打印时使用的精度。对于%e、%E、%f和%F格式，这指定要打印到小数点右侧的位数。对于%g和%G格式，它指定最大有效数字位数。对于%s格式，它指定应该打印的字符串的最大字符数。
+
+支持ISO C printf()例程的动态宽度和精度功能。格式字符串中宽度或精度规范位置的*会使它们的值从printf或sprintf()的参数列表中获取。
+
+#### 特殊文件名称
+
+当从print或printf重定向到文件，或通过getline从文件读取时，gawk会识别某些特殊的文件名。这些文件名允许访问从gawk父进程（通常是shell）继承的打开文件描述符。这些文件名也可以在命令行上用于命名数据文件。
+
+**标准文件描述符相关文件名：**
+- `/dev/stdin`: 标准输入
+- `/dev/stdout`: 标准输出
+- `/dev/stderr`: 标准错误输出
+- `/dev/fd/n`: 与打开的文件描述符n关联的文件
+
+这些在错误消息输出时特别有用，例如：
+
+```bash
+print "You blew it!" > "/dev/stderr"
+```
+
+而不是使用：
+
+```bash
+print "You blew it!" | "cat 1>&2"
+```
+
+**网络连接相关文件名（用于|&协同进程运算符）：**
+
+TCP/IP连接：
+- `/inet/tcp/lport/rhost/rport`: 在本地端口lport与远程主机rhost的远程端口rport之间建立TCP/IP连接
+- `/inet4/tcp/lport/rhost/rport`: 强制使用IPv4连接
+- `/inet6/tcp/lport/rhost/rport`: 强制使用IPv6连接
+
+UDP/IP连接：
+- `/inet/udp/lport/rhost/rport`: 使用UDP/IP而不是TCP/IP
+- `/inet4/udp/lport/rhost/rport`: 强制使用IPv4的UDP连接
+- `/inet6/udp/lport/rhost/rport`: 强制使用IPv6的UDP连接
+
+其中，lport设为0表示让系统选择端口。这些特殊文件名只能与|&双向I/O运算符一起使用。
+
+### 7.5 if-else语句示例
 
 ```bash
 # 使用if-else语句
-awk '{ 
+awk '{
     total = $2 + $3 + $4
     if (total >= 270) {
         grade = "A"
@@ -1461,6 +1737,332 @@ awk '{
     }
 }' awk_test.txt
 ```
+
+### 7.6 数学函数
+
+AWK提供了以下内置算术函数：
+
+- **atan2(y, x)**: 返回y/x的反正切值，单位为弧度
+- **cos(expr)**: 返回expr的余弦值，expr以弧度为单位
+- **exp(expr)**: 指数函数
+- **int(expr)**: 将expr截断为整数
+- **log(expr)**: 自然对数函数
+- **rand()**: 返回0到1之间的随机数N，满足0 ≤ N < 1
+- **sin(expr)**: 返回expr的正弦值，expr以弧度为单位
+- **sqrt(expr)**: 返回expr的平方根
+- **srand([expr])**: 使用expr作为随机数生成器的新种子。如果未提供expr，则使用当前时间。返回随机数生成器的前一个种子
+
+### 7.7 字符串函数
+
+GNU awk提供了以下内置字符串函数：
+
+### 7.8 时间函数
+
+由于AWK程序的主要用途之一是处理包含时间戳信息的日志文件，gawk提供了以下用于获取时间戳和格式化时间的函数：
+
+- **mktime(datespec [, utc-flag])**: 将datespec转换为与systime()返回的形式相同的时间戳，并返回结果。datespec是一个格式为YYYY MM DD HH MM SS[ DST]的字符串。字符串内容是六个或七个数字，分别表示包含世纪的完整年份、1到12的月份、1到31的日期、0到23的小时、0到59的分钟、0到60的秒以及可选的夏令时标志。这些数字的值不必在指定的范围内；例如，-1小时表示午夜前1小时。假定使用从零点开始的公历，其中第0年在第1年之前，第-1年在第0年之前。如果存在utc-flag且为非零或非空，则假定时间在UTC时区；否则，假定时间在本地时区。如果DST夏令时标志为正，则假定时间为夏令时；如果为零，则假定为标准时间；如果为负（默认值），mktime()将尝试确定指定时间是否处于夏令时。如果datespec不包含足够的元素或者生成的时间超出范围，mktime()返回-1。
+
+- **strftime([format [, timestamp[, utc-flag]]])**: 根据format中的规范格式化timestamp。如果存在utc-flag且为非零或非空，则结果为UTC时间，否则为本地时间。timestamp应该与systime()返回的形式相同。如果缺少timestamp，则使用当前时间。如果缺少format，则使用相当于date(1)输出的默认格式。默认格式可在PROCINFO["strftime"]中找到。
+
+- **systime()**: 返回自纪元（1970-01-01 00:00:00 UTC）以来的当前时间，以秒为单位。
+
+- **asort(s [, d [, how] ])**: 返回源数组s中的元素数量。使用gawk的常规规则对s的内容进行排序，并将排序后的值的索引替换为从1开始的连续整数。如果指定了可选的目标数组d，则首先将s复制到d，然后对d进行排序，保留源数组s的索引不变。可选字符串how控制排序方向和比较模式。
+
+- **asorti(s [, d [, how] ])**: 返回源数组s中的元素数量。行为与asort()相同，不同之处在于数组索引用于排序，而不是数组值。完成后，数组按数字索引，值是原始索引的值。原始值将丢失；因此，如果希望保留原始值，请提供第二个数组。
+
+- **gensub(r, s, h [, t])**: 在目标字符串t中搜索正则表达式r的匹配项。如果h是以下划线g或G开头的字符串，则替换r的所有匹配项为s。否则，h是一个数字，表示要替换r的第几个匹配项。如果未提供t，则使用$0。在替换文本s中，序列\n（其中n是1到9之间的数字）可用于表示与第n个带括号的子表达式匹配的文本。序列\0表示整个匹配的文本，字符&也是如此。与sub()和gsub()不同，修改后的字符串作为函数结果返回，原始目标字符串不变。
+
+- **gsub(r, s [, t])**: 对于字符串t中匹配正则表达式r的每个子字符串，替换为字符串s，并返回替换次数。如果未提供t，则使用$0。替换文本中的&会被实际匹配的文本替换。使用\&获取字面上的&（这必须键入为"\\&"）。
+
+- **index(s, t)**: 返回字符串t在字符串s中的索引，如果t不存在则返回0。（这意味着字符索引从1开始。）对t使用正则表达式常量是致命错误。
+
+- **length([s])**: 返回字符串s的长度，如果未提供s，则返回$0的长度。作为非标准扩展，对于数组参数，length()返回数组中的元素数量。
+
+- **match(s, r [, a])**: 返回正则表达式r在s中出现的位置，如果r不存在则返回0，并设置RSTART和RLENGTH的值。请注意，参数顺序与~运算符相同：str ~ re。如果提供了数组a，则清除a并存储捕获组信息。数组索引0包含整个匹配的文本，索引1到n包含各个捕获组的内容。
+
+- **split(s, a [, r [, seps]])**: 使用分隔符正则表达式r将字符串s分割成数组a的元素，并返回元素数量。如果未提供r，则使用FS的值。split()会忽略空字段。如果提供了可选参数seps，它必须是一个数组，该数组将填充分隔符的字符串。
+
+- **sprintf(format, expr-list)**: 根据format中的指令格式化expr-list中的表达式，并返回生成的字符串而不打印。这与printf语句的工作方式相同，但结果是返回而不是打印。
+
+- **sub(r, s [, t])**: 对于字符串t中第一个匹配正则表达式r的子字符串，替换为字符串s，并返回替换次数（0或1）。如果未提供t，则使用$0。替换文本中的&会被实际匹配的文本替换。
+
+- **substr(s, i [, n])**: 返回字符串s中从索引i开始的子字符串。如果提供了n，则返回最多n个字符；否则，返回从i到字符串末尾的所有字符。在awk中，字符串索引从1开始。
+
+- **tolower(str)**: 返回字符串str的副本，其中所有大写字符都转换为相应的小写字符。非字母字符保持不变。
+
+- **toupper(str)**: 返回字符串str的副本，其中所有小写字符都转换为相应的大写字符。非字母字符保持不变。
+
+- **strtonum(str)**: 检查str并返回其数值。如果str以前导0开头，则将其视为八进制数。如果str以0x或0X开头，则将其视为十六进制数。否则，假定为十进制数。
+
+- **patsplit(s, a [, r [, seps]])**: 根据正则表达式r将字符串s分割成数组a，同时将分隔符保存在seps数组中，并返回字段数量。元素值是s中匹配r的部分。seps[i]的值是出现在a[i]之后的可能为空的分隔符。seps[0]的值是可能为空的前导分隔符。如果省略r，则使用FPAT代替。数组a和seps首先被清除。分割行为与使用FPAT的字段分割完全相同。
+
+Gawk支持多字节处理。这意味着index()、length()、substr()和match()都以字符而不是字节为单位工作。
+
+### 7.9 位操作函数
+
+Gawk提供以下位操作函数。它们的工作方式是将双精度浮点值转换为uintmax_t整数，执行操作，然后将结果转换回浮点数。
+
+**注意：** 向这些函数传递负数会导致致命错误。
+
+- **and(v1, v2 [, ...])**: 返回参数列表中提供的值的按位与。至少需要两个参数。
+
+- **compl(val)**: 返回val的按位取反。
+
+- **lshift(val, count)**: 返回val左移count位后的值。
+
+- **or(v1, v2 [, ...])**: 返回参数列表中提供的值的按位或。至少需要两个参数。
+
+- **rshift(val, count)**: 返回val右移count位后的值。
+
+- **xor(v1, v2 [, ...])**: 返回参数列表中提供的值的按位异或。至少需要两个参数。
+
+### 7.10 类型函数
+
+以下函数提供有关其参数的类型相关信息：
+
+- **isarray(x)**: 如果x是数组则返回true，否则返回false。此函数主要用于多维数组的元素和函数参数。
+
+- **typeof(x)**: 返回一个字符串，指示x的类型。字符串将是"array"、"number"、"regexp"、"string"、"strnum"、"unassigned"或"undefined"之一。
+
+### 7.11 国际化函数
+
+以下函数可用于在AWK程序中在运行时翻译字符串：
+
+- **bindtextdomain(directory [, domain])**: 指定gawk查找.gmo文件的目录，以防它们不会或不能放在"标准"位置（例如，在测试期间）。它返回domain被"绑定"的目录。
+  默认域是TEXTDOMAIN的值。如果directory是空字符串("")，则bindtextdomain()返回给定域的当前绑定。
+
+- **dcgettext(string [, domain [, category]])**: 返回文本域domain中字符串string的翻译，用于locale类别category。domain的默认值是TEXTDOMAIN的当前值。category的默认值是"LC_MESSAGES"。
+  如果您提供category的值，它必须是一个字符串，等于GAWK: Effective AWK Programming中描述的已知locale类别之一。您还必须提供一个文本域。如果要使用当前域，请使用TEXTDOMAIN。
+
+- **dcngettext(string1, string2, number [, domain [, category]])**: 返回文本域domain中字符串string1和string2翻译的复数形式，用于locale类别category，对应于数字number。domain的默认值是TEXTDOMAIN的当前值。category的默认值是"LC_MESSAGES"。
+  如果您提供category的值，它必须是一个字符串，等于GAWK: Effective AWK Programming中描述的已知locale类别之一。您还必须提供一个文本域。如果要使用当前域，请使用TEXTDOMAIN。
+
+### 7.12 用户定义函数
+
+AWK中的函数定义如下：
+
+```awk
+function name(parameter list) { statements }
+```
+
+函数在从模式或操作中的表达式调用时执行。函数调用中提供的实际参数用于实例化函数声明中的形式参数。数组通过引用传递，其他变量通过值传递。
+
+由于函数最初不是AWK语言的一部分，局部变量的规定相当笨拙：它们被声明为参数列表中的额外参数。惯例是通过在参数列表中添加额外空格来分隔局部变量和实际参数。例如：
+
+```awk
+function f(p, q,     a, b)   # a和b是局部变量
+{
+    ...
+}
+
+/abc/     { ... ; f(1, 2) ; ... }
+```
+
+函数调用中的左括号必须紧跟在函数名称之后，中间不能有任何空格。这避免了与连接运算符的语法歧义。此限制不适用于上面列出的内置函数。
+
+函数可以相互调用，也可以递归调用。用作局部变量的函数参数在函数调用时初始化为空字符串和数字零。
+
+使用`return expr`从函数返回值。如果未提供值，或者函数通过"掉出"末尾返回，则返回值未定义。
+
+作为gawk扩展，函数可以间接调用。为此，将要调用的函数名称（作为字符串）分配给变量。然后使用该变量，就好像它是函数名称一样，并在其前面加上@符号，如下所示：
+
+```awk
+function myfunc()
+{
+    print "myfunc called"
+    ...
+}
+
+{    ...
+    the_func = "myfunc"
+    @the_func()    # 通过the_func调用myfunc
+    ...
+}
+```
+
+从版本4.1.2开始，这适用于用户定义函数、内置函数和扩展函数。
+
+### 7.13 函数检查与动态加载
+
+#### 函数检查
+
+如果提供了`--lint`选项，gawk会在解析时而不是运行时警告对未定义函数的调用。在运行时调用未定义函数是一个致命错误。
+
+关键字`func`可以用来代替`function`，尽管这种用法已被弃用。
+
+#### 动态加载新函数
+
+您可以使用`@load`语句动态地将用C或C++编写的新函数添加到正在运行的gawk解释器中。完整的详细信息超出了本文档的范围；请参阅GAWK: Effective AWK Programming。
+
+### 7.14 信号处理
+
+Gawk分析器接受两个信号：
+
+- **SIGUSR1**：导致它将分析和函数调用堆栈转储到分析文件中，该文件是awkprof.out或通过`--profile`选项指定的任何文件。然后它继续运行。
+- **SIGHUP**：导致gawk转储分析和函数调用堆栈，然后退出。
+
+### 7.15 国际化
+
+字符串常量是用双引号括起来的字符序列。在非英语环境中，可以将AWK程序中的字符串标记为需要翻译为本地自然语言。这样的字符串在AWK程序中用前导下划线（"_"）标记。例如：
+
+```bash
+gawk 'BEGIN { print "hello, world" }'
+```
+
+始终打印"hello, world"。但是：
+
+```bash
+gawk 'BEGIN { print _"hello, world" }'
+```
+
+在法国可能会打印"bonjour, monde"。
+
+生产和运行可本地化的AWK程序涉及几个步骤：
+
+1. 添加BEGIN操作来为TEXTDOMAIN变量赋值，以将文本域设置为与您的程序关联的名称：
+
+```awk
+BEGIN { TEXTDOMAIN = "myprog" }
+```
+
+这允许gawk找到与您的程序关联的.gmo文件。如果没有此步骤，gawk将使用messages文本域，该文本域可能不包含您程序的翻译。
+
+2. 用前导下划线标记所有应该翻译的字符串。
+
+3. 如果需要，在程序中适当地使用dcgettext()和/或bindtextdomain()函数。
+
+4. 运行`gawk --gen-pot -f myprog.awk > myprog.pot`为您的程序生成.pot文件。
+
+5. 提供适当的翻译，并构建和安装相应的.gmo文件。
+
+### 7.16 POSIX兼容性
+
+Gawk的主要目标是与POSIX标准以及Brian Kernighan最新版本的awk兼容。为此，gawk包含以下用户可见的功能，这些功能在AWK书中没有描述，但属于Brian Kernighan版本的awk，并且在POSIX标准中：
+
+- 书中指出命令行变量赋值发生在awk否则会打开参数作为文件时，这是在BEGIN规则执行之后。但是，在早期实现中，当这样的赋值出现在任何文件名之前时，赋值会在BEGIN规则运行之前发生。应用程序依赖于这个"特性"。当awk被更改为与其文档匹配时，添加了`-v`选项用于在程序执行前赋值变量，以适应依赖于旧行为的应用程序。
+
+- 在处理参数时，gawk使用特殊选项"--"来表示参数的结束。在兼容模式下，它会警告但忽略未定义的选项。在正常操作中，这些参数会传递给AWK程序进行处理。
+
+- AWK书没有定义srand()的返回值。POSIX标准规定它返回它正在使用的种子，以允许跟踪随机数序列。因此，gawk中的srand()也返回其当前种子。
+
+- 其他功能包括：使用多个-f选项（来自MKS awk）；ENVIRON数组；\a和\v转义序列（最初在gawk中完成并反馈回Bell Laboratories版本）；tolower()和toupper()内置函数（来自Bell Laboratories版本）；以及printf中的ISO C转换规范（首先在Bell Laboratories版本中完成）。
+
+### 7.17 历史特性
+
+gawk支持历史AWK实现的一个特性：可以不仅不带参数调用length()内置函数，甚至可以不带括号！因此：
+
+```awk
+a = length     # Holy Algol 60, Batman!
+```
+
+与以下任一相同：
+
+```awk
+a = length()
+a = length($0)
+```
+
+使用此功能是不良做法，如果在命令行上指定了`--lint`，gawk会发出关于其使用的警告。
+
+### 7.18 GNU扩展
+
+Gawk有太多的扩展超出了POSIX awk。以下是gawk的一些特性，它们在POSIX awk中不可用：
+
+- 对于通过-f选项命名的文件，不会执行路径搜索。因此，AWKPATH环境变量不是特殊的。
+
+- 没有进行文件包含的工具（gawk的@include机制）。
+
+- 没有动态添加用C编写的新函数的工具（gawk的@load机制）。
+
+- \x转义序列。
+
+- 在?和:之后继续行的能力。
+
+- AWK程序中的八进制和十六进制常量。
+
+- ARGIND、BINMODE、ERRNO、LINT、PREC、ROUNDMODE、RT和TEXTDOMAIN变量不是特殊的。
+
+- IGNORECASE变量及其副作用不可用。
+
+- FIELDWIDTHS变量和固定宽度字段分割。
+
+- FPAT变量和基于字段值的字段分割。
+
+- FUNCTAB、SYMTAB和PROCINFO数组不可用。
+
+- 将RS用作正则表达式的能力。
+
+- I/O重定向中可用的特殊文件名不被识别。
+
+- 用于创建协处理的|&运算符。
+
+- BEGINFILE和ENDFILE特殊模式不可用。
+
+- 使用空字符串作为FS的值和split()的第三个参数来分割单个字符的能力。
+
+- split()的可选第四个参数，用于接收分隔符文本。
+
+- close()函数的可选第二个参数。
+
+- match()函数的可选第三个参数。
+
+- 在printf和sprintf()中使用位置说明符的能力。
+
+- 将数组传递给length()的能力。
+
+- and()、asort()、asorti()、bindtextdomain()、compl()、dcgettext()、dcngettext()、gensub()、lshift()、mktime()、or()、patsplit()、rshift()、strftime()、strtonum()、systime()和xor()函数。
+
+- 可本地化字符串。
+
+- 非致命I/O。
+
+- 可重试I/O。
+
+AWK书没有定义close()函数的返回值。当关闭输出文件或管道时，gawk的close()返回fclose(3)或pclose(3)的值，分别。当关闭输入管道时，它返回进程的退出状态。如果命名的文件、管道或协处理没有通过重定向打开，则返回值为-1。
+
+当使用--traditional选项调用gawk时，如果-F选项的fs参数是"t"，那么FS被设置为制表符。请注意，键入gawk -F\t ... 只会导致shell引用"t"，而不会将"\t"传递给-F选项。由于这是一个相当难看的特殊情况，因此它不是默认行为。如果指定了--posix，这种行为也不会发生。要真正获得制表符作为字段分隔符，最好使用单引号：gawk -F'\t' ...。
+
+### 7.19 环境变量
+
+AWKPATH环境变量可用于提供gawk在查找通过-f、--file、-i和--include选项以及@include指令命名的文件时搜索的目录列表。如果初始搜索失败，则在将.awk附加到文件名后再次搜索路径。
+
+### 7.20 退出状态
+
+如果使用值调用exit语句，则gawk以给定的数值退出。
+
+否则，如果执行过程中没有问题，gawk以C常量EXIT_SUCCESS的值退出。这通常为零。
+
+如果发生错误，gawk以C常量EXIT_FAILURE的值退出。这通常为1。
+
+如果gawk由于致命错误而退出，退出状态为2。在非POSIX系统上，此值可能映射到EXIT_FAILURE。
+
+### 7.21 版本信息
+
+本手册页记录的是gawk，版本5.1。
+
+### 7.22 作者
+
+原始版本的UNIX awk由Bell Laboratories的Alfred Aho、Peter Weinberger和Brian Kernighan设计和实现。Brian Kernighan继续维护和增强它。
+
+自由软件基金会的Paul Rubin和Jay Fenlason编写了gawk，使其与第七版UNIX中分发的原始awk版本兼容。John Woods贡献了许多错误修复。David Trueman在Arnold Robbins的贡献下，使gawk与新版本的UNIX awk兼容。Arnold Robbins是当前的维护者。
+
+有关对gawk及其文档的完整贡献者列表，请参阅GAWK: Effective AWK Programming。
+
+有关维护者和当前支持的端口的最新信息，请参阅gawk发行版中的README文件。
+
+### 7.23 Bug报告
+
+如果您在gawk中发现bug，请发送电子邮件至bug-gawk@gnu.org。请包括您的操作系统及其修订版本、gawk的版本（来自gawk --version）、用于编译它的C编译器，以及尽可能小的测试程序和数据来重现问题。
+
+发送bug报告之前，请执行以下操作。首先，验证您是否拥有最新版本的gawk。每个版本都会修复许多bug（通常是微妙的bug），如果您的版本过时，问题可能已经解决。其次，请查看将环境变量LC_ALL设置为LC_ALL=C是否会导致行为符合您的预期。如果是这样，这是一个区域设置问题，可能是也可能不是真正的bug。最后，请仔细阅读本手册页和参考手册，确保您认为的bug确实是bug，而不仅仅是语言中的怪癖。
+
+无论您做什么，都不要在comp.lang.awk中发布bug报告。虽然gawk开发人员偶尔会阅读这个新闻组，但在那里发布bug报告是一种不可靠的报告bug的方式。同样，不要使用网络论坛（如Stack Overflow）来报告bug。相反，请使用上面给出的电子邮件地址。真的。
+
+如果您使用基于GNU/Linux或BSD的系统，您可能希望向您的发行版供应商提交bug报告。这很好，但也请发送一份副本到官方电子邮件地址，因为不能保证bug报告会转发给gawk维护者。
+
+### 7.24 已知问题
+
+鉴于命令行变量赋值功能，-F选项不是必需的；它仅保留用于向后兼容性。
 
 ## 8. 实用示例
 
@@ -1670,3 +2272,62 @@ awk '$1 == "skip" { next } { print }' large_file.txt
 - [awk 编程语言](https://ia802309.us.archive.org/25/items/pdfy-MgN0H1joIoDVoIC7/The_AWK_Programming_Language.pdf)
 
 > 您可以参考我们的[Linux文本处理工具精通指南](https://soveranzhong.github.io/2024/01/20/linux-text-processing-tools.html)获取更多Linux文本处理工具的详细介绍。
+
+## 13. 另请参阅
+
+- egrep(1), sed(1), getpid(2), getppid(2), getpgrp(2), getuid(2), geteuid(2), getgid(2), getegid(2), getgroups(2), printf(3), strftime(3), usleep(3)
+
+- 《The AWK Programming Language》，Alfred V. Aho、Brian W. Kernighan、Peter J. Weinberger 著，Addison-Wesley出版社，1988年。ISBN 0-201-07981-X。
+
+- 《GAWK: Effective AWK Programming》第5.1版，随gawk源代码一起分发。本文档的当前版本可在网上查阅：[https://www.gnu.org/software/gawk/manual](https://www.gnu.org/software/gawk/manual)。
+
+- GNU gettext 文档，可在网上查阅：[https://www.gnu.org/software/gettext](https://www.gnu.org/software/gettext)。
+
+## 14. 示例
+
+**打印并排序所有用户的登录名：**
+
+```bash
+BEGIN     { FS = ":" }
+     { print $1 | "sort" }
+```
+
+**统计文件行数：**
+
+```bash
+     { nlines++ }
+END  { print nlines }
+```
+
+**在每行前加上其在文件中的行号：**
+
+```bash
+{ print FNR, $0 }
+```
+
+**连接文件并添加行号（一个变体）：**
+
+```bash
+{ print NR, $0 }
+```
+
+**为特定数据行运行外部命令：**
+
+```bash
+tail -f access_log |
+awk '/myhome.html/ { system("nmap " $1 ">> logdir/myhome.html") }'
+```
+
+## 15. 致谢
+
+Brian Kernighan在测试和调试过程中提供了宝贵的帮助。我们向他表示感谢。
+
+## 16. 复制许可
+
+版权所有 © 1989, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020，自由软件基金会。
+
+允许制作和分发本手册页的逐字副本，前提是保留版权声明和本许可声明的所有副本。
+
+允许在逐字复制的条件下复制和分发本手册页的修改版本，前提是整个衍生作品在与本声明相同的许可声明下分发。
+
+允许将本手册页翻译成另一种语言进行复制和分发，条件同上，但本许可声明可以使用基金会批准的翻译版本。
