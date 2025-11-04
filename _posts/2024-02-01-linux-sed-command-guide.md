@@ -219,11 +219,11 @@ sed -n '0~2p' sed_test.txt
 # 实际应用示例
 # 以下是用户在系统中执行的实际示例，展示了步进语法的效果：
 # 从第1行开始，每隔1行打印一次（奇数行）
-```
+
 0 ✓ 22:08:55 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '1~2p' sed.txt 
  nihao sed1 sed2 sed3 
  nihao sed7 sed8 sed9 
-```
+
 
 # 步进语法说明：'1~2'表示从第1行开始，每隔1行（步长为2）打印一次
 # 语法格式：start~step，其中start是起始行号，step是步长值
@@ -236,14 +236,14 @@ sed -n '0~2p' sed_test.txt
 # 3. 无引号：在某些简单的sed命令中（不包含shell特殊字符），也可以不使用引号
 
 # 实际验证示例：以下命令都能正常工作
-```
+
 0 ✓ 22:09:15 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n "0~2p" sed.txt 
  nihao sed4 sed5 sed6 
 0 ✓ 22:22:12 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n 0~2p sed.txt 
  nihao sed4 sed5 sed6 
 0 ✓ 22:22:24 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '0~2p' sed.txt 
  nihao sed4 sed5 sed6 
-```
+
 
 # 引号使用建议：
 # - 对于简单的模式，三种引号方式都可以使用
@@ -256,17 +256,17 @@ sed -n '2!p' sed_test.txt
 
 # 实际应用示例：取反操作
 # 以下是用户在系统中执行的实际示例，展示了取反操作的效果：
-```
+
 0 ✓ 22:30:03 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '2!p' sed.txt 
 nihao sed1 sed2 sed3 
 nihao sed7 sed8 sed9 
-```
+
 
 # 对比：打印第2行的效果
-```
+
 0 ✓ 22:36:18 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '2p' sed.txt 
 nihao sed4 sed5 sed6 
-```
+
 
 # 说明：
 # 1. 感叹号(!)用于对匹配条件取反
@@ -287,7 +287,7 @@ sed -n -f sed_commands.txt sed_test.txt
 
 # 实际应用示例：创建sed脚本文件并执行
 # 以下是用户在系统中执行的实际示例，展示了如何创建和使用sed脚本文件：
-```sh
+
 0 ✓ 22:28:52 soveran@rocky9.6-12,10.0.0.12:~ $ echo -e '1p\n3p' >sed-script.txt 
 0 ✓ 22:29:41 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed-script.txt 
 1p 
@@ -355,7 +355,7 @@ sed -n 'l 20' special_chars.txt
 
 ### 5.3 多点打印
 
-```bash
+`
 # 使用-e参数指定多个打印命令
 sed -n -e '1p' -e '3p' sed_test.txt
 
@@ -688,7 +688,7 @@ seq 1 10 | sed -n '1,~5p'  # 匹配1-5行
 
 # first~step 形式：从first行开始，每隔step行匹配一次（之前已介绍）
 seq 1 10 | sed -n '2~3p'  # 匹配2,5,8行
-
+```
 ### 10.2 取反匹配
 
 ```bash
@@ -745,16 +745,16 @@ sed -n '\|/bin/bash|p' /etc/passwd  # 使用|作为分隔符
 # 3. 正确的替换分隔符方法：在替换命令中使用#作为分隔符，应该这样写：sed 's#pattern#replacement#'，但这种替换只适用于s命令
 # 4. 转义问题：在使用#^\/dev\/sd#p时，sed无法正确识别#作为分隔符，因为这种语法结构下sed期望使用/作为模式分隔符
 
-```sh
+
 
   0 ✓ 21:26:00 soveran@rocky9.6-12,10.0.0.12:~ $ df -h | sed -n '#^\/dev\/sd#p'
   0 ✓ 21:26:41 soveran@rocky9.6-12,10.0.0.12:~ $ df -h | sed -n '/^\/dev\/sd/p'
 /dev/sda1            960M  481M  480M   51% /boot
 
-```
+
 # 经验验证：在替换命令中使用#作为分隔符（注意需要p标志才会打印结果）
 df -h | sed -n 's#/dev#/dav#p'  # 成功将/dev替换为/dav并打印结果
-
+```
 
 
 ## 11. 多点操作和文件处理
