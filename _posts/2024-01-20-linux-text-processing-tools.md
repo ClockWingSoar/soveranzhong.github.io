@@ -31,6 +31,8 @@ categories: linux command-line
 
 ### 2.1 基本语法
 
+> 提示：想了解更多关于cut命令的详细用法，请查看我们的专题文章[《Linux cut命令完全指南：精确字段提取的艺术》](/linux/command-line/2024/01/22/linux-cut-command-guide.html)
+
 ```bash
 cut OPTION... [FILE]...
 ```
@@ -78,6 +80,8 @@ cut -d' ' -f1 access.log | sort | uniq -c | sort -nr
 ## 三、tr - 字符转换工具
 
 ### 3.1 基本语法
+
+> 提示：想了解更多关于tr命令的详细用法，请查看我们的专题文章[《Linux tr命令完全指南：字符转换、压缩与删除的艺术》](/linux/command-line/2024/01/21/linux-tr-command-guide.html)
 
 ```bash
 tr [OPTION]... SET1 [SET2]
