@@ -198,6 +198,8 @@ sort -t'[' -k2,2 access.log
 head [OPTION]... [FILE]...
 ```
 
+> 提示：想了解head命令的更多高级用法和详细选项，请阅读我们的[Linux head命令完全指南](https://soveranzhong.github.io/2024/01/26/linux-head-command-guide.html)。
+
 #### 5.1.2 常用选项
 
 - `-n, --lines=[-]K`: 显示前K行，或除最后K行外的所有行
