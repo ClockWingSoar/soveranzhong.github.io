@@ -32,6 +32,48 @@ tr命令在以下场景特别有用：
 
 掌握tr命令可以让您在不使用复杂编程语言的情况下，快速完成许多文本处理任务。
 
+## 一、准备测试数据
+
+在开始学习tr命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建包含各种字符的测试文件
+cat > test_data.txt << 'EOF'
+Hello, World! 123
+This is a TEST file.
+包含中文和特殊字符!@#$%^&*
+Multiple     spaces
+Tabs	and
+New
+Lines
+EOF
+
+# 创建包含重复字符的测试文件
+cat > repeat_chars.txt << 'EOF'
+Heeeellllooooo
+TTHHHHIIISSSS
+AAAA BBBB CCCC
+EOF
+
+# 创建包含大小写混合的测试文件
+cat > mixed_case.txt << 'EOF'
+Linux Command Line
+TEXT PROCESSING
+lowercase and UPPERCASE
+MiXeD cAsE
+EOF
+
+# 创建简单的日志文件样例
+cat > sample_log.txt << 'EOF'
+2024-01-21 10:15:30 INFO User login successful: user123
+2024-01-21 10:16:45 ERROR Database connection failed
+2024-01-21 10:18:20 WARNING Disk space low
+2024-01-21 10:20:15 INFO User logout: user123
+EOF
+```
+
+这些测试文件将帮助我们更好地理解和演示tr命令的各种功能。
+
 ## 二、tr命令选项详解
 
 ### 2.1 -c, -C, --complement：使用SET1的补集

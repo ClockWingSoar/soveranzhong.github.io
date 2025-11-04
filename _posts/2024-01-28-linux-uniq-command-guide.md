@@ -19,6 +19,71 @@ date: 2024-01-28 10:00:00
 - 跳过指定数量的字段或字符
 - 自定义比较的字符数量
 
+## 1.1 准备测试数据
+
+在开始学习uniq命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建包含相邻重复行的测试文件
+cat > duplicate_lines.txt << 'EOF'
+apple
+apple
+banana
+banana
+banana
+cherry
+date
+date
+elderberry
+EOF
+
+# 创建包含非相邻重复行的测试文件
+cat > non_adjacent_duplicates.txt << 'EOF'
+apple
+banana
+apple
+cherry
+banana
+apple
+date
+EOF
+
+# 创建包含大小写混合的重复行测试文件
+cat > case_mixed.txt << 'EOF'
+Apple
+apple
+BANANA
+banana
+Cherry
+cherry
+DATE
+date
+EOF
+
+# 创建包含字段数据的测试文件
+cat > field_data.txt << 'EOF'
+John Doe 80000
+John Doe 85000
+Jane Smith 75000
+Jane Smith 78000
+Bob Johnson 90000
+Alice Brown 82000
+Alice Brown 85000
+EOF
+
+# 创建包含IP地址日志的测试文件
+cat > ip_logs.txt << 'EOF'
+192.168.1.100 - - [20/Jan/2024:10:15:30 +0800] "GET /index.html HTTP/1.1" 200 1234
+192.168.1.100 - - [20/Jan/2024:10:16:45 +0800] "GET /about.html HTTP/1.1" 200 890
+10.0.0.5 - - [20/Jan/2024:10:18:20 +0800] "POST /login HTTP/1.1" 401 567
+192.168.1.100 - - [20/Jan/2024:10:20:15 +0800] "GET /contact.html HTTP/1.1" 200 756
+172.16.0.25 - - [20/Jan/2024:10:22:30 +0800] "GET /products.html HTTP/1.1" 200 1567
+10.0.0.5 - - [20/Jan/2024:10:25:45 +0800] "GET /services.html HTTP/1.1" 200 1123
+EOF
+```
+
+这些测试文件将帮助我们更好地理解和演示uniq命令的各种功能。
+
 ## 2. 基本用法
 
 ### 2.1 命令格式

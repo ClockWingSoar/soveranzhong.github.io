@@ -22,7 +22,80 @@ tail [选项]... [文件]...
 
 如果不指定文件或文件名为"-"，则从标准输入读取数据。
 
-### 1.2 工作原理
+### 1.2 准备测试数据
+
+在开始学习tail命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建包含多行内容的测试文件
+cat > log_file.txt << 'EOF'
+2024-01-20 09:00:00 System startup initiated
+2024-01-20 09:01:15 Loading configuration files
+2024-01-20 09:02:30 Initializing database connection
+2024-01-20 09:03:45 Starting web server
+2024-01-20 09:04:10 Registering API endpoints
+2024-01-20 09:05:25 System ready for operation
+2024-01-20 09:10:30 User login: user123
+2024-01-20 09:15:45 API request: GET /api/users
+2024-01-20 09:20:10 User logout: user123
+2024-01-20 09:25:35 API request: POST /api/data
+2024-01-20 09:30:40 Database backup started
+2024-01-20 09:35:20 Database backup completed
+2024-01-20 09:40:10 User login: admin456
+2024-01-20 09:45:35 System maintenance check
+2024-01-20 09:50:20 API request: PUT /api/settings
+2024-01-20 09:55:45 User logout: admin456
+2024-01-20 10:00:10 Scheduled task completed
+EOF
+
+# 创建一个较大的文件用于测试（20行数据）
+cat > large_file.txt << 'EOF'
+Line 1: Introduction to tail command
+Line 2: Understanding basic file operations
+Line 3: Text processing techniques in Linux
+Line 4: Command line utilities overview
+Line 5: Working with file descriptors
+Line 6: Input and output redirection
+Line 7: Pipe operations in shell scripts
+Line 8: Monitoring log files effectively
+Line 9: Real-time data analysis methods
+Line 10: Advanced tail command options
+Line 11: File monitoring in production environments
+Line 12: Troubleshooting system issues
+Line 13: Performance monitoring techniques
+Line 14: Log rotation strategies
+Line 15: Centralized logging systems
+Line 16: Security log analysis fundamentals
+Line 17: Automated monitoring solutions
+Line 18: Integration with other Linux tools
+Line 19: Best practices for log management
+Line 20: Future trends in monitoring technologies
+EOF
+
+# 创建CSV格式的测试文件
+cat > metrics.csv << 'EOF'
+timestamp,metric_name,value
+2024-01-20T09:00:00,cpu_usage,45.2
+2024-01-20T09:15:00,cpu_usage,47.8
+2024-01-20T09:30:00,cpu_usage,52.3
+2024-01-20T09:45:00,cpu_usage,68.5
+2024-01-20T10:00:00,cpu_usage,72.1
+2024-01-20T10:15:00,cpu_usage,85.7
+2024-01-20T10:30:00,cpu_usage,65.9
+2024-01-20T10:45:00,cpu_usage,58.3
+2024-01-20T11:00:00,cpu_usage,51.6
+2024-01-20T11:15:00,cpu_usage,48.2
+EOF
+
+# 创建一个空文件用于测试
+> empty_file.txt
+
+# 创建一个只有几行的小文件
+cat > small_file.txt << 'EOF'
+First line of small file
+Second line of small file
+Third line of small file
+EOF
 
 1. 从指定文件或标准输入读取内容
 2. 根据指定的选项（行数或字节数）提取文件末尾部分

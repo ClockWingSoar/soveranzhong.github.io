@@ -27,6 +27,103 @@ categories: linux command-line
 
 这些工具遵循UNIX哲学：每个工具专注于完成一件事并做好它，通过管道(pipe)组合多个工具可以实现复杂的数据处理流程。
 
+## 一、准备测试数据
+
+在开始学习这些文本处理工具之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建基本测试文件
+cat > sample.txt << 'EOF'
+apple
+banana
+cherry
+date
+elderberry
+fig
+grape
+honeydew
+EOF
+
+# 创建包含字段的测试文件（空格分隔）
+cat > user_data.txt << 'EOF'
+John Doe 30 Engineer New York
+Jane Smith 25 Designer San Francisco
+Bob Johnson 35 Manager Chicago
+Alice Brown 28 Developer Boston
+Charlie Davis 40 Architect Dallas
+EOF
+
+# 创建CSV格式的测试文件
+cat > data.csv << 'EOF'
+id,name,age,department,salary
+1,John Doe,30,Engineering,85000
+2,Jane Smith,25,Design,75000
+3,Bob Johnson,35,Management,95000
+4,Alice Brown,28,Development,82000
+5,Charlie Davis,40,Architecture,90000
+EOF
+
+# 创建包含重复行的测试文件
+cat > duplicates.txt << 'EOF'
+apple
+apple
+banana
+cherry
+cherry
+cherry
+date
+date
+EOF
+
+# 创建包含数字的测试文件
+cat > numbers.txt << 'EOF'
+10
+5
+100
+25
+75
+3
+EOF
+
+# 创建包含特殊字符的测试文件
+cat > special_chars.txt << 'EOF'
+Hello, World!
+Line with spaces and	tabs
+UPPERCASE lowercase MixedCase
+!@#$%^&*()_+
+Multiple    spaces
+EOF
+
+# 创建日志格式的测试文件
+cat > access.log << 'EOF'
+192.168.1.100 - - [20/Jan/2024:10:15:30 +0800] "GET /index.html HTTP/1.1" 200 1234
+10.0.0.5 - - [20/Jan/2024:10:16:45 +0800] "POST /login HTTP/1.1" 401 567
+172.16.0.25 - - [20/Jan/2024:10:18:20 +0800] "GET /about.html HTTP/1.1" 200 890
+192.168.1.100 - - [20/Jan/2024:10:20:15 +0800] "GET /contact.html HTTP/1.1" 200 756
+10.0.0.5 - - [20/Jan/2024:10:22:30 +0800] "GET /products.html HTTP/1.1" 200 1567
+EOF
+
+# 创建两个用于paste命令的文件
+cat > file1.txt << 'EOF'
+line1
+line2
+line3
+EOF
+
+cat > file2.txt << 'EOF'
+column1
+column2
+column3
+EOF
+
+# 创建一个较长的文件（用于head/tail测试）
+for i in {1..50}; do
+  echo "Line $i: This is a test line for head and tail commands" >> long_file.txt
+done
+```
+
+这些测试文件将帮助我们更好地理解和演示各种文本处理工具的功能。
+
 ## 二、cut - 字段提取工具
 
 ### 2.1 基本语法

@@ -22,7 +22,77 @@ head [选项]... [文件]...
 
 如果不指定文件或文件名为"-"，则从标准输入读取数据。
 
-### 1.2 工作原理
+### 1.2 准备测试数据
+
+在开始学习head命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建包含多行内容的测试文件
+cat > sample_data.txt << 'EOF'
+Line 1: This is the first line of sample data
+Line 2: Here we have some basic information
+Line 3: Linux commands are powerful and efficient
+Line 4: Text processing is an essential skill
+Line 5: head command shows the beginning of files
+Line 6: Understanding options makes commands more useful
+Line 7: Practice with different file types is recommended
+Line 8: Reading documentation helps master commands
+Line 9: Command line tools can save a lot of time
+Line 10: Consistent practice improves efficiency
+Line 11: Advanced features require deeper understanding
+Line 12: Combining commands creates powerful workflows
+Line 13: Shell scripting automates repetitive tasks
+Line 14: Regular expressions enhance text processing
+Line 15: File manipulation is a common task
+EOF
+
+# 创建CSV格式的数据文件
+cat > data_table.csv << 'EOF'
+id,name,age,city,occupation
+1,John Doe,30,New York,Engineer
+2,Jane Smith,25,San Francisco,Designer
+3,Bob Johnson,35,Chicago,Manager
+4,Alice Brown,28,Boston,Developer
+5,Charlie Davis,40,Dallas,Architect
+6,Eva Wilson,32,Miami,Analyst
+7,Frank Miller,45,Seattle,Director
+8,Grace Lee,29,Denver,Marketing
+EOF
+
+# 创建包含日志数据的文件
+cat > application.log << 'EOF'
+2024-01-20 10:15:23 INFO Application started successfully
+2024-01-20 10:16:05 DEBUG Connecting to database: localhost:5432
+2024-01-20 10:16:12 INFO Database connection established
+2024-01-20 10:17:30 WARNING High memory usage detected: 85%
+2024-01-20 10:18:45 INFO User login: admin@example.com
+2024-01-20 10:19:20 DEBUG Processing request: GET /api/users
+2024-01-20 10:19:35 ERROR Database query failed: Connection timeout
+2024-01-20 10:19:40 INFO Retry database connection...
+2024-01-20 10:20:15 INFO Database connection restored
+2024-01-20 10:21:30 INFO User logout: admin@example.com
+2024-01-20 10:22:45 DEBUG Cache cleared successfully
+2024-01-20 10:23:10 INFO Scheduled backup started
+EOF
+
+# 创建一个空文件用于测试
+> empty_file.txt
+
+# 创建包含特殊字符的测试文件
+cat > special_chars.txt << 'EOF'
+# 这是一个注释行
+$PATH=/usr/local/bin:/usr/bin:/bin
+* 通配符示例
+"引用的文本"
+'单引号文本'
+Tab	分隔的值
+换行符示例
+
+继续下一行
+EOF
+```
+
+### 1.3 工作原理
 
 1. 从指定文件或标准输入读取内容
 2. 根据指定的选项（行数或字节数）提取文件开头部分

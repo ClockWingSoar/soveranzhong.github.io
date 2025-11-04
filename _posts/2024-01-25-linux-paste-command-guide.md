@@ -22,6 +22,57 @@ paste [选项]... [文件]...
 
 如果不指定文件或文件名为"-"，则从标准输入读取数据。
 
+### 1.1.1 准备测试数据
+
+在开始学习paste命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建包含学生姓名的文件
+cat > names.txt << 'EOF'
+John Doe
+Jane Smith
+Bob Johnson
+Alice Brown
+Charlie Davis
+EOF
+
+# 创建包含学生ID的文件
+cat > ids.txt << 'EOF'
+S001
+S002
+S003
+S004
+S005
+EOF
+
+# 创建包含学生成绩的文件
+cat > scores.txt << 'EOF'
+85
+92
+78
+95
+88
+EOF
+
+# 创建包含课程代码的文件
+cat > courses.txt << 'EOF'
+Math
+English
+Science
+History
+Art
+EOF
+
+# 创建包含日期信息的文件
+cat > dates.txt << 'EOF'
+2024-01-15
+2024-01-16
+2024-01-17
+2024-01-18
+2024-01-19
+EOF
+```
+
 ### 1.2 工作原理
 
 1. 从指定文件或标准输入读取内容

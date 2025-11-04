@@ -31,6 +31,90 @@ sort [选项]... [文件]...
 - 合并已排序文件
 - 唯一性处理
 
+## 1.3 准备测试数据
+
+在开始学习sort命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建基本文本测试文件
+cat > fruits.txt << 'EOF'
+apple
+banana
+cherry
+date
+elderberry
+fig
+grape
+EOF
+
+# 创建包含数字的测试文件
+cat > numbers.txt << 'EOF'
+10
+5
+100
+25
+75
+3
+EOF
+
+# 创建包含混合内容的测试文件（带缩进）
+cat > mixed_content.txt << 'EOF'
+  apple
+ banana
+cherry
+  date
+Elderberry
+  FIG
+EOF
+
+# 创建CSV格式数据文件
+cat > sales.csv << 'EOF'
+product,quantity,price
+apple,15,2.50
+banana,25,1.75
+cherry,10,4.25
+date,5,3.50
+elderberry,8,5.75
+EOF
+
+# 创建包含日期的测试文件
+cat > dates.txt << 'EOF'
+2024-01-15
+2023-12-25
+2024-01-01
+2023-11-30
+2024-02-10
+EOF
+
+# 创建包含重复内容的测试文件
+cat > duplicates.txt << 'EOF'
+apple
+banana
+apple
+cherry
+banana
+apple
+EOF
+
+# 创建包含月份名称的测试文件
+cat > months.txt << 'EOF'
+January
+February
+March
+April
+May
+June
+July
+August
+September
+October
+November
+December
+EOF
+```
+
+这些测试文件将帮助我们更好地理解和演示sort命令的各种功能。
+
 ## 2. 排序选项详解
 
 ### 2.1 基本排序选项

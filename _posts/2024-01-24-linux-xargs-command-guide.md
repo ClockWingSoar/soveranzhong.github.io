@@ -27,6 +27,60 @@ xargs [选项]... 命令 [初始参数]...
 3. 将这些参数与命令和初始参数组合，构建完整的命令行
 4. 执行构建好的命令行
 
+### 1.3 准备测试数据
+
+在开始学习xargs命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建多个测试文件
+for i in {1..5}; do
+  touch "test_file_$i.txt"
+  echo "This is test file $i" > "test_file_$i.txt"
+done
+
+# 创建包含文件名的列表文件
+ls -1 test_file_*.txt > file_list.txt
+
+# 创建包含URL的列表文件
+cat > urls.txt << 'EOF'
+https://example.com/page1
+https://example.com/page2
+https://example.com/page3
+https://example.com/page4
+https://example.com/page5
+EOF
+
+# 创建包含用户ID的列表文件
+cat > user_ids.txt << 'EOF'
+user1
+user2
+user3
+user4
+user5
+EOF
+
+# 创建包含IP地址的列表文件
+cat > ip_addresses.txt << 'EOF'
+192.168.1.101
+192.168.1.102
+192.168.1.103
+192.168.1.104
+192.168.1.105
+EOF
+
+# 创建包含空格和特殊字符的文件名
+cat > special_names.txt << 'EOF'
+file with spaces.txt
+file-with-dash.txt
+file_underscore.txt
+"quoted filename".txt
+'file with quotes'.txt
+EOF
+
+# 创建一个目录结构
+mkdir -p test_dir/subdir1 test_dir/subdir2 test_dir/subdir3
+```
+
 ## 2. 基本用法
 
 ### 2.1 简单示例

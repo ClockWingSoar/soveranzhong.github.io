@@ -32,6 +32,54 @@ cut命令在以下场景特别有用：
 
 掌握cut命令可以让您在处理表格数据、CSV文件或日志文件时，快速提取所需信息，提高工作效率。
 
+## 一、准备测试数据
+
+在开始学习cut命令之前，让我们创建一些测试数据文件，以便后续示例使用：
+
+```bash
+# 创建以空格分隔的测试文件
+cat > space_data.txt << 'EOF'
+John Doe 30 Engineer
+Jane Smith 25 Designer
+Bob Johnson 35 Manager
+Alice Brown 28 Developer
+EOF
+
+# 创建CSV格式的测试文件
+cat > data.csv << 'EOF'
+id,name,age,department,salary
+1,John Doe,30,Engineering,85000
+2,Jane Smith,25,Design,75000
+3,Bob Johnson,35,Management,95000
+4,Alice Brown,28,Development,82000
+EOF
+
+# 创建以冒号分隔的配置文件样例
+cat > config.txt << 'EOF'
+host:localhost
+port:8080
+username:admin
+password:secure123
+timeout:30
+EOF
+
+# 创建模拟的网络连接日志
+cat > netstat.txt << 'EOF'
+tcp        0      0 localhost:8080        localhost:54321        ESTABLISHED
+udp        0      0 192.168.1.100:53      192.168.1.1:5353       ESTABLISHED
+tcp        0      0 10.0.0.5:22           203.0.113.42:12345     ESTABLISHED
+EOF
+
+# 创建Web访问日志样例
+cat > access.log << 'EOF'
+192.168.1.100 - - [20/Jan/2024:10:15:30 +0800] "GET /index.html HTTP/1.1" 200 1234
+10.0.0.5 - - [20/Jan/2024:10:16:45 +0800] "POST /login HTTP/1.1" 401 567
+172.16.0.25 - - [20/Jan/2024:10:18:20 +0800] "GET /about.html HTTP/1.1" 200 890
+EOF
+```
+
+这些测试文件将帮助我们更好地理解和演示cut命令的各种功能。
+
 ## 二、cut命令选项详解
 
 ### 2.1 -b, --bytes=LIST：按字节位置提取
