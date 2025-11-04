@@ -382,6 +382,28 @@ sed 's/sed/SED/' sed_test.txt
 
 # 替换每行的所有sed为SED（使用g标志）
 sed 's/sed/SED/g' sed_test.txt
+
+
+# 实际应用示例：s替换命令中p标志的作用
+# 以下是用户在系统中执行的实际示例，展示了s替换命令中p标志的效果：
+
+0 ✓ 22:37:01 soveran@rocky9.6-12,10.0.0.12:~ $ sed -i 's#sed#SED#p' sed.txt 
+
+# 查看修改后的文件内容：
+0 ✓ 22:55:45 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+nihao SED4 sed5 sed6 
+nihao SED7 sed8 sed9 
+nihao SED7 sed8 sed9 
+
+
+# 说明：
+# 1. 's#sed#SED#p'命令中，p标志表示在替换后打印修改的行
+# 2. 当同时使用-i（原地修改）和p标志时，会导致修改后的行会被重复写入文件
+# 3. 注意：默认情况下，sed替换命令只替换每行中第一个匹配的字符串
+# 4. 若要替换每行中的所有匹配，需要使用g标志（如's#sed#SED#gp'）
 ```
 
 ### 6.2 限定替换
@@ -866,7 +888,38 @@ sed 's#http://#https://#g' urls.txt
 **解决方案**：
 - 始终先备份文件再编辑：`sed -i.bak 's/old/new/g' file.txt`
 - 对于重要文件，先使用不修改原文件的方式查看效果：`sed 's/old/new/g' file.txt > preview.txt`
+```
+# 实际应用示例：使用-i.bak创建备份文件
+# 以下是用户在系统中执行的实际示例，展示了如何使用-i.bak参数安全地修改文件：
 
+# 创建测试文件并查看内容
+0 ✓ 22:56:59 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+nihao sed1 sed2 sed3 
+nihao sed4 sed5 sed6 
+nihao sed7 sed8 sed9 
+
+# 使用-i.bak参数进行安全替换（创建备份文件）
+1 ✗ 22:57:42 soveran@rocky9.6-12,10.0.0.12:~ $ sed -i.bak 's#sed#SED#' sed2.txt 
+
+# 查看修改后的文件内容
+0 ✓ 22:57:54 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+nihao SED7 sed8 sed9 
+
+# 查看自动创建的备份文件内容
+0 ✓ 22:57:59 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt.bak 
+nihao sed1 sed2 sed3 
+nihao sed4 sed5 sed6 
+nihao sed7 sed8 sed9 
+
+
+# 说明：
+# 1. '-i.bak'参数表示在原地修改文件的同时，创建一个扩展名为.bak的备份文件
+# 2. 备份文件保留了文件的原始内容，可以在修改出错时恢复
+# 3. 这是一个非常安全的做法，特别是在修改重要配置文件时
+# 4. 注意：默认情况下，sed替换命令只替换每行中第一个匹配的字符串
+```
 ### 13.3 性能优化
 
 **问题**：处理大型文件时，`sed`可能会变慢。
