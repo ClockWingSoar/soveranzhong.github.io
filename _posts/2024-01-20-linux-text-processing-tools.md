@@ -266,6 +266,8 @@ grep "ERROR" /var/log/application.log | tail -n 100
 paste [OPTION]... [FILE]...
 ```
 
+> 提示：想了解paste命令的更多高级用法和详细选项，请阅读我们的[Linux paste命令完全指南](https://soveranzhong.github.io/2024/01/25/linux-paste-command-guide.html)。
+
 ### 6.2 常用选项
 
 - `-d, --delimiters=LIST`: 指定分隔符列表，默认使用制表符
