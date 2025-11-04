@@ -424,7 +424,53 @@ sed '3s/SED/sed/2' sed_test.txt
 ```bash
 # 将所有大写SED转换为小写sed
 sed 'y/SED/sed/' sed_test.txt
-```
+
+
+# 实际应用示例：y命令与-n选项和p标志的使用注意事项
+# 以下是用户在系统中执行的实际示例，展示了y命令的特殊行为：
+
+
+# 尝试使用-n选项并添加p标志（会报错）
+1 ✗ 23:05:53 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n 'y#sed#SED#p' sed2.txt 
+sed：-e 表达式 #1，字符 11：命令后含有多余的字符 
+
+# 只使用-n选项（不会显示任何输出）
+1 ✗ 23:06:08 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n 'y#sed#SED#' sed2.txt 
+
+
+# 说明：
+# 1. y命令是字符转换命令，与s替换命令不同，y命令不支持p标志
+# 2. 当使用-n选项抑制默认输出时，y命令转换后的结果不会显示
+# 3. y命令不支持在命令后添加其他标志，这与s替换命令的行为不同
+# 4. 若要查看y命令的转换结果，不应使用-n选项
+
+# 实际应用示例：y命令默认不修改源文件的验证
+# 以下是用户在系统中执行的实际示例，验证y命令的工作方式：
+
+
+# 查看文件原始内容
+0 ✓ 23:06:33 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+nihao SED7 sed8 sed9 
+
+# 使用y命令进行字符转换（会输出转换结果但不修改原文件）
+0 ✓ 23:06:44 soveran@rocky9.6-12,10.0.0.12:~ $ sed  'y#sed#SED#' sed2.txt 
+nihao SED1 SED2 SED3 
+nihao SED4 SED5 SED6 
+nihao SED7 SED8 SED9 
+
+# 再次查看原文件内容（确认未被修改）
+0 ✓ 23:07:18 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+nihao SED7 sed8 sed9 
+
+
+# 说明：
+# 1. y命令默认只输出转换后的结果，不会修改原始文件
+# 2. 要让y命令修改源文件，同样需要使用-i选项
+# 3. y命令会同时替换所有匹配的字符，不同于s命令默认只替换第一个匹配
 
 ### 6.4 使用&符号
 
