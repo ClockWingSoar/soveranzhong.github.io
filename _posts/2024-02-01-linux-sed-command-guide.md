@@ -323,6 +323,38 @@ sed -n '/sed4/=' sed_test.txt
 # 2. '/sed4/='表示打印所有包含'sed4'字符串的行的行号
 # 3. 在这个示例中，'sed4'出现在第2行，因此命令输出数字2
 # 4. -n选项确保只输出行号，而不输出匹配的行内容
+
+### 5.4.1 同时打印匹配行内容和行号
+
+如果需要同时打印匹配行的内容和行号，可以使用-e参数组合多个命令：
+
+```bash
+# 同时打印匹配行的行号和内容
+sed -n -e '/sed4/=' -e '/sed4/p' sed_test.txt
+
+# 实际应用示例：同时显示匹配行号和内容
+# 以下是用户在系统中执行的实际示例，展示了如何同时查看匹配行的行号和内容：
+
+0 ✓ 21:55:14 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '/sed4/=' sed_test.txt 
+2
+0 ✓ 21:56:16 soveran@rocky9.6-12,10.0.0.12:~ $ sed '/sed4/=' sed_test.txt 
+ihao sed1 sed2 sed3 
+2
+ihao sed4 sed5 sed6 
+ihao sed7 sed8 sed9 
+
+# 使用-e参数同时打印行号和内容的正确方式
+0 ✓ 22:00:00 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n -e '/sed4/=' -e '/sed4/p' sed_test.txt 
+2
+ihao sed4 sed5 sed6 
+
+
+# 说明：
+# 1. 使用两个-e参数分别指定打印行号和打印内容的命令
+# 2. 第一个-e '/sed4/='命令打印匹配行的行号
+# 3. 第二个-e '/sed4/p'命令打印匹配行的内容
+# 4. -n选项确保只输出我们明确指定的内容
+# 5. 注意：不能在单个命令中同时使用=和p，如'/sed4/p='会导致语法错误
 ```
 ### 5.5 打印部分内容（P命令）
 
@@ -626,55 +658,414 @@ sed '/^$/{N;/\n$/D}' paragraph.txt
 
 `sed`使用两个重要的缓冲区来处理文本：模式空间（pattern space）和保持空间（hold space）。这些缓冲区允许我们执行更复杂的文本处理操作。
 
-### 8.1 基本操作
+### 8.1 缓冲区概念与基本原理
+
+**模式空间（Pattern Space）**：
+- 主要工作区域，`sed`逐行读取输入到这里进行处理
+- 每次处理一行，处理完成后默认输出并清空
+- 可以理解为"工作台"，是命令操作的主要对象
+
+**保持空间（Hold Space）**：
+- 辅助存储空间，用于临时保存数据
+- 初始为空，不会自动清空或输出
+- 可以理解为"剪贴板"，用于在处理过程中暂存内容
+
+### 8.2 详细命令案例与可视化操作
+
+#### 8.2.1 h命令 - 覆盖式复制模式空间到保持空间
 
 ```bash
 # 创建测试文件
-cat > buffer_test.txt << 'EOF'
-line 1: first line
-line 2: second line
-line 3: third line
+cat > buffer_demo.txt << 'EOF'
+header: important info
+content: line 1
+content: line 2
+footer: end of file
 EOF
 
-# 使用h和g命令复制缓冲区内容
-sed -n '2h;3g;p' buffer_test.txt  # 用第2行替换第3行后打印
-
-# 使用H和G命令追加缓冲区内容
-sed -n '1h;2H;3G;p' buffer_test.txt  # 第3行后追加第1、2行
+# 使用h命令保存特定行到保持空间
+sed -n '1h;3{g;p}' buffer_demo.txt
 ```
 
-### 8.2 实际应用 - 行替换
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 ("header: important info"):
+1. 读取到模式空间: 模式空间 = "header: important info"
+2. 执行h命令: 保持空间 = "header: important info" (完全覆盖保持空间)
+3. 无输出(因为-n选项)
+
+处理第2行 ("content: line 1"):
+1. 读取到模式空间: 模式空间 = "content: line 1"
+2. 无操作
+3. 无输出
+
+处理第3行 ("content: line 2"):
+1. 读取到模式空间: 模式空间 = "content: line 2"
+2. 执行g命令: 模式空间 = "header: important info" (从保持空间复制)
+3. 执行p命令: 输出 "header: important info"
+
+最终输出: header: important info
+```
+
+**生产环境应用场景**：在配置文件处理中，保存重要的配置头信息，然后在特定位置重新使用。
+
+#### 8.2.2 H命令 - 追加式添加模式空间到保持空间
 
 ```bash
-# 将偶数行替换为奇数行
-cat > num_lines.txt << 'EOF'
-Line A - should be kept
-Line B - should be replaced
-Line C - should be kept
-Line D - should be replaced
+# 使用H命令收集多行到保持空间
+cat > log_entries.txt << 'EOF'
+2024-03-01 ERROR: Database connection failed
+2024-03-01 INFO: System started
+2024-03-01 ERROR: Service unavailable
+2024-03-02 INFO: Maintenance completed
 EOF
 
-sed -n '1{h;p};2{g;p};3{h;p};4{g;p}' num_lines.txt
+# 收集所有错误日志并在最后显示
+sed -n '/ERROR/{H};$g;p' log_entries.txt
 ```
 
-### 8.3 使用x命令交换缓冲区
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 (ERROR行):
+1. 读取到模式空间: 模式空间 = "2024-03-01 ERROR: Database connection failed"
+2. 执行H命令: 保持空间 = "\n2024-03-01 ERROR: Database connection failed" (追加，前导换行)
+3. 无输出
+
+处理第2行 (INFO行):
+1. 读取到模式空间: 模式空间 = "2024-03-01 INFO: System started"
+2. 无操作
+3. 无输出
+
+处理第3行 (ERROR行):
+1. 读取到模式空间: 模式空间 = "2024-03-01 ERROR: Service unavailable"
+2. 执行H命令: 保持空间 = "\n2024-03-01 ERROR: Database connection failed\n2024-03-01 ERROR: Service unavailable"
+3. 无输出
+
+处理第4行 (最后一行):
+1. 读取到模式空间: 模式空间 = "2024-03-02 INFO: Maintenance completed"
+2. 执行g命令: 模式空间 = 保持空间内容
+3. 执行p命令: 输出所有收集的错误日志
+```
+
+**生产环境应用场景**：日志分析中收集特定类型的消息（如错误、警告），然后集中处理或显示。
+
+#### 8.2.3 g命令 - 覆盖式复制保持空间到模式空间
 
 ```bash
-# 创建测试文件
-cat > buffer_swap.txt << 'EOF'
-header line
-content line 1
-content line 2
-footer line
+# 使用g命令替换内容
+cat > config_settings.txt << 'EOF'
+# Default configuration
+server_ip=192.168.1.1
+server_port=8080
+# Production configuration
 EOF
 
-# 使用x命令交换模式空间和保持空间
-# 保存第一行到保持空间，处理完所有内容后再打印第一行
-sed -n '1{h;d};$G;p' buffer_swap.txt  # 不使用x
-
-# 使用x命令实现相同功能
-sed -n '1h;2,$p;$x;p' buffer_swap.txt  # 使用x交换
+# 保存生产配置标记，然后替换默认配置
+sed -n '/# Production/{h;d};1,3{g;p}' config_settings.txt
 ```
+
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1-3行:
+1. 不执行任何操作，直到找到目标行
+
+处理第4行 ("# Production configuration"):
+1. 读取到模式空间: 模式空间 = "# Production configuration"
+2. 执行h命令: 保持空间 = "# Production configuration"
+3. 执行d命令: 清空模式空间，跳过输出，处理下一行
+
+处理第1-3行 (通过1,3{g;p}范围匹配):
+1. 对于每一行，执行g命令将保持空间内容复制到模式空间
+2. 执行p命令输出模式空间内容
+
+最终输出:
+# Production configuration
+# Production configuration
+# Production configuration
+```
+
+**生产环境应用场景**：配置文件批量替换，用新的配置值替换多个旧配置项。
+
+#### 8.2.4 G命令 - 追加式添加保持空间到模式空间
+
+```bash
+# 使用G命令合并行内容
+cat > user_data.txt << 'EOF'
+User: admin
+Role: Administrator
+User: guest
+Role: Visitor
+EOF
+
+# 将用户和角色信息合并为一行
+sed -n 'N;G;p' user_data.txt
+```
+
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 ("User: admin"):
+1. 读取到模式空间: 模式空间 = "User: admin"
+2. 执行N命令: 读取下一行追加到模式空间，模式空间 = "User: admin\nRole: Administrator"
+3. 执行G命令: 追加保持空间(空)到模式空间，无变化
+4. 执行p命令: 输出两行内容
+
+处理第3行 ("User: guest"):
+1. 读取到模式空间: 模式空间 = "User: guest"
+2. 执行N命令: 读取下一行追加到模式空间，模式空间 = "User: guest\nRole: Visitor"
+3. 执行G命令: 追加保持空间(空)到模式空间，无变化
+4. 执行p命令: 输出两行内容
+```
+
+**生产环境应用场景**：数据格式化，例如将多行数据合并为单行记录，便于后续处理。
+
+#### 8.2.5 x命令 - 交换模式空间和保持空间内容
+
+```bash
+# 使用x命令交换缓冲区内容
+cat > swap_example.txt << 'EOF'
+Start: Process begins
+Middle: Processing data
+End: Process completed
+EOF
+
+# 使用x命令重新排列行顺序
+sed -n '1{h;d};$x;p' swap_example.txt
+```
+
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 ("Start: Process begins"):
+1. 读取到模式空间: 模式空间 = "Start: Process begins"
+2. 执行h命令: 保持空间 = "Start: Process begins"
+3. 执行d命令: 清空模式空间，跳过输出，处理下一行
+
+处理第2行 ("Middle: Processing data"):
+1. 读取到模式空间: 模式空间 = "Middle: Processing data"
+2. 无操作
+3. 无输出(因为-n选项)
+
+处理第3行 ("End: Process completed"):
+1. 读取到模式空间: 模式空间 = "End: Process completed"
+2. 执行x命令: 模式空间 = "Start: Process begins", 保持空间 = "End: Process completed"
+3. 执行p命令: 输出 "Start: Process begins"
+```
+
+**生产环境应用场景**：日志或报告重排序，例如将开头信息移到末尾，或将结尾信息移到开头。
+
+#### 8.2.6 p命令 - 打印整个模式空间
+
+```bash
+# 使用p命令打印匹配行
+cat > print_demo.txt << 'EOF'
+Line 1: Regular line
+Line 2: Important data
+Line 3: Regular line
+Line 4: Important data
+EOF
+
+# 打印所有重要数据行
+sed -n '/Important/p' print_demo.txt
+```
+
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 ("Line 1: Regular line"):
+1. 读取到模式空间: 模式空间 = "Line 1: Regular line"
+2. 不匹配"Important"
+3. 无输出(因为-n选项)
+
+处理第2行 ("Line 2: Important data"):
+1. 读取到模式空间: 模式空间 = "Line 2: Important data"
+2. 匹配"Important"
+3. 执行p命令: 输出 "Line 2: Important data"
+
+处理第3行:
+1. 不匹配，无输出
+
+处理第4行 ("Line 4: Important data"):
+1. 读取到模式空间: 模式空间 = "Line 4: Important data"
+2. 匹配"Important"
+3. 执行p命令: 输出 "Line 4: Important data"
+```
+
+**生产环境应用场景**：日志过滤，只查看包含特定关键词（如ERROR、WARNING）的日志行。
+
+#### 8.2.7 P命令 - 打印模式空间直到第一个换行符
+
+```bash
+# 使用P命令打印多行模式空间的第一部分
+cat > multi_line.txt << 'EOF'
+Header
+  - Subitem 1
+  - Subitem 2
+Content
+  - Detail 1
+  - Detail 2
+EOF
+
+# 只打印每行的第一行内容
+sed -n 'N;P' multi_line.txt
+```
+
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 ("Header"):
+1. 读取到模式空间: 模式空间 = "Header"
+2. 执行N命令: 读取下一行追加，模式空间 = "Header\n  - Subitem 1"
+3. 执行P命令: 只打印直到第一个换行符的内容: "Header"
+
+处理第3行 ("  - Subitem 2"):
+1. 读取到模式空间: 模式空间 = "  - Subitem 2"
+2. 执行N命令: 读取下一行追加，模式空间 = "  - Subitem 2\nContent"
+3. 执行P命令: 只打印第一部分: "  - Subitem 2"
+
+处理第5行 ("  - Detail 1"):
+1. 读取到模式空间: 模式空间 = "  - Detail 1"
+2. 执行N命令: 读取下一行追加，模式空间 = "  - Detail 1\n  - Detail 2"
+3. 执行P命令: 只打印第一部分: "  - Detail 1"
+```
+
+**生产环境应用场景**：处理层次化数据，例如只提取配置文件中的主配置项，忽略子配置项。
+
+#### 8.2.8 d命令 - 删除整个模式空间并开始新周期
+
+```bash
+# 使用d命令删除不需要的行
+cat > cleanup_demo.txt << 'EOF'
+# This is a comment
+actual data 1
+# Another comment
+actual data 2
+EOF
+
+# 删除所有注释行，只保留实际数据
+sed '/^#/d' cleanup_demo.txt
+```
+
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 ("# This is a comment"):
+1. 读取到模式空间: 模式空间 = "# This is a comment"
+2. 匹配"^#"
+3. 执行d命令: 清空模式空间，**跳过输出**，立即开始处理下一行
+
+处理第2行 ("actual data 1"):
+1. 读取到模式空间: 模式空间 = "actual data 1"
+2. 不匹配删除条件
+3. 默认输出: "actual data 1"
+
+处理第3行 ("# Another comment"):
+1. 读取到模式空间: 模式空间 = "# Another comment"
+2. 匹配"^#"
+3. 执行d命令: 清空模式空间，跳过输出，处理下一行
+
+处理第4行 ("actual data 2"):
+1. 读取到模式空间: 模式空间 = "actual data 2"
+2. 不匹配删除条件
+3. 默认输出: "actual data 2"
+```
+
+**生产环境应用场景**：清理配置文件或日志文件，删除注释行、空行或不需要的信息。
+
+#### 8.2.9 D命令 - 删除模式空间直到第一个换行符，不读取新行
+
+```bash
+# 使用D命令处理多行
+cat > paragraph.txt << 'EOF'
+This is a
+multiline paragraph
+that needs processing
+with special handling
+for line breaks
+EOF
+
+# 删除每段的第一行，但继续处理剩余部分
+sed -n 'N;D;P' paragraph.txt
+```
+
+**操作过程可视化**：
+```
+初始状态:
+模式空间: 空
+保持空间: 空
+
+处理第1行 ("This is a"):
+1. 读取到模式空间: 模式空间 = "This is a"
+2. 执行N命令: 读取下一行追加，模式空间 = "This is a\nmultiline paragraph"
+3. 执行D命令: 删除直到第一个换行符，模式空间 = "multiline paragraph"
+4. **不读取新行**，重新开始处理当前模式空间
+
+处理当前模式空间 ("multiline paragraph"):
+1. 现在模式空间 = "multiline paragraph"
+2. 执行N命令: 读取下一行追加，模式空间 = "multiline paragraph\nthat needs processing"
+3. 执行D命令: 删除直到第一个换行符，模式空间 = "that needs processing"
+4. 重新开始处理当前模式空间
+
+(这个过程会一直持续，最终可能没有输出，因为D命令会不断删除并重新处理)
+```
+
+**生产环境应用场景**：文本处理中删除特定前缀行，但保留后续内容，例如在处理邮件或文档时删除标题行。
+
+### 8.3 实际应用案例 - 日志分析与处理
+
+```bash
+# 创建示例日志文件
+cat > application.log << 'EOF'
+2024-03-01 10:15:30 INFO Application started
+2024-03-01 10:16:45 ERROR Database connection failed: Connection refused
+2024-03-01 10:16:46 DEBUG Stack trace:
+  at com.example.DB.connect(DB.java:45)
+  at com.example.App.initialize(App.java:23)
+2024-03-01 10:17:00 INFO Retry connection...
+2024-03-01 10:17:01 ERROR Service unavailable: Port 8080 in use
+2024-03-01 10:17:02 DEBUG Stack trace:
+  at com.example.Server.start(Server.java:78)
+  at com.example.App.initialize(App.java:35)
+EOF
+
+# 高级日志分析：提取所有错误及其堆栈跟踪
+sed -n '/ERROR/{h;N;/^[0-9]/!{:loop;H;N;/^[0-9]/!b loop;};g;p}' application.log
+```
+
+**操作说明**：
+1. 当找到ERROR行时，保存到保持空间
+2. 读取下一行，如果不是以数字开头（不是新的日志条目），则进入循环
+3. 在循环中持续将后续行追加到保持空间
+4. 当遇到新的日志条目（以数字开头）时，退出循环，将保持空间内容复制到模式空间并打印
+
+**生产环境应用场景**：系统监控中提取完整的错误信息及其上下文，用于故障诊断和问题分析。
 
 ## 9. 跳转和条件执行命令
 
@@ -934,7 +1325,8 @@ sed 's#http://#https://#g' urls.txt
 **解决方案**：
 - 始终先备份文件再编辑：`sed -i.bak 's/old/new/g' file.txt`
 - 对于重要文件，先使用不修改原文件的方式查看效果：`sed 's/old/new/g' file.txt > preview.txt`
-```
+
+```sh
 # 实际应用示例：使用-i.bak创建备份文件
 # 以下是用户在系统中执行的实际示例，展示了如何使用-i.bak参数安全地修改文件：
 
