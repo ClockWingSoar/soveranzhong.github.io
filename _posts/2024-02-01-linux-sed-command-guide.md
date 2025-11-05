@@ -635,10 +635,225 @@ sed '3Q' sample.txt  # 只输出line 1和line 2
 sed '3q' sample.txt  # 输出line 1、line 2和line 3
 ```
 
-### 7.6 处理多行（N和D命令）
+### 7.6 处理多行（N、D和P命令）
+
+在使用基本的`sed`编辑器命令时，您可能已经注意到一个限制：所有`sed`编辑器命令都只能对单行数据执行操作。当`sed`编辑器读取数据流时，它会根据换行符的存在将数据分割成行。`sed`编辑器逐行处理数据，对数据行执行定义的脚本命令，然后移动到下一行并重复处理过程。
+
+有时，您需要对跨越多行的数据执行操作。特别是当您尝试查找或替换一个短语时，这一点尤为重要。例如，如果您在数据中查找短语"Linux System Administrators Group"，这个短语的单词很可能会被分割到两行中。如果您使用普通的`sed`编辑器命令处理文本，将无法检测到被分割的短语。
+
+幸运的是，`sed`编辑器的设计者考虑到了这种情况并设计了解决方案。`sed`编辑器包含三个特殊命令，您可以使用它们来处理多行文本：
+
+- `N`：将数据流中的下一行添加到当前模式空间，创建一个多行组进行处理
+- `D`：删除多行组中的单行（删除模式空间中直到第一个换行符的部分）
+- `P`：打印多行组中的单行（打印模式空间中直到第一个换行符的部分）
+
+#### 7.6.1 单行next命令（n）
+
+在研究多行next命令（N）之前，您首先需要了解单行版本的next命令如何工作。了解了这个命令的作用后，就更容易理解多行版本的next命令是如何操作的。
+
+单行next命令（n）告诉`sed`编辑器移动到数据流中的下一行文本，而不返回到命令的开头。请记住，通常`sed`编辑器会在一行上处理所有定义的命令，然后再移动到数据流中的下一行文本。单行next命令（n）改变了这种流程。
+
+这听起来可能有些复杂，但实际应用起来并不难。以下是一个示例，我们有一个包含五行的文件，其中两行是空行。我们的目标是删除标题行后的第一个空行，但保留第二个空行。如果我们编写一个`sed`脚本来删除空行，两个空行都会被删除，这不是我们想要的结果：
 
 ```bash
-# 使用N连接行，D删除第一部分后继续处理
+# 创建测试文件
+cat > data1.txt << 'EOF'
+Header Line
+
+Data Line #1
+
+End of Data Lines
+EOF
+
+# 尝试使用简单的删除空行命令（会删除所有空行）
+sed '/^$/d' data1.txt
+```
+
+输出结果：
+```
+Header Line
+Data Line #1
+End of Data Lines
+```
+
+由于我们要删除的行是空的，所以没有文本可以用来唯一标识这一行。解决方案是使用单行next命令（n）。在下面的示例中，脚本查找包含单词"Header"的唯一行。找到该行后，n命令将`sed`编辑器移动到下一行文本，即空行。
+
+```bash
+# 使用n命令定位并删除特定的空行
+sed '/Header/{n ; d}' data1.txt
+```
+
+输出结果：
+```
+Header Line
+Data Line #1
+
+End of Data Lines
+```
+
+此时，`sed`编辑器继续处理命令列表，使用d命令删除空行。当`sed`编辑器到达命令脚本的末尾时，它会从数据流中读取下一行文本，并从命令脚本的顶部开始处理命令。`sed`编辑器没有找到另一行包含单词"Header"的行；因此，没有更多的行被删除。
+
+#### 7.6.2 多行next命令（N）
+
+多行next命令（N）会将数据流中的下一行添加到当前模式空间中，而不是像单行next命令那样替换模式空间的内容。这样可以在同一模式空间中处理多行文本。
+
+现在我们已经了解了单行next命令（n），可以来看一下多行版本。单行next命令将数据流中的下一行文本移动到`sed`编辑器的处理空间（称为*模式空间*）中。多行版本的next命令（使用大写的`N`）将下一行文本添加到模式空间中已有的文本后面。
+
+这会产生将数据流中的两行文本合并到同一个模式空间中的效果。文本行之间仍然由换行符分隔，但`sed`编辑器现在可以将这两行文本视为*一行*。
+
+下面是多行（`N`）命令如何操作的演示：
+
+```bash
+# 多行N命令示例
+cat > data2.txt << 'EOF'
+Header Line
+First Data Line
+Second Data Line
+End of Data Lines
+EOF
+
+# 将包含First的行和下一行合并为一行
+sed '/First/{ N ; s/\n/ / }' data2.txt
+```
+
+输出结果：
+```
+Header Line
+First Data Line Second Data Line
+End of Data Lines
+```
+
+`sed`编辑器脚本搜索包含单词`First`的文本行。找到该行后，它使用`N`命令将下一行与该行合并到模式空间中。然后使用替换（`s`）命令将换行符（`\n`）替换为空格。结果是文本文件中的两行在`sed`编辑器输出中显示为一行。
+
+这在搜索可能跨两行的数据文件中的文本短语时非常实用。以下是一个示例：
+
+```bash
+# 演示跨行文本替换问题
+cat > data3.txt << 'EOF'
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+Thank you for your cooperation.
+EOF
+
+# 尝试简单的替换命令（只替换单行中的短语）
+sed 's/System Admin/DevOps Engineer/' data3.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All DevOps Engineers should attend.
+Thank you for your cooperation.
+```
+
+替换（`s`）命令在文本文件中查找特定的双词短语`System Admin`。在短语出现的单行中，一切正常；替换命令可以替换文本。但是在短语跨两行的情况下，替换命令无法识别匹配的模式。
+
+`N`命令有助于解决这个问题：
+
+```bash
+# 使用N命令处理跨行文本
+cat > data3.txt << 'EOF'
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+Thank you for your cooperation.
+EOF
+
+# 结合N命令和替换命令处理跨行文本
+sed 'N ; s/System.Admin/DevOps Engineer/' data3.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux DevOps Engineer group meeting will be held.
+All DevOps Engineers should attend.
+Thank you for your cooperation.
+```
+
+通过使用多行（`N`）命令将下一行与找到第一个单词的行合并，您可以检测短语中何时发生行拆分。
+
+注意，替换（`s`）命令在单词`System`和单词`Admin`之间使用了通配符模式（.），以匹配空格和换行情况。但是，当它匹配换行符时，它会从字符串中删除它，导致两行合并为一行。这可能不完全是您想要的结果。
+
+要解决此问题，您可以在`sed`编辑器脚本中使用两个替换命令，一个用于匹配多行出现，一个用于匹配单行出现：
+
+```bash
+# 使用两个替换命令处理不同情况
+cat > data3.txt << 'EOF'
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+Thank you for your cooperation.
+EOF
+
+sed 'N
+s/System\nAdmin/DevOps\nEngineer/
+s/System Admin/DevOps Engineer/' data3.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux DevOps
+Engineer group meeting will be held.
+All DevOps Engineers should attend.
+Thank you for your cooperation.
+```
+
+第一个替换命令专门查找两个搜索词之间的换行符，并在替换字符串中包含它。这样，您可以在新文本中的相同位置添加换行符。
+
+然而，这个脚本仍然有一个微妙的问题。脚本在执行`sed`编辑器命令之前总是将下一行文本读入模式空间。当它到达文本的最后一行时，没有下一行文本可以读取，因此`N`命令导致`sed`编辑器停止。如果匹配的文本位于数据流的最后一行，则命令不会捕获匹配的数据：
+
+```bash
+# 处理最后一行的情况
+cat > data4.txt << 'EOF'
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+EOF
+
+sed 'N
+s/System\nAdmin/DevOps\nEngineer/
+s/System Admin/DevOps Engineer/' data4.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux DevOps
+Engineer group meeting will be held.
+All System Admins should attend.
+```
+
+由于`System Admin`文本出现在数据流的最后一行，多行（`N`）命令会错过它，因为没有另一行可以读入模式空间进行合并。
+
+我们可以通过在多行命令之前移动单行编辑命令来轻松解决此问题，并且只在`N`之后出现多行的编辑命令，如下所示：
+
+```bash
+# 修复处理最后一行的问题
+cat > data4.txt << 'EOF'
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+EOF
+
+sed 's/System Admin/DevOps Engineer/
+N
+s/System\nAdmin/DevOps\nEngineer/' data4.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux DevOps
+Engineer group meeting will be held.
+All DevOps Engineers should attend.
+```
+
+现在，在单行中查找短语的替换（`s`）命令在数据流的最后一行上工作得很好，而在多行（`N`）命令之后的替换命令则覆盖了数据流中间的情况。
+
+以下是一个实际应用示例，使用N命令合并行并进行处理：
+
+```bash
+# 使用N命令合并行并进行处理
 cat > paragraph.txt << 'EOF'
 This is line 1.
 This is line 2.
@@ -649,10 +864,240 @@ EOF
 
 # 删除包含ERROR的行及其下一行
 sed '/ERROR/{N;d;}' paragraph.txt
-
-# 使用D实现删除空行后的合并处理
-sed '/^$/{N;/\n$/D}' paragraph.txt
 ```
+
+输出结果：
+```
+This is line 1.
+This is line 2.
+This is line 5 with WARNING.
+```
+
+当`sed`找到包含"ERROR"的行时，它会使用N命令将下一行添加到模式空间中，然后使用d命令删除整个模式空间的内容。
+
+#### 7.6.3 多行删除命令（D）
+
+多行删除命令（D）只删除模式空间中直到第一个换行符的部分，然后重新开始处理当前模式空间的剩余内容，而不读取新的行。
+
+在使用`sed`编辑器时，我们已经接触过单行删除命令（`d`）。`sed`编辑器使用它来删除模式空间中的当前行。但是，当您与`N`命令一起工作时，使用单行删除命令必须小心：
+
+```bash
+# 创建示例文件
+cat > data4.txt << 'EOF'
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+EOF
+
+# 使用d命令删除匹配的多行
+cat data4.txt
+sed 'N ; /System\nAdmin/d' data4.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+All System Admins should attend.
+```
+
+删除（`d`）命令在不同的行中查找单词`System`和`Admin`，并删除了模式空间中的两行。这可能是您想要的结果，也可能不是。
+
+`sed`编辑器提供了多行删除（`D`）命令，它只删除模式空间中的第一行。它会移除包括换行符在内的所有字符：
+
+```bash
+# 使用D命令只删除第一行
+cat data4.txt
+sed 'N ; /System\nAdmin/D' data4.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+Admin group meeting will be held.
+All System Admins should attend.
+```
+
+通过`N`命令添加到模式空间的第二行文本保持不变。如果您需要删除在您找到数据字符串的行之前出现的一行文本，这会很有用。
+
+以下是删除数据流中第一行之前的空行的示例：
+
+```bash
+# 创建包含空行的数据文件
+cat > data5.txt << 'EOF'
+
+Header Line
+First Data Line
+
+End of Data Lines
+EOF
+
+# 查看原始文件
+cat -A data5.txt
+
+# 删除Header行之前的空行
+sed '/^$/{N ; /Header/D}' data5.txt
+```
+
+输出结果：
+```
+$Header Line$
+First Data Line$$
+End of Data Lines$
+Header Line
+First Data Line
+
+End of Data Lines
+```
+
+这个`sed`编辑器脚本查找空行，然后使用`N`命令将下一行文本添加到模式空间中。如果新模式空间的内容包含单词`Header`，则`D`命令会删除模式空间中的第一行。如果不结合使用`N`和`D`命令，就不可能只删除第一个空行而不删除所有其他空行。
+
+```bash
+# 使用D命令处理多行
+cat > multi_delete.txt << 'EOF'
+Line 1 is first
+Line 2 is second
+Line 3 is third
+Line 4 is fourth
+EOF
+
+# 使用N和D实现特定的删除逻辑
+sed -n 'N; D; P' multi_delete.txt
+```
+
+在这个例子中，N命令读取下一行并添加到模式空间，D命令删除第一行，然后处理继续进行。由于D命令不读取新行，处理会从当前模式空间的剩余部分开始。
+
+#### 7.6.4 多行打印命令（P）
+
+多行打印命令（P）只打印模式空间中直到第一个换行符的部分，然后继续处理模式空间的剩余内容。
+
+到目前为止，您可能已经理解了单行命令和多行命令之间的区别。多行打印命令（`P`）也遵循同样的规则。它只打印多行模式空间中的第一行。这包括模式空间中直到换行符的所有字符。当您使用`-n`选项抑制脚本输出时，它的使用方式与单行`p`命令类似，可以用来显示文本。
+
+```bash
+# 创建示例文件
+cat > data3.txt << 'EOF'
+On Tuesday, the Linux System
+Admin group meeting will be held.
+All System Admins should attend.
+Thank you for your cooperation.
+EOF
+
+# 使用P命令只打印匹配的第一行
+sed -n 'N ; /System\nAdmin/P' data3.txt
+```
+
+输出结果：
+```
+On Tuesday, the Linux System
+```
+
+当发生多行匹配时，`P`命令只打印模式空间中的第一行。多行`P`命令的强大之处在于当您将其与`N`和`D`多行命令结合使用时。
+
+`D`命令有一个独特的特性：在删除模式空间中的第一行后，它会强制`sed`编辑器返回到脚本的开头，并对当前模式空间重复执行命令（它不会从数据流中读取新的文本行）。通过在命令脚本中包含`N`命令，您可以有效地逐步处理模式空间，将多行文本匹配在一起。
+
+接下来，通过使用`P`命令，您可以打印第一行，然后使用`D`命令删除第一行并循环回到脚本的开头。当您回到脚本开头时，`N`命令读取下一行文本并重新开始整个过程。这个循环会一直持续到您到达数据流的末尾，如下面这个修复数据损坏的示例所示：
+
+```bash
+# 创建包含损坏数据的文件
+cat > corruptData.txt << 'EOF'
+Header Line#
+@
+Data Line #1
+Data Line #2#
+@
+End of Data Lines#
+@
+EOF
+
+# 查看原始的损坏数据
+cat corruptData.txt
+
+# 使用N、s、P和D命令修复数据
+sed -n '
+N
+s/#\n@//
+P
+D
+' corruptData.txt
+```
+
+输出结果：
+```
+Header Line#
+@
+Data Line #1
+Data Line #2#
+@
+End of Data Lines#
+@
+Header Line
+Data Line #1
+Data Line #2
+End of Data Lines
+```
+
+数据文件被损坏了，在某些行的末尾有`#`符号，下一行有`@`符号。为了解决这个问题，使用`sed`时，首先将`Header Line#`行加载到模式空间中，然后多行next（`N`）命令加载第二行（`@`），将其追加到空间中的第一行后面。替换（`s`）命令通过将其替换为空来移除有问题的数据（`#\n@`）。接下来，`P`命令只打印模式空间中现已清理的第一行。删除（`D`）命令从空间中移除这第一行，然后返回到脚本的开头，此时下一个`N`命令将读取第三行（`Data Line #1`）文本到模式空间中，编辑循环继续进行。
+
+```bash
+# 使用P命令只打印模式空间的第一部分
+cat > multi_print.txt << 'EOF'
+First line
+Second line
+Third line
+Fourth line
+EOF
+
+# 只打印奇数行
+sed -n 'N; P' multi_print.txt
+```
+
+输出结果：
+```
+First line
+Third line
+```
+
+在这个例子中，N命令将两行读取到模式空间，然后P命令只打印第一行，这样就实现了只打印奇数行的效果。
+
+#### 7.6.5 实用示例：处理空行
+
+以下示例演示了如何使用多行命令处理连续的空行：
+
+```bash
+# 使用D命令实现删除空行后的合并处理
+cat > empty_lines.txt << 'EOF'
+Line 1
+
+
+Line 2
+
+Line 3
+
+
+
+Line 4
+EOF
+
+# 将连续的多个空行压缩为单个空行
+sed '/^$/{N;/\n$/D}' empty_lines.txt
+```
+
+输出结果：
+```
+Line 1
+
+Line 2
+
+Line 3
+
+Line 4
+```
+
+这个命令的工作原理是：当找到空行时，使用N命令读取下一行。如果下一行也是空行（模式空间中包含两个换行符），则使用D命令删除第一行，然后继续处理。这样就可以将多个连续的空行压缩为单个空行。
+
 
 ## 8. 模式空间和保持空间操作
 
@@ -669,6 +1114,65 @@ sed '/^$/{N;/\n$/D}' paragraph.txt
 - 辅助存储空间，用于临时保存数据
 - 初始为空，不会自动清空或输出
 - 可以理解为"剪贴板"，用于在处理过程中暂存内容
+
+模式空间是`sed`编辑器检查文本时使用的活动缓冲区区域。然而，它并不是`sed`编辑器中唯一可用的文本存储缓冲区。
+
+`sed`编辑器还使用另一个称为保持空间的缓冲区区域。您可以使用保持空间在处理模式空间中的其他行时临时保存文本行。与保持空间操作相关的五个命令如下表所示：
+
+| 命令 | 描述 |
+| :--- | :--- |
+| `h` | 将模式空间复制到保持空间 |
+| `H` | 将模式空间追加到保持空间 |
+| `g` | 将保持空间复制到模式空间 |
+| `G` | 将保持空间追加到模式空间 |
+| `x` | 交换模式空间和保持空间的内容 |
+
+这些命令允许您将文本从模式空间复制到保持空间，这样可以释放模式空间以加载另一个字符串进行处理。
+
+通常，在使用`h`或`H`命令将字符串移动到保持空间后，最终您会希望使用`g`、`G`或`x`命令将存储的字符串移回模式空间（否则，您一开始就不会关心保存它们）。
+
+使用两个缓冲区区域时，有时很难确定哪一行文本在哪个缓冲区区域中。下面是一个简短的示例，演示如何使用`h`和`g`命令在`sed`编辑器缓冲区空间之间来回移动数据：
+
+```bash
+# 创建测试文件
+cat > data2.txt << 'EOF'
+Header Line
+First Data Line
+Second Data Line
+End of Data Lines
+EOF
+
+# 使用h和g命令操作缓冲区
+cat data2.txt
+
+sed -n '/First/ {
+  h ; p ;
+  n ; p ;
+  g ; p }
+' data2.txt
+```
+
+让我们逐步分析上面的代码示例：
+
+1. `sed`脚本在地址中使用正则表达式来过滤包含单词`First`的行。
+2. 当包含单词`First`的行出现时，`{}`中的初始命令`h`命令将模式空间中的行复制到保持空间。此时，模式空间和保持空间具有相同的数据。
+3. 然后`p`命令打印模式空间的内容（`First Data Line`），这仍然是被复制到保持空间的行。
+4. `n`命令检索数据流中的下一行（`Second Data Line`）并将其放入模式空间。现在模式空间的数据与保持空间的数据不同。
+5. `p`命令打印模式空间的内容（`Second Data Line`）。
+6. `g`命令将保持空间的内容（`First Data Line`）放回模式空间，替换当前文本。模式空间和保持空间现在再次具有相同的数据。
+7. `p`命令打印模式空间的当前内容（`First Data Line`）。
+
+通过使用保持空间来重新排列文本行，我们可以强制`First Data Line`在输出中出现在`Second Data Line`之后。如果我们去掉第一个`p`命令，我们可以以相反的顺序输出这两行：
+
+```bash
+sed -n '/First/ {
+  h ;
+  n ; p
+  g ; p }
+' data2.txt
+```
+
+这是一个有用技术的开始。您可以使用这种技术创建一个`sed`脚本来反转整个文本数据文件！
 
 ### 8.2 详细命令案例与可视化操作
 
@@ -1037,6 +1541,102 @@ sed -n 'N;D;P' paragraph.txt
 ```
 
 **生产环境应用场景**：文本处理中删除特定前缀行，但保留后续内容，例如在处理邮件或文档时删除标题行。
+
+#### 8.2.10 取反命令（!）- 对命令效果取反
+
+取反命令（感叹号`!`）是`sed`编辑器中的一个强大功能，它允许我们对命令的应用条件进行取反。这意味着在正常情况下命令会被激活的场景中，使用取反命令后它不会被激活，反之亦然。
+
+**基本语法**：
+```bash
+[address]!command
+```
+
+**基本示例**：
+```bash
+# 创建测试文件
+cat > data2.txt << 'EOF'
+Header Line
+First Data Line
+Second Data Line
+End of Data Lines
+EOF
+
+# 正常p命令只打印包含Header的行
+sed -n '/Header/p' data2.txt
+
+# 使用取反命令打印除了包含Header的行以外的所有行
+sed -n '/Header/!p' data2.txt
+```
+
+上面的例子中，`/Header/!p`命令会打印除了包含单词`Header`的行以外的所有行。这与普通的`/Header/p`命令效果相反，后者只打印包含`Header`的行。
+
+**与特殊地址结合使用**：
+
+取反命令特别有用的一个场景是与特殊地址（如`$`表示最后一行）结合使用，以解决特定问题。例如，在使用`N`命令处理多行文本时，处理最后一行会出现问题，因为没有下一行可以读取。
+
+```bash
+# 创建测试文件
+echo -e "On Tuesday, the Linux System\nAdmin group meeting will be held.\nAll System Admins should attend." > data4.txt
+
+# 查看原始文件
+cat data4.txt
+
+# 不使用取反命令的问题 - 最后一行的System Admin没有被替换
+sed 'N;
+s/System\nAdmin/DevOps\nEngineer/
+s/System Admin/DevOps Engineer/
+' data4.txt
+
+# 使用取反命令解决问题 - 对最后一行不执行N命令
+sed '$!N;
+s/System\nAdmin/DevOps\nEngineer/
+s/System Admin/DevOps Engineer/
+' data4.txt
+```
+
+在这个例子中，`$!N`表示对除了最后一行之外的所有行执行`N`命令。这样就避免了在最后一行尝试读取不存在的下一行而导致的问题。
+
+**高级应用 - 使用取反命令和保持空间反转文件行序**：
+
+取反命令与保持空间结合使用，可以实现一些强大的文本处理功能，例如反转整个文件的行顺序。
+
+实现文件行反转的思路：
+1. 将文本行放入模式空间
+2. 将模式空间中的行复制到保持空间
+3. 读取下一行文本到模式空间
+4. 将保持空间追加到模式空间
+5. 将模式空间中的所有内容复制回保持空间
+6. 重复步骤3-5，直到所有行都处理完毕
+7. 到达最后一行时，打印结果
+
+```bash
+# 创建测试文件
+cat > data2.txt << 'EOF'
+Header Line
+First Data Line
+Second Data Line
+End of Data Lines
+EOF
+
+# 使用sed反转文件行序
+sed -n '{1!G ; h ; $p }' data2.txt
+```
+
+让我们分析一下这个命令的工作原理：
+1. `-n`选项禁止默认输出
+2. `{1!G}` - 对于除第一行外的所有行，将保持空间追加到模式空间
+3. `h` - 将模式空间复制到保持空间
+4. `$p` - 只在最后一行时打印模式空间内容
+
+这个技巧利用了保持空间来累积和反转文本行。当处理第一行时，我们直接将其复制到保持空间。对于后续的每一行，我们先将保持空间（包含之前所有行的反转顺序）追加到当前行，然后将结果复制回保持空间。当到达最后一行时，保持空间中已经包含了完整的反转文本，我们将其打印出来。
+
+**注意**：Linux系统中还有一个专门的命令`tac`可以直接实现文件行反转，它的功能与`cat`命令相反。
+
+**生产环境应用场景**：
+- 处理配置文件时排除特定部分
+- 日志分析中过滤掉已知的正常消息，只查看异常
+- 在复杂的文本处理管道中构建条件逻辑
+- 实现高级文本转换，如行排序、内容反转等
 
 ### 8.3 实际应用案例 - 日志分析与处理
 
