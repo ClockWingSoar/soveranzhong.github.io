@@ -452,6 +452,53 @@ sed -n 'N;p' multi_line.txt
 - N：将下一行追加到当前模式空间（用于跨行匹配/操作）。
 - p：打印整个模式空间；P：打印模式空间直到第一个换行符（多行模式空间时能只输出首行）。
 
+```sh
+   0 ✓ 15:09:45 soveran@,172.29.22.48:~ $ cat multi_line.txt
+line1
+line2
+line3
+line4
+line5
+  0 ✓ 15:08:51 soveran@,172.29.22.48:~ $ sed -n 'N;P' multi_line.txt
+line1
+line3
+
+  0 ✓ 15:09:20 soveran@,172.29.22.48:~ $ sed -n 'n;p' multi_line.txt
+line2
+line4
+  0 ✓ 15:09:33 soveran@,172.29.22.48:~ $ sed -n 'n;P' multi_line.txt
+line2
+line4
+```
+
+两个问题，奇数行的时候，为啥N;P没有答应第5行line5， n的时候是把读入的line2覆盖了初始读入的line1吗
+
+
+简短回答与要点：
+
+- 为什么 N;P 在奇数行时没打印最后一行？  
+  N 命令尝试把“下一行”追加到当前模式空间。如果当前是文件最后一行且没有下一行，N 会在到达 EOF 时结束该周期并终止处理（不会再执行 N 之后的后续命令），因此之后的 P 没有机会运行，所以最后那行不会被打印。
+
+- n 是否把 line2 覆盖了初始读入的 line1？  
+  是的。n 会读取下一行并用它替换当前模式空间（即覆盖原来的内容），并立即开始下一个处理周期（跳过当前周期剩余的命令）。因此在 sed -n 'n;P' 中：初始是 line1，执行 n 后模式空间变为 line2，随后执行 P 打印的就是 line2。
+
+- 例子与替代做法（打印奇数行并包含最后单独的一行）：
+  - 更直观且推荐：按当前行打印然后跳过下一行
+  ```bash
+  sed -n 'p;n' multi_line.txt   # 打印奇数行，遇到最后单独行也会打印
+  ```
+  - 或直接步进语法（GNU sed）
+  ```bash
+  sed -n '1~2p' multi_line.txt  # 从第1行开始每2行打印一次（奇数行）
+  ```
+  - 等价的 awk：
+  ```bash
+  awk 'NR%2==1' multi_line.txt
+  ```
+
+补充记忆点：
+- n = read next line, replace pattern space, start next cycle（跳过当前脚本剩余命令）。  
+- N = append next line to pattern space；若无下一行（EOF），N 会导致当前周期中后续命令通常不会执行（因此常见 N;P 在单剩一行时不输出该行）。
 ### 5.6 可视化打印（l命令）
 
 ```bash
