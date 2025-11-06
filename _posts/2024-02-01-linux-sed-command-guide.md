@@ -3324,25 +3324,28 @@ nihao SED4 sed5 sed6
 #zengjia-3# 
 /zengjia/ 
 nihao SED7 sed8 sed9 
-
+#加单引号，在第2行增加zengjia-5
   0 ✓ 20:43:16 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2azengjia-4' sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 zengjia-4
 /zengjia/
 nihao SED7 sed8 sed9
+# 不加单引号在只有单行的情况下与加单引号效果一致，在第2行增加zengjia-5
   0 ✓ 21:31:21 soveran@rocky9.6-12,10.0.0.12:~ $ sed 2azengjia-5 sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 zengjia-5
 /zengjia/
 nihao SED7 sed8 sed9
+# 不用单引号括起来的情况下，无法解析\n
   0 ✓ 21:34:31 soveran@rocky9.6-12,10.0.0.12:~ $ sed 2azengjia-6\nzengjia-7 sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 zengjia-6nzengjia-7
 /zengjia/
 nihao SED7 sed8 sed9
+# 在第2行后面同时增加zengjia-6和zengjia7
   0 ✓ 21:34:55 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2azengjia-6\nzengjia-7' sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
@@ -3350,14 +3353,104 @@ zengjia-6
 zengjia-7
 /zengjia/
 nihao SED7 sed8 sed9
-  0 ✓ 21:35:08 soveran@rocky9.6-12,10.0.0.12:~ $
+# 在第1行和第3行后面同时增加tongshizengjia-8
+  0 ✓ 21:35:08 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3atongshizengjia-8' sed.txt
+nihao SED1 sed2 sed3
+tongshizengjia-8
+nihao SED4 sed5 sed6
+tongshizengjia-8
+/zengjia/
+tongshizengjia-8
+nihao SED7 sed8 sed9
+# 在第1行和第3行后面同时增加tongshizengjia-8和tongshizengjia-9两行内容
+  0 ✓ 21:40:06 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3atongshizengjia-8\ntongshizengjia-9' sed.txt
+nihao SED1 sed2 sed3
+tongshizengjia-8
+tongshizengjia-9
+nihao SED4 sed5 sed6
+tongshizengjia-8
+tongshizengjia-9
+/zengjia/
+tongshizengjia-8
+tongshizengjia-9
+nihao SED7 sed8 sed9
+# 在第2行前插入insert1
+  0 ✓ 21:40:35 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2iinsert1' sed.txt
+nihao SED1 sed2 sed3
+insert1
+nihao SED4 sed5 sed6
+/zengjia/
+nihao SED7 sed8 sed9
+# 在第1和第3行前插入insert2
+  0 ✓ 21:45:14 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3iinsert2' sed.txt
+insert2
+nihao SED1 sed2 sed3
+insert2
+nihao SED4 sed5 sed6
+insert2
+/zengjia/
+nihao SED7 sed8 sed9
+# 在第1和第3行前插入insert3和insert4
+  0 ✓ 21:45:30 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3insert3\ninsert4' sed.txt
+nsert3
+insert4
+nihao SED1 sed2 sed3
+nsert3
+insert4
+nihao SED4 sed5 sed6
+nsert3
+insert4
+/zengjia/
+nihao SED7 sed8 sed9
+  0 ✓ 21:45:52 soveran@rocky9.6-12,10.0.0.12:~ $
+  0 ✓ 21:45:52 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+/zengjia/
+nihao SED7 sed8 sed9
+#  删除第3行
+  0 ✓ 21:55:23 soveran@rocky9.6-12,10.0.0.12:~ $ sed '3d' sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+nihao SED7 sed8 sed9
+  0 ✓ 21:55:31 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '3d' sed.txt
+# 静默模式删除第3行
+  0 ✓ 21:55:56 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '3d;p' sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+nihao SED7 sed8 sed9
+# 正常模式删除第3行并打印剩余内容会打印2遍
+  0 ✓ 21:56:11 soveran@rocky9.6-12,10.0.0.12:~ $ sed  '3d;p' sed.txt
+nihao SED1 sed2 sed3
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+nihao SED4 sed5 sed6
+nihao SED7 sed8 sed9
+nihao SED7 sed8 sed9
+  0 ✓ 21:56:37 soveran@rocky9.6-12,10.0.0.12:~ $
+# 替换第3行内容
+  0 ✓ 21:56:37 soveran@rocky9.6-12,10.0.0.12:~ $ sed '3cchang1' sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+chang1
+nihao SED7 sed8 sed9
+
+# 指定1~3行都替换成一行内容
+  0 ✓ 21:58:18 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3cchange2' sed.txt
+change2
+nihao SED7 sed8 sed9
+
+  1 ✗ 21:59:14 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3c\change3' sed.txt
+change3
+nihao SED7 sed8 sed9
+  0 ✓ 21:59:25 soveran@rocky9.6-12,10.0.0.12:~ $
 
 ```
 
 **详细说明**：
 
 1. **反斜杠作为分隔符**：
-   - 当使用单引号包裹sed命令时，可以使用反斜杠`\`作为a命令的分隔符
+   - 当使用单引号包裹sed命令时，可以使用反斜杠`\`作为a和i,d,c命令的分隔符
    - 语法格式：`sed '行号a\追加内容' 文件`
    - 这种方式在处理包含特殊字符的内容时更安全
 
