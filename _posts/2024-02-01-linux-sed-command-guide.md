@@ -3323,38 +3323,43 @@ nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6 
 #zengjia-3# 
 /zengjia/ 
-nihao SED7 sed8 sed9 
-#加单引号，在第2行增加zengjia-5
-  0 ✓ 20:43:16 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2azengjia-4' sed.txt
+nihao SED7 sed8 sed9
+
+# 示例3：使用单引号，直接在a命令后跟内容（简洁写法）
+$ sed '2azengjia-4' sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 zengjia-4
 /zengjia/
 nihao SED7 sed8 sed9
-# 不加单引号在只有单行的情况下与加单引号效果一致，在第2行增加zengjia-5
-  0 ✓ 21:31:21 soveran@rocky9.6-12,10.0.0.12:~ $ sed 2azengjia-5 sed.txt
+
+# 示例4：不使用单引号的情况（单行内容有效）
+$ sed 2azengjia-5 sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 zengjia-5
 /zengjia/
 nihao SED7 sed8 sed9
-# 不用单引号括起来的情况下，无法解析\n
-  0 ✓ 21:34:31 soveran@rocky9.6-12,10.0.0.12:~ $ sed 2azengjia-6\nzengjia-7 sed.txt
+
+# 示例5：不使用单引号时无法正确解析换行符
+$ sed 2azengjia-6\nzengjia-7 sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 zengjia-6nzengjia-7
 /zengjia/
 nihao SED7 sed8 sed9
-# 在第2行后面同时增加zengjia-6和zengjia7
-  0 ✓ 21:34:55 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2azengjia-6\nzengjia-7' sed.txt
+
+# 示例6：使用单引号正确处理多行追加
+$ sed '2azengjia-6\nzengjia-7' sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 zengjia-6
 zengjia-7
 /zengjia/
 nihao SED7 sed8 sed9
-# 在第1行和第3行后面同时增加tongshizengjia-8
-  0 ✓ 21:35:08 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3atongshizengjia-8' sed.txt
+
+# 示例7：在多行范围内追加内容（第1-3行后都追加）
+$ sed '1,3atongshizengjia-8' sed.txt
 nihao SED1 sed2 sed3
 tongshizengjia-8
 nihao SED4 sed5 sed6
@@ -3362,8 +3367,9 @@ tongshizengjia-8
 /zengjia/
 tongshizengjia-8
 nihao SED7 sed8 sed9
-# 在第1行和第3行后面同时增加tongshizengjia-8和tongshizengjia-9两行内容
-  0 ✓ 21:40:06 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3atongshizengjia-8\ntongshizengjia-9' sed.txt
+
+# 示例8：在多行范围内追加多行内容
+$ sed '1,3atongshizengjia-8\ntongshizengjia-9' sed.txt
 nihao SED1 sed2 sed3
 tongshizengjia-8
 tongshizengjia-9
@@ -3374,15 +3380,46 @@ tongshizengjia-9
 tongshizengjia-8
 tongshizengjia-9
 nihao SED7 sed8 sed9
-# 在第2行前插入insert1
-  0 ✓ 21:40:35 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2iinsert1' sed.txt
+```
+
+**详细说明**：
+
+1. **反斜杠作为分隔符**：
+   - 当使用单引号包裹sed命令时，可以使用反斜杠`\`作为a和i,d,c命令的分隔符
+   - 语法格式：`sed '行号a\追加内容' 文件`
+   - 这种方式在处理包含特殊字符的内容时更安全
+
+2. **直接跟内容（无反斜杠）**：
+   - sed也支持在a命令后直接跟追加内容，不需要反斜杠
+   - 语法格式：`sed '行号a追加内容' 文件`
+   - 这种方式更简洁，是更现代的写法
+
+3. **多行追加**：
+   - 如果需要追加多行内容，每行前都需要使用反斜杠
+   - 示例：`sed '2a\第一行\n第二行' 文件`
+
+4. **注意事项**：
+   - 在不同的shell环境中，反斜杠的处理可能略有差异
+   - 使用双引号时，反斜杠需要双重转义（`\\`）
+   - 如果追加的内容以空格开头，建议使用反斜杠方式以确保空格被正确保留
+
+**总结**：a命令不是只能用反斜杠做分隔符，现代版本的sed都支持直接在a命令后跟内容的简洁写法。使用哪种方式取决于你的具体需求和个人偏好。
+
+### 14.6 sed i命令（插入文本）详解
+
+sed的i命令用于在指定行之前插入文本内容。以下是i命令的详细示例：
+
+```bash
+# 示例1：在第2行前插入单行内容
+$ sed '2iinsert1' sed.txt
 nihao SED1 sed2 sed3
 insert1
 nihao SED4 sed5 sed6
 /zengjia/
 nihao SED7 sed8 sed9
-# 在第1和第3行前插入insert2
-  0 ✓ 21:45:14 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3iinsert2' sed.txt
+
+# 示例2：在多行范围内插入单行内容（第1-3行前都插入）
+$ sed '1,3iinsert2' sed.txt
 insert2
 nihao SED1 sed2 sed3
 insert2
@@ -3390,8 +3427,9 @@ nihao SED4 sed5 sed6
 insert2
 /zengjia/
 nihao SED7 sed8 sed9
-# 在第1和第3行前插入insert3和insert4
-  0 ✓ 21:45:30 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3insert3\ninsert4' sed.txt
+
+# 示例3：在多行范围内插入多行内容（注意这里有个错误：应该是1,3i而不是1,3insert）
+$ sed '1,3insert3\ninsert4' sed.txt
 nsert3
 insert4
 nihao SED1 sed2 sed3
@@ -3402,50 +3440,85 @@ nsert3
 insert4
 /zengjia/
 nihao SED7 sed8 sed9
-  0 ✓ 21:45:52 soveran@rocky9.6-12,10.0.0.12:~ $
-  0 ✓ 21:45:52 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed.txt
+```
+
+**i命令使用说明**：
+1. 语法格式：`sed '行号i插入内容' 文件`
+2. 与a命令类似，可以使用反斜杠分隔符或直接跟内容
+3. 可以指定单行或行范围进行插入
+4. 插入的内容会出现在指定行的前面
+
+### 14.7 sed d命令（删除行）详解
+
+sed的d命令用于删除指定的行。以下是d命令的详细示例：
+
+```bash
+# 查看原始文件内容
+$ cat sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 /zengjia/
 nihao SED7 sed8 sed9
-#  删除第3行
-  0 ✓ 21:55:23 soveran@rocky9.6-12,10.0.0.12:~ $ sed '3d' sed.txt
+
+# 示例1：删除第3行
+$ sed '3d' sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 nihao SED7 sed8 sed9
-  0 ✓ 21:55:31 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '3d' sed.txt
-# 静默模式删除第3行
-  0 ✓ 21:55:56 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '3d;p' sed.txt
+
+# 示例2：使用静默模式（-n）删除第3行（不会输出任何内容）
+$ sed -n '3d' sed.txt
+
+# 示例3：静默模式下删除第3行并打印其他行
+$ sed -n '3d;p' sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 nihao SED7 sed8 sed9
-# 正常模式删除第3行并打印剩余内容会打印2遍
-  0 ✓ 21:56:11 soveran@rocky9.6-12,10.0.0.12:~ $ sed  '3d;p' sed.txt
+
+# 示例4：正常模式下删除第3行并打印其他行（注意会打印两遍）
+$ sed '3d;p' sed.txt
 nihao SED1 sed2 sed3
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 nihao SED4 sed5 sed6
 nihao SED7 sed8 sed9
 nihao SED7 sed8 sed9
-  0 ✓ 21:56:37 soveran@rocky9.6-12,10.0.0.12:~ $
-# 替换第3行内容
-  0 ✓ 21:56:37 soveran@rocky9.6-12,10.0.0.12:~ $ sed '3cchang1' sed.txt
+```
+
+**d命令使用说明**：
+1. 语法格式：`sed '行号d' 文件`
+2. 可以指定单行或行范围进行删除
+3. 在正常模式下，sed默认会打印所有处理过的行，除非使用静默模式（-n）
+4. 当与p命令结合使用时要注意，可能会导致内容重复输出
+
+### 14.8 sed c命令（替换行）详解
+
+sed的c命令用于替换指定的行内容。以下是c命令的详细示例：
+
+```bash
+# 示例1：替换第3行内容
+$ sed '3cchang1' sed.txt
 nihao SED1 sed2 sed3
 nihao SED4 sed5 sed6
 chang1
 nihao SED7 sed8 sed9
 
-# 指定1~3行都替换成一行内容
-  0 ✓ 21:58:18 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3cchange2' sed.txt
+# 示例2：替换多行内容（将第1-3行替换为一行内容）
+$ sed '1,3cchange2' sed.txt
 change2
 nihao SED7 sed8 sed9
 
-  1 ✗ 21:59:14 soveran@rocky9.6-12,10.0.0.12:~ $ sed '1,3c\change3' sed.txt
+# 示例3：使用反斜杠分隔符替换多行内容
+$ sed '1,3c\change3' sed.txt
 change3
 nihao SED7 sed8 sed9
-  0 ✓ 21:59:25 soveran@rocky9.6-12,10.0.0.12:~ $
-
 ```
+
+**c命令使用说明**：
+1. 语法格式：`sed '行号c替换内容' 文件`
+2. 可以指定单行或行范围进行替换
+3. 当替换多行范围时，所有指定的行会被替换为同一内容
+4. 与a和i命令类似，也可以使用反斜杠作为分隔符
 
 **详细说明**：
 
