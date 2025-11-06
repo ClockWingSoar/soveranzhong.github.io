@@ -3237,6 +3237,146 @@ nihao sed7 sed8 sed9
 - 对于非常大的文件，可以先用其他工具（如`head`、`tail`）缩小范围
 - 避免在循环中多次调用`sed`，尽量一次处理完成
 
+### 14.4 sed正则表达式路径处理示例解析
+
+下面我们来详细解析几个关于路径处理的sed正则表达式命令示例：
+
+```bash
+$ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)([^/]+\/$)#\2#'
+etc/sysconfig/network
+  0 ✓ 20:16:22 soveran@rocky9.6-12,10.0.0.12:~ $ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)network#\1#'
+ #匹配network结尾，括号小组1匹配成功etc/sysconfig
+etc/sysconfig/
+#由于不匹配，替换不会发生，输出原始字符串
+  0 ✓ 20:16:38 soveran@rocky9.6-12,10.0.0.12:~ $ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)networks#\1#'
+etc/sysconfig/network
+  0 ✓ 20:16:59 soveran@rocky9.6-12,10.0.0.12:~ $
+
+```
+
+**解析**：
+- 正则表达式 `(.*\/)([^/]+\/$)` 尝试匹配：
+  - `(.*\/)`：第一个捕获组，匹配任意字符后跟一个斜杠
+  - `([^/]+\/$)`：第二个捕获组，匹配一个或多个非斜杠字符，后跟斜杠并在行尾
+- 但输入字符串 `etc/sysconfig/network` 不以斜杠结尾，所以整个模式不匹配
+- **由于不匹配，替换不会发生，输出原始字符串**
+
+```bash
+$ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)([^/]+\/?$)#\2#'
+network
+```
+
+**解析**：
+- 正则表达式 `(.*\/)([^/]+\/?$)` 匹配：
+  - `(.*\/)`：第一个捕获组，匹配 `etc/sysconfig/`
+  - `([^/]+\/?$)`：第二个捕获组，匹配 `network`（非斜杠字符，后面可有0或1个斜杠，在行尾）
+- 替换为第二个捕获组 `\2`，即 `network`
+
+```bash
+$ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)([^/]+\/?$)#\1#'
+etc/sysconfig/
+```
+
+**解析**：
+- 正则表达式与上一个相同，但替换为第一个捕获组 `\1`
+- 第一个捕获组是 `etc/sysconfig/`，所以输出该内容
+
+```bash
+$ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)#\1#'
+etc/sysconfig/network
+```
+
+**解析**：
+- 正则表达式 `(.*\/)` 只匹配 `etc/sysconfig/`
+- 替换为捕获组 `\1`，即 `etc/sysconfig/`
+- 但由于只匹配了部分字符串，而替换模式完全是这部分的副本，所以输出与原始字符串相同
+
+**关键正则表达式元素说明**：
+- `#`：用作分隔符，避免与路径中的 `/` 冲突
+- `-r`：启用扩展正则表达式，不需要对 `()`、`{}`、`?` 等特殊字符转义
+- `.*`：贪婪匹配任意字符（0个或多个）
+- `\/`：转义的斜杠字符
+- `[^/]+`：一个或多个非斜杠字符
+- `\/?`：可选的斜杠字符（0个或1个）
+- `$`：行尾锚点
+- `()`：捕获组，用于提取匹配的部分
+- `\1`、`\2`：引用第一个、第二个捕获组的内容
+
+这些示例展示了如何使用sed正则表达式来处理和操作路径字符串，特别是如何分离路径的目录部分和文件名部分。
+
+### 14.5 sed a命令分隔符使用说明
+
+关于sed的a命令（追加文本），分隔符的使用有以下几种情况：
+
+```bash
+# 示例1：使用反斜杠作为分隔符
+$ sed '2a\zengjia-2\' sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+zengjia-2 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 示例2：不使用反斜杠，直接跟文本内容
+$ sed '2a#zengjia-3#' sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+#zengjia-3# 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+  0 ✓ 20:43:16 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2azengjia-4' sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+zengjia-4
+/zengjia/
+nihao SED7 sed8 sed9
+  0 ✓ 21:31:21 soveran@rocky9.6-12,10.0.0.12:~ $ sed 2azengjia-5 sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+zengjia-5
+/zengjia/
+nihao SED7 sed8 sed9
+  0 ✓ 21:34:31 soveran@rocky9.6-12,10.0.0.12:~ $ sed 2azengjia-6\nzengjia-7 sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+zengjia-6nzengjia-7
+/zengjia/
+nihao SED7 sed8 sed9
+  0 ✓ 21:34:55 soveran@rocky9.6-12,10.0.0.12:~ $ sed '2azengjia-6\nzengjia-7' sed.txt
+nihao SED1 sed2 sed3
+nihao SED4 sed5 sed6
+zengjia-6
+zengjia-7
+/zengjia/
+nihao SED7 sed8 sed9
+  0 ✓ 21:35:08 soveran@rocky9.6-12,10.0.0.12:~ $
+
+```
+
+**详细说明**：
+
+1. **反斜杠作为分隔符**：
+   - 当使用单引号包裹sed命令时，可以使用反斜杠`\`作为a命令的分隔符
+   - 语法格式：`sed '行号a\追加内容' 文件`
+   - 这种方式在处理包含特殊字符的内容时更安全
+
+2. **直接跟内容（无反斜杠）**：
+   - sed也支持在a命令后直接跟追加内容，不需要反斜杠
+   - 语法格式：`sed '行号a追加内容' 文件`
+   - 这种方式更简洁，是更现代的写法
+
+3. **多行追加**：
+   - 如果需要追加多行内容，每行前都需要使用反斜杠
+   - 示例：`sed '2a\第一行\n第二行' 文件`
+
+4. **注意事项**：
+   - 在不同的shell环境中，反斜杠的处理可能略有差异
+   - 使用双引号时，反斜杠需要双重转义（`\\`）
+   - 如果追加的内容以空格开头，建议使用反斜杠方式以确保空格被正确保留
+
+**总结**：a命令不是只能用反斜杠做分隔符，现代的sed版本都支持直接在a命令后跟内容的简洁写法。使用哪种方式取决于你的具体需求和个人偏好。
+
 ## 15. 总结
 
 `sed`命令是Linux系统中功能强大的文本处理工具，它通过流式处理的方式，能够高效地对文本文件进行各种操作。掌握`sed`命令的关键在于：
