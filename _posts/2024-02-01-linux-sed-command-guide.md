@@ -3520,28 +3520,194 @@ nihao SED7 sed8 sed9
 3. 当替换多行范围时，所有指定的行会被替换为同一内容
 4. 与a和i命令类似，也可以使用反斜杠作为分隔符
 
-**详细说明**：
+### 14.9 sed r命令（读取文件内容）详解
 
-1. **反斜杠作为分隔符**：
-   - 当使用单引号包裹sed命令时，可以使用反斜杠`\`作为a和i,d,c命令的分隔符
-   - 语法格式：`sed '行号a\追加内容' 文件`
-   - 这种方式在处理包含特殊字符的内容时更安全
+sed的r命令用于读取另一个文件的内容并插入到指定行之后。以下是r命令的详细示例：
 
-2. **直接跟内容（无反斜杠）**：
-   - sed也支持在a命令后直接跟追加内容，不需要反斜杠
-   - 语法格式：`sed '行号a追加内容' 文件`
-   - 这种方式更简洁，是更现代的写法
+```bash
+# 查看源文件内容
+$ cat sed_test.txt 
+ ihao sed1 sed2 sed3 
+ ihao sed4 sed5 sed6 
+ ihao sed7 sed8 sed9 
 
-3. **多行追加**：
-   - 如果需要追加多行内容，每行前都需要使用反斜杠
-   - 示例：`sed '2a\第一行\n第二行' 文件`
+# 查看要插入的文件内容
+$ cat sed3.txt 
+ a 
+ b 
+ c 
+ d 
+ e 
+ f 
+ g 
+ h 
 
-4. **注意事项**：
-   - 在不同的shell环境中，反斜杠的处理可能略有差异
-   - 使用双引号时，反斜杠需要双重转义（`\\`）
-   - 如果追加的内容以空格开头，建议使用反斜杠方式以确保空格被正确保留
+# 示例1：在第3行后插入sed3.txt的内容
+$ sed '3r sed3.txt' sed.txt 
+ nihao SED1 sed2 sed3 
+ nihao SED4 sed5 sed6 
+ /zengjia/ 
+ a 
+ b 
+ c 
+ d 
+ e 
+ f 
+ g 
+ h 
+ nihao SED7 sed8 sed9 
 
-**总结**：a命令不是只能用反斜杠做分隔符，现代的sed版本都支持直接在a命令后跟内容的简洁写法。使用哪种方式取决于你的具体需求和个人偏好。
+# 示例2：在多行范围（第2-4行）后都插入sed3.txt的内容
+$ sed '2,4r sed3.txt' sed.txt 
+ nihao SED1 sed2 sed3 
+ nihao SED4 sed5 sed6 
+ a 
+ b 
+ c 
+ d 
+ e 
+ f 
+ g 
+ h 
+ /zengjia/ 
+ a 
+ b 
+ c 
+ d 
+ e 
+ f 
+ g 
+ h 
+ nihao SED7 sed8 sed9 
+ a 
+ b 
+ c 
+ d 
+ e 
+ f 
+ g 
+ h 
+```
+
+**r命令使用说明**：
+1. 语法格式：`sed '行号r 文件名' 源文件`
+2. 可以指定单行或行范围进行内容插入
+3. r命令会在每个匹配的行之后插入指定文件的全部内容
+4. 这个命令在需要将一个文件的内容插入到另一个文件的特定位置时非常有用
+5. 注意：r命令后的文件名不能用引号括起来，否则会被视为普通文本而不是文件路径
+
+### 14.10 sed w命令（写入文件内容）详解
+
+sed的w命令用于将指定行的内容写入到另一个文件。以下是w命令的详细示例和说明：
+
+```bash
+# 示例1：使用-i.bak参数将第2行写入sed3.txt（同时备份源文件）
+$ sed -i.bak '2w sed3.txt' sed.txt 
+
+# 查看源文件内容
+$ cat sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 查看写入的文件内容
+$ cat sed3.txt 
+nihao SED4 sed5 sed6 
+
+# 示例2：不使用-i参数直接将第2行写入sed3.txt
+$ sed '2w sed3.txt' sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 再次查看写入的文件内容
+$ cat sed3.txt 
+nihao SED4 sed5 sed6 
+
+# 确认目标文件没有备份
+$ cat sed3.txt.bak 
+cat: sed3.txt.bak: 没有那个文件或目录 
+
+# 确认源文件有备份（-i.bak参数作用于源文件）
+$ cat sed.txt.bak 
+ihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 示例3：写入行范围（将第1-3行写入sed3.txt）
+# 首先准备sed3.txt内容
+$ cat sed3.txt 
+a 
+b 
+c 
+d 
+e 
+f 
+g 
+h 
+
+# 查看源文件内容
+$ cat sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 执行行范围写入命令
+$ sed '1,3w sed3.txt' sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 确认写入的内容（1-3行被写入sed3.txt）
+$ cat sed3.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+
+# 源文件内容没有变化
+$ cat sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 准备测试w命令的覆盖行为
+$ vim sed3.txt  # 修改sed3.txt内容为多行文本
+$ cat sed3.txt 
+a 
+b 
+c 
+d 
+e 
+f 
+g 
+h 
+
+# 执行w命令，验证会覆盖目标文件
+$ sed '2w sed3.txt' sed.txt 
+nihao SED1 sed2 sed3 
+nihao SED4 sed5 sed6 
+/zengjia/ 
+nihao SED7 sed8 sed9 
+
+# 确认w命令确实覆盖了目标文件内容
+$ cat sed3.txt 
+nihao SED4 sed5 sed6 
+```
+
+**w命令使用说明**：
+1. 语法格式：`sed '行号w 目标文件名' 源文件`
+2. w命令会将匹配的行写入指定的目标文件，并且**会直接覆盖**目标文件的内容，不需要额外的写入权限确认
+3. 即使使用`-i.bak`参数，备份的也是**源文件**，而不是目标文件
+4. w命令可以指定单行或行范围进行写入操作
+5. w命令后的目标文件名不能用引号括起来，否则会被视为普通文本而不是文件路径
+6. 当w命令与-i参数一起使用时，-i参数只影响源文件的处理方式（是否直接修改源文件），不会对目标文件产生任何备份效果
+7. 这是w命令的重要特性：**w命令本身就具有写入/覆盖文件的能力**，无需依赖-i参数来实现文件写入操作
 
 ## 15. 总结
 
