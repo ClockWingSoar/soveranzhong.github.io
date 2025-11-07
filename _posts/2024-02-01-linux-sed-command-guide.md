@@ -3633,7 +3633,98 @@ $ sed -n '/proxy_pass/{s/proxy_pass/proxy_pass_new/; p; a\tproxy_set_header X-Fo
 port=8080
 
 # 使用双引号，环境变量会被正确展开
-sed -e "s/listen.*;/listen \	$port;/
+sed -e "s/listen.*;/listen 	$port;/" -e "/server_name/c\tserver_name '$(hostname):$port';" nginx_sample.conf
+```
+
+**方法二：使用单引号，但在环境变量处打破引号**
+
+```bash
+# 单引号与环境变量混合使用
+sed -e 's/listen.*;/listen 	'$port';/' -e '/server_name/c\tserver_name '$(hostname):$port';' nginx_sample.conf
+```
+
+**执行结果示例**：
+```bash
+#user  nobody;
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {
+        listen  8080;
+        server_name rocky9.6-12:8080;
+
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+    }
+}
+```
+
+**详细解释**：
+
+1. **双引号方法** (`"s/listen.*;/listen 	$port;/"`):
+   - 优点：语法清晰，环境变量自然融入表达式
+   - 注意点：需要对特殊字符（如`\t`中的反斜杠）进行转义，变成`\\t`
+   - 适合：表达式中包含多个环境变量，且需要保持良好可读性
+
+2. **单引号打破方法** (`'s/listen.*;/listen 	'$port';'`):
+   - 优点：不需要对sed表达式中的特殊字符进行额外转义
+   - 工作原理：先结束单引号，插入环境变量，然后重新开始单引号
+   - 适合：表达式中特殊字符较多，避免转义复杂性
+
+**常见问题与解决方案**：
+
+1. **问题**：环境变量包含特殊字符导致sed错误
+   **解决方案**：使用printf或其他方法对环境变量进行预处理
+   ```bash
+   # 对包含特殊字符的变量进行预处理
+   safe_port=$(printf '%s' "$port" | sed 's/[\/&]/\\&/g')
+   sed "s/listen.*;/listen 	$safe_port;/" nginx_sample.conf
+   ```
+
+2. **问题**：需要在sed中同时使用单引号和环境变量
+   **解决方案**：使用转义或引号嵌套
+   ```bash
+   # 在sed中使用单引号和环境变量
+   sed -e "/server_name/c\tserver_name '$HOSTNAME:$port';" nginx_sample.conf
+   ```
+
+3. **问题**：命令替换`$(command)`与环境变量一起使用
+   **解决方案**：使用命令替换时保持适当的引号处理
+   ```bash
+   # 命令替换与环境变量结合
+   sed -e "/server_name/c\tserver_name '$(hostname):$port';" nginx_sample.conf
+   ```
+
+**最佳实践**：
+
+1. **选择合适的引号策略**：
+   - 简单表达式优先使用双引号，语法更直观
+   - 复杂表达式（含多个特殊字符）优先使用单引号打破方法
+
+2. **使用-e选项分隔多个命令**：
+   - 当需要执行多个sed操作时，使用`-e`选项分隔，提高可读性
+   - 每个表达式可以根据需要选择不同的引号策略
+
+3. **使用变量存储复杂表达式**：
+   ```bash
+   # 将复杂表达式存储在变量中
+   sed_expr1="s/listen.*;/listen 	$port;/"
+   sed_expr2="/server_name/c\tserver_name '$(hostname):$port';"
+   sed -e "$sed_expr1" -e "$sed_expr2" nginx_sample.conf
+   ```
+
+4. **处理多命令时的注意事项**：
+   - 当多个`-e`表达式中都需要使用环境变量时，保持一致的引号策略
+   - 注意命令执行顺序，后续命令会处理前面命令的输出结果
 
 ####### 注意事项
 
