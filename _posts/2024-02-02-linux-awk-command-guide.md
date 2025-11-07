@@ -2493,6 +2493,49 @@ awk -v FS="/" '{print $1,$2}' passwd.txt
 
 当需要明确指定分隔符时，建议只使用一种方法，避免混用导致的混淆。如果需要在程序中动态修改分隔符，可以使用-v FS选项。
 
+**FS和OFS设置的注意事项及示例：**
+
+```bash
+# 使用-v选项设置OFS（输出字段分隔符）
+awk -F ":" -v OFS="~~" '{print $1,$7}' passwd.txt
+# 输出示例：root~~/bin/bash
+
+# 在BEGIN块中设置OFS和FS（注意：OFS值需要加引号）
+awk -F ':' 'BEGIN{OFS="~~~";FS=":"}{print $1,$3,$7}' passwd.txt
+# 输出示例：root~~~0~~~/bin/bash
+
+# 错误示例：OFS值没有加引号会导致语法错误
+# awk -F ':' 'BEGIN{OFS=~~~;FS=":"}{print $1,$3,$7}' passwd.txt
+# 错误：syntax error
+
+# 错误示例：Begin不是大写会导致设置无效
+awk -F: 'Begin{OFS=",";FS=":"}{print $1,$3,$7}' passwd.txt
+# 输出示例：root 0 /bin/bash （OFS设置无效，使用默认空格）
+
+# 正确示例：BEGIN必须大写
+awk -F: 'BEGIN{OFS=",";FS=":"}{print $1,$3,$7}' passwd.txt
+# 输出示例：root,0,/bin/bash
+
+# 可以只设置OFS，使用-F设置的FS
+awk -F: 'BEGIN{OFS=","}{print $1,$3,$7}' passwd.txt
+# 输出示例：root,0,/bin/bash
+
+# 在BEGIN块中同时设置FS和OFS，不使用-F选项
+awk 'BEGIN{OFS=",";FS=":"}{print $1,$3,$7}' passwd.txt
+# 输出示例：root,0,/bin/bash
+
+# 重要提示：FS必须是源文件中存在的字符，否则无法正确分割
+# 下面示例使用空格作为分隔符，但passwd.txt实际使用冒号分隔
+awk 'BEGIN{OFS=",";FS=" "}{print $1,$3,$7}' passwd.txt
+# 输出示例：root:x:0:0:root:/root:/bin/bash,, （只识别到第一个字段）
+```
+
+**注意事项：**
+1. FS必须是源文件中实际存在的字符，否则无法正确分割字段
+2. BEGIN必须使用大写形式，否则会被视为普通模式而非特殊块
+3. -F选项后面可以跟双引号、单引号或无引号的分隔符
+4. 在BEGIN块中设置OFS时，值必须用引号括起来
+
 **提取URL中的域名信息并统计：**
 
 ```bash
