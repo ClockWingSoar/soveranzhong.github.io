@@ -2974,6 +2974,37 @@ line one
 line two
 ```
 
+验证过程：
+
+```sh
+
+  0 ✓ 09:16:24 soveran@rocky9.6-12,10.0.0.12:~ $ cat mixed_blank.txt
+line one
+
+
+
+line two
+
+
+
+
+line three
+  0 ✓ 09:16:53 soveran@rocky9.6-12,10.0.0.12:~ $ sed '/^$/d' mixed_blank.txt
+line one
+
+
+line two
+
+
+line three
+  0 ✓ 09:17:05 soveran@rocky9.6-12,10.0.0.12:~ $ sed '/^[[:space:]]*$/d' mixed_blank.txt
+line one
+line two
+line three
+  0 ✓ 09:17:38 soveran@rocky9.6-12,10.0.0.12:~ $
+
+```
+
 注意：所有看起来是空的行，无论是否包含空白字符，都被删除了。
 
 在实际工作中，特别是处理从不同来源获取的文本文件时，经常会遇到包含不可见空白字符的行。这些行在视觉上与纯空行没有区别，但会在后续的文件处理中引起问题，如解析错误、格式问题或不必要的空条目。
