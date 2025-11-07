@@ -2431,6 +2431,117 @@ awk '{print NR, $0}' awk.txt
 awk '{print FNR, $0}' awk.txt
 ```
 
+**限定行号打印特定内容：**
+
+```bash
+# 打印第1行的第1个和第3个字段
+awk 'NR==1{print $1,$3}' awk.txt
+# 输出示例：nihao awk2
+
+# 打印第2行的行号和前两个字段（注意行号和$1之间没有空格）
+awk 'NR==2{print NR $1,$2}' awk.txt
+# 输出示例：2nihao awk4
+
+# 打印第3行的行号和前两个字段
+awk 'NR==3{print NR,$1,$2}' awk.txt
+# 输出示例：3 nihao awk7
+```
+
+**使用-F和-v FS选项指定分隔符：**
+
+```bash
+# 默认使用空格分隔，整个行作为$1
+awk '{print $1}' passwd.txt  # passwd.txt内容: root:x:0:0:root:/root:/bin/bash
+# 输出示例：root:x:0:0:root:/root:/bin/bash
+
+# 使用-F选项设置冒号为分隔符
+awk -F: '{print $2}' passwd.txt
+# 输出示例：x
+
+# -F选项后可以有空格
+awk -F : '{print $2}' passwd.txt
+# 输出示例：x
+
+# -F选项可以使用引号包围分隔符
+awk -F ":" '{print $2}' passwd.txt
+# 输出示例：x
+
+# 使用-v FS选项设置字段分隔符（更灵活的方式）
+awk -v FS=":" '{print $1,$7}' passwd.txt
+# 输出示例：root /bin/bash
+
+# 在输出中使用分隔符变量
+awk -v FS=":" '{print $1 FS $7}' passwd.txt
+# 输出示例：root:/bin/bash
+
+# 字段连接（无分隔符）
+awk -v FS=":" '{print $1 $7}' passwd.txt
+# 输出示例：root/bin/bash
+```
+
+**注意：-F和-v FS选项混用的优先级**
+
+```bash
+# 当同时使用-F和-v FS选项时，-F选项的优先级更高
+awk -v FS="/" -F ":" '{print $1,$2}' passwd.txt
+# 输出示例：root x （使用了冒号作为分隔符）
+
+# 单独使用-v FS选项
+awk -v FS="/" '{print $1,$2}' passwd.txt
+# 输出示例：root:x:0:0:root: root: （使用了斜杠作为分隔符）
+```
+
+当需要明确指定分隔符时，建议只使用一种方法，避免混用导致的混淆。如果需要在程序中动态修改分隔符，可以使用-v FS选项。
+
+**提取URL中的域名信息并统计：**
+
+```bash
+# 假设domain.txt文件包含URL列表
+cat domain.txt
+# 输出示例：
+# http://www.example.org/index.html
+# http://www.example.org/1.html
+# http://api.example.org/index.html
+# http://upload.example.org/index.html
+# http://img.example.org/3.html
+# http://search.example.org/2.html
+
+# 使用正则表达式作为分隔符提取域名（/+表示一个或多个斜杠）
+awk -F "/+" '{print $2}' domain.txt
+# 输出示例：
+# www.example.org
+# www.example.org
+# api.example.org
+# upload.example.org
+# img.example.org
+# search.example.org
+
+# 使用单个斜杠作为分隔符（需要使用$3获取域名）
+awk -F "/" '{print $3}' domain.txt
+# 输出示例同上
+
+# 统计域名出现次数（结合awk和uniq）
+awk -F "/" '{print $3}' domain.txt | uniq -c
+# 输出示例：
+# 2 www.example.org
+# 1 api.example.org
+# 1 upload.example.org
+# 1 img.example.org
+# 1 search.example.org
+
+# 使用字符类正则表达式作为分隔符并添加行号
+awk -F "[/]+" '{print NR,$2}' domain.txt
+# 输出示例：
+# 1 www.example.org
+# 2 www.example.org
+# 3 api.example.org
+# 4 upload.example.org
+# 5 img.example.org
+# 6 search.example.org
+```
+
+这个示例展示了如何使用正则表达式作为分隔符从URL中提取域名，并结合其他命令进行统计分析。
+
 **提取/etc/fstab中的UUID挂载信息：**
 
 ```bash
