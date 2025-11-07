@@ -2419,6 +2419,26 @@ END  { print nlines }
 
 **在每行前加上其在文件中的行号：**
 
+**提取/etc/fstab中的UUID挂载信息：**
+
+```bash
+# 首先使用grep过滤出包含UUID的行，然后用awk提取UUID和文件系统类型
+grep "^UUID" /etc/fstab | awk '{print $1, $3}'
+# 输出示例：UUID=4e0fed15-9f25-41c0-8a61-fd528964dd3f xfs
+
+# 提取所有挂载点及其文件系统类型
+awk '!/^#/ && $0 {print $2, $3}' /etc/fstab
+# 输出示例：/	xfs
+#          /boot	xfs
+#          /home	xfs
+#          none	swap
+
+# 格式化输出fstab关键信息，使用制表符分隔
+awk '!/^#/ && $0 {printf "挂载点: %-20s 文件系统: %-10s 选项: %s\n", $2, $3, $4}' /etc/fstab
+```
+
+这个示例展示了如何结合grep和awk命令高效地处理系统配置文件，提取关键信息进行分析或报告。
+
 ```bash
 { print FNR, $0 }
 ```
