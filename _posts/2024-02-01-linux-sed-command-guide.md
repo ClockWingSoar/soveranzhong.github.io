@@ -2073,7 +2073,74 @@ sed -n '/sendfile/,6p' nginx_sample.conf
 sed -n '/sendfile/,+3p' nginx_sample.conf
 ```
 
-### 10.1.1 特殊地址匹配形式
+#### 10.1.1 实际应用示例：nginx配置文件范围匹配
+
+下面是一个实际的nginx配置文件范围匹配示例，展示了sed范围匹配的工作方式：
+
+```bash
+# 查看nginx配置文件内容（带行号）
+$ cat -n nginx_sample.conf 
+      1  #user  nobody; 
+      2  worker_processes  1; 
+      3 
+      4  events { 
+      5      worker_connections  1024; 
+      6  } 
+      7 
+      8  http { 
+      9      sendfile        on; 
+     10      keepalive_timeout  65; 
+     11 
+     12      server { 
+     13          listen       8000; 
+     14          server_name  localhost; 
+     15 
+     16          location / { 
+     17              root   html; 
+     18              index  index.html index.htm; 
+     19          } 
+     20      } 
+     21  }
+
+# 示例1：从包含sendfile的行到第6行（注意这里第6行在sendfile行之前）
+$ sed -n '/send/,6p' nginx_sample.conf 
+    sendfile        on;
+
+# 示例2：从包含sendfile的行到第12行（第12行在sendfile行之后）
+$ sed -n '/send/,12p' nginx_sample.conf 
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server { 
+
+# 示例3：从第1行到包含sendfile的行
+$ sed -n '1,/send/p' nginx_sample.conf 
+#user  nobody; 
+worker_processes  1; 
+
+events { 
+    worker_connections  1024; 
+}
+
+http { 
+    sendfile        on; 
+```
+
+**重要说明：关于sed范围匹配的方向性**
+
+从上面的示例可以观察到一个重要特性：**sed的范围匹配是按照文件读取顺序（从上到下）进行的，它不能从关键字往前（向上）匹配**。具体解释如下：
+
+1. 当使用`/pattern/,line_number`格式时，如果行号小于模式匹配的行号，sed只会返回模式匹配的行本身，而不会返回之前的行（如示例1）
+
+2. 只有当行号大于等于模式匹配的行号时，sed才会返回从模式匹配行到指定行号的完整范围（如示例2）
+
+3. 相反，使用`line_number,/pattern/`格式时，sed可以正常返回从指定行号到模式匹配行的范围（如示例3）
+
+这是因为sed是一种流式处理工具，它按顺序逐行读取文件内容。当遇到第一个匹配的起始条件时，它开始记录/处理行，直到遇到结束条件。如果起始条件在文件中的位置晚于结束条件，那么结束条件实际上在起始条件之前就已经被读取过了，因此sed无法回溯处理之前的行。
+
+如果需要从关键字往前匹配，可以考虑使用其他工具如`grep`配合`head`或`tail`，或者使用`awk`来实现这种复杂的范围匹配需求。
+
+### 10.1.2 特殊地址匹配形式
 
 ```bash
 # 0,addr2 形式：从开始到匹配addr2的行，与1,addr2不同的是如果addr2匹配第一行
