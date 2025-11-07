@@ -2419,6 +2419,18 @@ END  { print nlines }
 
 **在每行前加上其在文件中的行号：**
 
+```bash
+# 使用NR变量打印全局行号
+awk '{print NR, $0}' awk.txt
+# 输出示例：
+# 1 nihao awk1 awk2 awk3
+# 2 nihao awk4 awk5 awk6
+# 3 nihao awk7 awk8 awk9
+
+# 使用FNR变量打印每个文件的行号（多文件处理时有用）
+awk '{print FNR, $0}' awk.txt
+```
+
 **提取/etc/fstab中的UUID挂载信息：**
 
 ```bash
