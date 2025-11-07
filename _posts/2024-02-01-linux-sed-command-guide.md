@@ -2149,19 +2149,8 @@ paste -d' ' line_numbers.txt content.txt
 12    server { 
 ```
 
-**方法2：使用管道和sed的N命令（更简洁）**
-```bash
-# 方法2：使用管道将行号和内容合并到同一行
-$ sed -n '/send/,+3=' nginx_sample.conf | sed -n '1~4d;2~4d;3~4d;4~4d;p' > ln.txt && 
-sed -n '/send/,+3p' nginx_sample.conf > c.txt && 
-paste -d' ' ln.txt c.txt
-9     sendfile        on;
-10    keepalive_timeout  65;
-11    
-12    server { 
-```
 
-**方法3：使用awk替代sed（更简单直观）**
+**方法2：使用awk替代sed（更简单直观）**
 ```bash
 # 方法3：使用awk实现范围匹配并显示行号
 $ awk '/send/,+3 {print NR, $0}' nginx_sample.conf
@@ -2172,8 +2161,8 @@ $ awk '/send/,+3 {print NR, $0}' nginx_sample.conf
 ```
 
 **说明**：
-- 方法1和方法2利用了sed的等号(=)命令获取行号，然后通过paste命令将行号和内容合并
-- 方法3使用awk更直接地实现，因为awk原生支持行号变量NR和范围匹配语法
+- 方法1利用了sed的等号(=)命令获取行号，然后通过paste命令将行号和内容合并
+- 方法2使用awk更直接地实现，因为awk原生支持行号变量NR和范围匹配语法
 - 对于范围匹配，awk的实现更加直观且语法简洁，推荐在需要同时显示行号和内容时使用
 - 注意：如您尝试的`sed -n '/send/,+3p='`和其他类似组合命令会失败，因为sed不允许在单个表达式中同时使用p和=命令
 
