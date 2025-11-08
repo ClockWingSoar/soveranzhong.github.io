@@ -1455,6 +1455,112 @@ awk 'BEGIN{i=2} {print $(i)}' input.txt
 4. **在awk程序中定义的变量**，确保在使用前已经赋值
 5. **避免变量名与awk关键字或内置函数名冲突**
 
+#### 6.6.2 awk定制格式化输出
+
+awk提供了强大的格式化输出功能，可以通过`print`和`printf`命令结合自定义变量来实现灵活的输出格式。
+
+##### 使用print命令的基本格式化
+
+`print`命令是awk中最基本的输出命令，它会在参数之间自动插入输出字段分隔符（OFS，默认为空格），并在最后添加输出记录分隔符（ORS，默认为换行符）。
+
+```bash
+# 基本用法：输出字段和自定义变量
+awk -F: '{age=36;address="shanghai"; print $1,age,address}' passwd.txt
+# 输出类似: root 36 shanghai
+
+# 修改OFS改变字段分隔符
+awk -F: 'BEGIN{OFS=":"} {age=36;address="shanghai"; print $1,age,address}' passwd.txt
+# 输出类似: root:36:shanghai
+
+# 组合字符串和变量
+awk -F: '{age=36;address="shanghai"; print "User:", $1, "is", age, "years old, from", address}' passwd.txt
+# 输出类似: User: root is 36 years old, from shanghai
+```
+
+##### 使用printf命令进行精确格式化
+
+`printf`命令提供了更精确的格式化控制，类似于C语言中的printf函数。它不会自动添加换行符，需要显式指定。
+
+```bash
+# 基本格式化输出
+awk -F: '{age=36;address="shanghai"; printf "%-10s %3d %s\n", $1, age, address}' passwd.txt
+# 输出类似: root         36 shanghai
+
+# 更复杂的格式化
+awk -F: '{age=36;address="shanghai"; printf "User %s is %d years old and lives in %s\n", $1, age, address}' passwd.txt
+# 输出类似: User root is 36 years old and lives in shanghai
+
+# 表格形式输出
+awk -F: 'BEGIN {printf "%-15s %-8s %-20s\n", "USERNAME", "AGE", "ADDRESS"; printf "------------------------------------------\n"} {age=36;address="shanghai"; printf "%-15s %-8d %-20s\n", $1, age, address}' passwd.txt
+# 输出格式化表格
+```
+
+##### 常用的printf格式说明符
+
+| 格式说明符 | 描述 |
+|------------|------|
+| %s | 字符串 |
+| %d, %i | 十进制整数 |
+| %f | 浮点数 |
+| %e, %E | 科学记数法 |
+| %g, %G | 自动选择%f或%e的紧凑格式 |
+| %x, %X | 十六进制整数 |
+| %o | 八进制整数 |
+| %% | 字面值百分号 |
+
+##### 格式化修饰符
+
+- **宽度修饰符**：`%10s`表示字符串占10个字符宽度
+- **左对齐**：`%-10s`表示左对齐，占10个字符宽度
+- **精度修饰符**：`%.2f`表示浮点数保留2位小数
+- **零填充**：`%05d`表示整数占5位，不足部分用0填充
+
+```bash
+# 使用修饰符的示例
+awk 'BEGIN {printf "%10s | %-10s | %05d | %.2f\n", "right", "left", 123, 45.6789}'
+# 输出:      right | left       | 00123 | 45.68
+```
+
+##### 结合条件语句的格式化输出
+
+可以根据条件动态改变输出格式：
+
+```bash
+# 根据字段值改变格式
+awk -F: '{age=36;address="shanghai"; if ($3 < 1000) {printf "[SYSTEM] %s\n", $1} else {printf "[USER] %s\n", $1}}' passwd.txt
+
+# 交替行格式
+awk -F: '{age=36;address="shanghai"; if (NR % 2 == 0) {printf "%s\t%s\t%s\n", $1, age, address} else {printf "%s|%s|%s\n", $1, age, address}}' passwd.txt
+```
+
+##### 自定义标题和页脚
+
+结合BEGIN和END块添加格式化的标题和汇总信息：
+
+```bash
+# 添加标题和统计信息
+awk -F: 'BEGIN {printf "%-15s %-8s %-20s\n", "USERNAME", "AGE", "ADDRESS"; printf "------------------------------------------\n"} {age=36;address="shanghai"; printf "%-15s %-8d %-20s\n", $1, age, address; count++} END {printf "------------------------------------------\n"; printf "Total users: %d\n", count}' passwd.txt
+```
+
+##### 颜色输出（在支持的终端中）
+
+可以使用ANSI转义序列添加颜色：
+
+```bash
+# 彩色输出示例
+awk -F: 'BEGIN {printf "\033[1;34m%-15s %-8s %-20s\033[0m\n", "USERNAME", "AGE", "ADDRESS"} {age=36;address="shanghai"; if (NR % 2 == 0) {printf "\033[32m%-15s %-8d %-20s\033[0m\n", $1, age, address} else {printf "%-15s %-8d %-20s\n", $1, age, address}}' passwd.txt
+```
+
+##### 最佳实践
+
+1. **简单输出使用print**：对于简单的字段分隔输出，使用print更简洁
+2. **复杂格式使用printf**：需要精确控制格式时，使用printf
+3. **设置OFS**：对于print命令，可以通过设置OFS改变默认分隔符
+4. **记得换行符**：使用printf时，别忘记添加`\n`换行符
+5. **结合变量**：灵活使用自定义变量来构建动态输出内容
+6. **测试格式**：复杂格式输出前，先用小样本测试确保格式正确
+7. **考虑可读性**：在处理大量数据时，使用清晰的格式分隔符和对齐方式提高可读性
+
 ### 6.7 数学函数
 
 ```bash
