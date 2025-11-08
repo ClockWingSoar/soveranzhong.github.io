@@ -1609,6 +1609,97 @@ awk 'BEGIN{i=2} {print $(i)}' input.txt
 4. **在awk程序中定义的变量**，确保在使用前已经赋值
 5. **避免变量名与awk关键字或内置函数名冲突**
 
+##### awk数组的使用
+
+awk支持关联数组（也称为映射或字典），这是awk中一种强大的数据结构，可以使用数字或字符串作为索引。
+
+###### 数组的基本定义和访问
+
+```bash
+# 在BEGIN块中定义和访问数组
+awk 'BEGIN{array[0]=100;print array[0]}'
+# 输出: 100
+
+# 使用字符串作为索引
+awk 'BEGIN{array["name"]="soveran";print array["name"]}'
+# 输出: soveran
+```
+
+###### 数组的初始化和赋值
+
+```bash
+# 初始化多个数组元素
+awk 'BEGIN{
+    array[0]=100;
+    array[1]=200;
+    array["two"]=300;
+    array["three"]=400;
+    # 访问并打印数组元素
+    print array[0], array[1], array["two"], array["three"];
+}'
+# 输出: 100 200 300 400
+```
+
+###### 数组的遍历
+
+```bash
+# 遍历数组中的所有元素
+awk 'BEGIN{
+    array["name"]="soveran";
+    array["age"]=30;
+    array["city"]="shanghai";
+    # 使用for循环遍历
+    for(i in array){
+        print i ": " array[i];
+    }
+}'
+# 输出类似:
+# name: soveran
+# age: 30
+# city: shanghai
+# (注意：遍历顺序可能因awk实现而异)
+```
+
+###### 数组的实际应用示例
+
+```bash
+# 统计字段出现的次数
+echo -e "apple\norange\napple\nbanana\napple" | awk '{count[$1]++} END {for(fruit in count) print fruit ": " count[fruit]}'"
+# 输出:
+# apple: 3
+# orange: 1
+# banana: 1
+
+# 存储唯一值
+echo -e "a\nb\na\nc\nb" | awk '{seen[$1]=1} END {for(item in seen) print item}'
+# 输出:
+# a
+# b
+# c
+```
+
+###### 数组的删除操作
+
+```bash
+# 删除数组元素
+awk 'BEGIN{
+    array["a"]=1;
+    array["b"]=2;
+    delete array["a"];  # 删除特定元素
+    print "a:" array["a"], "b:" array["b"];  # 删除的元素值为空
+}'
+# 输出: a: b: 2
+
+# 删除整个数组
+awk 'BEGIN{
+    array["a"]=1;
+    array["b"]=2;
+    delete array;  # 删除整个数组
+    print "a:" array["a"], "b:" array["b"];  # 所有元素都为空
+}'
+# 输出: a: b: 
+```
+
 #### 6.6.2 awk定制格式化输出
 
 awk提供了强大的格式化输出功能，可以通过`print`和`printf`命令结合自定义变量来实现灵活的输出格式。
