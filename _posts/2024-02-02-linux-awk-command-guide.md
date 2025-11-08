@@ -978,13 +978,111 @@ awk 'BEGIN {
     print "PATH:", ENVIRON["PATH"]
     # 访问当前用户环境变量（根据不同系统可能有所不同）
     print "Current user:", ENVIRON["USER"] || ENVIRON["USERNAME"]
-    
+}'
+```
+#### 6.5.1 ARGC、ARGV变量详解与NR工作原理
+
+##### 6.5.1.1 ARGC和ARGV变量的作用
+
+`ARGC`和`ARGV`是awk中用于访问命令行参数的内置变量：
+
+- **ARGC**：命令行参数的数量（不包括awk的选项或程序源代码）
+- **ARGV**：命令行参数的数组，索引从0开始，`ARGV[0]`通常是awk命令本身，后续元素是处理的文件名或其他参数
+
+##### 6.5.1.2 实际使用示例分析
+
+让我们通过实际案例来理解这些变量的工作原理：
+
+```bash
+# 创建测试文件
+cat > awk.txt << 'EOF'
+nihao awk1 awk2 awk3 
+nihao awk4 awk5 awk6 
+nihao awk7 awk8 awk9 
+EOF
+
+# 测试NR==0的情况（不会执行）
+awk 'NR==0{print ARGV[0],ARGV[1]}' awk.txt
+
+# 测试NR==2的情况（第2行执行）
+awk 'NR==2{print ARGV[0],ARGV[1]}' awk.txt
+# 输出: awk awk.txt
+
+# 测试NR==3的情况（第3行执行）
+awk 'NR==3{print ARGV[0],ARGV[1]}' awk.txt
+# 输出: awk awk.txt
+
+# 测试NR==4的情况（空行，不会执行）
+awk 'NR==4{print ARGV[0],ARGV[1]}' awk.txt
+
+# 查看ARGC的值
+awk 'NR==1{print ARGC}' awk.txt
+# 输出: 2
+```
+
+##### 6.5.1.3 NR变量的工作原理
+
+为什么`NR==0`不会执行，而`NR==1`、`NR==2`、`NR==3`可以正常工作？这涉及到awk的执行机制：
+
+1. **NR的初始值**：`NR`（Number of Records）变量在awk开始处理输入文件之前初始值为0，但只有在真正读取记录后才会递增
+
+2. **执行流程**：
+   - awk首先执行`BEGIN`块（如果有），此时`NR`为0
+   - 然后开始读取输入文件的记录，每读取一条记录，`NR`就递增1
+   - 接着执行主程序块（没有BEGIN/END的部分），此时`NR`至少为1
+   - 最后执行`END`块（如果有）
+
+3. **NR==0不工作的原因**：
+   - 主程序块中的模式`NR==0`永远不会匹配，因为主程序块只在读取记录后执行，而此时`NR`已经至少为1
+   - 如果想在`NR`为0时执行代码，必须将代码放在`BEGIN`块中
+
+4. **测试验证**：
+   ```bash
+   # 在BEGIN块中访问NR值
+   awk 'BEGIN{print "NR in BEGIN:", NR}' awk.txt
+   # 输出: NR in BEGIN: 0
+   ```
+
+##### 6.5.1.4 ARGC和ARGV的深入理解
+
+1. **参数组成**：
+   - `ARGV[0]`：awk命令本身
+   - `ARGV[1]`、`ARGV[2]`...：命令行上指定的输入文件或其他参数
+   - `ARGC`：参数的总数量
+
+2. **动态修改**：
+   - 可以在`BEGIN`块中动态修改`ARGV`数组，从而控制awk处理哪些文件
+   - 例如，可以根据条件跳过某些文件的处理
+
+3. **示例应用**：
+   ```bash
+   # 动态控制处理的文件
+   awk 'BEGIN {
+       # 显示所有参数
+       for (i=0; i<ARGC; i++) {
+           print "ARGV["i"] = "ARGV[i]
+       }
+       
+       # 动态移除某个文件
+       if (ARGC > 2) {
+           delete ARGV[2]
+       }
+   }' file1.txt file2.txt file3.txt
+   ```
+
+##### 6.5.1.5 总结
+
+- `ARGC`和`ARGV`提供了访问和控制命令行参数的能力，使awk程序可以根据参数动态调整行为
+- `NR`变量在处理输入记录时从1开始计数，因此主程序块中的`NR==0`条件永远不会为真
+- 理解这些变量的工作原理有助于编写更灵活、更强大的awk脚本
+
+```sh
     # 遍历所有环境变量
     print "\nAll environment variables:"
     for (var in ENVIRON) {
         print var ": " ENVIRON[var]
     }
-}'
+  }'
 
 # 使用PROCINFO数组获取进程信息
 awk 'BEGIN {
