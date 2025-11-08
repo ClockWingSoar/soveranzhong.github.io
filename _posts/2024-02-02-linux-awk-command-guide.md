@@ -907,7 +907,7 @@ awk 'BEGIN { in_range = 0 }
 `awk`提供了许多内置变量：
 
 | 变量 | 描述 |
-|------|----------------------------------------------------------------------|
+|------|------|
 | `$0` | 整行内容 |
 | `$1, $2, ...` | 各个字段的值 |
 | `ARGC` | 命令行参数的数量（不包括gawk的选项或程序源代码） |
@@ -931,43 +931,7 @@ awk 'BEGIN { in_range = 0 }
 | `OFS` | 输出字段分隔符，默认为空格 |
 | `ORS` | 输出记录分隔符，默认为换行符 |
 | `PREC` | 任意精度浮点数的工作精度，默认为53 |
-| `PROCINFO` | 此数组的元素提供对运行中的AWK程序信息的访问。在某些系统上，数组中可能有元素"group1"到"groupn"（n为进程拥有的补充组数量）。使用in运算符测试这些元素。保证可用的元素包括：
-  - PROCINFO["argv"]: gawk在C语言级别接收到的命令行参数，下标从0开始
-  - PROCINFO["egid"]: getegid(2)系统调用的值
-  - PROCINFO["errno"]: 当ERRNO设置为关联错误消息时，errno(3)的值
-  - PROCINFO["euid"]: geteuid(2)系统调用的值
-  - PROCINFO["FS"]: 字段分割使用FS时为"FS"，使用FPAT时为"FPAT"，使用FIELDWIDTHS时为"FIELDWIDTHS"，或API输入解析器字段分割时为"API"
-  - PROCINFO["gid"]: getgid(2)系统调用的值
-  - PROCINFO["identifiers"]: 子数组，索引为AWK程序文本中使用的所有标识符名称。这些值表示gawk在完成程序解析后对标识符的了解，程序运行时不会更新。每个标识符的值为以下之一：
-    - "array": 标识符是数组
-    - "builtin": 标识符是内置函数
-    - "extension": 标识符是通过@load或--load加载的扩展函数
-    - "scalar": 标识符是标量
-    - "untyped": 标识符是未类型化的（可以用作标量或数组，gawk尚不知道）
-    - "user": 标识符是用户定义的函数
-  - PROCINFO["pgrpid"]: getpgrp(2)系统调用的值
-  - PROCINFO["pid"]: getpid(2)系统调用的值
-  - PROCINFO["platform"]: 指示gawk编译平台的字符串。它是以下之一：
-    - "djgpp", "mingw": 使用DJGPP或MinGW的Microsoft Windows
-    - "os2": OS/2
-    - "posix": GNU/Linux、Cygwin、Mac OS X和传统Unix系统
-    - "vms": OpenVMS或Vax/VMS
-  - PROCINFO["ppid"]: getppid(2)系统调用的值
-  - PROCINFO["strftime"]: strftime()的默认时间格式字符串。更改其值会影响strftime()调用时格式化时间值的方式
-  - PROCINFO["uid"]: getuid(2)系统调用的值
-  - PROCINFO["version"]: gawk的版本
-  - PROCINFO["api_major"]: 扩展API的主版本号（当加载动态扩展可用时）
-  - PROCINFO["api_minor"]: 扩展API的次版本号（当加载动态扩展可用时）
-  - PROCINFO["gmp_version"]: GNU GMP库的版本（当编译了MPFR支持时）
-  - PROCINFO["mpfr_version"]: GNU MPFR库的版本（当编译了MPFR支持时）
-  - PROCINFO["prec_max"]: GNU MPFR库支持的任意精度浮点数的最大精度（当编译了MPFR支持时）
-  - PROCINFO["prec_min"]: GNU MPFR库允许的任意精度浮点数的最小精度（当编译了MPFR支持时）
-  - PROCINFO["NONFATAL"]: 如果存在，则所有重定向的I/O错误变为非致命
-  - PROCINFO["name", "NONFATAL"]: 使name的I/O错误变为非致命
-  - PROCINFO["command", "pty"]: 使用伪终端与command进行双向通信，而不是设置两个单向管道
-  - PROCINFO["input", "READ_TIMEOUT"]: 从input读取数据的超时时间（毫秒），input是重定向字符串或文件名
-  - PROCINFO["input", "RETRY"]: 如果在从input读取数据时发生可能重试的I/O错误，则getline返回-2而不是-1
-  - PROCINFO["sorted_in"]: 控制for循环中数组元素的遍历顺序。支持的值包括"@ind_str_asc"、"@ind_num_asc"等，也可以是自定义比较函数名称
+| `PROCINFO` | 此数组的元素提供对运行中的AWK程序信息的访问。主要元素包括：PROCINFO["argv"]（命令行参数）、PROCINFO["pid"]（进程ID）、PROCINFO["uid"]（用户ID）、PROCINFO["gid"]（组ID）、PROCINFO["platform"]（平台信息）、PROCINFO["version"]（gawk版本）、PROCINFO["sorted_in"]（数组排序控制）等 |
 | `RS` | 输入记录分隔符，默认为换行符 |
 | `ROUNDMODE` | 任意精度算术的舍入模式，默认为"N"（IEEE-754 roundTiesToEven模式）。接受的值包括："A"/"a"（舍入远离零）、"D"/"d"（向负无穷舍入）、"N"/"n"（偶数舍入）、"U"/"u"（向正无穷舍入）、"Z"/"z"（向零舍入） |
 | `RT` | 记录终止符。gawk将RT设置为由RS指定的字符或正则表达式匹配的输入文本 |
