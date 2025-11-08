@@ -1434,6 +1434,18 @@ awk -v "name=soveran" "address=shanghai" 'BEGIN{print name,address}'
 
 这种设计是因为awk将`-v`选项后面的参数视为单一的变量定义，不会解析分号等分隔符。每个`-v`选项都是一个独立的变量定义单元。
 
+**在BEGIN块中定义多个变量**：
+
+与命令行的`-v`选项不同，在awk程序的BEGIN块中，你可以使用分号分隔多个变量的定义：
+
+```bash
+# 在BEGIN块中使用分号定义多个变量
+awk 'BEGIN{name="soveran";address="shanghai";print name, address;}'
+# 输出: soveran shanghai
+```
+
+这种方式在awk程序内部是有效的，因为awk解释器会正确解析BEGIN块中的分号分隔符，将其视为不同语句的结束。这提供了一种在程序内部定义多个变量的简洁方法，而无需使用多个`-v`选项。
+
 ##### 变量作用域说明
 
 1. **使用-v选项定义的变量**：在整个awk程序中都可见（包括BEGIN块、主程序块和END块）
