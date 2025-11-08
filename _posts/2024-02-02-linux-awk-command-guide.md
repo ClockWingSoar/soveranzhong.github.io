@@ -1414,6 +1414,26 @@ awk -v "name=soveran" '{print name}' input.txt
 # 每行都会输出: soveran
 ```
 
+**定义多个变量的正确方法**：
+
+`-v`选项**每次只能定义一个变量**。如果需要定义多个变量，必须为每个变量单独使用一个`-v`选项：
+
+```bash
+# 正确：使用多个-v选项定义多个变量
+awk -v "name=soveran" -v "address=shanghai" 'BEGIN{print name,address}'
+# 输出: soveran shanghai
+
+# 错误：尝试在一个-v选项中使用分号分隔多个变量
+awk -v "name=soveran;address=shanghai" 'BEGIN{print name,address}'
+# 输出: soveran;address=shanghai  (整个字符串被当作一个变量值)
+
+# 错误：没有为第二个变量使用-v选项
+awk -v "name=soveran" "address=shanghai" 'BEGIN{print name,address}'
+# 错误: cannot open file `BEGIN{print name,address}' for reading
+```
+
+这种设计是因为awk将`-v`选项后面的参数视为单一的变量定义，不会解析分号等分隔符。每个`-v`选项都是一个独立的变量定义单元。
+
 ##### 变量作用域说明
 
 1. **使用-v选项定义的变量**：在整个awk程序中都可见（包括BEGIN块、主程序块和END块）
