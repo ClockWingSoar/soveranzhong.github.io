@@ -728,6 +728,52 @@ set encoding=utf-8
 set termencoding=utf-8
 set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+" 特殊字符可视化显示
+set list
+set listchars=space:·,tab:→,eol:↲,trail:~
+
+"===== expandtab 功能详解 =====
+"expandtab 的作用：当启用时，按下Tab键会插入空格而非Tab字符
+"工作原理：Vim会根据tabstop设置的值，将每次Tab键输入转换为相应数量的空格
+"例如：set tabstop=4 expandtab 时，按Tab键会插入4个空格而不是一个Tab字符
+
+"expandtab 的优缺点：
+"优点：
+"  1. 确保代码在不同编辑器和环境中显示一致
+"  2. 避免Tab和空格混合导致的对齐问题
+"  3. 许多编程语言和项目的编码规范要求使用空格缩进
+"缺点：
+"  1. 文件大小可能略微增加
+"  2. 某些情况下，使用真实Tab字符在处理表格数据时更方便
+"  3. 纯空格缩进在某些编辑器中调整缩进可能不如Tab高效
+
+"常见误区：
+"  - expandtab 与 listchars 是独立的设置：listchars只控制显示方式，不改变实际字符
+"  - expandtab 不影响已存在的Tab字符，只影响新输入
+
+"以下是如何为不同场景设置Tab行为的示例：
+"1. 全局设置为不自动转换Tab（使用真实Tab字符）
+"set noexpandtab
+
+"2. 只为特定文件类型设置expandtab（更推荐）
+autocmd FileType python setlocal expandtab
+autocmd FileType javascript setlocal expandtab
+"其他文件类型默认为noexpandtab
+
+"3. 临时切换expandtab状态的函数
+function! ToggleExpandTab()
+    if &expandtab
+        setlocal noexpandtab
+        echo "ExpandTab: OFF (using real tabs)"
+    else
+        setlocal expandtab
+        echo "ExpandTab: ON (using spaces)"
+    endif
+endfunction
+
+"映射快捷键切换expandtab状态
+nnoremap <leader>et :call ToggleExpandTab()<CR>
+
 ```
 
 ## 九、总结
