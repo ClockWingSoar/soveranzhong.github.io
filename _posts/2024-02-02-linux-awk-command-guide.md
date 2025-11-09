@@ -902,6 +902,25 @@ awk -F":" '$1~"[^a-z]"{print $0}' /etc/passwd
 # 输出示例（包含系统用户和带数字的用户）：
 # systemd-coredump:x:999:999:systemd Core Dumper:/:/sbin/nologin
 # test1:x:1001:1001:test1 user for testing:/home/test1:/bin/bash
+
+# 重要区别：!~ 操作符 vs [^...] 字符类否定
+# !~ 操作符：表示整个字符串不匹配正则表达式
+awk -F: '$1!~"[a-r]"{print $0}' /etc/passwd
+# 输出示例：
+# tss:x:59:59:Account used for TPM access:/:/usr/sbin/nologin
+# 说明：只有当用户名中完全不包含a到r之间的任何字符时才匹配
+
+# [^...] 字符类否定：表示字符串中包含至少一个不在字符类中的字符
+awk -F: '$1~"[^a-r]"{print $0}' /etc/passwd
+# 输出示例：
+# root:x:0:0:root:/root:/bin/bash
+# sync:x:5:0:sync:/sbin:/bin/sync
+# shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
+# 说明：只要用户名中包含至少一个不在a到r之间的字符（如s、t、u等）就匹配
+
+# 核心区别总结：
+# - $1!~"[a-r]"：要求整个用户名中没有a-r之间的任何字符
+# - $1~"[^a-r]"：只要求用户名中至少有一个字符不是a-r之间的字符
 ```
 
 #### 6.3.2 关系表达式模式
