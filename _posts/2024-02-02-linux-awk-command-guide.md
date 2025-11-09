@@ -885,6 +885,23 @@ awk '/[0-9]{2,3}/' awk_test.txt  # 匹配包含2-3位数字的行
 
 # 使用变量作为正则表达式
 awk 'BEGIN { pattern = "Bob"; } $0 ~ pattern { print }' awk_test.txt
+
+# 实际应用示例：处理系统文件/etc/passwd
+# 示例1：匹配用户名以"ro"开头的用户，并显示用户名和登录shell
+awk -F: '$1~"^ro"{print $1,$7}' /etc/passwd
+# 输出示例：
+# root /bin/bash
+
+# 示例2：匹配用户名包含"ftp"的用户，并显示整行信息
+awk -F":" '$1~"ftp"{print $0}' /etc/passwd
+# 输出示例：
+# ftp:x:14:50:FTP User:/var/ftp:/sbin/nologin
+
+# 示例3：匹配用户名包含非小写字母字符的用户（如数字、连字符等）
+awk -F":" '$1~"[^a-z]"{print $0}' /etc/passwd
+# 输出示例（包含系统用户和带数字的用户）：
+# systemd-coredump:x:999:999:systemd Core Dumper:/:/sbin/nologin
+# test1:x:1001:1001:test1 user for testing:/home/test1:/bin/bash
 ```
 
 #### 6.3.2 关系表达式模式
