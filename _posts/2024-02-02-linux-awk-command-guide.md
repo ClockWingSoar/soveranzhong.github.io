@@ -3175,6 +3175,34 @@ next语句在需要有选择地跳过某些记录进行处理时非常有用，�
 
 nextfile              停止处理当前输入文件。下一个读取的输入记录来自下一个输入文件。更新FILENAME和ARGIND，将FNR重置为1，并从AWK程序的第一个模式开始重新处理。到达输入数据末尾时，执行任何ENDFILE和END规则。
 
+### nextfile语句实践
+
+```bash
+# 处理多个文件，当每个文件的FNR等于3时，跳过当前文件
+awk 'FNR==3{nextfile}{print}' awk.txt awk.txt
+# 执行结果:
+# nihao awk1 awk2 awk3
+# nihao awk4 awk5 awk6
+# nihao awk1 awk2 awk3
+# nihao awk4 awk5 awk6
+```
+
+### next和nextfile的区别
+
+**next语句**：
+- 仅跳过当前输入记录（行）
+- 继续处理同一文件中的下一个记录
+- 不改变FILENAME、FNR和ARGIND的值
+- 适用于在单个文件内选择性跳过某些行的场景
+
+**nextfile语句**：
+- 跳过当前整个输入文件
+- 直接开始处理下一个输入文件
+- 更新FILENAME和ARGIND，重置FNR为1
+- 适用于在处理多个文件时，需要提前结束对当前文件处理的场景
+
+在处理大型数据文件或多个文件时，合理使用next和nextfile可以显著提高awk脚本的执行效率，避免不必要的处理工作。
+
 print                 打印当前记录。输出记录以ORS的值结束。
 
 print expr-list       打印表达式。每个表达式由OFS的值分隔。输出记录以ORS的值结束。
