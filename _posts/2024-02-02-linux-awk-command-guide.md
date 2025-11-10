@@ -1413,6 +1413,33 @@ awk 'BEGIN {
     print "Current real group ID:", PROCINFO["gid"]
     print "Current real user ID:", PROCINFO["uid"]
     
+    # 遍历PROCINFO数组，过滤非数组元素
+    print "\nSystem information from PROCINFO array:"  
+    for (idx in PROCINFO) {
+        if (typeof(PROCINFO[idx]) != "array") {  # 只显示非数组元素
+            print "PROCINFO[" idx "]: " PROCINFO[idx]
+        }
+    }
+    ppid -> 162260
+    pgrpid -> 247618
+    api_major -> 3
+    api_minor -> 0
+    group1 -> 10
+    gid -> 1000
+    mpfr_version -> GNU MPFR 4.1.0-p9
+    group2 -> 1000
+    egid -> 1000
+    platform -> posix
+    prec_min -> 1
+    version -> 5.1.0
+    gmp_version -> GNU MP 6.2.0
+    FS -> FS
+    uid -> 1000
+    prec_max -> 9223372036854775808
+    euid -> 1000
+    pid -> 247618
+    strftime -> %a %b %e %H:%M:%S %Z %Y 
+
     # 获取gawk版本信息
     print "\nGAWK Version:", PROCINFO["version"]
     
