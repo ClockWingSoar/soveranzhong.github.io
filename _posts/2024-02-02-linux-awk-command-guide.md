@@ -2329,7 +2329,31 @@ awk 'BEGIN {
     for (fruit in fruits) {
         print fruit, "is", fruits[fruit]
     }
-}'
+}
+
+# 数组的简单定义和直接访问
+# 定义一个包含三个科目的成绩数组并访问每个元素
+awk 'BEGIN{array["yuwen"]=78;array["shuxue"]=89;array["lishi"]=99;print array["yuwen"],array["shuxue"],array["lishi"]}'
+# 执行结果: 78 89 99
+
+# 使用for...in循环遍历数组
+# 遍历数组并依次打印每个元素的值
+awk 'BEGIN{array["yuwen"]=78;array["shuxue"]=89;array["lishi"]=99;for(i in array){print array[i]}}'
+# 执行结果:
+# 78
+# 89
+# 99
+
+# 从文件读取数据到数组
+# 读取passwd.txt文件的前6个字段到数组
+awk -F:'{for(i=1;i<NF;i++){array[i]=$i};for(j in array){print array[j]}}' passwd.txt
+# 执行结果类似:
+# root
+# x
+# 0
+# 0
+# root
+# /root
 
 # 使用in运算符检查数组索引
 awk 'BEGIN {
