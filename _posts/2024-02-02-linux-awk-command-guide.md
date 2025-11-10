@@ -4276,6 +4276,51 @@ function myfunc()
 
 从版本4.1.2开始，这适用于用户定义函数、内置函数和扩展函数。
 
+### 简单函数实践
+
+下面是一个简单的函数实践示例，展示了如何定义和调用两个基本的数学运算函数：
+
+```bash
+awk ' 
+ function add_func(num1, num2) 
+ { 
+     return num1 + num2 
+ } 
+ function sub_func(num1, num2) 
+ { 
+     if (num1 > num2) 
+          return num1 - num2 
+     return num2 - num1 
+ } 
+ BEGIN { 
+     sum_result=add_func(10, 20) 
+     print "两值之和为: "sum_result 
+     sub_result=sub_func(10, 20) 
+     print "两值之差为: "sub_result 
+ }'
+```
+
+**执行结果：**
+```
+两值之和为: 30
+两值之差为: 10
+```
+
+**工作原理说明：**
+
+1. **函数定义：**
+   - `add_func(num1, num2)`: 接收两个参数，返回它们的和
+   - `sub_func(num1, num2)`: 接收两个参数，返回它们的绝对差（较大值减去较小值）
+
+2. **函数调用：**
+   - 在BEGIN块中调用`add_func(10, 20)`计算10和20的和
+   - 在BEGIN块中调用`sub_func(10, 20)`计算10和20的绝对差
+
+3. **条件逻辑：**
+   - `sub_func`函数内部使用if条件判断，确保返回正值
+
+这个示例展示了awk函数的基本定义、参数传递、返回值处理以及条件逻辑的应用，适合初学者理解awk函数的使用方法。
+
 ### 8.15 函数检查与动态加载
 
 #### 函数检查
