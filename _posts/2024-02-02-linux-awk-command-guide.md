@@ -4775,6 +4775,166 @@ done
 
 这个案例展示了awk结合shell命令进行高级网络安全分析的能力，同时也强调了在处理复杂数据格式时正确理解和使用字段索引的重要性。
 
+## 使用awk分析Nginx访问日志中的客户端IP地址
+
+以下示例展示如何使用awk从Nginx访问日志中提取客户端IP地址并进行访问统计分析：
+
+### 日志格式分析
+
+首先，让我们看一下Nginx访问日志的典型格式：
+
+```
+10.0.0.12 - - [10/Nov/2025:22:13:12 +0800] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.76.1" "60.211.218.78"
+10.0.0.12 - - [10/Nov/2025:22:13:12 +0800] "GET /14/ HTTP/1.1" 404 3332 "-" "curl/7.76.1" "124.237.83.14"
+```
+
+在这个格式中：
+- 第一个字段是服务器IP地址（10.0.0.12）
+- 最后一个被引号包围的字段（$(NF-1)）是客户端真实IP地址（例如：60.211.218.78）
+
+### 提取单个IP地址
+
+要提取特定行（如第403行）的客户端IP地址：
+
+```bash
+awk -F '"' 'NR==403{print $(NF-1)}' /var/log/nginx/access.log
+```
+
+**执行结果：**
+```
+114.101.40.170
+```
+
+### 统计所有客户端IP地址的访问次数
+
+```bash
+awk -F '"' '{ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}' /var/log/nginx/access.log
+```
+
+**部分执行结果：**
+```
+60.211.218.78 3766
+222.217.125.153 7444
+124.205.143.213 10324
+14.115.106.222 10534
+...
+```
+
+### 按访问次数降序排序IP地址
+
+```bash
+awk -F '"' '{ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}' /var/log/nginx/access.log | sort -nr -k2
+```
+
+**部分执行结果：**
+```
+- 179652
+163.125.156.249 11803
+123.139.56.238 11524
+14.115.106.222 10534
+124.205.143.213 10324
+...
+```
+
+### 命令详细解析
+
+#### 1. 字段分隔符的选择
+
+```bash
+awk -F '"'
+```
+- 使用双引号（"）作为字段分隔符
+- 这是因为Nginx日志中客户端IP地址位于最后一个双引号对内
+
+#### 2. 提取客户端IP地址
+
+```bash
+{ip[$(NF-1)]++}
+```
+- `NF`表示当前行的字段总数
+- `$(NF-1)`表示倒数第二个字段，即被双引号包围的最后一个内容（客户端IP）
+- `ip[$(NF-1)]++`使用IP地址作为数组键，并增加其计数
+
+#### 3. 输出统计结果
+
+```bash
+END{for(i in ip){print i, ip[i]}}
+```
+- 在处理完所有行后，遍历数组并打印每个IP地址及其访问次数
+
+#### 4. 排序处理
+
+```bash
+| sort -nr -k2
+```
+- `sort`命令对结果进行排序
+- `-nr`表示数值排序（n）和降序排列（r）
+- `-k2`表示按第二列（访问次数）排序
+
+### 高级分析技巧
+
+#### 1. 过滤掉无效IP（如"-"）
+
+```bash
+awk -F '"' '{if($(NF-1) != "-") ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}' /var/log/nginx/access.log | sort -nr -k2
+```
+
+#### 2. 统计特定状态码的访问
+
+```bash
+# 统计返回404错误的IP地址及其访问次数
+awk -F '"' '/" 404 / {ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}' /var/log/nginx/access.log | sort -nr -k2
+```
+
+#### 3. 统计特定时段的访问
+
+```bash
+# 统计22:13时段的访问IP
+awk -F '"' '/\[10\/Nov\/2025:22:13:/ {ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}' /var/log/nginx/access.log
+```
+
+#### 4. 计算每个IP的请求成功率
+
+```bash
+awk -F '"' '{ip[$(NF-1)]++; if($3 ~ / 200 /) success[$(NF-1)]++}END{for(i in ip){print i, ip[i], success[i]?int(success[i]/ip[i]*100):0, "%"}}' /var/log/nginx/access.log | sort -nr -k2
+```
+
+### 注意事项
+
+1. **日志格式一致性**：确保Nginx日志格式一致，客户端IP的位置固定
+2. **代理环境考虑**：在有代理的环境中，真实IP可能在X-Forwarded-For头部，需要调整提取方式
+3. **性能优化**：处理大型日志文件时，可以先过滤再统计，如：
+   ```bash
+grep -v '"-"' /var/log/nginx/access.log | awk -F '"' '{ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}'
+   ```
+4. **定期分析**：可以将这些命令加入定时任务，定期生成访问统计报告
+
+### 完整监控脚本示例
+
+```bash
+#!/bin/bash
+# Nginx访问日志分析脚本
+
+LOG_FILE="/var/log/nginx/access.log"
+REPORT_DIR="/var/log/nginx/reports"
+DATE=$(date +"%Y%m%d_%H%M%S")
+
+# 创建报告目录
+mkdir -p $REPORT_DIR
+
+# 生成TOP 10访问IP报告
+echo "=== TOP 10 访问IP地址 ===" > $REPORT_DIR/top_ips_$DATE.txt
+awk -F '"' '{if($(NF-1) != "-") ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}' $LOG_FILE | sort -nr -k2 | head -n 10 >> $REPORT_DIR/top_ips_$DATE.txt
+
+# 生成404错误报告
+echo -e "\n=== TOP 10 404错误IP ===" >> $REPORT_DIR/top_ips_$DATE.txt
+awk -F '"' '/" 404 / {if($(NF-1) != "-") ip[$(NF-1)]++}END{for(i in ip){print i, ip[i]}}' $LOG_FILE | sort -nr -k2 | head -n 10 >> $REPORT_DIR/top_ips_$DATE.txt
+
+echo "报告已生成：$REPORT_DIR/top_ips_$DATE.txt"
+```
+
+这个示例展示了awk在Web服务器日志分析中的强大应用，特别是在识别高频访问IP、潜在的恶意请求模式以及监控网站流量分布方面的价值。通过灵活运用awk的字段处理和数组功能，可以轻松从复杂的日志格式中提取有价值的信息。
+
 ### 8.15 函数检查与动态加载
 
 #### 函数检查
