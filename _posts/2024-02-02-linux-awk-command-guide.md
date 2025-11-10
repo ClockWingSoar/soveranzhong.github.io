@@ -1929,6 +1929,8 @@ awk 'BEGIN{i=2} {print $(i)}' input.txt
 
 awk支持关联数组（也称为映射或字典），这是awk中一种强大的数据结构，可以使用数字或字符串作为索引。
 
+重要说明：在awk中，数组的定义方式与许多其他编程语言不同，数组必须通过为特定索引赋值来创建，不能使用括号语法直接定义数组元素列表。
+
 ###### 数组的基本定义和访问
 
 ```bash
@@ -1939,6 +1941,16 @@ awk 'BEGIN{array[0]=100;print array[0]}'
 # 使用字符串作为索引
 awk 'BEGIN{array["name"]="soveran";print array["name"]}'
 # 输出: soveran
+
+# 常见的数组创建误区 - 以下不会创建数组
+# 错误1: 括号语法在awk中不是数组定义方式
+# awk 'BEGIN{v=("aa","bb",12,34); print isarray(v)}'  # 语法错误
+
+# 错误2: 字符串连接不会创建数组
+awk 'BEGIN{v="aa" "bb" 12 34; print isarray(v)}'  # 返回0，v是字符串"aabb1234"
+
+# 正确: 通过索引逐个赋值创建数组
+awk 'BEGIN{arr[1]="aa"; arr[2]="bb"; arr[3]=12; arr[4]=34; print isarray(arr)}'  # 返回1
 ```
 
 ###### 数组的初始化和赋值
@@ -3168,6 +3180,20 @@ Gawk提供以下位操作函数。它们的工作方式是将双精度浮点值�
 以下函数提供有关其参数的类型相关信息：
 
 - **isarray(x)**: 如果x是数组则返回true，否则返回false。此函数主要用于多维数组的元素和函数参数。
+  
+  重要说明：在awk中，数组必须通过索引赋值的方式明确创建，不能使用类似其他编程语言的括号语法来定义数组。例如：
+  ```bash
+  # 正确的数组定义方式
+  awk 'BEGIN{arr[1]="aa"; arr[2]="bb"; print isarray(arr)}'  # 返回1
+  
+  # 错误的数组定义方式 - 这不会创建数组，而是字符串连接
+  awk 'BEGIN{v="aa" "bb" 12 34; print isarray(v)}'  # 返回0
+  
+  # 错误的数组定义方式 - 这会导致语法错误
+  # awk 'BEGIN{v=("aa","bb",12,34); print isarray(v)}'
+  ```
+  
+  isarray函数在检查变量是否为数组时非常有用，特别是在处理可能是数组或标量的参数时。
 
 - **typeof(x)**: 返回一个字符串，指示x的类型。字符串将是"array"、"number"、"regexp"、"string"、"strnum"、"unassigned"或"undefined"之一。
 
