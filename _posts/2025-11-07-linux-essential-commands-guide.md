@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Linux基础命令全面总结"
-date: 2024-03-10 10:00:00
+date: 2025-11-07 10:00:00
 categories: Linux
 permalink: /archivers/linux-essential-commands-guide
 tags:
