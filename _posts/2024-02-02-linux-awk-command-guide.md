@@ -2612,6 +2612,32 @@ awk -F: 'NR>=1&&NR<=2{print NR,$0}' /etc/passwd
 if (condition) statement [ else statement ]
 ```
 
+#### awk语法结构与大括号使用规则
+
+在awk中，**主程序块中的代码必须用大括号`{}`括起来**，这是由awk的语法结构决定的。awk程序采用"模式-动作"的结构，其中：
+
+- **模式**：决定何时执行对应的动作
+- **动作**：需要执行的代码，必须用大括号`{}`包围
+
+**为什么if语句必须用大括号括起来？**
+
+1. **语法要求**：在awk的主程序中，任何要执行的代码都必须放在大括号内
+2. **模式-动作结构**：if语句作为动作的一部分，必须包含在表示动作的大括号内
+3. **解析规则**：缺少外部大括号时，awk无法正确识别代码块的开始和结束
+
+**错误与正确示例对比**：
+
+```bash
+# 错误示例：if语句没有被大括号包围
+awk -F":" 'if(length($1)==4){i++;print $1} END{print "count is " i}' /etc/passwd
+# 报错: awk: 命令行:1: if(length($1)==4){i++;print $1} END{print "count is " i}
+# 报错: awk: 命令行:1: ^ syntax error
+
+# 正确示例：if语句被大括号包围
+awk -F: '{if(length($1)==4){i++;print $1}} END {print "count is " i}' /etc/passwd
+# 正确输出用户名长度为4的用户列表和计数
+```
+
 #### 单if表达式示例
 
 **语法格式**：`{if(condition) action}`
