@@ -3218,6 +3218,32 @@ awk 'BEGIN {
     }
 }'
 
+# 使用for循环计算1到100的和（多行写法）
+awk 'BEGIN { 
+     sum=0 
+     for (i=1;i<=100;i++) { 
+          sum+=i 
+     } 
+     print sum 
+ }' 
+
+# 使用for循环计算1到100的和（单行写法）
+awk 'BEGIN{ sum=0; for(i=1;i<=100;i++) {sum+=i}; print sum}'
+
+# 使用for循环遍历字段并求和
+# 首先创建测试文件：seq 10 | paste -s | tr -s "\t" " " > num.txt
+# 命令解析：
+# - seq 10: 生成1到10的数字序列，每个数字占一行
+# - paste -s: 将多行数据合并为单行，用制表符分隔
+# - tr -s "\t" " ": 将制表符替换为空格，并压缩连续的空白字符
+# - > num.txt: 将结果保存到num.txt文件
+
+# 查看生成的文件
+# cat num.txt  # 输出: 1 2 3 4 5 6 7 8 9 10
+
+# 使用awk遍历所有字段并求和
+awk '{for(i=1;i<=NF;i++){sum+=$i};print sum}' num.txt
+
 # while循环
 awk 'BEGIN { 
     i=1
