@@ -4385,6 +4385,188 @@ awk '
 
 这个示例展示了awk函数在复杂数据处理和格式化输出中的应用，特别是如何使用多个函数协同工作来生成结构化的报表，并进行实时的数据统计计算。
 
+## Shell脚本优化实践：网站访问测试脚本
+
+以下是一个网站访问测试脚本的优化案例，展示如何改进性能和稳定性：
+
+### 原始脚本分析
+
+原始脚本`curl_web_site.sh`存在以下问题：
+
+```bash
+#!/bin/bash
+# **************************************
+# *  站点访问测试脚本
+# *  作者：钟翼翔
+# *  联系：clockwingsoar@outlook.com
+# *  版本：2025-11-10
+# **************************************
+
+# 模拟外网访问网站
+
+while true
+do
+        cat ip.txt | while read ip
+  do
+                NUM=$(echo $ip | cut -d "." -f 4)
+                for i in $(seq $NUM)
+                do
+                        curl `http://10.0.0.12/`  -s -I -H "X-Forwarded-For: $ip" >> /dev/null
+                        curl `http://10.0.0.12/$NUM/`  -s >> /dev/null
+                done
+                sleep 1
+        done
+done
+```
+
+**主要问题：**
+1. **无限循环**：最外层的`while true`会导致脚本永远运行，无法控制
+2. **命令替换问题**：URL使用了反引号而不是双引号，可能导致执行错误
+3. **重复请求过多**：根据IP地址第四段生成大量请求，导致日志文件迅速增长（已达34MB，35万行）
+4. **管道效率低**：`cat ip.txt | while read ip`使用了多余的cat命令
+5. **没有错误处理**：缺乏curl失败时的处理机制
+6. **资源占用高**：可能导致系统负载过高
+
+### 优化后的脚本
+
+```bash
+#!/bin/bash
+# **************************************
+# *  站点访问测试脚本（优化版）
+# *  作者：钟翼翔
+# *  联系：clockwingsoar@outlook.com
+# *  版本：2025-11-10
+# **************************************
+
+# 配置参数
+BASE_URL="http://10.0.0.12"
+IP_FILE="ip.txt"
+MAX_ITERATIONS=10         # 控制总循环次数
+MAX_REQUESTS_PER_IP=5     # 每IP最大请求数（替代原来基于IP第四段的动态值）
+CONCURRENCY_LIMIT=3       # 并发请求限制
+SLEEP_TIME=0.5            # 请求间隔（秒）
+LOG_FILE="access_test.log"
+
+# 日志函数
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
+}
+
+# 检查必要文件
+if [ ! -f "$IP_FILE" ]; then
+    echo "错误: IP文件 $IP_FILE 不存在！"
+    exit 1
+fi
+
+# 清空日志
+> "$LOG_FILE"
+log "测试开始"
+
+# 主测试函数
+run_test() {
+    local ip=$1
+    local num=$2
+    local count=0
+    
+    # 限制每IP的请求数
+    local requests=$((num > MAX_REQUESTS_PER_IP ? MAX_REQUESTS_PER_IP : num))
+    
+    log "处理IP: $ip, 生成 $requests 个请求"
+    
+    # 执行请求
+    for ((i=1; i<=requests; i++)); do
+        # HEAD请求 - 检查状态
+        curl -s -I -H "X-Forwarded-For: $ip" "$BASE_URL/" > /dev/null
+        local head_status=$?
+        
+        # GET请求 - 获取内容
+        curl -s -H "X-Forwarded-For: $ip" "$BASE_URL/$num/" > /dev/null
+        local get_status=$?
+        
+        # 记录请求状态
+        if [ $head_status -eq 0 ] && [ $get_status -eq 0 ]; then
+            ((count++))
+        else
+            log "警告: IP $ip 请求 $i 失败 (HEAD: $head_status, GET: $get_status)"
+        fi
+        
+        # 避免过快请求
+        sleep $SLEEP_TIME
+    done
+    
+    log "IP $ip 成功完成 $count 个请求"
+    return 0
+}
+
+# 主循环 - 有限次数
+log "总测试循环次数: $MAX_ITERATIONS"
+
+for ((iteration=1; iteration<=MAX_ITERATIONS; iteration++)); do
+    log "===== 迭代 $iteration/$MAX_ITERATIONS ====="
+    
+    # 读取IP文件（避免多余的cat命令）
+    while read -r ip; do
+        # 跳过空行
+        [[ -z "$ip" ]] && continue
+        
+        # 提取IP第四段
+        num=$(echo "$ip" | cut -d "." -f 4)
+        
+        # 运行测试并控制并发
+        if [ $(jobs -r | wc -l) -lt $CONCURRENCY_LIMIT ]; then
+            run_test "$ip" "$num" &
+        else
+            # 等待直到有空闲槽位
+            wait -n
+            run_test "$ip" "$num" &
+        fi
+    done < "$IP_FILE"
+    
+    # 等待当前迭代的所有任务完成
+    wait
+    log "迭代 $iteration 完成"
+    
+    # 迭代间隔
+    if [ $iteration -lt $MAX_ITERATIONS ]; then
+        log "等待下一次迭代..."
+        sleep 5
+    fi
+done
+
+log "测试完成"
+echo "测试已完成，详细日志请查看 $LOG_FILE"
+```
+
+### 优化说明
+
+1. **参数化配置**：将硬编码值改为可配置的变量，便于调整
+2. **有限循环**：添加`MAX_ITERATIONS`限制总运行次数，避免无限循环
+3. **请求数量控制**：通过`MAX_REQUESTS_PER_IP`限制每个IP的请求数，防止日志爆炸
+4. **并发控制**：添加`CONCURRENCY_LIMIT`控制并发请求数，避免系统负载过高
+5. **命令替换修复**：修正URL中的反引号为双引号
+6. **避免多余的cat**：使用`< "$IP_FILE"`直接读取文件
+7. **日志记录**：添加详细的日志记录，便于监控和调试
+8. **错误处理**：检查curl命令的执行状态，记录失败的请求
+9. **资源控制**：适当的间隔时间，避免过快请求导致的资源耗尽
+10. **进程管理**：使用后台任务和`wait`命令管理并发进程
+
+### 使用方法
+
+1. 调整配置参数以满足测试需求
+2. 确保`ip.txt`文件存在且包含有效的IP地址
+3. 赋予脚本执行权限：`chmod +x curl_web_site.sh`
+4. 运行脚本：`./curl_web_site.sh`
+
+### 进一步优化建议
+
+1. 添加信号处理，支持优雅退出
+2. 实现请求结果的统计和汇总报告
+3. 根据系统负载动态调整并发数
+4. 添加请求超时设置，避免单个请求卡住
+5. 考虑使用更轻量级的工具（如ab或wrk）进行性能测试
+
+这个优化案例展示了如何改进一个简单但可能导致系统资源耗尽的脚本，使其更加可控、高效和可靠。
+
 ### 8.15 函数检查与动态加载
 
 #### 函数检查
