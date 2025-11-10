@@ -2838,7 +2838,62 @@ awk 'BEGIN{print int(abc123)}'     # 输出: 0（以非数字开头，解析为0
 
 ### 8.9 字符串函数
 
-GNU awk提供了以下内置字符串函数：
+GNU awk提供了以下内置字符串函数，下面详细介绍常用的字符串函数及其使用示例：
+
+#### 8.9.1 格式化输出函数 sprintf
+
+**sprintf(format, expr-list)**: 根据format中的指令格式化expr-list中的表达式，并返回生成的字符串而不打印。
+
+**示例：**
+```bash
+# 基本格式化示例
+awk 'BEGIN{a=sprintf("%s-%d-%s","abc",26,"edf");print a}'  # 输出: abc-26-edf
+
+# 数字格式化
+awk 'BEGIN{print sprintf("%04d", 42)}'  # 输出: 0042
+awk 'BEGIN{print sprintf("%.2f", 3.14159)}'  # 输出: 3.14
+```
+
+#### 8.9.2 字符串长度函数 length
+
+**length([s])**: 返回字符串s的长度，如果未提供s，则返回$0的长度。
+
+**示例：**
+```bash
+# 获取字符串长度
+awk 'BEGIN{v="abcdefetgf";print length(v)}'  # 输出: 10
+
+# 不指定参数时返回$0的长度
+awk '{print length}' <<< "Hello World"  # 输出: 11
+```
+
+#### 8.9.3 大小写转换函数
+
+**tolower(str)**: 返回字符串str的副本，其中所有大写字符都转换为相应的小写字符。
+
+**toupper(str)**: 返回字符串str的副本，其中所有小写字符都转换为相应的大写字符。
+
+**示例：**
+```bash
+# 转换为小写
+awk 'BEGIN{v="ABDCDef";print tolower(v)}'  # 输出: abdcdef
+
+# 转换为大写
+awk 'BEGIN{v="nscfed";print toupper(v)}'  # 输出: NSCFED
+```
+
+#### 8.9.4 字符串查找函数 index
+
+**index(s, t)**: 返回字符串t在字符串s中的索引（位置），如果t不存在则返回0。注意：字符索引从1开始。
+
+**示例：**
+```bash
+# 查找子字符串位置
+awk 'BEGIN{str="wedfefer"; print index(str,"fe")}'  # 输出: 4
+
+# 子字符串不存在
+awk 'BEGIN{print index("Hello", "xyz")}'  # 输出: 0
+```
 
 ### 8.10 时间函数
 
@@ -2866,15 +2921,9 @@ GNU awk提供了以下内置字符串函数：
 
 - **split(s, a [, r [, seps]])**: 使用分隔符正则表达式r将字符串s分割成数组a的元素，并返回元素数量。如果未提供r，则使用FS的值。split()会忽略空字段。如果提供了可选参数seps，它必须是一个数组，该数组将填充分隔符的字符串。
 
-- **sprintf(format, expr-list)**: 根据format中的指令格式化expr-list中的表达式，并返回生成的字符串而不打印。这与printf语句的工作方式相同，但结果是返回而不是打印。
-
 - **sub(r, s [, t])**: 对于字符串t中第一个匹配正则表达式r的子字符串，替换为字符串s，并返回替换次数（0或1）。如果未提供t，则使用$0。替换文本中的&会被实际匹配的文本替换。
 
 - **substr(s, i [, n])**: 返回字符串s中从索引i开始的子字符串。如果提供了n，则返回最多n个字符；否则，返回从i到字符串末尾的所有字符。在awk中，字符串索引从1开始。
-
-- **tolower(str)**: 返回字符串str的副本，其中所有大写字符都转换为相应的小写字符。非字母字符保持不变。
-
-- **toupper(str)**: 返回字符串str的副本，其中所有小写字符都转换为相应的大写字符。非字母字符保持不变。
 
 - **strtonum(str)**: 检查str并返回其数值。如果str以前导0开头，则将其视为八进制数。如果str以0x或0X开头，则将其视为十六进制数。否则，假定为十进制数。
 
