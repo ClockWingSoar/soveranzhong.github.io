@@ -3290,6 +3290,17 @@ awk 'BEGIN {
 awk 'BEGIN{i=1;sum=0;while(i<=100){sum+=i;i++};print "sum="sum}'
 # 执行结果: sum=5050
 
+# 交互式指定数字范围求和（使用命令行参数）
+# 通过read命令获取用户输入，并使用awk的-v选项传递变量
+read -p "请输入一个数字 : " NUM;awk -v num=$NUM 'BEGIN{i=1;sum=0;while(i<=num){sum+=i;i++};print "1~"num"的和为="sum}'
+# 执行示例：
+# 请输入一个数字 : 43
+# 1~43的和为=946
+
+# 另一个执行示例：
+# 请输入一个数字 : 4
+# 1~4的和为=10
+
 # do-while循环
 awk 'BEGIN { 
     i=1
