@@ -2916,6 +2916,40 @@ awk 'BEGIN{print substr("Hello", 1, 3)}'  # 输出: Hel
 awk 'BEGIN{print substr("Hello", 3, 10)}'  # 输出: llo（不会报错，只返回可用部分）
 ```
 
+#### 8.9.6 字符串分割函数 split
+
+**split(s, a [, r [, seps]])**: 使用分隔符正则表达式r将字符串s分割成数组a的元素，并返回元素数量。
+
+**参数解析：**
+- **s**: 要分割的源字符串
+- **a**: 用于存储分割结果的数组名（使用时需要用`a[index]`格式访问）
+- **r**: 可选，分隔符正则表达式，默认为FS的值（字段分隔符）
+- **seps**: 可选，用于存储分隔符本身的数组名
+
+**重要注意事项：**
+- 在awk中，数组元素使用方括号`[]`访问，而不是圆括号`()`
+- split函数返回分割后数组的元素数量
+- 数组索引从1开始计数
+
+**示例：**
+```bash
+# 基本分割示例（错误示例和正确示例对比）
+# 错误：使用圆括号访问数组元素
+awk 'BEGIN{split("abc-edf-ghi-jkl",arr,"-",sep);print length(arr),arr(3),sep[1]}'  # 错误: 试图把非函数"arr"当函数来调用
+
+# 正确：使用方括号访问数组元素
+awk 'BEGIN{split("abc-def-gho-pq",arr,"-",seps); print length(arr), arr[3], seps[1]}'  # 输出: 4 gho -
+
+# 基本分割，不保存分隔符
+awk 'BEGIN{split("apple,banana,orange", fruits, ","); for(i=1; i<=length(fruits); i++) print fruits[i]}'  # 输出三个水果名称
+
+# 使用默认分隔符（空格）
+awk 'BEGIN{split("hello world awk", words); print words[2]}'  # 输出: world
+
+# 使用正则表达式作为分隔符
+awk 'BEGIN{split("abc123def456ghi", parts, /[0-9]+/, delims); print "Parts:", parts[1], parts[2], "Delimiters:", delims[1]}'  # 输出: Parts: abc def Delimiters: 123
+```
+
 ### 8.10 时间函数
 
 由于AWK程序的主要用途之一是处理包含时间戳信息的日志文件，gawk提供了以下用于获取时间戳和格式化时间的函数：
