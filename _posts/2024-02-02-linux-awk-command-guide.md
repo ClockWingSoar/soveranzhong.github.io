@@ -3275,6 +3275,21 @@ awk 'BEGIN {
     }
 }'
 
+# 使用while循环计算1到100的和（多行写法）
+awk 'BEGIN { 
+     i=1;sum=0 
+     while(i<=100) { 
+          sum+=i 
+          i++ 
+     } 
+     print sum 
+ }' 
+# 执行结果: 5050
+
+# 使用while循环计算1到100的和（单行写法）
+awk 'BEGIN{i=1;sum=0;while(i<=100){sum+=i;i++};print "sum="sum}'
+# 执行结果: sum=5050
+
 # do-while循环
 awk 'BEGIN { 
     i=1
