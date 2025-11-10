@@ -3063,6 +3063,38 @@ for (expr1; expr2; expr3) statement
 for (var in array) statement
 break
 continue
+
+# continue语句实践
+
+## 跳过特定值
+# 在循环中跳过值为5的情况
+awk ' 
+BEGIN{ 
+    for(i=0;i<10;i++){ 
+        if(i==5)continue 
+        print(i) 
+    } 
+}'
+# 执行结果:
+# 0
+# 1
+# 2
+# 3
+# 4
+# 6
+# 7
+# 8
+# 9
+
+## 计算奇数和
+# 计算1到100之间的奇数和
+awk 'BEGIN{sum=0;for(i=1;i<=100;i++){if(i%2==0)continue;sum+=i}print sum}'
+# 执行结果: 2500
+
+## 计算偶数和
+# 计算1到100之间的偶数和
+awk 'BEGIN{sum=0;for(i=1;i<=100;i++){if(i%2!=0)continue;sum+=i}print sum}'
+# 执行结果: 2550
 delete array[index]
 delete array
 exit [ expression ]
