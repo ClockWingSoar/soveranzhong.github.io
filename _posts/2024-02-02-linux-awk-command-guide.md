@@ -2794,6 +2794,111 @@ Swap:          2047           0        2047
 
 这个示例展示了双分支if语句在系统监控中的实用价值，可以根据不同的条件阈值提供不同的状态反馈，便于自动化监控和告警。
 
+### 多if表达式示例
+
+当需要根据多个不同的条件分支执行不同操作时，可以使用多if表达式（if-else if-else）结构。这种结构在处理分类、评级等场景中非常有用。
+
+**语法格式**：
+```bash
+if (condition1) {
+    action1
+} else if (condition2) {
+    action2
+} else if (condition3) {
+    action3
+} else {
+    default_action
+}
+```
+
+**示例：分数评级系统**
+
+以下是一个根据分数范围进行评级的实用示例：
+
+```bash
+# 示例：根据分数范围进行评级
+awk ' 
+BEGIN{ 
+  score = 99 
+  if (score >=0 && score <60) { 
+    print "不及格" 
+  } else if (score >=60 && score < 90) { 
+    print "优秀" 
+  } else if (score >=90 && score <= 100) { 
+    print "你还是人么" 
+  } else { 
+    print "你觉得我信吗?" 
+  } 
+}'
+# 输出：你还是人么
+```
+
+**不同分数场景的测试结果**：
+
+```bash
+# 场景1：低分（不及格）
+awk ' 
+BEGIN{ 
+  score = 9 
+  if (score >=0 && score <60) { 
+    print "不及格" 
+  } else if (score >=60 && score < 90) { 
+    print "优秀" 
+  } else if (score >=90 && score <= 100) { 
+    print "你还是人么" 
+  } else { 
+    print "你觉得我信吗?" 
+  } 
+}'
+# 输出：不及格
+
+# 场景2：中等分数（优秀）
+awk ' 
+BEGIN{ 
+  score = 88 
+  if (score >=0 && score <60) { 
+    print "不及格" 
+  } else if (score >=60 && score < 90) { 
+    print "优秀" 
+  } else if (score >=90 && score <= 100) { 
+    print "你还是人么" 
+  } else { 
+    print "你觉得我信吗?" 
+  } 
+}'
+# 输出：优秀
+
+# 场景3：超出范围的分数
+awk ' 
+BEGIN{ 
+  score = 188 
+  if (score >=0 && score <60) { 
+    print "不及格" 
+  } else if (score >=60 && score < 90) { 
+    print "优秀" 
+  } else if (score >=90 && score <= 100) { 
+    print "你还是人么" 
+  } else { 
+    print "你觉得我信吗?" 
+  } 
+}'
+# 输出：你觉得我信吗?
+```
+
+**多if表达式的使用要点**：
+
+1. **条件判断顺序**：条件按照从上到下的顺序进行判断，一旦找到第一个满足条件的分支，就会执行对应的操作并跳出整个if结构
+
+2. **条件覆盖全面性**：确保条件判断覆盖所有可能的情况，避免遗漏
+
+3. **默认分支**：最后的else分支作为默认处理，当所有条件都不满足时执行
+
+4. **性能优化**：将最可能匹配的条件放在前面，可以提高执行效率
+
+5. **嵌套使用**：在某些复杂场景中，还可以在if分支内部嵌套另一个if结构，但要注意保持代码的可读性
+
+多if表达式结构在数据分类、等级评定、状态判断等场景中非常实用，能够清晰地表达复杂的条件逻辑。
+
 ```bash
 while (condition) statement
 do statement while (condition)
