@@ -3336,6 +3336,19 @@ awk 'BEGIN {
         i++
     } while (i<=5)
 }'
+
+# do-while循环实践 - 打印0-4
+awk 'BEGIN{i=0;do {print i;i++} while(i<5)}'
+# 执行结果:
+# 0
+# 1
+# 2
+# 3
+# 4
+
+# do-while循环实践 - 计算1到100之和
+awk 'BEGIN{ total=0;i=1;do{ total+=i;i++;}while(i<=100);print total}'
+# 执行结果: 5050
 ```
 
 ### 8.7 switch语句
