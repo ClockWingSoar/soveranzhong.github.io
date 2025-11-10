@@ -3124,6 +3124,48 @@ awk 'BEGIN{sum=0;for(i=1;i<=100;i++){if(i%2!=0)continue;sum+=i}print sum}'
 delete array[index]
 delete array
 exit [ expression ]
+
+# exit语句实践
+
+## 打印第一个记录的特定字段后退出
+# 打印awk.txt文件第一行的第二个字段后立即退出程序
+awk '{print $2; exit}' awk.txt
+# 执行结果: awk1
+
+## 查找满足条件的前N条记录后退出
+# 打印/etc/passwd文件中包含"nologin"的前3行记录后退出
+awk '/nologin/{i++;if(i<=3){print $0}else{exit;}}' /etc/passwd
+# 执行结果:
+# bin:x:1:1:bin:/bin:/sbin/nologin
+# daemon:x:2:2:daemon:/sbin:/sbin/nologin
+# adm:x:3:4:adm:/var/adm:/sbin/nologin
+
+## 多阶段exit行为说明
+
+### BEGIN和END块中的exit优先级
+# BEGIN设置flag=1并尝试exit 2，但END块中的exit 1会覆盖之前的值
+awk 'BEGIN{flag=1;exit 2}{}END{if(flag){exit 1}}'
+# 执行结果: 退出码为1（END块的exit覆盖了BEGIN块的exit）
+
+# BEGIN块中直接exit 2，由于flag未定义，END块中的条件不满足，保留BEGIN块的退出码
+awk 'BEGIN{exit 2}{}END{if(flag){exit 1}}'
+# 执行结果: 退出码为2
+
+### 主代码块中的exit优先级
+# 主代码块中的exit 111会覆盖END块中可能的exit值
+awk 'BEGIN{}{exit 111}END{if(flag){exit 1}}' <<< "input"
+# 执行结果: 退出码为111
+
+### 无参数exit的默认值
+# END块中使用无参数exit，默认返回成功状态码0
+awk 'BEGIN{}{}END{if(flag){exit}}' <<< "input"
+# 执行结果: 退出码为0
+
+### exit语句的主要用途
+1. **错误处理**：在检测到错误条件时立即终止执行并返回特定错误码
+2. **条件退出**：根据处理结果返回不同的状态码，便于脚本后续流程判断
+3. **资源优化**：在完成必要处理后提前退出，避免不必要的计算
+4. **流程控制**：在多阶段处理中，通过不同位置的exit控制最终的退出状态
 { statements }
 switch (expression) {
 case value|regex : statement
