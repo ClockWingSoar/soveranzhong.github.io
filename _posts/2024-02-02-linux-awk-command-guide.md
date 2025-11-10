@@ -3062,6 +3062,32 @@ do statement while (condition)
 for (expr1; expr2; expr3) statement
 for (var in array) statement
 break
+
+# break语句实践
+
+## 在特定条件下终止循环
+# 在循环中当i等于5时终止循环
+awk ' 
+BEGIN{ 
+    for(i=0;i<10;i++){ 
+         if(i==5){ 
+              break 
+         } 
+         print(i) 
+    } 
+}'
+# 执行结果:
+# 0
+# 1
+# 2
+# 3
+# 4
+
+## 计算部分和
+# 计算1到65的和（当i等于66时终止循环）
+awk 'BEGIN{sum=0;for(i=1;i<=100;i++){if(i==66)break;sum+=i}print sum}'
+# 执行结果: 2145
+
 continue
 
 # continue语句实践
