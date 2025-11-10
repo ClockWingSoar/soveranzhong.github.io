@@ -2895,6 +2895,27 @@ awk 'BEGIN{str="wedfefer"; print index(str,"fe")}'  # 输出: 4
 awk 'BEGIN{print index("Hello", "xyz")}'  # 输出: 0
 ```
 
+#### 8.9.5 字符串截取函数 substr
+
+**substr(s, i [, n])**: 返回字符串s中从索引i开始的子字符串。如果提供了n，则返回最多n个字符；否则，返回从i到字符串末尾的所有字符。
+
+**重要说明：在awk中，字符串索引从1开始计数，这与许多编程语言（如C、Python等）中从0开始的索引习惯不同。**
+
+**示例：**
+```bash
+# 从第3个字符开始截取到字符串末尾
+awk 'BEGIN{v="abcdefghijk";print substr(v,3)}'  # 输出: cdefghijk
+
+# 从第3个字符开始，截取3个字符
+awk 'BEGIN{v="abcedfghijk";print substr(v,3,3)}'  # 输出: ced
+
+# 从第一个字符开始截取
+awk 'BEGIN{print substr("Hello", 1, 3)}'  # 输出: Hel
+
+# 截取超出字符串长度的部分
+awk 'BEGIN{print substr("Hello", 3, 10)}'  # 输出: llo（不会报错，只返回可用部分）
+```
+
 ### 8.10 时间函数
 
 由于AWK程序的主要用途之一是处理包含时间戳信息的日志文件，gawk提供了以下用于获取时间戳和格式化时间的函数：
