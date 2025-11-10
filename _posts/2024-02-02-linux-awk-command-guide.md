@@ -4935,6 +4935,141 @@ echo "报告已生成：$REPORT_DIR/top_ips_$DATE.txt"
 
 这个示例展示了awk在Web服务器日志分析中的强大应用，特别是在识别高频访问IP、潜在的恶意请求模式以及监控网站流量分布方面的价值。通过灵活运用awk的字段处理和数组功能，可以轻松从复杂的日志格式中提取有价值的信息。
 
+## 使用awk统计Nginx访问日志中的页面访问信息
+
+以下示例展示如何使用awk统计Nginx访问日志中被访问的页面（URL路径）信息：
+
+### 页面访问统计命令
+
+```bash
+awk '{a[$7]++}END{for(v in a)print v,a[v]|"sort -k1 -nr|head -n10"}' /var/log/nginx/access.log
+```
+
+**执行结果：**
+```
+/99/ 4802
+/92/ 4466
+/83/ 4034
+/79/ 3763
+/78/ 3716
+/69/ 3293
+/62/ 3026
+/46/ 2258
+/45/ 2165
+/42/ 2066
+```
+
+### $7字段索引的计算方法
+
+在默认的Nginx访问日志格式中，使用空格作为字段分隔符时，URL路径确实位于第7个字段位置。让我们详细分析一下字段索引是如何计算的：
+
+以典型的Nginx访问日志行为例：
+```
+10.0.0.12 - - [10/Nov/2025:22:13:12 +0800] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.76.1" "60.211.218.78"
+```
+
+按空格分割后的字段分布：
+1. `10.0.0.12` - 客户端IP地址
+2. `-` - 远程用户标识（通常为-）
+3. `-` - 认证用户标识（通常为-）
+4. `[10/Nov/2025:22:13:12` - 时间戳开始部分
+5. `+0800]` - 时间戳时区部分
+6. `"HEAD` - HTTP方法开始部分
+7. `/` - 请求的URL路径（这就是我们要统计的部分）
+8. `HTTP/1.1"` - HTTP版本部分
+9. `200` - HTTP状态码
+10. `0` - 响应大小
+11. `"-"` - Referer头
+12. `"curl/7.76.1"` - User-Agent头
+13. `"60.211.218.78"` - 真实客户端IP地址（X-Forwarded-For）
+
+从上面的分析可以看出，在默认的Nginx访问日志格式中，URL路径确实位于第7个字段位置。
+
+### 命令工作原理详解
+
+1. **页面访问统计**：
+   ```bash
+   awk '{a[$7]++}END{for(v in a)print v,a[v]|"sort -k1 -nr|head -n10"}' /var/log/nginx/access.log
+   ```
+   - `a[$7]++`：使用URL路径作为数组键，并增加其计数
+   - `END{for(v in a)print v,a[v]}`：处理完所有行后，遍历数组并打印每个URL路径及其访问次数
+   - `|"sort -k1 -nr|head -n10"`：使用管道将结果传递给sort命令，按URL路径名称降序排序，并取前10个结果
+
+### 高级页面分析技巧
+
+#### 1. 按访问次数排序页面
+
+```bash
+# 按访问次数降序排列并显示前20个页面
+awk '{a[$7]++}END{for(v in a)print a[v],v|"sort -nr|head -n20"}' /var/log/nginx/access.log
+```
+
+#### 2. 统计特定URL模式的访问
+
+```bash
+# 统计以.php结尾的页面访问次数
+awk '$7 ~ /\.php$/{a[$7]++}END{for(v in a)print v,a[v]|"sort -nr -k2"}' /var/log/nginx/access.log
+```
+
+#### 3. 统计404错误页面
+
+```bash
+# 统计返回404错误的页面及其访问次数
+awk '$9 == 404{a[$7]++}END{for(v in a)print v,a[v]|"sort -nr -k2"}' /var/log/nginx/access.log
+```
+
+#### 4. 分析页面访问趋势（按小时）
+
+```bash
+# 按小时统计首页访问次数
+awk '$7 == "/" {hour = substr($4, 14, 2); a[hour]++} END {for(h in a) print h":00", a[h]}' /var/log/nginx/access.log | sort -n
+```
+
+### 完整页面分析脚本
+
+```bash
+#!/bin/bash
+# Nginx页面访问分析脚本
+
+LOG_FILE="/var/log/nginx/access.log"
+REPORT_FILE="nginx_page_analysis_$(date +%Y%m%d).txt"
+
+# 清空或创建报告文件
+> $REPORT_FILE
+
+# 添加报告标题
+echo "===== Nginx页面访问分析报告 =====" >> $REPORT_FILE
+echo "生成时间: $(date)" >> $REPORT_FILE
+echo "=====================================" >> $REPORT_FILE
+
+# 1. TOP 20 页面访问统计
+echo -e "\n[ TOP 20 页面访问统计 ]" >> $REPORT_FILE
+awk '{a[$7]++}END{for(v in a)print a[v],v|"sort -nr|head -n20"}' $LOG_FILE >> $REPORT_FILE
+
+# 2. 404错误页面统计
+echo -e "\n[ 404错误页面统计 ]" >> $REPORT_FILE
+awk '$9 == 404{a[$7]++}END{for(v in a)print a[v],v|"sort -nr|head -n20"}' $LOG_FILE >> $REPORT_FILE
+
+# 3. 静态资源访问统计
+echo -e "\n[ 静态资源访问统计 ]" >> $REPORT_FILE
+awk '$7 ~ /\.(jpg|jpeg|png|gif|css|js|ico|svg|woff|woff2|ttf|eot)$/{ext=gensub(/.*\.(\w+)$/, "\\1", "1", $7); a[ext]++}END{for(e in a)print a[e],e|"sort -nr"}' $LOG_FILE >> $REPORT_FILE
+
+# 4. 大文件下载统计
+echo -e "\n[ 大文件下载统计 (>1MB) ]" >> $REPORT_FILE
+awk '$10 > 1048576{a[$7] += $10}END{for(v in a)print a[v]/1048576,v|"sort -nr|head -n10"}' $LOG_FILE >> $REPORT_FILE
+
+echo -e "\n分析报告已生成: $REPORT_FILE"
+```
+
+### 注意事项
+
+1. **日志格式一致性**：确保Nginx日志格式一致，特别是在更改了日志格式配置后
+2. **URL编码处理**：日志中的URL可能包含编码字符，如需进一步分析可能需要解码
+3. **动态内容识别**：区分静态资源和动态页面，有助于更准确地分析用户行为
+4. **时间范围过滤**：对于大型网站，可以先按时间范围过滤日志，再进行分析
+
+这个示例展示了awk在Web服务器页面访问分析中的应用，通过正确识别字段索引，可以轻松统计和分析网站的页面访问情况，帮助管理员了解网站流量分布和用户访问模式。
+
 ### 8.15 函数检查与动态加载
 
 #### 函数检查
