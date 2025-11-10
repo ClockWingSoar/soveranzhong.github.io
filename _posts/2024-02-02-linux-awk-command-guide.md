@@ -2994,7 +2994,30 @@ echo "12:34:56" | awk '{split($0,a,":");print a[1],a[2],a[3]}'  # 输出: 12 34 
 
 - **length([s])**: 返回字符串s的长度，如果未提供s，则返回$0的长度。作为非标准扩展，对于数组参数，length()返回数组中的元素数量。
 
-- **match(s, r [, a])**: 返回正则表达式r在s中出现的位置，如果r不存在则返回0，并设置RSTART和RLENGTH的值。请注意，参数顺序与~运算符相同：str ~ re。如果提供了数组a，则清除a并存储捕获组信息。数组索引0包含整个匹配的文本，索引1到n包含各个捕获组的内容。
+- **match(s, r [, a])**: 返回正则表达式r在s中出现的位置，如果r不存在则返回0，并设置RSTART和RLENGTH的值。请注意，参数顺序与~运算符相同：str ~ re。如果提供了数组a，则清除a并存储捕获组信息。
+
+  **重要说明**：
+  - 数组索引0始终包含整个匹配的文本
+  - 数组索引1到n只有在正则表达式中使用圆括号`()`定义了捕获组时才会有值
+  - 如果正则表达式中没有定义捕获组，那么数组中只会有索引0的元素，索引1及以上将不存在或为空
+
+  **示例**：
+  ```bash
+  # 示例1：没有捕获组的正则表达式
+  awk 'BEGIN{v="abederegjeersdfewlkjsk"; match(v,"er.*j",arr);print arr[0],arr[1]}'  # 输出: eregjeersdfewlkj （arr[1]为空）
+
+  # 示例2：更清晰地展示arr[1]为空
+  awk 'BEGIN{v="abederegjeersdfewlkjsk"; match(v,"er.*j",arr);print arr[0],"----",arr[1]}'  # 输出: eregjeersdfewlkj ---- （arr[1]为空）
+
+  # 示例3：使用短模式仍无捕获组
+  awk 'BEGIN{v="abederegjeesk"; match(v,"er..j",arr);print arr[0],"----",arr[1]}'  # 输出: eregj ---- （arr[1]为空）
+
+  # 示例4：返回匹配位置
+  awk 'BEGIN{v="abederegjeesk"; print match(v,"eder.*j")}'  # 输出: 3 （匹配从第3个字符开始）
+
+  # 示例5：使用捕获组的正则表达式
+  awk 'BEGIN{v="abc123def456"; match(v,"([0-9]+).*([0-9]+)",arr); print arr[0], arr[1], arr[2]}'  # 输出: 123def456 123 456
+  ```
 
 - **split(s, a [, r [, seps]])**: 使用分隔符正则表达式r将字符串s分割成数组a的元素，并返回元素数量。如果未提供r，则使用FS的值。split()会忽略空字段。如果提供了可选参数seps，它必须是一个数组，该数组将填充分隔符的字符串。
 
