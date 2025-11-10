@@ -2584,6 +2584,41 @@ awk -F: 'NR>=1&&NR<=2{print NR,$0}' /etc/passwd
 
 ```bash
 if (condition) statement [ else statement ]
+```
+
+#### 单if表达式示例
+
+**语法格式**：`{if(condition) action}`
+
+以下是几个实用的单if表达式示例：
+
+```bash
+# 示例1：查找登录shell为/bin/bash的用户
+awk -F: '{if($0 ~ "/bin/bash")print$1}' /etc/passwd
+# 输出示例：
+# root
+# soveran
+# test1
+# ...
+
+# 示例2：使用NF（最后一个字段）查找shell为/bin/bash的用户
+awk -F: '{if($NF=="/bin/bash")print$1}' /etc/passwd
+# 输出示例与上例相同
+
+# 示例3：使用NR变量打印大于第9行的记录
+# NR>9表示打印第10行及以后的数据
+awk -F' ' '{if(NR>9)print $1}' /etc/fstab
+# 输出示例：
+# #
+# /dev/mapper/rl-root
+# UUID=4e0fed15-9f25-41c0-8a61-fd528964dd3f
+# /dev/mapper/rl-home
+# /dev/mapper/rl-swap
+```
+
+**说明**：NR变量表示当前处理的记录编号（行号），从1开始递增。当条件`NR>9`满足时，将打印第10行及以后所有行的第一个字段。这在需要跳过文件前几行注释或头部信息时特别有用。
+
+```bash
 while (condition) statement
 do statement while (condition)
 for (expr1; expr2; expr3) statement
