@@ -3155,6 +3155,24 @@ command |& getline [var]
 
 next                  停止处理当前输入记录。读取下一个输入记录，并从AWK程序的第一个模式开始重新处理。到达输入数据末尾时，执行任何END规则。
 
+### next语句实践
+
+```bash
+# 跳过第3行，打印其他所有行
+awk 'NR==3{next}{print}' awk.txt
+# 执行结果:
+# nihao awk1 awk2 awk3
+# nihao awk4 awk5 awk6
+
+# 跳过第2行，打印其他所有行
+awk 'NR==2{next}{print}' awk.txt
+# 执行结果:
+# nihao awk1 awk2 awk3
+# nihao awk7 awk8 awk9
+```
+
+next语句在需要有选择地跳过某些记录进行处理时非常有用，特别是在处理大型数据文件时，可以避免对不需要的记录执行后续操作，提高处理效率。
+
 nextfile              停止处理当前输入文件。下一个读取的输入记录来自下一个输入文件。更新FILENAME和ARGIND，将FNR重置为1，并从AWK程序的第一个模式开始重新处理。到达输入数据末尾时，执行任何ENDFILE和END规则。
 
 print                 打印当前记录。输出记录以ORS的值结束。
