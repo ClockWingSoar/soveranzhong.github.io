@@ -3301,6 +3301,20 @@ read -p "请输入一个数字 : " NUM;awk -v num=$NUM 'BEGIN{i=1;sum=0;while(i<
 # 请输入一个数字 : 4
 # 1~4的和为=10
 
+# 使用while循环查找最大值和最小值
+# 首先创建测试文件
+# echo '0 234 252 3246 2245 2345 4536 3754 32 345 323 234 3 1' > num.txt
+
+# 使用awk查找一行中所有数字的最大值和最小值
+awk '{min=$1;max=$1;while(i<=NF){if(max<$i)max=$i;if(min>$i)min=$i;i++};print "max:"max,"min:"min}' num.txt
+# 执行结果: max:4536 min:0
+
+# 说明：
+# 1. 初始化min和max为第一个字段的值
+# 2. 使用while循环遍历所有字段
+# 3. 通过比较更新最大值和最小值
+# 4. 最后输出结果
+
 # do-while循环
 awk 'BEGIN { 
     i=1
