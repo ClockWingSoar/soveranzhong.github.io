@@ -2930,6 +2930,7 @@ awk 'BEGIN{print substr("Hello", 3, 10)}'  # 输出: llo（不会报错，只返
 - 在awk中，数组元素使用方括号`[]`访问，而不是圆括号`()`
 - split函数返回分割后数组的元素数量
 - 数组索引从1开始计数
+- **当源字符串s中不包含分隔符r时，split函数会将整个字符串s作为数组的第一个元素（即a[1]）返回，此时数组长度为1**
 
 **示例：**
 ```bash
@@ -2948,6 +2949,12 @@ awk 'BEGIN{split("hello world awk", words); print words[2]}'  # 输出: world
 
 # 使用正则表达式作为分隔符
 awk 'BEGIN{split("abc123def456ghi", parts, /[0-9]+/, delims); print "Parts:", parts[1], parts[2], "Delimiters:", delims[1]}'  # 输出: Parts: abc def Delimiters: 123
+
+# 正常分割示例
+awk 'BEGIN{split("abc-def-gho-pge",arr,"-"); print arr[2]}'  # 输出: def
+
+# 分隔符不存在时的行为 - 整个字符串作为第一个元素
+awk 'BEGIN{split("abcdef", arr, "-"); print arr[1]}'  # 输出: abcdef (整个字符串作为数组第一个元素)
 ```
 
 ### 8.10 时间函数
