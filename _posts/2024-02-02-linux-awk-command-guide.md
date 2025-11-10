@@ -3315,6 +3315,19 @@ awk '{min=$1;max=$1;while(i<=NF){if(max<$i)max=$i;if(min>$i)min=$i;i++};print "m
 # 3. 通过比较更新最大值和最小值
 # 4. 最后输出结果
 
+# 标准求和（使用while循环计算所有字段的和）
+# 对num.txt文件中的所有数字字段求和
+awk '{ 
+ sum=0 
+ i=1 
+ while (i<=NF) { 
+     sum+=$i 
+     i++ 
+ } 
+ print sum 
+ }'  num.txt
+# 执行结果: 17550
+
 # do-while循环
 awk 'BEGIN { 
     i=1
