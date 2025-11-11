@@ -5070,6 +5070,128 @@ echo -e "\n分析报告已生成: $REPORT_FILE"
 
 这个示例展示了awk在Web服务器页面访问分析中的应用，通过正确识别字段索引，可以轻松统计和分析网站的页面访问情况，帮助管理员了解网站流量分布和用户访问模式。
 
+## 使用awk统计主机网络连接信息
+
+以下示例展示如何使用awk结合ss命令来统计和监控主机的网络连接信息：
+
+### 网络连接统计脚本
+
+```bash
+#!/bin/bash
+#.**************************************
+#.*..统计主机网络信息
+#.*..作者：钟翼翔
+#.*..联系：clockwingsoar@outlook.com
+#.*..版本：2025-11-11
+#.**************************************
+
+#.TCP连接数量
+TCP_Total=$(ss -s | awk '$1=="TCP"{print $2}')
+#.UDP连接数量
+UDP_Total=$(ss -s | awk '$1=="UDP"{print $2}')
+#.Listen监听状态的TCP端口数量
+Listen_Total=$(ss -antlpH | awk 'BEGIN{count=0}{count++}END{print count}')
+#.ESTABLlSHED状态的TCP连接数量
+Estab_Total=$(ss -antpH | awk 'BEGIN{count=0}/^ESTAB/{count++}END{print count}')
+#.TIME-WAIT状态的TCP连接数量
+TIME_WAIT_Total=$(ss -antpH | awk 'BEGIN{count=0}/^TIME-WAIT/{count++}END{print count}')
+#显示主机连接相关信息
+echo "TCP连接总数：$TCP_Total"
+echo "UDP连接总数：$UDP_Total"
+echo "LISTEN状态的TCP端口数量：$Listen_Total"
+echo "ESTAB状态的TCP连接数量：$Estab_Total"
+echo "TIME-WAIT状态的TCP连接数量：$TIME_WAIT_Total"
+```
+
+**执行结果示例：**
+```
+TCP连接总数：13
+UDP连接总数：4
+LISTEN状态的TCP端口数量：8
+ESTAB状态的TCP连接数量：5
+TIME-WAIT状态的TCP连接数量：0
+```
+
+### 脚本工作原理详解
+
+1. **TCP连接总数统计**：
+   ```bash
+   TCP_Total=$(ss -s | awk '$1=="TCP"{print $2}')
+   ```
+   - `ss -s`：显示网络连接的摘要统计信息
+   - `awk '$1=="TCP"{print $2}'`：筛选出第一列为"TCP"的行，并打印其第二列（连接总数）
+
+2. **UDP连接总数统计**：
+   ```bash
+   UDP_Total=$(ss -s | awk '$1=="UDP"{print $2}')
+   ```
+   - 与TCP统计类似，筛选第一列为"UDP"的行并打印第二列
+
+3. **监听端口数量统计**：
+   ```bash
+   Listen_Total=$(ss -antlpH | awk 'BEGIN{count=0}{count++}END{print count}')
+   ```
+   - `ss -antlpH`：显示所有监听状态的TCP连接详情
+   - `awk 'BEGIN{count=0}{count++}END{print count}'`：初始化计数器，每行加1，最后输出总行数
+
+4. **ESTABLISHED连接统计**：
+   ```bash
+   Estab_Total=$(ss -antpH | awk 'BEGIN{count=0}/^ESTAB/{count++}END{print count}')
+   ```
+   - 使用正则表达式`/^ESTAB/`筛选以"ESTAB"开头的行（即ESTABLISHED状态的连接）
+
+5. **TIME-WAIT连接统计**：
+   ```bash
+   TIME_WAIT_Total=$(ss -antpH | awk 'BEGIN{count=0}/^TIME-WAIT/{count++}END{print count}')
+   ```
+   - 使用正则表达式`/^TIME-WAIT/`筛选TIME-WAIT状态的连接
+
+### 扩展功能
+
+#### 1. 添加连接状态分布统计
+
+```bash
+# 统计所有TCP连接状态的分布
+echo -e "\nTCP连接状态分布："
+ss -antpH | awk '{if($1!="State"){state[$1]++}}END{for(s in state){print s, state[s]}}' | sort -rn -k2
+```
+
+#### 2. 统计特定端口的连接
+
+```bash
+# 统计连接到SSH端口(22)的数量
+SSH_Conn=$(ss -antpH | awk '$5~/:22$/ {count++}END{print count}')
+echo "SSH连接数量：$SSH_Conn"
+```
+
+#### 3. 监控脚本添加时间戳和周期性执行
+
+```bash
+#!/bin/bash
+LOG_FILE="network_monitor_$(date +%Y%m%d).log"
+
+while true; do
+  echo "===== $(date '+%Y-%m-%d %H:%M:%S') ====" >> $LOG_FILE
+  ss -s | grep -E 'TCP|UDP' >> $LOG_FILE
+  ss -antpH | awk '{if($1!="State"){state[$1]++}}END{for(s in state){print s, state[s]}}' >> $LOG_FILE
+  sleep 60  # 每分钟执行一次
+done
+```
+
+### 注意事项
+
+1. **权限要求**：某些详细连接信息可能需要root权限才能完全查看
+2. **ss命令参数说明**：
+   - `-a`: 显示所有连接（包括监听和非监听）
+   - `-n`: 以数字形式显示地址和端口
+   - `-t`: 仅显示TCP连接
+   - `-u`: 仅显示UDP连接
+   - `-l`: 仅显示监听状态的连接
+   - `-p`: 显示进程信息
+   - `-H`: 不显示标题行
+
+这个示例展示了awk在系统网络监控中的实际应用，通过简单的命令组合，可以快速获取主机的网络连接状态信息，对于系统管理员进行网络故障排查和性能监控非常有帮助。
+
 ### 8.15 函数检查与动态加载
 
 #### 函数检查
