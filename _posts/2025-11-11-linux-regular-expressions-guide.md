@@ -14,6 +14,54 @@ tags: [Linux, 正则表达式, 文本处理, Shell, grep, sed, awk]
 
 ### 1.1 什么是正则表达式
 
+在开始学习正则表达式之前，我们需要先明确它与Shell通配符的区别。虽然它们都用于模式匹配，但应用场景和语法规则有很大不同：
+
+**通配符 vs 正则表达式：**
+- **通配符**：主要用于匹配文件名，是完全匹配，由Shell直接处理，支持命令如ls、find、cp等
+- **正则表达式**：主要用于匹配文件内容，是包含匹配，由具体工具处理，支持命令如grep、sed、awk等
+
+下面是一个通配符使用的实际案例：
+
+```bash
+# 创建测试目录和文件
+mkdir regex
+cd regex/
+touch user-{1..3}.sh {a..d}.log
+
+# 查看创建的文件
+ll
+# 总用量 0
+# -rw-r--r--. 1 user user 0 11月 11 14:31 a.log
+# -rw-r--r--. 1 user user 0 11月 11 14:31 b.log
+# -rw-r--r--. 1 user user 0 11月 11 14:31 c.log
+# -rw-r--r--. 1 user user 0 11月 11 14:31 d.log
+# -rw-r--r--. 1 user user 0 11月 11 14:31 user-1.sh
+# -rw-r--r--. 1 user user 0 11月 11 14:31 user-2.sh
+# -rw-r--r--. 1 user user 0 11月 11 14:31 user-3.sh
+
+# 使用*.log通配符匹配所有.log文件
+ls *.log
+# a.log  b.log  c.log  d.log
+
+# 使用u*通配符匹配以u开头的文件
+ls u*
+# user-1.sh  user-2.sh  user-3.sh
+
+# 使用user?3*通配符匹配特定模式的文件
+ls user?3*
+# user-3.sh
+
+# 使用user-[13]*通配符匹配包含1或3的用户文件
+ls user-[13]*
+# user-1.sh  user-3.sh
+
+# 使用user-[13].*通配符匹配指定数字的用户文件
+ls user-[13].*
+# user-1.sh  user-3.sh
+```
+
+### 1.2 什么是正则表达式
+
 **正则表达式**是一种用于描述字符串模式的表达式，它可以用来匹配、查找、替换和验证符合特定模式的文本。在Linux系统中，正则表达式被广泛应用于grep、sed、awk等文本处理工具中。
 
 ### 1.2 正则表达式的两种主要流派
