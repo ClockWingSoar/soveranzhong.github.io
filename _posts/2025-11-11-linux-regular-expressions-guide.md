@@ -175,6 +175,75 @@ BRE中常用的预定义字符类：
 
 **grep**是最常用的文本搜索工具，可以使用正则表达式来匹配文本。
 
+#### grep与egrep的区别
+
+在Linux系统中，`grep`和`egrep`都是文本搜索工具，但它们在处理正则表达式时有重要区别：
+
+- **grep**：默认使用基本正则表达式(BRE)，某些特殊字符（如`+`, `?`, `|`, `()`等）需要转义才能使用
+- **egrep**：等同于`grep -E`，使用扩展正则表达式(ERE)，特殊字符不需要转义即可使用
+
+#### 实际应用案例分析
+
+下面是一个使用grep和egrep进行文本匹配的实际案例：
+
+**测试文件内容（keepalived.conf）**：
+```conf
+! Configuration File for keepalived 
+global_defs { 
+  router_id kpmaster 
+}
+vrrp_instance VI_1 { 
+   state MASTER 
+   interface ens33 
+   virtual_router_id 50 
+   nopreempt 
+   priority 100 
+   advert_int 1 
+   virtual_ipaddress { 
+       192.168.8.100 
+   } 
+}
+```
+
+**案例分析**：
+
+1. **点号(.)匹配单个字符**：
+   ```bash
+   # 匹配"st"开头，"e"结尾，中间有2个任意字符的字符串
+   grep 'st..e' keepalived.conf  # 匹配到"state MASTER"
+   
+   # 匹配"ens"开头，后面有2个任意字符的字符串
+   grep 'ens..' keepalived.conf  # 匹配到"interface ens33"
+   
+   # 匹配"ens"开头，后面有1个任意字符的字符串
+   grep 'ens.' keepalived.conf   # 匹配到"interface ens33"
+   ```
+   
+2. **字符类匹配**：
+   ```bash
+   # 匹配"i"开头，"t"结尾，中间是任意小写字母的字符串
+   grep 'i[a-z]t' keepalived.conf  # 匹配到interface, virtual_router_id, advert_int, virtual_ipaddress
+   
+   # 匹配"i"开头，"t"结尾，中间是a-n范围内小写字母的字符串
+   grep 'i[a-n]t' keepalived.conf  # 匹配到interface, advert_int
+   
+   # 匹配包含字符b或c的行
+   grep '[b-c]' keepalived.conf    # 匹配到包含global_defs, vrrp_instance, interface的行
+   ```
+
+3. **egrep使用扩展正则表达式**：
+   ```bash
+   # 使用egrep匹配包含x、y或z字符的行
+   egrep '[x-z]' keepalived.conf   # 匹配到"priority 100"（包含字母z）
+   ```
+
+**关键发现**：
+
+- 在这个配置文件中，`grep 'st..e'`成功匹配到"state MASTER"，验证了点号(.)可以匹配任意单个字符
+- `grep 'ens.'`和`grep 'ens..'`都能匹配"ens33"，说明点号匹配是精确的字符数量
+- 字符类`[a-z]`和范围限制`[a-n]`的区别在于匹配范围的大小
+- `egrep '[x-z]'`成功匹配到"priority 100"中的字母"z"，展示了egrep处理字符范围的能力
+
 #### 基本用法
 
 ```bash
