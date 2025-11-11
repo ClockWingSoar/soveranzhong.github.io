@@ -226,6 +226,60 @@ echo "hello world hello linux" | tr ' ' '\n' | sort | uniq -c
 
 在Linux文件系统中，点号(.)在文件名中有特殊的表现。当点号出现在**文件名本身**中时，它被视为一个普通字符，而不是通配符。这与正则表达式中的行为有明显区别。
 
+### 5.5 grep中的问号(?)与通配符的区别
+
+在文本处理工具如grep中，使用的是正则表达式而不是通配符。这一点常被混淆，导致使用通配符语法而得不到预期结果。以下是一个实际示例：
+
+```bash
+# 假设文件内容包含：interface ens33 和 state MASTER
+
+# 使用正则表达式中的点号(.)匹配任意单个字符（成功）
+grep 'st..e' keepalived.conf
+  state MASTER
+
+# 使用正则表达式中的点号匹配（成功）
+grep 'ens..' keepalived.conf
+  interface ens33
+
+# 尝试使用通配符风格的问号（失败）
+grep 'ens??' keepalived.conf
+# 无输出
+
+# 尝试混合使用（失败）
+grep 'ens.?' keepalived.conf
+# 无输出
+
+grep 'ens.*?' keepalived.conf
+# 无输出
+
+# 使用正则表达式中的星号（成功）
+grep 'ens.*' keepalived.conf
+  interface ens33
+
+# 尝试使用单个问号（失败）
+grep 'ens?' keepalived.conf
+# 无输出
+
+# 使用扩展正则表达式（-E）（成功）
+grep -E 'ens??' keepalived.conf
+  interface ens33
+```
+
+**关键解释：**
+
+1. **在基本正则表达式(BRE)中**：
+   - 问号(?)不是特殊元字符，它只是匹配字面意义上的问号字符
+   - 这就是为什么`grep 'ens??'`和`grep 'ens?'`都失败的原因
+
+2. **在扩展正则表达式(ERE)中**（使用`-E`参数）：
+   - 问号(?)是特殊元字符，表示匹配前面的字符零次或一次
+   - 但是`??`是一个非贪婪匹配的修饰符，行为可能不符合预期
+
+3. **与通配符的区别**：
+   - 在Shell通配符中，`?`表示匹配任意单个字符
+   - 在grep等文本处理工具中，使用的是正则表达式，不是通配符
+   - 正则表达式中，`.`表示匹配任意单个字符，而不是`?`
+
 #### 实例分析
 
 以下是一个具体示例，展示了点号在文件名中的行为：
