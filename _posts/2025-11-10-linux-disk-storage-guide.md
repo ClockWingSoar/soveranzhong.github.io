@@ -432,18 +432,19 @@ dd if=/dev/zero of=/mnt/project/test_file bs=1G count=50
 ```
 
 6. **扩展逻辑卷**
+
 ```bash
-# 添加新磁盘到卷组
+#添加新磁盘到卷组
 pvcreate /dev/sdd1
 vgextend project_vg /dev/sdd1
 
-# 扩展逻辑卷
+#扩展逻辑卷
 lvextend -L 200G /dev/project_vg/project_lv
 
-# 扩展文件系统
+#扩展文件系统
 xfs_growfs /dev/project_vg/project_lv
 
-# 验证扩容成功
+#验证扩容成功
 df -h /mnt/project
 ```
 
