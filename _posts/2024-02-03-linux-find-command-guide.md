@@ -179,6 +179,34 @@ find /run/ -type "l,p"
 # 输出示例包含找到的符号链接和管道文件路径
 ```
 
+### 5.1.1 文件内容测试：空文件/目录检查
+
+使用`-empty`选项可以查找空文件或空目录（不包含任何内容的目录）：
+
+```bash
+# 查找指定目录下的所有空文件和空目录
+find dir1/dir2/dir3/ -empty
+# 结果示例：
+# dir1/dir2/dir3/dir4
+# dir1/dir2/dir3/fx
+# dir1/dir2/dir3/fy
+```
+
+可以结合`-type`选项来精确查找空目录或空文件：
+
+```bash
+# 仅查找空目录
+find dir1/dir2/dir3/ -empty -type d
+# 结果示例：
+# dir1/dir2/dir3/dir4
+
+# 仅查找空文件
+find dir1/dir2/dir3/ -empty -type f
+# 结果示例：
+# dir1/dir2/dir3/fx
+# dir1/dir2/dir3/fy
+```
+
 ### 5.2 文件名匹配
 
 #### 5.2.1 基本名称匹配
