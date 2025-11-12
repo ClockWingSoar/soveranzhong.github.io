@@ -2113,4 +2113,88 @@ tar@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar --show-defaults
    - 对于复杂的排除需求，使用`-X`选项通常比多个`--exclude`选项更清晰
    - 排除规则会应用于归档过程中遇到的所有文件
 
+### 13. zip命令的基本使用
+
+zip是Linux系统中另一个常用的压缩工具，它可以创建标准的ZIP格式压缩文件。以下案例展示了zip命令的基本使用方法：
+
+```bash
+# 创建测试目录并复制文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic $ mkdir zip ; cd zip
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ cp /etc/fstab /etc/passwd /etc/hosts ./
+
+# 查看当前文件列表
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ ls
+fstab  hosts  passwd
+
+# 使用zip命令创建压缩文件（-v选项显示详细信息）
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ zip -v hosts.zip hosts
+  adding: hosts (in=223) (out=147) (deflated 34%)
+total bytes=223, compressed=147 -> 34% savings
+
+# 查看创建的压缩文件信息
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ ll
+总计 24
+drwxrwxr-x 2 soveran soveran 4096 11月 12 22:48 ./
+drwxrwxr-x 7 soveran soveran 4096 11月 12 22:48 ../
+-rw-r--r-- 1 soveran soveran  473 11月 12 22:48 fstab
+-rw-r--r-- 1 soveran soveran  223 11月 12 22:48 hosts
+-rw-rw-r-- 1 soveran soveran  307 11月 12 22:48 hosts.zip
+-rw-r--r-- 1 soveran soveran 2997 11月 12 22:48 passwd
+
+# 使用unzip命令列出压缩文件内容（不解压）
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ unzip -l hosts.zip
+Archive:  hosts.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+      223  2025-11-12 22:48   hosts
+---------                     -------
+      223                     1 file
+```
+
+**案例分析**：
+
+1. **zip命令基本语法**：
+   - 基本格式：`zip [选项] 压缩文件名 源文件/目录`
+   - 在案例中，使用`zip -v hosts.zip hosts`创建了名为hosts.zip的压缩文件
+
+2. **-v选项的作用**：
+   - `-v`选项表示详细模式，显示压缩过程的详细信息
+   - 输出包括原始文件大小(in=223)、压缩后大小(out=147)和压缩比例(deflated 34%)
+   - 这有助于了解压缩效率和文件大小变化
+
+3. **压缩文件大小分析**：
+   - 原始hosts文件大小为223字节
+   - 压缩后的hosts.zip文件大小为307字节
+   - 虽然压缩数据部分只有147字节，但ZIP格式包含额外的元数据和头部信息
+   - 对于小文件，压缩文件可能会比原始文件稍大，因为格式开销的原因
+
+4. **压缩效率**：
+   - 案例显示压缩率为34%，表示数据部分减小了34%
+   - 对于文本文件，zip命令通常能提供较好的压缩率
+
+5. **unzip命令的使用**：
+   - `unzip -l`选项用于列出压缩文件内容而不解压
+   - 输出显示了文件大小、日期时间和文件名信息
+   - 这是查看压缩包内容的常用方法
+
+6. **常见zip选项**：
+   - `-r`：递归压缩目录及其子目录
+   - `-q`：安静模式，不显示压缩过程
+   - `-m`：压缩后删除源文件
+   - `-j`：不保存目录结构，只保存文件
+   - `-9`：使用最高压缩级别
+   - `-1`：使用最低压缩级别（最快）
+
+7. **使用场景**：
+   - 创建跨平台兼容的压缩文件（Windows也原生支持ZIP格式）
+   - 发送多个文件或目录通过电子邮件
+   - 创建软件分发包
+   - 临时压缩不常用但需要保留的文件以节省空间
+
+8. **注意事项**：
+   - ZIP格式支持密码保护，可以使用`-e`选项加密
+   - 默认情况下，zip会保留文件权限信息，但在不同系统间可能有差异
+   - 对于大量小文件，ZIP格式的开销可能会影响整体压缩效率
+   - zip命令不能直接在现有压缩文件中删除文件，但可以添加新文件
+
 通过本文的学习，相信您已经掌握了Linux环境下各种打包压缩工具的使用方法和最佳实践。在实际工作中，灵活运用这些工具可以大大提高数据管理和系统维护的效率。记住，选择合适的工具和参数对于实现高效的数据处理至关重要。
