@@ -1163,6 +1163,81 @@ etc/alsa/conf.d/50-pipewire.conf
    - 当处理系统目录时，需要确保有足够的权限访问所有文件
    - 对于大型归档，可以使用`tar -tf etc.tar | less`来分页查看内容
 
+### 12.3 案例：使用-P选项保留绝对路径
+
+以下案例展示了如何使用tar命令的`-P`选项来保留绝对路径：
+
+```bash
+# 使用-P选项创建/etc目录的归档文件（保留绝对路径）
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ sudo tar -cPf etc2.tar /etc 
+[sudo] soveran 的密码：
+
+# 查看当前目录文件列表
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ ll
+总计 15688
+drwxrwxr-x 2 soveran soveran    4096 11月 12 19:25 ./
+drwxrwxr-x 6 soveran soveran    4096 11月 12 18:15 ../
+-rw-rw-r-- 1 soveran soveran 8028160 11月 12 19:25 etc2.tar
+-rw-rw-r-- 1 soveran soveran 8028160 11月 12 18:20 etc.tar
+
+# 查看使用-P选项创建的归档内容
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar -tf etc2.tar
+tar: 从成员名中删除开头的"/"
+/etc/
+/etc/opt/
+/etc/mke2fs.conf
+/etc/wpa_supplicant/
+/etc/wpa_supplicant/functions.sh
+/etc/wpa_supplicant/ifupdown.sh
+/etc/wpa_supplicant/action_wpa.sh
+/etc/vconsole.conf
+/etc/magic.mime
+/etc/newt/
+/etc/newt/palette.ubuntu
+/etc/newt/palette.original
+/etc/newt/palette
+/etc/fprintd.conf
+/etc/avahi/
+/etc/avahi/services/
+/etc/avahi/avahi-daemon.conf
+/etc/avahi/hosts
+/etc/alsa/
+/etc/alsa/conf.d/
+/etc/alsa/conf.d/99-pipewire-default.conf
+```
+
+**案例分析**：
+
+1. **-P选项功能**：
+   - `-P`（或`--absolute-names`）选项用于在创建归档时保留绝对路径
+   - 与默认行为（删除开头的`/`）相反，此选项会保留完整的绝对路径信息
+   - 注意到即使使用了`-P`选项，在查看内容时仍然会显示警告消息"tar: 从成员名中删除开头的'/'"
+   - 但实际输出的路径确实以`/`开头，表明路径信息被正确保留了
+
+2. **对比分析**：
+   - 不使用`-P`选项时，路径显示为：`etc/`（相对路径）
+   - 使用`-P`选项时，路径显示为：`/etc/`（绝对路径）
+   - 两个归档文件的大小相同（8028160字节），因为`-P`选项只影响路径存储，不影响数据压缩
+
+3. **权限要求**：
+   - 处理系统目录（如`/etc`）时需要使用`sudo`获取管理员权限
+   - 输入密码是正常的安全验证过程
+
+4. **安全考虑**：
+   - 保留绝对路径在某些情况下很有用，例如系统备份和恢复
+   - 但需要注意，提取包含绝对路径的归档可能会覆盖系统文件，存在安全风险
+   - 在生产环境中应谨慎使用`-P`选项，特别是当归档内容来自不受信任的来源时
+
+5. **使用场景**：
+   - 系统备份：保留原始路径结构便于完整恢复
+   - 配置迁移：确保配置文件恢复到正确的系统位置
+   - 开发环境重建：需要精确还原文件系统结构的场景
+
+6. **实用建议**：
+   - 对于普通的文件备份，通常不建议使用`-P`选项，相对路径更安全
+   - 在使用`-P`选项提取归档时，考虑使用`--strip-components`选项来调整目标路径
+   - 结合`-v`选项可以在创建或提取时查看详细的路径信息
+
 在上述案例中，我们看到了两种不同的目标路径表示方式：
 
 1. **`.` 表示当前目录**：
