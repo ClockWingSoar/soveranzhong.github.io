@@ -244,6 +244,22 @@ find /etc -iregex ".*/ssh/.*\.conf"
 
 # 指定正则表达式类型
 find /etc -regextype posix-extended -regex ".*/ssh/.*\.conf"
+
+# 使用正则表达式匹配特定后缀文件
+find -regex ".*\.log$"
+# 结果：所有以.log结尾的文件（test-a.log, test-b.log, test-A.log, test-B.log）
+
+# 使用正则表达式匹配小写字母的测试文件
+find -regex ".*test-[a-z].*"
+# 结果：所有包含test-后跟小写字母的文件
+
+# 使用正则表达式匹配特定目录路径
+find -regex ".*dir3.*"
+# 结果：所有包含dir3的路径（包括dir3目录本身及其子目录和文件）
+
+# 使用正则表达式精确匹配目录
+find -regex ".*dir3$"
+# 结果：仅匹配名为dir3的目录本身
 ```
 
 ### 5.3 文件大小测试
