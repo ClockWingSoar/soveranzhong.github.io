@@ -177,6 +177,62 @@ find /etc -path "*/ssh/*"
 find /etc -ipath "*/ssh/*"
 ```
 
+##### Glob通配符说明
+
+`-name`和`-iname`选项使用的是Glob通配符（也称为shell通配符）。Glob是Shell提供的一种简单的模式匹配机制，主要用于匹配文件名或路径。
+
+**Glob通配符的核心特点：**
+
+1. 主要用于匹配**文件名**或路径，而不是文件内容
+2. 通常是**完全匹配**整个文件名
+3. 由Shell直接解析处理，在命令执行前进行路径展开
+4. 语法相对简单，元字符数量较少
+
+**常用的Glob通配符元字符：**
+
+| 通配符 | 说明 | 示例 |
+|--------|------|------|
+| `*` | 匹配零个或多个任意字符 | `file.*` 匹配所有以file.开头的文件 |
+| `?` | 匹配任意单个字符 | `file?.txt` 匹配file1.txt, fileA.txt等 |
+| `[...]` | 匹配方括号中列出的任意一个字符 | `file[123].txt` |
+| `[!...]`或`[^...]` | 匹配除方括号中字符外的任意字符 | `file[!123].txt` |
+| `{...}` | 匹配大括号中列出的任意一个模式 | `file{1,2,3}.txt` |
+
+**重要提示：** 在find命令中，当使用`-name`选项时，必须用双引号将通配符引起来，以防止Shell在传递给find命令之前就进行路径展开。
+
+##### 实际使用示例
+
+下面是一些在实际环境中使用文件名匹配的示例：
+
+```bash
+# 创建测试环境
+mkdir find; cd find/
+mkdir dir1/dir2/dir3/dir4 -p
+touch dir1/dir2/dir3/f{x,y}
+touch dir1/dir2/f{a,b}
+touch dir1/f{1,2}
+touch dir1/f{a,b}.txt
+cp /etc/fstab ./
+cp /etc/issue .issue
+touch test-{a,b,A,B}.{log,txt}
+
+# 指定文件名查找
+find -name test-a.log
+# 结果：./test-a.log
+
+# 指定文件名，忽略大小写
+find -iname test-a.log
+# 结果：./test-a.log 和 ./test-A.log
+
+# 使用通配符查找所有.txt文件
+find -name "*txt"
+# 结果包含所有.txt文件
+
+# 使用通配符查找以test-a开头的所有文件
+find -name "test-a*"
+# 结果：./test-a.log 和 ./test-a.txt
+```
+
 #### 5.2.2 正则表达式匹配
 
 ```bash
@@ -643,9 +699,19 @@ sudo ls -lathr /var/lib/mlocate/mlocate.db
 
 ### 12.4 选择建议
 
-- 当需要**实时**、**精确**的搜索，或需要使用复杂搜索条件时，选择`find`
-- 当需要**快速**查找文件名，且可以接受索引可能不是最新的情况时，选择`locate`
-- 对于**系统管理员**，可以定期更新locate索引（`sudo updatedb`）以确保数据新鲜度
+根据不同的使用场景，您可以选择最合适的工具：
+
+- **当需要实时、精确的搜索**，或需要使用复杂搜索条件（如文件大小、权限、所有者等）时，选择`find`
+- **当需要快速查找文件名**，且可以接受索引可能不是最新的情况时，选择`locate`
+- **对于系统管理员**，可以定期更新locate索引（`sudo updatedb`）以确保数据新鲜度
+
+`find`命令特别适合以下场景：
+- 需要根据多维度条件筛选文件
+- 需要对搜索结果执行特定操作
+- 需要确保搜索结果反映文件系统的当前状态
+- 需要在特定目录树中进行深度搜索
+
+而`locate`命令则更适合快速定位已知或部分已知文件名的场景。
 
 ## 13. 另请参阅
 
@@ -654,7 +720,7 @@ sudo ls -lathr /var/lib/mlocate/mlocate.db
 - 《Linux命令行与shell脚本编程大全》
 - 《UNIX/Linux系统管理手册》
 
-## 13. 示例
+## 14. 示例
 
 **查找所有大于100MB的PDF文件并按大小排序：**
 
@@ -685,7 +751,6 @@ find / -type f -perm -4000 -exec ls -la {} \; 2>/dev/null
 ```bash
 find /path/to/src -name "*.c" -o -name "*.h" | xargs grep -l "function_name"
 ```
-
 ## 15. 致谢
 
 感谢GNU项目开发并维护了如此强大的findutils工具集，使系统管理和文件操作变得更加高效。
