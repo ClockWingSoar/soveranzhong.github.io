@@ -662,6 +662,38 @@ ll
 
 ### 11.2 cp命令中`.`与`./`的区别
 
+### 11.3 案例：使用gzip保留原文件并显示压缩过程
+
+以下案例展示了如何使用gzip命令在保留原文件的同时进行压缩，并显示压缩率信息：
+
+```bash
+# 使用gzip压缩文件，-k保留原文件，-v显示详细信息
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -vk fstab passwd
+fstab:   30.9% -- created fstab.gz
+passwd:  64.5% -- created passwd.gz
+
+# 查看压缩后的文件列表
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ ll
+总计 28
+drwxrwxr-x 2 soveran soveran 4096 11月 12 17:24 ./
+drwxrwxr-x 3 soveran soveran 4096 11月 12 16:56 ../
+-rw-r--r-- 1 soveran soveran  473 11月 12 16:57 fstab
+-rw-r--r-- 1 soveran soveran  351 11月 12 16:57 fstab.gz
+-rw-r--r-- 1 soveran soveran   26 11月 12 16:57 issue
+-rw-r--r-- 1 soveran soveran 2997 11月 12 16:57 passwd
+-rw-r--r-- 1 soveran soveran 1089 11月 12 16:57 passwd.gz
+```
+
+**案例分析**：
+
+- 使用`-k`选项保留了原始文件，同时创建了压缩后的`.gz`文件
+- 使用`-v`选项显示了详细的压缩信息，包括压缩率
+- 从输出可以看到：
+  - `fstab`文件压缩率为30.9%，从473字节压缩到351字节
+  - `passwd`文件压缩率为64.5%，从2997字节压缩到1089字节
+- 不同类型的文件压缩率不同，文本内容越多、冗余度越高的文件通常压缩率越好
+- 压缩后的文件和原文件同时存在于目录中，便于对比和备份
+
 在上述案例中，我们看到了两种不同的目标路径表示方式：
 
 1. **`.` 表示当前目录**：
