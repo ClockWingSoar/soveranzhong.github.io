@@ -694,6 +694,72 @@ drwxrwxr-x 3 soveran soveran 4096 11月 12 16:56 ../
 - 不同类型的文件压缩率不同，文本内容越多、冗余度越高的文件通常压缩率越好
 - 压缩后的文件和原文件同时存在于目录中，便于对比和备份
 
+### 11.4 案例：gzip -c选项与重定向的使用
+
+以下案例展示了gzip命令的`-c`选项（将输出写入标准输出而非删除原文件）与重定向结合使用的场景，以及相关注意事项：
+
+```bash
+# 查看原压缩文件信息
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -l fstab.gz 
+          compressed        uncompressed  ratio uncompressed_name 
+                 351                 473  30.9% fstab 
+
+# 使用-c选项将issue文件压缩并输出重定向到fstab.gz（注意：这会覆盖原fstab.gz文件）
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip issue -c >fstab.gz 
+
+# 再次查看fstab.gz信息，发现内容已被替换为issue文件的压缩内容
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -l fstab.gz 
+          compressed        uncompressed  ratio uncompressed_name 
+                  52                  26  -7.7% fstab 
+
+# 尝试解压缩时使用了错误的文件名（.zip扩展名）
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -d fstab.zip 
+gzip: fstab.zip.gz: No such file or directory 
+
+# 正确解压缩fstab.gz，系统提示是否覆盖已存在的fstab文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -d fstab.gz 
+gzip: fstab already exists; do you wish to overwrite (y or n)? y 
+
+# 重新压缩fstab并保留原文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip fstab -c > fstab.gz 
+
+# 创建空文件并尝试压缩
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ touch file1 
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip file1 -c >issue.gz 
+
+# 查看压缩后的空文件信息
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -l issue.gz 
+          compressed        uncompressed  ratio uncompressed_name 
+                  26                   0   0.0% issue 
+```
+
+**案例分析**：
+
+1. **关于gzip -c选项**：
+   - `gzip -c`将压缩输出写入标准输出，而不是默认的替换原文件
+   - 使用重定向(`>`)时，会完全覆盖目标文件，**不会**追加到现有文件末尾
+   - 这解释了为什么`gzip issue -c >fstab.gz`会导致fstab.gz的内容被完全替换
+
+2. **关于压缩率的特殊情况**：
+   - 小文件可能出现负压缩率（如`-7.7%`），因为gzip头部信息增加了额外开销
+   - 空文件压缩后仍有约26字节，用于存储压缩头和文件名信息
+
+3. **常见错误与解决**：
+   - 解压缩时需要使用正确的文件名（包括扩展名），gzip会自动查找.gz扩展名
+   - 当解压文件与现有文件同名时，gzip会提示是否覆盖
+
+4. **关于追加文件**：
+   - gzip本身不支持直接追加文件到压缩归档中，这是与tar等归档工具的主要区别
+   - 如果需要向压缩归档添加文件，正确的做法是：
+     1. 解压现有归档
+     2. 添加新文件
+     3. 重新压缩整个目录
+
+5. **最佳实践**：
+   - 对于需要管理多个文件的场景，建议先使用tar创建归档，再用gzip压缩
+   - 使用`-k`选项保留原文件，避免意外数据丢失
+   - 重要文件压缩前应备份，以防操作失误
+
 在上述案例中，我们看到了两种不同的目标路径表示方式：
 
 1. **`.` 表示当前目录**：
