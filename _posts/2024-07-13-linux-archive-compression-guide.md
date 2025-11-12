@@ -951,6 +951,84 @@ soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -l fstab.gz pass
    - 对于小文件比例较高的场景，可考虑是否有必要压缩以避免存储空间反而增加的情况
    - 在备份或归档前，了解压缩率有助于预估所需存储空间
 
+### 11.8 案例：使用gunzip解压缩文件
+
+以下案例展示了使用`gunzip`命令解压缩文件的用法，以及多个选项的组合使用：
+
+```bash
+# 删除原始文件，准备测试解压缩
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ rm -rf fstab passwd 
+
+# 查看当前目录中的压缩文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ ll 
+总计 36 
+drwxrwxr-x 3 soveran soveran 4096 11月 12 18:02 ./ 
+drwxrwxr-x 3 soveran soveran 4096 11月 12 16:56 ../ 
+drwxrwxr-x 5 soveran soveran 4096 11月 12 17:45 dir1/ 
+-rw-rw-r-- 1 soveran soveran    0 11月 12 17:35 file1 
+-rw-rw-r-- 1 soveran soveran   52 11月 12 17:34 fstab.gz 
+-rw-r--r-- 1 soveran soveran   52 11月 12 17:32 fstab.gzzz 
+-rw-r--r-- 1 soveran soveran   26 11月 12 16:57 issue 
+-rw-rw-r-- 1 soveran soveran   26 11月 12 17:35 issue.gz 
+-rw-r--r-- 1 soveran soveran 1089 11月 12 16:57 passwd.gz 
+-rw-rw-r-- 1 soveran soveran 1082 11月 12 17:40 pwd.gz 
+
+# 使用gunzip同时解压缩多个文件，保留压缩文件，显示详细信息，强制覆盖同名文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gunzip -vkf fstab.gz passwd.gz 
+fstab.gz:        -7.7% -- created fstab 
+passwd.gz:       64.5% -- created passwd 
+
+# 查看解压缩后的文件列表
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ ll 
+总计 44 
+drwxrwxr-x 3 soveran soveran 4096 11月 12 18:03 ./ 
+drwxrwxr-x 3 soveran soveran 4096 11月 12 16:56 ../ 
+drwxrwxr-x 5 soveran soveran 4096 11月 12 17:45 dir1/ 
+-rw-rw-r-- 1 soveran soveran    0 11月 12 17:35 file1 
+-rw-rw-r-- 1 soveran soveran   26 11月 12 17:34 fstab 
+-rw-rw-r-- 1 soveran soveran   52 11月 12 17:34 fstab.gz 
+-rw-r--r-- 1 soveran soveran   52 11月 12 17:32 fstab.gzzz 
+-rw-r--r-- 1 soveran soveran   26 11月 12 16:57 issue 
+-rw-rw-r-- 1 soveran soveran   26 11月 12 17:35 issue.gz 
+-rw-r--r-- 1 soveran soveran 2997 11月 12 16:57 passwd 
+-rw-r--r-- 1 soveran soveran 1089 11月 12 16:57 passwd.gz 
+-rw-rw-r-- 1 soveran soveran 1082 11月 12 17:40 pwd.gz 
+```
+
+**案例分析**：
+
+1. **gunzip命令与gzip的关系**：
+   - `gunzip`是`gzip`命令的解压缩模式，功能与`gzip -d`等价
+   - 主要用于解压缩`.gz`格式的文件
+   - 可以同时处理多个压缩文件
+
+2. **选项组合使用**：
+   - `-v`（verbose）：显示详细的解压缩过程和压缩率信息
+   - `-k`（keep）：保留原始压缩文件，默认情况下gunzip会删除压缩文件
+   - `-f`（force）：强制解压缩，即使目标文件已存在也会覆盖
+   - 这些选项可以组合使用，提供更灵活的解压缩控制
+
+3. **多文件同时处理**：
+   - gunzip支持一次解压缩多个文件，只需在命令后列出所有要解压缩的文件
+   - 每个文件都会单独处理，并显示各自的解压缩信息
+   - 这对于批量解压缩操作非常高效
+
+4. **压缩率显示**：
+   - 解压缩过程中显示的压缩率与压缩时相同
+   - 对于fstab文件显示负压缩率(-7.7%)，表示压缩后反而变大
+   - 对于passwd文件显示正压缩率(64.5%)，表示压缩效果良好
+
+5. **文件保留机制**：
+   - 由于使用了`-k`选项，解压缩后原始的`.gz`文件仍然保留
+   - 这在需要同时保留原始压缩文件和解压缩文件的场景下非常有用
+   - 从目录列表可以看到，fstab.gz和passwd.gz文件依然存在，同时新增了解压缩后的文件
+
+6. **实用建议**：
+   - 在脚本中使用时，建议添加`-f`选项以避免因文件已存在而导致的解压缩失败
+   - 对于重要数据，使用`-k`选项保留原始压缩文件作为备份
+   - 批量处理多个文件时，一次性列出所有文件可以提高效率
+   - 使用`-v`选项在调试或监控场景中获取更多反馈信息
+
 在上述案例中，我们看到了两种不同的目标路径表示方式：
 
 1. **`.` 表示当前目录**：
