@@ -1083,6 +1083,86 @@ soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar --show-defaults
    - 在性能调优时，可以根据需要调整块大小(-b选项)
    - 对于远程操作，了解默认的远程命令配置很重要
 
+### 12.2 案例：创建归档文件并查看内容
+
+以下案例展示了如何使用tar命令创建归档文件并查看其内容：
+
+```bash
+# 创建/etc目录的归档文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ sudo tar -cf etc.tar /etc 
+tar: 从成员名中删除开头的“/”
+
+# 查看当前目录文件列表
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ ll
+总计 7848
+drwxrwxr-x 2 soveran soveran    4096 11月 12 18:20 ./
+drwxrwxr-x 6 soveran soveran    4096 11月 12 18:15 ../
+-rw-rw-r-- 1 soveran soveran 8028160 11月 12 18:20 etc.tar
+
+# 尝试错误的方式查看归档内容
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar -t etc.tar
+tar: 无法从终端读取归档内容(缺少 -f 选项?)
+tar: Error is not recoverable: exiting now
+
+# 正确查看归档内容
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar -tf etc.tar
+etc/
+etc/opt/
+etc/mke2fs.conf
+etc/wpa_supplicant/
+etc/wpa_supplicant/functions.sh
+etc/wpa_supplicant/ifupdown.sh
+etc/wpa_supplicant/action_wpa.sh
+etc/vconsole.conf
+etc/magic.mime
+etc/newt/
+etc/newt/palette.ubuntu
+etc/newt/palette.original
+etc/newt/palette
+etc/fprintd.conf
+etc/avahi/
+etc/avahi/services/
+etc/avahi/avahi-daemon.conf
+etc/avahi/hosts
+etc/alsa/
+etc/alsa/conf.d/
+etc/alsa/conf.d/99-pipewire-default.conf
+etc/alsa/conf.d/50-pipewire.conf
+...
+```
+
+**案例分析**：
+
+1. **创建归档操作**：
+   - `sudo tar -cf etc.tar /etc` 命令创建了一个名为etc.tar的归档文件，包含/etc目录的所有内容
+   - `-c`选项表示创建新的归档文件
+   - `-f etc.tar`选项指定归档文件名为etc.tar
+   - 需要sudo权限是因为/etc目录包含需要特权才能访问的文件
+
+2. **路径处理特性**：
+   - 注意到警告消息"tar: 从成员名中删除开头的'/'"，这是tar的一个安全特性
+   - 这个特性防止在提取归档时覆盖绝对路径上的文件，提高了安全性
+   - 结果归档中的路径变为相对路径"etc/"而不是绝对路径"/etc/"
+
+3. **文件大小**：
+   - 生成的etc.tar文件大小约为7.7MB，这是/etc目录的原始大小经过打包后的结果
+   - 注意tar只是打包不压缩，所以文件大小与原始数据量相关
+
+4. **查看归档内容**：
+   - 尝试使用`tar -t etc.tar`失败，错误提示"无法从终端读取归档内容(缺少 -f 选项?)"
+   - 正确的命令应该是`tar -tf etc.tar`，其中`-t`选项用于列出归档内容，`-f etc.tar`指定要操作的归档文件
+   - 当使用tar命令时，必须使用`-f`选项明确指定归档文件
+
+5. **输出内容**：
+   - `tar -tf etc.tar`成功显示了归档中的文件和目录列表
+   - 输出保留了原始的目录结构，按字母顺序排列
+   - 输出内容较长时会自动截断显示(...)，可以通过管道配合less等工具查看完整内容
+
+6. **常见错误与解决方案**：
+   - 忘记使用`-f`选项是tar命令最常见的错误之一
+   - 当处理系统目录时，需要确保有足够的权限访问所有文件
+   - 对于大型归档，可以使用`tar -tf etc.tar | less`来分页查看内容
+
 在上述案例中，我们看到了两种不同的目标路径表示方式：
 
 1. **`.` 表示当前目录**：
