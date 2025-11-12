@@ -829,6 +829,82 @@ drwxrwxr-x 3 soveran soveran 4096 11月 12 16:56 ../
    - 自定义后缀可以用于区分不同来源或用途的压缩文件
    - 当需要批量处理具有不同命名规范的文件时，自定义后缀功能特别有用
 
+### 11.6 案例：gzip递归压缩目录
+
+以下案例展示了gzip命令递归压缩目录中文件的用法，以及`-r`选项的必要性：
+
+```bash
+# 创建目录结构和测试文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ mkdir dir1/dir{a..c} -p 
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ echo a > dir1/dira/a.txt 
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ echo b > dir1/dirb/b.txt 
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ echo c > dir1/dirc/c.txt 
+
+# 尝试直接压缩目录（不使用-r选项）
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -vk dir1/ 
+gzip: dir1/ is a directory -- ignored 
+
+# 查看目录结构\soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ tree dir1 
+dir1 
+├── dira 
+│\u00a0\u00a0└── a.txt 
+├── dirb 
+│\u00a0\u00a0└── b.txt 
+└── dirc 
+    └── c.txt 
+
+4 directories, 3 files 
+
+# 使用-r选项递归压缩目录中的所有文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -vrk dir1/ 
+dir1/dirb/b.txt:        -100.0% -- created dir1/dirb/b.txt.gz 
+dir1/dira/a.txt:        -100.0% -- created dir1/dira/a.txt.gz 
+dir1/dirc/c.txt:        -100.0% -- created dir1/dirc/c.txt.gz 
+
+# 查看压缩后的目录结构
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ tree dir1 
+dir1 
+├── dira 
+│\u00a0\u00a0├── a.txt 
+│\u00a0\u00a0└── a.txt.gz 
+├── dirb 
+│\u00a0\u00a0├── b.txt 
+│\u00a0\u00a0└── b.txt.gz 
+└── dirc 
+    ├── c.txt 
+    └── c.txt.gz 
+
+4 directories, 6 files 
+```
+
+**案例分析**：
+
+1. **gzip不直接处理目录**：
+   - gzip是一个文件压缩工具，默认情况下不能直接压缩目录
+   - 当尝试直接对目录使用gzip时，会收到错误提示：`gzip: dir1/ is a directory -- ignored`
+   - 这与tar等归档工具不同，gzip专注于单个文件的压缩
+
+2. **递归压缩选项`-r`**：
+   - 使用`-r`（recursive）选项可以让gzip递归地处理目录中的所有文件
+   - `gzip -vrk dir1/`命令会遍历dir1目录及其所有子目录中的文件
+   - 对每个找到的文件单独进行压缩处理
+
+3. **保留原文件选项`-k`**：
+   - 结合`-k`选项，递归压缩时会保留原始文件
+   - 从结果可以看到，每个txt文件都生成了对应的gz压缩文件，同时原始文件仍然存在
+   - 这对于需要同时保留原始数据和压缩版本的场景非常有用
+
+4. **关于压缩率的特殊情况**：
+   - 对于这些极小的测试文件（仅包含一个字符），显示了负压缩率(-100.0%)
+   - 这再次证明了对于非常小的文件，gzip头部信息的开销会导致压缩后文件反而变大
+   - 在实际应用中，应该考虑文件大小和压缩收益的平衡
+
+5. **实用建议**：
+   - 当需要压缩目录时，gzip需要与`-r`选项配合使用
+   - 对于目录压缩的常见场景，通常更推荐使用`tar -czf`组合命令
+   - 只有当确实需要单独压缩目录中的每个文件，而不是创建单一归档文件时，才使用gzip的递归压缩功能
+   - 压缩前应评估文件大小，对于非常小的文件考虑是否有必要压缩
+
 在上述案例中，我们看到了两种不同的目标路径表示方式：
 
 1. **`.` 表示当前目录**：
