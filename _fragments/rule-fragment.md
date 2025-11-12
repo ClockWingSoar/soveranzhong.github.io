@@ -8,6 +8,22 @@
 - **目的**：快速记录阅读过程中产生的零散问题、思考和知识点
 - **命名**：使用语义化名称，如`prometheus-alert-rule.md`
 - **格式**：采用Markdown格式，清晰的层级结构
+- **头文件**：必须包含YAML front matter，格式如下：
+  ```yaml
+  ---  
+  layout: fragment
+  title: [文档标题]
+  tags: [相关标签]
+  description: [简短描述]
+  keywords: [关键词1, 关键词2]
+  mermaid: false
+  sequence: false
+  flow: false
+  mathjax: false
+  mindmap: false
+  mindmap2: false
+  ---
+  ```
 - **内容**：包含问题描述、关键概念、待研究点
 
 ## 推荐的思维框架（可选应用）
