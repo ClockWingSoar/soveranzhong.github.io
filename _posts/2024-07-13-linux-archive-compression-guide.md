@@ -1957,4 +1957,69 @@ soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar -xf etc.tar.bz2 -C /tmp/
    - 对于中等需求，bzip2提供了较好的平衡
    - 对于频繁访问的数据或需要快速处理的场景，考虑使用无压缩格式
 
+### 12.13 案例：从文件列表创建归档
+
+以下案例展示了如何使用tar命令的`-T`选项从文件列表创建归档文件：
+
+```bash
+# 创建包含文件路径列表的文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ echo '/etc/fstab' > tar_file_list
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ echo '/etc/hosts' >> tar_file_list
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ echo '/etc/passwd' >> tar_file_list
+
+# 查看文件列表内容
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ cat tar_file_list
+/etc/fstab
+/etc/hosts
+/etc/passwd
+
+# 使用-T选项从文件列表创建压缩归档
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar -zcvf x.tar.gz -T tar_file_list
+tar: 从成员名中删除开头的"/"
+/etc/fstab
+tar: 从硬连接目标中删除开头的"/"
+/etc/hosts
+/etc/passwd
+
+# 验证归档内容
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/tar $ tar tvf x.tar.gz
+-rw-r--r-- root/root       473 2025-10-21 06:50 etc/fstab
+-rw-r--r-- root/root       223 2025-10-21 06:34 etc/hosts
+-rw-r--r-- root/root      2997 2025-11-03 10:33 etc/passwd
+```
+
+**案例分析**：
+
+1. **文件列表创建**：
+   - 使用`echo`命令和重定向操作符(`>`和`>>`)创建包含文件路径的列表文件
+   - 文件列表中可以包含绝对路径或相对路径的文件
+
+2. **-T选项的使用**：
+   - `-T`或`--files-from`选项告诉tar从指定的文件中读取要归档的文件列表
+   - 语法格式：`tar -T 文件列表文件 -f 输出归档文件`
+   - 在案例中，同时使用了`-z`(gzip压缩)、`-c`(创建)、`-v`(详细输出)和`-f`(指定归档文件)选项
+
+3. **路径处理特性**：
+   - 注意到tar命令显示警告："tar: 从成员名中删除开头的'/'"
+   - 这是tar的安全机制，会自动将绝对路径转换为相对路径
+   - 验证结果显示归档中的文件路径都变为相对路径格式(etc/fstab而非/etc/fstab)
+
+4. **权限和元数据保留**：
+   - 归档保留了原始文件的权限(rw-r--r--)、所有者(root/root)、大小和时间戳信息
+   - 这确保了归档文件的完整性和可恢复性
+
+5. **硬连接处理**：
+   - 案例中显示了"tar: 从硬连接目标中删除开头的'/'"的警告
+   - 这表明tar在处理硬连接时也应用了相同的路径安全转换规则
+
+6. **使用场景**：
+   - 当需要归档大量分散在不同位置的文件时，文件列表方式比命令行参数更高效
+   - 在自动化脚本中，可以通过动态生成文件列表来精确控制归档内容
+   - 特别适合于增量备份或选择性归档场景
+
+7. **注意事项**：
+   - 确保文件列表中的路径是可访问的，否则tar会跳过无法访问的文件
+   - 如果需要保留绝对路径，可以使用`-P`选项，但这通常不推荐出于安全考虑
+   - 对于非常大的文件列表，使用`-T -`可以从标准输入读取文件列表
+
 通过本文的学习，相信您已经掌握了Linux环境下各种打包压缩工具的使用方法和最佳实践。在实际工作中，灵活运用这些工具可以大大提高数据管理和系统维护的效率。记住，选择合适的工具和参数对于实现高效的数据处理至关重要。
