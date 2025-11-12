@@ -760,6 +760,75 @@ soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -l issue.gz
    - 使用`-k`选项保留原文件，避免意外数据丢失
    - 重要文件压缩前应备份，以防操作失误
 
+### 11.5 案例：gzip的管道操作和自定义后缀名
+
+以下案例展示了gzip命令通过管道接收输入并使用自定义后缀名的高级用法：
+
+```bash
+# 使用管道将passwd文件内容传递给gzip，并重定向输出到pwd.gz
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ cat passwd | gzip >pwd.gz 
+
+# 查看创建的压缩文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ ll 
+总计 36 
+drwxrwxr-x 2 soveran soveran 4096 11月 12 17:40 ./ 
+drwxrwxr-x 3 soveran soveran 4096 11月 12 16:56 ../ 
+-rw-rw-r-- 1 soveran soveran    0 11月 12 17:35 file1 
+-rw-r--r-- 1 soveran soveran   26 11月 12 17:32 fstab 
+-rw-rw-r-- 1 soveran soveran   52 11月 12 17:34 fstab.gz 
+-rw-r--r-- 1 soveran soveran   26 11月 12 16:57 issue 
+-rw-rw-r-- 1 soveran soveran   26 11月 12 17:35 issue.gz 
+-rw-r--r-- 1 soveran soveran 2997 11月 12 16:57 passwd 
+-rw-r--r-- 1 soveran soveran 1089 11月 12 16:57 passwd.gz 
+-rw-rw-r-- 1 soveran soveran 1082 11月 12 17:40 pwd.gz 
+
+# 使用-S选项指定自定义后缀名.gzzz，同时使用-k保留原文件和-v显示详细信息
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ gzip -kv fstab -S .gzzz 
+fstab:   -7.7% -- created fstab.gzzz 
+
+# 查看创建的自定义后缀压缩文件
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/blank/gzip $ ll 
+总计 40 
+drwxrwxr-x 2 soveran soveran 4096 11月 12 17:40 ./ 
+drwxrwxr-x 3 soveran soveran 4096 11月 12 16:56 ../ 
+-rw-rw-r-- 1 soveran soveran    0 11月 12 17:35 file1 
+-rw-r--r-- 1 soveran soveran   26 11月 12 17:32 fstab 
+-rw-rw-r-- 1 soveran soveran   52 11月 12 17:34 fstab.gz 
+-rw-r--r-- 1 soveran soveran   52 11月 12 17:32 fstab.gzzz 
+-rw-r--r-- 1 soveran soveran   26 11月 12 16:57 issue 
+-rw-rw-r-- 1 soveran soveran   26 11月 12 17:35 issue.gz 
+-rw-r--r-- 1 soveran soveran 2997 11月 12 16:57 passwd 
+-rw-r--r-- 1 soveran soveran 1089 11月 12 16:57 passwd.gz 
+-rw-rw-r-- 1 soveran soveran 1082 11月 12 17:40 pwd.gz 
+```
+
+**案例分析**：
+
+1. **通过管道使用gzip**：
+   - `cat passwd | gzip >pwd.gz` 演示了如何使用管道将文件内容传递给gzip命令
+   - 这种方式相当于使用了`gzip -c passwd >pwd.gz`，但更加灵活，适用于复杂的数据处理流程
+   - 可以将gzip集成到shell管道中，实现数据的流式处理和压缩
+
+2. **自定义后缀名功能**：
+   - `-S .gzzz` 选项允许指定自定义的文件后缀，而不是默认的.gz
+   - 这在需要区分不同类型的压缩文件或满足特定命名规范时非常有用
+   - 创建了`fstab.gzzz`文件，虽然后缀不同，但内部仍然是标准的gzip压缩格式
+
+3. **多选项组合使用**：
+   - `-kv` 选项组合展示了如何同时使用多个功能选项
+   - `-k` 保留原文件，`-v` 显示压缩过程的详细信息
+   - 即使使用自定义后缀，压缩率和详细信息仍然会正确显示
+
+4. **关于小文件的压缩效果**：
+   - 对于fstab这样的小文件（仅26字节），压缩后反而增大（52字节），显示负压缩率(-7.7%)
+   - 这是因为gzip头部信息的开销大于压缩带来的收益
+   - 在实际应用中，对于非常小的文件，可能不需要压缩
+
+5. **实用技巧**：
+   - 管道方式适合处理从其他命令生成的输出或需要预处理的数据
+   - 自定义后缀可以用于区分不同来源或用途的压缩文件
+   - 当需要批量处理具有不同命名规范的文件时，自定义后缀功能特别有用
+
 在上述案例中，我们看到了两种不同的目标路径表示方式：
 
 1. **`.` 表示当前目录**：
