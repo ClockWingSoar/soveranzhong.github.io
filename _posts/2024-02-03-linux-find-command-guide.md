@@ -281,6 +281,53 @@ find -name "test-a*"
 # 结果：./test-a.log 和 ./test-a.txt
 ```
 
+#### 5.2.2 排除特定目录
+
+在实际工作中，我们经常需要在查找文件时排除特定目录。find命令提供了`-path`和`-prune`选项来实现这一功能：
+
+```bash
+# 基本查找所有txt文件
+find -name "*.txt"
+# 结果示例：
+# ./dir1/fa.txt
+# ./dir1/fb.txt
+# ./test-a.txt
+# ./test-b.txt
+# ./test-A.txt
+# ./test-B.txt
+
+# 排除dir1目录中的txt文件，但默认会输出被排除的目录本身
+find -path './dir1' -prune -o -name "*.txt"
+# 结果示例：
+# ./dir1
+# ./test-a.txt
+# ./test-b.txt
+# ./test-A.txt
+# ./test-B.txt
+
+# 使用-print动作确保只输出匹配的文件而不输出被排除的目录
+find -path './dir1' -prune -o -name "*.txt" -print
+# 结果示例：
+# ./test-a.txt
+# ./test-b.txt
+# ./test-A.txt
+# ./test-B.txt
+```
+
+**重要提示**：在find命令中，当使用`-prune`选项时，需要了解`-o`（或）操作符和动作的工作方式。`-prune`选项会阻止find命令递归进入匹配的目录，但默认情况下，它仍然会将该目录本身包含在输出中。使用`-print`动作可以确保只有满足后续条件的文件才会被输出。
+
+```bash
+# 排除多个目录的方法
+find \( -path './dir1' -o -path './dir4' \) -prune -o -name "*.txt" -print
+# 结果示例：
+# ./test-a.txt
+# ./test-b.txt
+# ./test-A.txt
+# ./test-B.txt
+```
+
+在上述示例中，我们使用了括号来对多个条件进行分组（注意在shell中需要转义括号），这样可以同时排除多个目录。
+
 #### 5.2.2 正则表达式匹配
 
 ```bash
