@@ -941,6 +941,79 @@ split -b 100m large_file.tar.gz "large_file_part_"
 cat large_file_part_* > merged_large_file.tar.gz
 ```
 
+#### 8.5.1 分割压缩文件实战示例
+
+下面是一个完整的分割和合并tar.gz文件的实战示例：
+
+```bash
+# 1. 首先创建一个压缩文件（以/etc目录为例）
+sudo tar zcf etc.tar.gz /etc
+tar: 从成员名中删除开头的“/”
+
+# 2. 查看创建的压缩文件
+ll
+total 1360
+drwxrwxr-x  2 soveran soveran    4096 11月 13 14:27 ./
+drwxrwxr-x 10 soveran soveran    4096 11月 13 14:26 ../
+-rw-rw-r--  1 soveran soveran 1341800 11月 13 14:27 etc.tar.gz
+
+# 3. 查看文件大小
+ll -h etc.tar.gz
+-rw-rw-r-- 1 soveran soveran 1.3M 11月 13 14:27 etc.tar.gz
+
+# 4. 按1MB大小分割文件，使用数字后缀
+# -b 1M: 每个分割文件1MB
+# -d: 使用数字后缀
+# etc.part: 分割文件前缀
+split -b 1M etc.tar.gz -d etc.part
+
+# 5. 查看分割后的文件
+ls
+etc.part00  etc.part01  etc.tar.gz
+
+# 6. 使用--verbose选项查看分割过程
+split --verbose -b 1M etc.tar.gz -d etc.part
+正在创建文件 'etc.part00'
+正在创建文件 'etc.part01'
+
+# 7. 删除原压缩文件（演示场景）
+rm -f etc.tar.gz
+
+# 8. 查看当前目录文件
+ll
+total 1360
+drwxrwxr-x  2 soveran soveran    4096 11月 13 14:29 ./
+drwxrwxr-x 10 soveran soveran    4096 11月 13 14:26 ../
+-rw-rw-r--  1 soveran soveran 1048576 11月 13 14:28 etc.part00
+-rw-rw-r--  1 soveran soveran  293224 11月 13 14:28 etc.part01
+
+# 9. 合并分割的文件
+cat etc.part* > etc.tar.gz
+
+# 10. 查看合并后的文件
+ll
+total 2672
+drwxrwxr-x  2 soveran soveran    4096 11月 13 14:30 ./
+drwxrwxr-x 10 soveran soveran    4096 11月 13 14:26 ../
+-rw-rw-r--  1 soveran soveran 1048576 11月 13 14:28 etc.part00
+-rw-rw-r--  1 soveran soveran  293224 11月 13 14:28 etc.part01
+-rw-rw-r--  1 soveran soveran 1341800 11月 13 14:30 etc.tar.gz
+
+# 11. 验证合并后的文件完整性
+# 查看tar文件内容以确认文件完整性
+tar tvf etc.tar.gz
+drwxr-xr-x root/root         0 2025-11-09 09:05 etc/
+drwxr-xr-x root/root         0 2025-08-06 00:48 etc/opt/
+-rw-r--r-- root/root       744 2024-04-08 22:38 etc/mke2fs.conf
+...
+```
+
+这个示例展示了从创建压缩文件、分割、删除原文件、合并到验证完整性的完整流程，特别演示了split命令的以下功能：
+- 使用`-b`参数指定分割大小
+- 使用`-d`参数使用数字后缀（更适合排序）
+- 使用`--verbose`参数查看分割过程
+- 使用通配符`*`快速合并所有分割文件
+
 ## 9. 性能优化与最佳实践
 
 ### 9.1 压缩算法选择
