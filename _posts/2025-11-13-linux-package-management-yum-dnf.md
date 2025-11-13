@@ -206,7 +206,7 @@ baseurl=url://path/to/repository/
 # HTTP镜像：baseurl=http://mirrors.aliyun.com/rockylinux/9.4/AppStream/x86_64/os/
 # FTP服务器：baseurl=ftp://10.0.0.159/
 # 注意：baseurl指向的路径必须是repodata目录所在的目录
-mirrorlist= `https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-$releasever` 
+mirrorlist=https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-$releasever
 #仓库地址列表，支持使用变量动态生成镜像列表
 #常用变量说明：
 #  $arch - CPU架构：aarch64|i586|i686|x86_64
@@ -270,9 +270,26 @@ ll /etc/yum.repos.d/
 | 上海交通大学 | `https://mirrors.sjtug.sjtu.edu.cn/rocky/` |
 | 东软信息学院 | `http://mirrors.neusoft.edu.cn/rocky/` |
 
-#### 生成元数据缓存
+#### 实际配置示例：阿里云镜像源
 
-使用`yum makecache`命令可以预先生成软件仓库的元数据缓存，提高后续操作的速度：
+以下是使用阿里云镜像源的完整配置示例：
+
+1. 创建阿里云BaseOS仓库配置文件：
+
+```bash
+sudo vim /etc/yum.repos.d/aliyun-baseos.repo
+```
+
+2. 添加以下配置内容：
+
+```ini
+[aliyun-baseos]
+name=aliyun.baseos
+baseurl=https://mirrors.aliyun.com/rockylinux/9.6/BaseOS/x86_64/os/
+gpgcheck=0
+```
+
+3. 生成元数据缓存：
 
 ```bash
 yum makecache
@@ -281,18 +298,32 @@ yum makecache
 实际输出示例：
 
 ```
-Rocky Linux 9 - BaseOS                                                                                                                1.0 MB/s | 2.5 MB     00:02
-Rocky Linux 9 - AppStream                                                                                                             5.6 MB/s | 9.5 MB     00:01
-Rocky Linux 9 - Extras                                                                                                                 21 kB/s |  17 kB     00:00
+aliyun.baseos                                                                                                                         5.0 MB/s | 2.5 MB     00:00
+Rocky Linux 9 - BaseOS                                                                                                                2.2 kB/s | 4.1 kB     00:01
+Rocky Linux 9 - AppStream                                                                                                             1.8 kB/s | 4.5 kB     00:02
+Rocky Linux 9 - Extras                                                                                                                1.9 kB/s | 2.9 kB     00:01
 元数据缓存已建立。
 ```
 
-#### 详细查看仓库信息
-
-使用`yum repolist -v`命令可以查看详细的仓库信息，包括仓库ID、名称、大小、镜像地址等：
+4. 验证仓库配置：
 
 ```bash
-yum repolist -v
+yum repolist
+```
+
+实际输出示例：
+
+```
+仓库 id                                                                      仓库名称
+aliyun-baseos                                                                aliyun.baseos
+appstream                                                                    Rocky Linux 9 - AppStream
+baseos                                                                       Rocky Linux 9 - BaseOS
+```
+
+5. 查看详细仓库信息：
+
+```bash
+yum repolist -v --repoid=aliyun-baseos
 ```
 
 实际输出示例：
@@ -301,44 +332,75 @@ yum repolist -v
 加载插件：builddep, changelog, config-manager, copr, debug, debuginfo-install, download, generate_completion_cache, groups-manager, kpatch, needs-restarting, notify-packagekit, playground, repoclosure, repodiff, repograph, repomanage, reposync, system-upgrade
 YUM version: 4.14.0
 cachedir: /var/tmp/dnf-soveran-akvddr2r
-上次元数据过期检查：0:00:06 前，执行于 2025年11月13日 星期四 20时58分39秒。
-仓库ID            : appstream
-仓库名称          : Rocky Linux 9 - AppStream
-软件仓库修订版      : 1762376598
-更新的软件仓库       : 2025年11月06日 星期四 05时03分18秒
-软件仓库的软件包          : 6,247
-软件仓库的可用软件包: 5,911
-软件仓库大小          : 9.4 G
-软件仓库镜像站       : `https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=AppStream-9` 
-软件仓库基本 URL       : `http://mirror.nju.edu.cn/rocky/9.6/AppStream/x86_64/os/`  (32 more)
-软件仓库过期时间        : 21,600 秒 （最近 2025年11月13日 星期四 20时58分38秒）
-仓库文件名      : /etc/yum.repos.d/rocky.repo
-
-仓库ID            : baseos
-仓库名称          : Rocky Linux 9 - BaseOS
+上次元数据过期检查：0:01:00 前，执行于 2025年11月13日 星期四 22时22分53秒。
+仓库ID            : aliyun-baseos
+仓库名称          : aliyun.baseos
 软件仓库修订版      : 1762376584
 更新的软件仓库       : 2025年11月06日 星期四 05时03分04秒
 软件仓库的软件包          : 1,171
 软件仓库的可用软件包: 1,171
 软件仓库大小          : 1.5 G
-软件仓库镜像站       : `https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=BaseOS-9` 
-软件仓库基本 URL       : `https://mirror.nyist.edu.cn/rocky/9.6/BaseOS/x86_64/os/`  (32 more)
-软件仓库过期时间        : 21,600 秒 （最近 2025年11月13日 星期四 20时58分36秒）
-仓库文件名      : /etc/yum.repos.d/rocky.repo
-
-仓库ID            : extras
-仓库名称          : Rocky Linux 9 - Extras
-软件仓库修订版      : 1753462770
-更新的软件仓库       : 2025年07月26日 星期六 00时59分30秒
-软件仓库的软件包          : 56
-软件仓库的可用软件包: 56
-软件仓库大小          : 3.2 M
-软件仓库镜像站       : `https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=extras-9` 
-软件仓库基本 URL       : `http://mirror.nju.edu.cn/rocky/9.6/extras/x86_64/os/`  (32 more)
-软件仓库过期时间        : 21,600 秒 （最近 2025年11月13日 星期四 20时58分39秒）
-仓库文件名      : /etc/yum.repos.d/rocky-extras.repo
-软件包总数：7,474
+软件仓库基本 URL       : https://mirrors.aliyun.com/rockylinux/9.6/BaseOS/x86_64/os/ 
+软件仓库过期时间        : 172,800 秒 （最近 2025年11月13日 星期四 22时22分53秒）
+仓库文件名      : /etc/yum.repos.d/aliyun-baseos.repo
+软件包总数：1,171
 ```
+
+#### 实际配置示例：南京大学镜像源
+
+以下是使用南京大学镜像源的完整配置示例，包含AppStream、BaseOS和extras三个仓库：
+
+1. 创建南京大学镜像源配置文件：
+
+```bash
+sudo vim /etc/yum.repos.d/nju-extras.repo
+```
+
+2. 添加以下配置内容：
+
+```ini
+[nju-appstream]
+name=nju AppStream
+baseurl=https://mirrors.nju.edu.cn/rocky/9.6/AppStream/x86_64/os/
+gpgcheck=0
+
+[nju-baseos]
+name=nju BaseOS
+baseurl=https://mirrors.nju.edu.cn/rocky/9.6/BaseOS/x86_64/os/
+gpgcheck=0
+
+[nju-extras]
+name=nju extras
+baseurl=https://mirrors.nju.edu.cn/rocky/9.6/extras/x86_64/os/
+gpgcheck=0
+```
+
+3. 生成元数据缓存：
+
+```bash
+yum makecache
+```
+
+实际输出示例：
+
+```
+aliyun.baseos                                                                                                                          22 kB/s | 4.1 kB     00:00
+nju AppStream                                                                                                                          23 MB/s | 9.5 MB     00:00
+nju BaseOS                                                                                                                            7.6 MB/s | 2.5 MB     00:00
+nju extras                                                                                                                             85 kB/s |  17 kB     00:00
+Rocky Linux 9 - BaseOS                                                                                                                1.7 kB/s | 4.1 kB     00:02
+Rocky Linux 9 - AppStream                                                                                                             4.1 kB/s | 4.5 kB     00:01
+Rocky Linux 9 - Extras                                                                                                                3.1 kB/s | 2.9 kB     00:00
+元数据缓存已建立。
+```
+
+使用`yum makecache`命令可以预先生成软件仓库的元数据缓存，提高后续操作的速度。这在配置新仓库后特别有用，可以立即验证仓库的可用性。
+
+#### 详细查看仓库信息
+
+使用`yum repolist -v`命令可以查看详细的仓库信息，包括仓库ID、名称、大小、镜像地址等。如果需要查看特定仓库的详细信息，可以使用`yum repolist -v --repoid=仓库ID`命令。
+
+通过这些命令，用户可以全面了解当前系统中配置的所有仓库，以及每个仓库的具体状态和配置详情。
 
 ## 3. dnf命令基础
 
@@ -759,3 +821,58 @@ rpm --import https://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8
 - **人工智能辅助**：使用AI优化依赖解析和包选择过程
 
 通过掌握yum和dnf这两款强大的包管理工具，您可以高效地管理Linux系统中的软件，确保系统安全、稳定地运行。无论是系统管理员还是开发人员，熟练使用包管理工具都是Linux技能体系中不可或缺的一部分。
+
+## 11. 趣味命令与小技巧
+
+除了常规的系统管理功能，Linux还提供了一些有趣的命令，可以为您的工作增添一些乐趣。以下是一些通过yum/dnf安装和使用的趣味命令示例：
+
+### 11.1 火车命令 (sl) 和 奶牛说命令 (cowsay)
+
+在Rocky Linux 9中，`cowsay`和`sl`这两个包默认不在官方的基础仓库中，需要启用EPEL（Extra Packages for Enterprise Linux）仓库才能安装。
+
+**解决步骤：**
+1. **安装EPEL仓库**
+   EPEL提供了许多企业版Linux额外的常用软件包，执行以下命令安装：
+   ```bash
+   sudo dnf install epel-release -y
+   ```
+   （Rocky Linux推荐使用`dnf`替代`yum`，两者功能类似，`dnf`是更新的包管理器）
+
+2. **更新仓库缓存**
+   ```bash
+   sudo dnf makecache
+   ```
+
+3. **安装cowsay和sl**
+   ```bash
+   sudo dnf install cowsay sl -y
+   ```
+
+4. **验证安装**
+   - 运行`cowsay "Hello World"`测试cowsay
+   - 运行`sl`测试小火车动画
+
+### 11.2 扩展：更多趣味命令
+
+**安装fortune和animalsay**
+```bash
+# 需要先安装EPEL仓库
+sudo dnf install fortune-mod cowsay-animals -y
+```
+
+**使用示例：**
+```bash
+# 基本使用
+cowsay "Hello Linux!"
+
+# 管道使用
+fortune | cowsay
+
+# 使用不同的动物
+animalsay cat "Meow!"
+
+# 查看可用的动物
+ls /usr/share/cowsay/cows/
+```
+
+这些趣味命令虽然没有实际的系统管理功能，但它们展示了Linux系统的灵活性和社区的创造力，也可以在学习和工作中带来一些轻松的时刻。EPEL仓库还包含很多其他实用工具，后续安装其他软件时也可能会用到。
