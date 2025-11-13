@@ -394,6 +394,86 @@ Rocky Linux 9 - Extras                                                          
 元数据缓存已建立。
 ```
 
+#### 实际配置示例：本地光盘源
+
+在没有网络连接或需要使用特定版本软件时，可以使用本地光盘作为软件源。以下是在Rocky Linux 9中配置本地光盘源的完整示例：
+
+1. **挂载光盘到/mnt目录**
+   ```bash
+   mount /dev/cdrom /mnt/
+   ```
+   实际输出示例：
+   ```
+mount: /mnt: WARNING: source write-protected, mounted read-only.
+   ```
+
+2. **验证光盘内容**
+   ```bash
+   df -h
+   ```
+   实际输出示例：
+   ```
+   文件系统             容量  已用  可用 已用% 挂载点
+   devtmpfs             4.0M     0  4.0M    0% /dev
+   tmpfs                1.8G     0  1.8G    0% /dev/shm
+   tmpfs                725M   16M  710M    3% /run
+   /dev/mapper/rl-root   70G  6.9G   64G   10% /
+   /dev/sda1            960M  562M  399M   59% /boot
+   /dev/mapper/rl-home  126G  1.1G  124G    1% /home
+   tmpfs                363M   52K  363M    1% /run/user/42
+   tmpfs                363M   36K  363M    1% /run/user/1000
+   /dev/sr0              12G   12G     0  100% /mnt
+   ```
+
+   ```bash
+   ls /mnt/
+   ```
+   实际输出示例：
+   ```
+   AppStream  BaseOS  EFI  images  isolinux  LICENSE  media.repo
+   ```
+
+3. **创建本地光盘源配置文件**
+   ```bash
+   sudo vim /etc/yum.repos.d/cdrom.repo
+   ```
+
+4. **添加以下配置内容**
+   ```ini
+   [cdrom-appstream]
+   name=cdrom appstream
+   baseurl=file:///mnt/AppStream/
+   gpgcheck=0
+
+   [cdrom-baseos]
+   name=cdrom baseos
+   baseurl=file:///mnt/BaseOS/
+   gpgcheck=0
+   ```
+
+5. **生成元数据缓存**
+   ```bash
+   yum makecache
+   ```
+
+6. **验证光盘源配置**
+   ```bash
+   yum repolist
+   ```
+
+**BaseOS和AppStream目录说明：**
+- **BaseOS目录**
+  - **内容**：存储着操作系统的核心组件和基本系统工具，如内核、shell工具、系统服务等。
+  - **功能**：提供操作系统的基本功能和支持，确保系统的正常运行。
+
+- **AppStream目录**
+  - **内容**：存储着用户可能需要的应用程序和软件包的元数据信息，以及软件包依赖关系等。
+  - **功能**：使用户可以方便地安装和管理这些软件，通常包含用户界面软件、开发工具、数据库工具等应用程序。
+
+- **关联关系**：
+  - BaseOS和AppStream两个目录之间的关系是互补的。
+  - 在安装和管理软件时，系统会从这两个目录中获取所需的软件包和依赖关系，以确保系统的完整性和稳定性。
+
 使用`yum makecache`命令可以预先生成软件仓库的元数据缓存，提高后续操作的速度。这在配置新仓库后特别有用，可以立即验证仓库的可用性。
 
 #### 详细查看仓库信息
