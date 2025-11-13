@@ -560,6 +560,81 @@ bunzip2 -c file.txt.bz2 | cat
 bzcat file.txt.bz2
 ```
 
+### 4.4 bzip2高级用法示例
+
+```bash
+# 同时压缩多个文件并显示压缩统计信息
+bzip2 -kv fstab passwd
+# 输出：
+# fstab:    1.222:1,  6.545 bits/byte, 18.18% saved, 473 in, 387 out.
+# passwd:   2.707:1,  2.955 bits/byte, 63.06% saved, 2997 in, 1107 out.
+
+# 查看压缩后的文件列表
+ll
+# 输出：
+# 总计 24
+# drwxrwxr-x 2 soveran soveran 4096 11月 13 11:29 ./
+# drwxrwxr-x 8 soveran soveran 4096 11月 13 11:29 ../
+# -rw-r--r-- 1 soveran soveran  473 11月 13 11:29 fstab
+# -rw-r--r-- 1 soveran soveran  387 11月 13 11:29 fstab.bz2
+# -rw-r--r-- 1 soveran soveran 2997 11月 13 11:29 passwd
+# -rw-r--r-- 1 soveran soveran 1107 11月 13 11:29 passwd.bz2
+
+# 使用-c和-v选项将压缩输出重定向到文件
+bzip2 fstab -cv > fstab2.bz2
+# 输出：
+# fstab:    1.222:1,  6.545 bits/byte, 18.18% saved, 473 in, 387 out.
+
+# 再次查看文件列表
+ll
+# 输出：
+# 总计 28
+# drwxrwxr-x 2 soveran soveran 4096 11月 13 11:30 ./
+# drwxrwxr-x 8 soveran soveran 4096 11月 13 11:29 ../
+# -rw-r--r-- 1 soveran soveran  473 11月 13 11:29 fstab
+# -rw-rw-r-- 1 soveran soveran  387 11月 13 11:30 fstab2.bz2
+# -rw-r--r-- 1 soveran soveran  387 11月 13 11:29 fstab.bz2
+# -rw-r--r-- 1 soveran soveran 2997 11月 13 11:29 passwd
+# -rw-r--r-- 1 soveran soveran 1107 11月 13 11:29 passwd.bz2
+
+# 从标准输入读取内容并压缩到文件
+cat fstab | bzip2 -cv > fstab3.bz2
+# 输出：
+# (stdin):  1.222:1,  6.545 bits/byte, 18.18% saved, 473 in, 387 out.
+
+# 再次查看文件列表
+ll
+# 输出：
+# 总计 32
+# drwxrwxr-x 2 soveran soveran 4096 11月 13 11:30 ./
+# drwxrwxr-x 8 soveran soveran 4096 11月 13 11:29 ../
+# -rw-r--r-- 1 soveran soveran  473 11月 13 11:29 fstab
+# -rw-rw-r-- 1 soveran soveran  387 11月 13 11:30 fstab2.bz2
+# -rw-rw-r-- 1 soveran soveran  387 11月 13 11:30 fstab3.bz2
+# -rw-r--r-- 1 soveran soveran  387 11月 13 11:29 fstab.bz2
+# -rw-r--r-- 1 soveran soveran 2997 11月 13 11:29 passwd
+# -rw-r--r-- 1 soveran soveran 1107 11月 13 11:29 passwd.bz2
+
+# 强制解压文件并显示详细信息
+bunzip2 -kfv fstab.bz2
+# 输出：
+# fstab.bz2: done
+
+# 直接查看压缩文件内容
+bzcat fstab2.bz2
+# 输出：
+# /etc/fstab: static file system information.
+# #
+# # Use 'blkid' to print the universally unique identifier for a
+# # device; this may be used with UUID= as a more robust way to name devices
+# # that works even if disks are added and removed. See fstab(5).
+# #
+# # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+# # / was on /dev/sda2 during curtin installation
+# /dev/disk/by-uuid/dd6f0a4b-f132-4f0d-a6e2-54c9b38b3765 / ext4 defaults 0 1
+# /swap.img       none    swap    sw      0       0
+```
+
 ## 5. xz命令 - 最高压缩率的选择
 
 ### 5.1 xz命令基础
