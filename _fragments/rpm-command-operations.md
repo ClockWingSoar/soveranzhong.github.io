@@ -57,6 +57,18 @@ mindmap2: false
     - 初始化RPM数据库：`sudo rpm --initdb`
     - 重建RPM数据库：`sudo rpm --rebuilddb`
 
+12. **如何验证RPM包的签名和完整性？**
+    - 验证RPM包的签名和完整性：`rpm -K package.rpm` 或 `rpm --checksig package.rpm`
+
+13. **如何管理RPM GPG密钥？**
+    - 查看系统中的GPG密钥：`rpm -qa "gpg-pubkey"`
+    - 查看GPG密钥详情：`rpm -qi gpg-pubkey-<keyid>`
+    - 导入GPG密钥：`sudo rpm --import /path/to/keyfile`
+    - 删除GPG密钥：`sudo rpm -e gpg-pubkey-<keyid>`
+
+14. **如何验证已安装RPM包的完整性？**
+    - 验证已安装包的完整性：`rpm -V package_name` 或 `rpm --verify package_name`
+
 ## 关键概念
 
 - **RPM**：Red Hat Package Manager，Linux系统中常用的包管理工具
@@ -78,6 +90,17 @@ mindmap2: false
 - **数据库管理**：维护RPM包数据库
   - `--initdb`：初始化RPM数据库，如果不存在则创建
   - `--rebuilddb`：重建RPM数据库索引
+- **签名验证**：验证RPM包的完整性和来源
+  - `-K, --checksig`：验证RPM包的数字签名和摘要信息
+- **GPG密钥管理**：管理用于验证RPM包签名的GPG密钥
+  - `--import`：导入GPG公钥到RPM数据库
+  - `-qa "gpg-pubkey"`：查询系统中已安装的GPG公钥
+  - `-qi gpg-pubkey-<keyid>`：查看特定GPG公钥的详细信息
+  - `-e gpg-pubkey-<keyid>`：从系统中删除指定的GPG公钥
+- **包验证**：验证已安装RPM包的完整性和文件状态
+  - `-V, --verify`：验证已安装包的所有文件的完整性、权限、大小等属性
+    - 输出中的符号表示文件的不同属性是否发生变化
+    - 常见符号：`c`表示配置文件，`?`表示无法验证的属性
 
 ## RPM包管理操作实践
 
@@ -131,7 +154,62 @@ wget https://mirrors.aliyun.com/centos-stream/9-stream/AppStream/x86_64/os/Packa
 ll
 ```
 
-### 2. 安装RPM包
+### 3. 验证RPM包的签名和完整性
+
+使用`rpm -K`或`rpm --checksig`命令验证RPM包的签名和完整性：
+
+```bash
+[root@rocky9 ~]# rpm -K /tmp/softs/vsftpd-3.0.3-49.el9.x86_64.rpm
+/tmp/softs/vsftpd-3.0.3-49.el9.x86_64.rpm: digests SIGNATURES 不正确
+```
+
+### 4. RPM GPG密钥管理
+
+使用RPM命令管理GPG密钥：
+
+```bash
+# 查看系统中的GPG密钥文件
+ls /etc/pki/rpm-gpg/
+RPM-GPG-KEY-redhat-beta  RPM-GPG-KEY-redhat-release  RPM-GPG-KEY-Rocky-9  RPM-GPG-KEY-Rocky-9-Testing
+
+# 普通用户尝试导入GPG密钥（失败，权限不足）
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-Rocky-9
+错误：无法创建 事务 锁定于 /var/lib/rpm/.rpm.lock (没有那个文件或目录)
+错误：/etc/pki/rpm-gpg/RPM-GPG-KEY-Rocky-9：导入密钥 1 失败。
+
+# 使用sudo权限导入GPG密钥（成功）
+sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-Rocky-9
+
+# 查看系统中已安装的GPG公钥
+rpm -qa "gpg-pubkey"
+gpg-pubkey-350d275d-6279464b
+
+# 查看GPG密钥详情
+rpm -qi gpg-pubkey-350d275d-6279464b
+Name        : gpg-pubkey
+Version     : 350d275d
+Release     : 6279464b
+Architecture: (none)
+Install Date: 2025年10月31日 星期五 21时55分52秒
+Group       : Public Keys
+Size        : 0
+License     : pubkey
+Signature   : (none)
+Source RPM  : (none)
+Build Date  : 2022年05月10日 星期二 00时50分19秒
+Build Host  : localhost
+Packager    : Rocky Enterprise Software Foundation - Release key 2022 <releng@rockylinux.org>
+Summary     : Rocky Enterprise Software Foundation - Release key 2022 <releng@rockylinux.org> public key
+Description :
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: rpm-4.16.1.3 (NSS-3)
+
+mQINBGJ5RksBEADF/Lzssm7uryV6+VHAgL36klyCVcHwvx9Bk853LBOuHVEZWsme
+kbJF3fQG7i7gfCKGuV5XW15xINToe4fBThZteGJziboSZRpkEQ2z3lYcbg34X7+d
+co833lkBNgz1v6QO7PmAdY/x76Q6Hx0J9yiJWd+4j+vRi4hbWuh64vUtTd7rPwk8
+```
+
+### 5. 安装RPM包
 
 使用`rpm -ivh`命令安装RPM包：
 
@@ -149,7 +227,7 @@ rpm -ivh httpd-2.4.57-8.el9.x86_64.rpm
 sudo rpm -ivh httpd-2.4.57-8.el9.x86_64.rpm
 ```
 
-### 3. 升级RPM包
+### 6. 升级RPM包
 
 使用`rpm -Uvh`命令升级RPM包：
 
@@ -161,7 +239,7 @@ sudo rpm -Uvh vsftpd-3.0.5-6.el9.x86_64.rpm
 sudo rpm -Uvh vsftpd-3.0.3-49.el9.x86_64.rpm
 ```
 
-### 4. 删除RPM包
+### 7. 删除RPM包
 
 使用`rpm -evh`命令删除RPM包：
 
@@ -173,7 +251,7 @@ rpm -evh vsftpd
 sudo rpm -evh vsftpd
 ```
 
-### 5. 查询RPM包信息
+### 8. 查询RPM包信息
 
 使用各种查询命令获取RPM包信息：
 
@@ -187,8 +265,23 @@ rpm -q vsftpd && rpm -evh vsftpd
 # 使用-Fvh选项升级（只升级已安装的包）
 rpm -Fvh vsftpd-3.0.3-49.el9.x86_64.rpm
 
-# 再次安装vsftpd 3.0.3版本
+# 再次安装vsftpd 3.0.3版本（未验证签名）
 sudo rpm -Uvh vsftpd-3.0.3-49.el9.x86_64.rpm
+警告：vsftpd-3.0.3-49.el9.x86_64.rpm: 头V3 RSA/SHA256 Signature, 密钥 ID 8483c65d: NOKEY
+Verifying...                          ################################# [100%]
+准备中...                          ################################# [100%]
+正在升级/安装...
+   1:vsftpd-3.0.3-49.el9              ################################# [100%]
+
+# 验证已安装的vsftpd包的完整性
+sudo rpm -V vsftpd
+..?......  c /etc/vsftpd/ftpusers
+..?......  c /etc/vsftpd/user_list
+..?......  c /etc/vsftpd/vsftpd.conf
+
+# 查看验证命令的退出码
+echo $?
+1
 
 # 条件删除（使用管理员权限）
 sudo rpm -q vsftpd && rpm -evh vsftpd
@@ -388,6 +481,33 @@ rmdir --ignore-fail-on-non-empty /etc/pki/tls/private/postfix
      - 如果`/var/lib/rpm/`目录下的数据库文件被移除，所有软件都无法被移除或安装
      - 不要对`/var/lib/rpm/`目录本身进行删除或转移操作，否则可能导致RPM彻底无法使用
 
+6. **RPM包签名验证失败**：
+   - 问题：执行`rpm -K`验证包签名时提示"digests SIGNATURES 不正确"
+   - 可能原因：包文件损坏、来源不可信、签名密钥未导入
+   - 解决方案：
+     - 重新下载包文件并再次验证
+     - 检查包的来源是否可信
+     - 如果确认包来源安全，可以使用`--nosignature`选项跳过签名验证进行安装
+
+7. **GPG密钥导入失败**：
+   - 问题：执行`rpm --import`时提示"无法创建 事务 锁定于 /var/lib/rpm/.rpm.lock (没有那个文件或目录)"
+   - 原因：没有足够的权限操作RPM数据库
+   - 解决方案：使用`sudo`命令以管理员权限执行密钥导入操作
+
+8. **包验证失败**：
+   - 问题：执行`rpm -V`验证已安装包时显示文件属性变化，退出码为1
+   - 可能原因：
+     - 配置文件被修改（正常情况，显示为`c`标记）
+     - 文件权限、大小、修改时间等属性发生变化
+     - 文件内容被篡改（需要警惕）
+   - 解释：
+     - 输出格式：`..?......  c /path/to/file`
+     - 符号含义：`c`表示配置文件，`?`表示无法验证的属性
+     - 退出码1表示发现变化，0表示所有文件验证通过
+   - 解决方案：
+     - 配置文件变化通常是正常的，可以忽略
+     - 非配置文件变化需要检查是否有异常修改
+
 ## 待深入研究
 
 1. RPM包的依赖关系管理机制
@@ -395,6 +515,17 @@ rmdir --ignore-fail-on-non-empty /etc/pki/tls/private/postfix
 3. yum/dnf与rpm命令的区别与联系
 4. RPM包的数字签名验证机制
 5. 如何批量管理多个RPM包
+
+## 更新说明
+
+本次对RPM命令操作详解与实践文档的主要更新内容如下：
+
+1. **命令详解完善**：新增了RPM包下载、安装、升级、删除和查询等操作的详细命令说明，覆盖了常用的RPM命令选项。
+2. **关键概念澄清**：明确了RPM包管理的核心概念，包括安装、升级、删除、查询、数据库管理、签名验证等。
+3. **实践案例丰富**：添加了基于Rocky Linux 9环境的实际操作示例，包括RPM数据库管理、包下载、签名验证、密钥管理、安装升级删除操作、各种查询命令的使用等。
+4. **问题解决方案**：整理了RPM包管理过程中常见的权限不足、依赖缺失、版本冲突、文件冲突、数据库问题、签名验证失败、密钥导入失败、包验证失败等问题及其解决方案。
+5. **深入研究方向**：列出了RPM包依赖关系管理、自定义RPM包制作、yum/dnf与rpm的区别、数字签名验证机制、批量管理等待深入研究的主题。
+6. **参考资料更新**：提供了RPM官方文档、Red Hat Enterprise Linux 9 RPM指南、CentOS Stream文档、阿里云镜像站、Linux命令行大全等权威参考资源。
 
 ## 参考资料
 
