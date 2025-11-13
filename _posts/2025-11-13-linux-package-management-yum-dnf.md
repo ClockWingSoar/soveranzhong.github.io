@@ -159,6 +159,127 @@ yum-config-manager --disable repo-name
 yum install epel-release
 ```
 
+### 2.4 yum配置与仓库管理实践
+
+#### yum主配置文件
+
+在现代RHEL 9系统中，`yum`命令实际上是`dnf`的符号链接，因此`yum`的主配置文件`/etc/yum.conf`也是`/etc/dnf/dnf.conf`的符号链接：
+
+```bash
+ll /etc/yum.conf
+```
+
+实际输出示例：
+
+```
+lrwxrwxrwx. 1 root root 12  5月  4  2025 /etc/yum.conf -> dnf/dnf.conf
+```
+
+查看配置文件内容：
+
+```bash
+cat /etc/yum.conf
+```
+
+实际输出示例：
+
+```
+[main]
+gpgcheck=1
+installonly_limit=3
+clean_requirements_on_remove=True
+best=True
+skip_if_unavailable=False
+```
+
+#### 仓库配置文件
+
+每个软件仓库都有独立的配置文件，存放在`/etc/yum.repos.d/`目录下：
+
+```bash
+ll /etc/yum.repos.d/
+```
+
+实际输出示例：
+
+```
+总用量 20
+-rw-r--r--. 1 root root 6610  5月 17 11:07 rocky-addons.repo
+-rw-r--r--. 1 root root 1165  5月 17 11:07 rocky-devel.repo
+-rw-r--r--. 1 root root 2387  5月 17 11:07 rocky-extras.repo
+-rw-r--r--. 1 root root 3417  5月 17 11:07 rocky.repo
+```
+
+#### 生成元数据缓存
+
+使用`yum makecache`命令可以预先生成软件仓库的元数据缓存，提高后续操作的速度：
+
+```bash
+yum makecache
+```
+
+实际输出示例：
+
+```
+Rocky Linux 9 - BaseOS                                                                                                                1.0 MB/s | 2.5 MB     00:02
+Rocky Linux 9 - AppStream                                                                                                             5.6 MB/s | 9.5 MB     00:01
+Rocky Linux 9 - Extras                                                                                                                 21 kB/s |  17 kB     00:00
+元数据缓存已建立。
+```
+
+#### 详细查看仓库信息
+
+使用`yum repolist -v`命令可以查看详细的仓库信息，包括仓库ID、名称、大小、镜像地址等：
+
+```bash
+yum repolist -v
+```
+
+实际输出示例：
+
+```
+加载插件：builddep, changelog, config-manager, copr, debug, debuginfo-install, download, generate_completion_cache, groups-manager, kpatch, needs-restarting, notify-packagekit, playground, repoclosure, repodiff, repograph, repomanage, reposync, system-upgrade
+YUM version: 4.14.0
+cachedir: /var/tmp/dnf-soveran-akvddr2r
+上次元数据过期检查：0:00:06 前，执行于 2025年11月13日 星期四 20时58分39秒。
+仓库ID            : appstream
+仓库名称          : Rocky Linux 9 - AppStream
+软件仓库修订版      : 1762376598
+更新的软件仓库       : 2025年11月06日 星期四 05时03分18秒
+软件仓库的软件包          : 6,247
+软件仓库的可用软件包: 5,911
+软件仓库大小          : 9.4 G
+软件仓库镜像站       : `https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=AppStream-9` 
+软件仓库基本 URL       : `http://mirror.nju.edu.cn/rocky/9.6/AppStream/x86_64/os/`  (32 more)
+软件仓库过期时间        : 21,600 秒 （最近 2025年11月13日 星期四 20时58分38秒）
+仓库文件名      : /etc/yum.repos.d/rocky.repo
+
+仓库ID            : baseos
+仓库名称          : Rocky Linux 9 - BaseOS
+软件仓库修订版      : 1762376584
+更新的软件仓库       : 2025年11月06日 星期四 05时03分04秒
+软件仓库的软件包          : 1,171
+软件仓库的可用软件包: 1,171
+软件仓库大小          : 1.5 G
+软件仓库镜像站       : `https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=BaseOS-9` 
+软件仓库基本 URL       : `https://mirror.nyist.edu.cn/rocky/9.6/BaseOS/x86_64/os/`  (32 more)
+软件仓库过期时间        : 21,600 秒 （最近 2025年11月13日 星期四 20时58分36秒）
+仓库文件名      : /etc/yum.repos.d/rocky.repo
+
+仓库ID            : extras
+仓库名称          : Rocky Linux 9 - Extras
+软件仓库修订版      : 1753462770
+更新的软件仓库       : 2025年07月26日 星期六 00时59分30秒
+软件仓库的软件包          : 56
+软件仓库的可用软件包: 56
+软件仓库大小          : 3.2 M
+软件仓库镜像站       : `https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=extras-9` 
+软件仓库基本 URL       : `http://mirror.nju.edu.cn/rocky/9.6/extras/x86_64/os/`  (32 more)
+软件仓库过期时间        : 21,600 秒 （最近 2025年11月13日 星期四 20时58分39秒）
+仓库文件名      : /etc/yum.repos.d/rocky-extras.repo
+软件包总数：7,474
+```
+
 ## 3. dnf命令基础
 
 ### 3.1 dnf命令语法
