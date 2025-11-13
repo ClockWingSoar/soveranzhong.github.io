@@ -499,6 +499,50 @@ gunzip -c file.txt.gz | cat
 zcat file.txt.gz
 ```
 
+### 3.4 zcat命令高级用法
+
+`zcat`命令不仅可以查看gzip格式的压缩文件，还能处理其他一些压缩格式，但也有其限制。以下是一些高级用法示例：
+
+```bash
+# 使用zcat查看compress命令创建的.Z格式文件
+zcat fstab.Z
+# 输出：
+# # /etc/fstab: static file system information.
+# #
+# # Use 'blkid' to print the universally unique identifier for a
+# # device; this may be used with UUID= as a more robust way to name devices
+# # that works even if disks are added and removed. See fstab(5).
+# #
+# # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+# # / was on /dev/sda2 during curtin installation
+# /dev/disk/by-uuid/dd6f0a4b-f132-4f0d-a6e2-54c9b38b3765 / ext4 defaults 0 1
+# /swap.img       none    swap    sw      0       0
+
+# 尝试使用zcat查看bzip2格式的文件（会失败）
+zcat fstab.bz2
+# 输出：
+# gzip: fstab.bz2: not in gzip format
+
+# 使用zcat查看gzip格式的文件（正常工作）
+zcat test1.gz
+# 输出：
+# 127.0.0.1 localhost
+# 127.0.1.1 ubuntu24
+#
+# The following lines are desirable for IPv6 capable hosts
+# ::1     ip6-localhost ip6-loopback
+# fe00::0 ip6-localnet
+# ff00::0 ip6-mcastprefix
+# ff02::1 ip6-allnodes
+# ff02::2 ip6-allrouters
+
+# 尝试使用zcat查看zip格式的文件
+zcat txt.zip
+# 输出：
+# file-a
+# gzip: txt.zip has more than one entry--rest ignored
+```
+
 ## 4. bzip2命令 - 更高压缩率的选择
 
 ### 4.1 bzip2命令基础
