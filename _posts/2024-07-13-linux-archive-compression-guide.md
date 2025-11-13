@@ -991,7 +991,51 @@ sha256sum -c backup.tar.gz.sha256
 
 ## 10. 总结与最佳实践
 
-### 10.1 工具选择指南
+### 10.1 不同压缩工具实际对比
+
+以下是对同一个perl可执行文件（3.9M）使用不同压缩工具的实际效果对比：
+
+```bash
+# 使用compress命令压缩
+compress perl -vc > perl.Z
+compress perl -vc > perl.z
+
+# 使用gzip命令压缩
+gzip -kv perl
+# 输出：perl:    65.7% -- created perl.gz
+
+# 使用bzip2命令压缩
+bzip2 -kv perl
+# 输出：perl:     3.268:1,  2.448 bits/byte, 69.40% saved, 4019312 in, 1229872 out.
+
+# 使用xz命令压缩
+xz -kv perl
+# 输出：perl (1/1) 100 %   1,004.6 KiB / 3,925.1 KiB = 0.256
+
+# 使用zip命令压缩
+zip -v perl.zip perl
+# 输出：adding: perl  (in=4019312) (out=1377437) (deflated 66%)
+
+# 查看所有压缩文件大小（按大小排序）
+ll -hS
+# 输出：
+# 总计 13M 
+# -rwxr-xr-x 1 soveran soveran  3.9M 11月 13 14:19 perl*
+# -rw-rw-r-- 1 soveran soveran  2.0M 11月 13 14:20 perl.z
+# -rw-rw-r-- 1 soveran soveran  2.0M 11月 13 14:20 perl.Z
+# -rw-rw-r-- 1 soveran soveran  1.4M 11月 13 14:21 perl.zip
+# -rwxr-xr-x 1 soveran soveran  1.4M 11月 13 14:19 perl.gz*
+# -rwxr-xr-x 1 soveran soveran  1.2M 11月 13 14:19 perl.bz2*
+# -rwxr-xr-x 1 soveran soveran 1005K 11月 13 14:19 perl.xz*
+```
+
+**压缩效果总结**：
+- **xz**：压缩率最高（约1005K），但压缩速度最慢
+- **bzip2**：压缩率较高（约1.2M）
+- **gzip/zip**：压缩率适中（约1.4M），压缩速度较快
+- **compress**：压缩率最低（约2.0M），但兼容性较好（传统格式）
+
+### 10.2 工具选择指南
 
 | 需求 | 推荐工具 | 命令示例 |
 |------|----------|----------|
