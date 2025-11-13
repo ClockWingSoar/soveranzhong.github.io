@@ -36,7 +36,22 @@ package-name-version-release.architecture.rpm
 
 例如：`nginx-1.24.0-1.el9.x86_64.rpm`
 
-### 1.3 yum与dnf的历史演进
+### 1.3 yum与dnf的C/S架构模式
+
+yum和dnf都采用**客户端/服务器（C/S）架构模式**，其工作原理如下：
+
+- **服务器端（Repository）**：
+  - 存放RPM包和相关的元数据库
+  - 创建yum repository（仓库）时，会在仓库中存储众多RPM包
+  - 元数据文件存储在特定目录`repodata`下，包含包的版本、依赖关系等信息
+
+- **客户端（yum/dnf工具）**：
+  - 访问yum服务器进行安装、查询等操作
+  - 自动下载`repodata`中的元数据
+  - 查询元数据以确定是否存在相关包及依赖关系
+  - 自动从仓库中找到相关包下载并安装
+
+### 1.4 yum与dnf的历史演进
 
 - **yum**（Yellowdog Updater, Modified）：
   - 2003年发布，基于Python 2开发
@@ -253,6 +268,31 @@ dnf install epel-release
 | 事务支持 | 有限 | 完整的事务支持 |
 | 配置文件位置 | /etc/yum.conf, /etc/yum.repos.d/ | /etc/dnf/dnf.conf, /etc/yum.repos.d/ |
 | 默认发行版 | RHEL 5-7, CentOS 5-7 | RHEL 8+, CentOS 8+, Fedora 22+ |
+
+### 4.1 现代系统中的实际关系
+
+在现代RHEL系系统中，yum实际上是dnf的别名，两者最终都指向同一个二进制文件。以下是在Rocky Linux 9.6系统中的实际输出：
+
+```bash
+# 验证nginx包的完整性
+rpm -V nginx
+   0 ✓ 19:56:21 soveran@rocky9.6-12,10.0.0.12:/tmp/softs $
+
+# 查看yum命令的实际指向
+ll /usr/bin/yum
+lrwxrwxrwx. 1 root root 5  5月  4  2025 /usr/bin/yum -> dnf-3
+   0 ✓ 20:04:34 soveran@rocky9.6-12,10.0.0.12:/tmp/softs $
+
+# 查看dnf命令的实际指向
+ll /usr/bin/dnf
+lrwxrwxrwx. 1 root root 5  5月  4  2025 /usr/bin/dnf -> dnf-3
+   0 ✓ 20:04:42 soveran@rocky9.6-12,10.0.0.12:/tmp/softs $
+```
+
+这个输出表明：
+1. `rpm -V nginx` 验证了nginx包的完整性（无输出表示验证通过）
+2. `yum` 和 `dnf` 都是指向 `dnf-3` 二进制文件的符号链接
+3. 在现代系统中，无论使用 `yum` 还是 `dnf` 命令，实际上执行的都是相同的程序
 
 ## 5. 高级用法
 
