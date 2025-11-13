@@ -181,15 +181,47 @@ lrwxrwxrwx. 1 root root 12  5月  4  2025 /etc/yum.conf -> dnf/dnf.conf
 cat /etc/yum.conf
 ```
 
-实际输出示例：
+实际输出示例（带注释说明）：
 
 ```
 [main]
 gpgcheck=1
+#安装包前要做包的合法和完整性校验
 installonly_limit=3
+#同时可以安装3个包，最小值为2，如设为0或1，为不限制
 clean_requirements_on_remove=True
+#删除包时，是否将不再使用的包删除
 best=True
+#升级时，自动选择安装最新版，即使缺少包的依赖
 skip_if_unavailable=False
+#跳过不可用的
+
+[repositoryID]
+name=Some name for this repository
+#仓库名称
+baseurl=url://path/to/repository/
+#仓库地址
+mirrorlist= `http://list/` 
+#仓库地址列表，在这里写了多个 baseurl指向的地址
+enabled={1|0}
+#是否启用,默认值为1，启用
+gpgcheck={1|0}
+#是否对包进行校验，默认值为1
+gpgkey={URL|file://FILENAME}
+#校验key的地址
+enablegroups={1|0}
+#是否启用yum group,默认值为 1
+failovermethod={roundrobin|priority}
+#有多个baseurl，此项决定访问规则，
+#roundrobin 随机，priority:按顺序访问
+cost=1000
+#开销，或者是成本，
+#YUM程序会根据此值来决定优先访问哪个源,默认为1000
+metadata_expire=6h
+#rocky-9中新增配置，metadata 过期时间
+countme=1
+#rocky-9中新增配置，默认值false，
+#附加在mirrorlist之后，便于仓库收集客户端信息
 ```
 
 #### 仓库配置文件
