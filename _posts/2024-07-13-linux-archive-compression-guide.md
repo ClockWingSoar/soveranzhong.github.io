@@ -2155,6 +2155,54 @@ Archive:  hosts.zip
 ---------                     -------
      3220                     2 files
 
+# 递归压缩目录结构示例
+# 创建目录结构
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ mkdir linshi/dira -p 
+
+# 移动文件到不同目录
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ mv fstab hosts passwd  linshi/ 
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ mv file-* linshi/dira/ 
+
+# 查看目录结构
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ tree linshi/
+ linshi/
+ ├── dira 
+ │	├── file-a.txt 
+ │	├── file-b.txt 
+ │	└── file-c.txt 
+ ├── fstab 
+ ├── hosts 
+ └── passwd 
+
+ 2 directories, 6 files 
+
+# 使用-r选项递归压缩整个目录结构
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ zip -r linshi.zip linshi/
+  adding: linshi/ (stored 0%) 
+  adding: linshi/dira/ (stored 0%) 
+  adding: linshi/dira/file-c.txt (stored 0%) 
+  adding: linshi/dira/file-a.txt (stored 0%) 
+  adding: linshi/dira/file-b.txt (stored 0%) 
+  adding: linshi/passwd (deflated 64%) 
+  adding: linshi/hosts (deflated 34%) 
+  adding: linshi/fstab (deflated 31%) 
+
+# 查看压缩文件内容
+soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ unzip -l linshi.zip
+Archive:  linshi.zip 
+  Length      Date    Time    Name 
+---------  ---------- -----   ---- 
+         0  2025-11-13 10:23   linshi/ 
+         0  2025-11-13 10:23   linshi/dira/ 
+         0  2025-11-13 09:40   linshi/dira/file-c.txt 
+         0  2025-11-13 09:40   linshi/dira/file-a.txt 
+         0  2025-11-13 09:40   linshi/dira/file-b.txt 
+      2997  2025-11-13 09:40   linshi/passwd 
+       223  2025-11-13 09:41   linshi/hosts 
+       473  2025-11-13 09:40   linshi/fstab 
+---------                     ------- 
+      3693                     8 files
+
 # 使用-i选项仅包含匹配的文件
 soveran@ubuntu24,10.0.0.13:~/mage/linux-basic/zip $ zip -i"*txt" txt.zip *
   adding: file-a.txt (stored 0%)
@@ -2235,7 +2283,13 @@ Archive:  filea.zip
    - 输出显示了文件大小、日期时间和文件名信息
    - 这是查看压缩包内容的常用方法
 
-7. **常见错误分析**：
+7. **递归压缩目录结构**：
+   - `-r`选项是zip命令中用于递归压缩目录的关键选项
+   - 当需要压缩包含子目录的整个目录树时，必须使用`-r`选项
+   - 递归压缩会保留原始的目录结构，包括所有子目录和文件
+   - 示例中`zip -r linshi.zip linshi/`命令成功压缩了包含2个子目录和6个文件的完整结构
+
+8. **常见错误分析**：
    - **错误示例1（缺少源文件）**：`zip file-a.txt`
      - 错误原因：只提供了一个文件名，zip命令无法区分这是压缩文件名还是源文件
      - 解决方案：必须至少提供两个参数：压缩文件名和至少一个源文件
@@ -2248,7 +2302,7 @@ Archive:  filea.zip
      - 错误原因：使用了筛选选项但没有指定要筛选的源文件集合
      - 解决方案：在使用`-i`或`-x`选项时，必须指定要处理的源文件或使用通配符（如`*`）
 
-8. **-i选项的正确用法**：
+9. **-i选项的正确用法**：
    - **正确示例1**：`zip -ifile-a.txt filea.zip file-a.txt`
      - 说明：将特定文件添加到归档时，指定`-ifile-a.txt`确保只添加匹配的文件
      - 适用场景：精确控制要添加的特定文件
@@ -2257,10 +2311,10 @@ Archive:  filea.zip
      - 说明：从当前目录所有文件（`*`）中筛选出匹配`file-b.txt`的文件并添加到归档
      - 适用场景：从大量文件中筛选特定文件添加到归档
 
-9. **归档内容验证**：
+10. **归档内容验证**：
    - 使用`unzip -l filea.zip`可以查看归档内容，确认只有符合筛选条件的文件被添加
 
-10. **常见zip选项**：
+11. **常见zip选项**：
     - `-r`：递归压缩目录及其子目录
     - `-q`：安静模式，不显示压缩过程
     - `-m`：压缩后删除源文件
@@ -2270,13 +2324,13 @@ Archive:  filea.zip
     - `-i"模式"`：仅包含匹配模式的文件，与`--include="模式"`等价（**注意：-i与模式之间不能有空格**）
    - `-x"模式"`：排除匹配模式的文件，与`--exclude="模式"`等价（**注意：-x与模式之间不能有空格**）
 
-11. **使用场景**：
+12. **使用场景**：
    - 创建跨平台兼容的压缩文件（Windows也原生支持ZIP格式）
    - 发送多个文件或目录通过电子邮件
    - 创建软件分发包
    - 临时压缩不常用但需要保留的文件以节省空间
 
-12. **注意事项**：
+13. **注意事项**：
    - ZIP格式支持密码保护，可以使用`-e`选项加密
    - 默认情况下，zip会保留文件权限信息，但在不同系统间可能有差异
    - 对于大量小文件，ZIP格式的开销可能会影响整体压缩效率
