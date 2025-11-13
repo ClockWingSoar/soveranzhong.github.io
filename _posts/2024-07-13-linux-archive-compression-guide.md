@@ -634,9 +634,9 @@ xz -dc file.txt.xz | cat
 xzcat file.txt.xz
 ```
 
-## 6. zip命令 - 跨平台的压缩选择
+## 7. zip命令 - 跨平台的压缩选择
 
-### 6.1 zip命令基础
+### 7.1 zip命令基础
 
 `zip`是一种广泛使用的跨平台压缩格式，在Windows、Linux、macOS等系统上都有良好的支持。
 
@@ -703,7 +703,7 @@ zip -r existing.zip new_files/
 
 ### 7.1 compress命令基础
 
-`compress`和`uncompress`是较早的压缩工具，现在较少使用，但在某些传统系统上仍然可以看到。
+`compress`是Linux系统中一种传统的压缩工具，使用LZW压缩算法，生成的压缩文件扩展名为`.Z`。虽然不如gzip、bzip2等现代压缩工具高效，但在某些系统或场景中仍然可能遇到。
 
 **基本语法：**
 ```bash
@@ -712,20 +712,41 @@ uncompress [选项] [压缩文件...]
 ```
 
 **常用选项：**
-- `-c`：将压缩数据输出到标准输出
 - `-d`：解压文件（等同于uncompress）
-- `-f`：强制压缩或解压
-- `-v`：显示压缩比
-- `-b`：设置压缩块大小（9-16）
+- `-c`：将输出写入标准输出，不删除原文件
+- `-k`：保留输入文件（不自动删除）
+- `-b`：限制最大比特数/代码
+- `-f`：强制生成输出文件，即使已存在，即使压缩不节省空间
+- `-v`：显示压缩统计信息
+- `-V`：输出版本和编译选项
+- `-r`：递归压缩目录中的所有文件
 
 ### 7.2 compress压缩与解压操作
 
 ```bash
-# 压缩文件（生成.z文件）
-compress file.txt
+# 安装compress工具（Ubuntu）
+sudo apt install ncompress
 
-# 解压文件
-uncompress file.txt.Z
+# 压缩单个文件（会删除原文件）
+compress fstab
+
+# 解压文件（会删除压缩文件）
+uncompress fstab.Z
+
+# 压缩文件并显示统计信息
+compress -v fstab
+
+# 解压文件并显示统计信息
+compress -dv fstab.Z
+
+# 压缩文件并保留原文件
+compress -c fstab > fstab.Z
+
+# 递归压缩目录中的所有文件
+compress -vr linshi/
+
+# 递归解压目录中的所有压缩文件
+compress -drv linshi/
 
 # 查看压缩文件内容
 zcat file.txt.Z
