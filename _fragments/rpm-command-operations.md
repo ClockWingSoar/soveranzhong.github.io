@@ -138,6 +138,28 @@ mindmap2: false
 
 ### 2. 下载RPM包
 
+#### 2.1 Rocky Linux镜像源介绍
+
+Rocky Linux使用mirrorlist机制来获取可用的镜像地址列表，支持以下变量：
+
+- `$arch`：CPU架构，如aarch64、i586、i686、x86_64
+- `$basearch`：系统基本体系结构，如i386、x86_64
+- `$releasever`：系统版本，如9
+
+构造mirrorlist URL的方式：
+```
+mirrorlist=https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-$releasever
+```
+
+替换变量后的值示例：
+```
+mirrorlist=https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=BaseOS-9
+```
+
+访问该URL可以获取所有可用的镜像地址列表，第一个条目通常是最新且离用户最近的可用地址。
+
+#### 2.2 下载RPM包示例
+
 使用wget命令从镜像站点下载指定版本的RPM包：
 
 ```bash

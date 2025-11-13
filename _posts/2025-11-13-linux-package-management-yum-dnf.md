@@ -200,9 +200,25 @@ skip_if_unavailable=False
 name=Some name for this repository
 #仓库名称
 baseurl=url://path/to/repository/
-#仓库地址
-mirrorlist= `http://list/` 
-#仓库地址列表，在这里写了多个 baseurl指向的地址
+#仓库地址，支持多种协议格式：
+# 本地光盘：baseurl=file:///cdrom/AppStream/
+# HTTPS镜像：baseurl=https://mirrors.aliyun.com/rockylinux/9.4/AppStream/x86_64/os/
+# HTTP镜像：baseurl=http://mirrors.aliyun.com/rockylinux/9.4/AppStream/x86_64/os/
+# FTP服务器：baseurl=ftp://10.0.0.159/
+# 注意：baseurl指向的路径必须是repodata目录所在的目录
+mirrorlist= `https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-$releasever` 
+#仓库地址列表，支持使用变量动态生成镜像列表
+#常用变量说明：
+#  $arch - CPU架构：aarch64|i586|i686|x86_64
+#  $basearch - 系统基本体系结构：i386|x86_64
+#  $releasever - 系统版本号
+#
+#带变量的mirrorlist会自动替换为实际值，例如：
+#  原始：mirrorlist=https://mirrors.rockylinux.org/mirrorlist?arch=$basearch&repo=BaseOS-$releasever
+#  替换后：mirrorlist=https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=BaseOS-9
+#
+#mirrorlist返回的是所有可用镜像地址的列表，
+#系统会自动选择最新且距离最近的可用镜像地址
 enabled={1|0}
 #是否启用,默认值为1，启用
 gpgcheck={1|0}
@@ -241,6 +257,18 @@ ll /etc/yum.repos.d/
 -rw-r--r--. 1 root root 2387  5月 17 11:07 rocky-extras.repo
 -rw-r--r--. 1 root root 3417  5月 17 11:07 rocky.repo
 ```
+
+#### Rocky Linux国内镜像源
+
+为了提高软件包下载速度，用户可以配置国内的镜像源。以下是几个常用的Rocky Linux国内镜像源：
+
+| 来源机构 | 地址 |
+| --- | --- |
+| 阿里云 | `https://mirrors.aliyun.com/rockylinux/` |
+| 中国科学技术大学 | `http://mirrors.ustc.edu.cn/rocky/` |
+| 南京大学 | `https://mirrors.nju.edu.cn/rocky/` |
+| 上海交通大学 | `https://mirrors.sjtug.sjtu.edu.cn/rocky/` |
+| 东软信息学院 | `http://mirrors.neusoft.edu.cn/rocky/` |
 
 #### 生成元数据缓存
 
