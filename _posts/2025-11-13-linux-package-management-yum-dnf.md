@@ -606,9 +606,13 @@ dnf upgrade
 # 卸载软件包
 dnf remove nginx
 
-# 卸载软件包但保留配置文件
+# 卸载软件包（与remove命令完全相同）
 dnf erase nginx
 ```
+
+**说明**：在YUM/DNF包管理系统中，`erase`和`remove`是完全相同的命令，它们是彼此的别名。无论是使用`yum erase`还是`yum remove`，或者是`dnf erase`还是`dnf remove`，都会执行相同的操作 - 删除指定的软件包及其不再被其他包依赖的依赖项。
+
+这两个命令在功能上没有任何区别，只是命令名称不同。通常`remove`命令更为常用，因为它的名称更直观地表达了删除操作的含义。
 
 ### 3.3 dnf仓库管理
 
