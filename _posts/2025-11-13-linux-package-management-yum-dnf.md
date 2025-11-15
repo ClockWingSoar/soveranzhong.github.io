@@ -561,11 +561,269 @@ dnf list nginx
 # 查询软件包信息
 dnf info nginx
 
+# 查询已安装软件包的详细信息
+dnf info --installed sos
+
+实际输出示例：
+```bash
+已安装的软件包
+
+ 名称         : sos
+ 版本         : 4.10.0
+ 发布         : 4.el9_6
+ 架构         : noarch
+ 大小         : 3.3 M
+ 源           : sos-4.10.0-4.el9_6.src.rpm
+ 仓库         : @System
+ 来自仓库     : baseos
+ 概况         : A set of tools to gather troubleshooting information from a system
+ URL          : `https://github.com/sosreport/sos` 
+ 协议         : GPL-2.0-or-later
+ 描述         : Sos is a set of tools that gathers information about system
+              : hardware and configuration. The information can then be used for
+              : diagnostic purposes and debugging. Sos is commonly used to help
+              : support technicians and developers.
+```
+
+# 使用rpm查询软件包详细信息
+rpm -qi sos
+
+实际输出示例：
+```bash
+Name        : sos
+Version     : 4.10.0
+Release     : 4.el9_6
+Architecture: noarch
+Install Date: 2025年10月31日 星期五 22时29分08秒
+Group       : Applications/System
+Size        : 3468129
+License     : GPL-2.0-or-later
+Signature   : RSA/SHA256, 2025年10月06日 星期一 23时22分28秒, Key ID 702d426d350d275d
+Source RPM  : sos-4.10.0-4.el9_6.src.rpm
+Build Date  : 2025年10月06日 星期一 23时22分15秒
+Build Host  : pb-2da088e8-e0a2-47e5-9218-08f149dcb385-b-noarch
+Packager    : Rocky Linux Build System (Peridot) <releng@rockylinux.org>
+Vendor      : Rocky Enterprise Software Foundation
+URL         : `https://github.com/sosreport/sos` 
+Summary     : A set of tools to gather troubleshooting information from a system
+Description :
+Sos is a set of tools that gathers information about system
+hardware and configuration. The information can then be used for
+diagnostic purposes and debugging. Sos is commonly used to help
+support technicians and developers.
+```
+
 # 搜索包含特定关键字的软件包
 dnf search python3
 
 # 查找哪个软件包提供了特定文件
 dnf provides /usr/bin/python3
+
+# 查找提供sos命令的软件包
+dnf provides /usr/sbin/sos
+
+实际输出示例：
+```bash
+上次元数据过期检查：0:32:59 前，执行于 2025年11月15日 星期六 21时00分58秒。
+sos-4.8.2-2.el9_5.noarch : A set of tools to gather troubleshooting information from a system
+仓库        ：cdrom-baseos
+匹配来源：
+文件名    ：/usr/sbin/sos
+
+sos-4.10.0-4.el9_6.noarch : A set of tools to gather troubleshooting information from a system
+仓库        ：@System
+匹配来源：
+文件名    ：/usr/sbin/sos
+
+sos-4.10.0-4.el9_6.noarch : A set of tools to gather troubleshooting information from a system
+仓库        ：aliyun-baseos
+匹配来源：
+文件名    ：/usr/sbin/sos
+
+sos-4.10.0-4.el9_6.noarch : A set of tools to gather troubleshooting information from a system
+仓库        ：nju-baseos
+匹配来源：
+文件名    ：/usr/sbin/sos
+
+sos-4.10.0-4.el9_6.noarch : A set of tools to gather troubleshooting information from a system
+仓库        ：baseos
+匹配来源：
+文件名    ：/usr/sbin/sos
+```
+
+# 在特定仓库中查找提供nginx命令的软件包
+dnf provides /usr/sbin/nginx --repoid=cdrom-appstream
+
+实际输出示例：
+```bash
+上次元数据过期检查：0:35:23 前，执行于 2025年11月15日 星期六 21时00分02秒。
+nginx-core-2:1.20.1-22.el9_6.2.x86_64 : nginx minimal core
+仓库        ：cdrom-appstream
+匹配来源：
+文件名    ：/usr/sbin/nginx
+
+nginx-core-2:1.20.1-22.el9_6.3.x86_64 : nginx minimal core
+仓库        ：@System
+匹配来源：
+文件名    ：/usr/sbin/nginx
+```
+
+# 查找命令的位置和相关文件
+whereis sos
+
+实际输出示例：
+```bash
+sos: /usr/sbin/sos /etc/sos /usr/share/man/man1/sos.1.gz
+```
+
+# 查看命令的简短描述
+whatis sos
+
+实际输出示例：
+```bash
+sos (1)              - A unified tool for collecting system logs and other debug information
+```
+
+# 查看sos命令的帮助信息
+
+```bash
+sos
+usage: sos <component> [options]
+
+
+Available components:
+        report, rep                   Collect files and command output in an archive
+        clean, cleaner, mask          Obfuscate sensitive networking information in a report
+        help                          Detailed help infomation
+        upload                        Upload a file to a user or policy defined remote location
+        collect, collector            Collect an sos report from multiple nodes simultaneously
+sos: error: the following arguments are required: component
+```
+
+# 查看软件包的依赖关系
+# `deplist`命令用于显示指定软件包的所有依赖关系以及提供这些依赖的软件包
+
+```bash
+yum deplist nginx
+```
+
+实际输出示例：
+```bash
+上次元数据过期检查：0:38:33 前，执行于 2025年11月15日 星期六 21时00分58秒。
+package: nginx-2:1.20.1-22.el9_6.2.x86_64
+  dependency: /bin/sh
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+  dependency: /usr/bin/sh
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+  dependency: nginx-core = 2:1.20.1-22.el9_6.2
+   provider: nginx-core-2:1.20.1-22.el9_6.2.x86_64
+  dependency: nginx-filesystem = 2:1.20.1-22.el9_6.2
+   provider: nginx-filesystem-2:1.20.1-22.el9_6.2.noarch
+  dependency: pcre
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+  dependency: system-logos-httpd
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+  dependency: systemd
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+
+package: nginx-2:1.20.1-22.el9_6.3.x86_64
+  dependency: /bin/sh
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+  dependency: /usr/bin/sh
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+  dependency: nginx-core = 2:1.20.1-22.el9_6.3
+   provider: nginx-core-2:1.20.1-22.el9_6.3.x86_64
+   provider: nginx-core-2:1.20.1-22.el9_6.3.x86_64
+  dependency: nginx-filesystem = 2:1.20.1-22.el9_6.3
+   provider: nginx-filesystem-2:1.20.1-22.el9_6.3.noarch
+   provider: nginx-filesystem-2:1.20.1-22.el9_6.3.noarch
+  dependency: pcre
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+  dependency: system-logos-httpd
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+  dependency: systemd
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+
+package: nginx-2:1.20.1-22.el9_6.3.x86_64
+  dependency: /bin/sh
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+  dependency: /usr/bin/sh
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+   provider: bash-5.1.8-9.el9.x86_64
+  dependency: nginx-core = 2:1.20.1-22.el9_6.3
+   provider: nginx-core-2:1.20.1-22.el9_6.3.x86_64
+   provider: nginx-core-2:1.20.1-22.el9_6.3.x86_64
+  dependency: nginx-filesystem = 2:1.20.1-22.el9_6.3
+   provider: nginx-filesystem-2:1.20.1-22.el9_6.3.noarch
+   provider: nginx-filesystem-2:1.20.1-22.el9_6.3.noarch
+  dependency: pcre
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+   provider: pcre-8.44-4.el9.i686
+   provider: pcre-8.44-4.el9.x86_64
+  dependency: system-logos-httpd
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+   provider: rocky-logos-httpd-90.16-1.el9.noarch
+  dependency: systemd
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+   provider: systemd-252-51.el9_6.3.rocky.0.1.x86_64
+   provider: systemd-252-51.el9_6.3.rocky.0.1.i686
+```
+
+**说明**：`deplist`命令展示了nginx软件包的所有依赖项，包括shell解释器、核心组件、文件系统、pcre库、系统日志和systemd服务等。输出中显示了每个依赖项的提供程序，即哪些软件包可以满足这些依赖。
 ```
 
 #### 软件包安装
@@ -718,12 +976,77 @@ dnf history
 # 查看特定事务的详细信息
 dnf history info 1
 
+# 查看与特定包相关的事务历史
+dnf history nginx
+
 # 撤销特定事务
 dnf history undo 1
 
 # 重做特定事务
 dnf history redo 1
 ```
+
+#### 查看事务历史示例
+```bash
+ID     | 命令行                                                                                                          | 日期和时间       | 操作           | 更改 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    17 | localinstall /tmp/httpd/nginx-1.20.1-22.el9_6.3.x86_64.rpm                                                      | 2025-11-15 21:15 | Install        |    4
+    16 | remove nginx                                                                                                    | 2025-11-15 21:13 | Removed        |    4
+    15 | erase httpd                                                                                                     | 2025-11-15 21:11 | Removed        |   10
+    14 | install httpd                                                                                                   | 2025-11-15 21:09 | Install        |   10
+    13 | install yum-utils
+```
+
+#### 查看特定事务的详细信息示例
+```bash
+yum history info 4 
+ 事务 ID： 4 
+ 起始时间    ： 2025年11月10日 星期一 20时48分30秒 
+ 起始 RPM 数据库     ： 8231f40f3bbd7f8f56adf4e7ff7330133f557d7df715c2ac74bf21546ded0c8c 
+ 结束时间       ： 2025年11月10日 星期一 20时48分30秒 （0 秒） 
+ 结束 RPM 数据库      : ed1ba878be3f50843bcc844475fe6d64f5dfae561b198d6190db94c61efc492c 
+ 用户           ： soveran <soveran> 
+ 返回码    ： 成功 
+ 发行版     : 9 
+ 命令行   ： install -y nginx 
+ 注释        : 
+ 已改变的包： 
+     安装 nginx-filesystem-2:1.20.1-22.el9_6.3.noarch @appstream 
+     安装 rocky-logos-httpd-90.16-1.el9.noarch        @appstream 
+     安装 nginx-2:1.20.1-22.el9_6.3.x86_64            @appstream 
+     安装 nginx-core-2:1.20.1-22.el9_6.3.x86_64       @appstream 
+```
+
+#### 查看与特定包相关的事务历史示例
+```bash
+yum history nginx 
+ ID     | 命令行                                                                                                          | 日期和时间       | 操作           | 更改 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+     17 | localinstall /tmp/httpd/nginx-1.20.1-22.el9_6.3.x86_64.rpm                                                      | 2025-11-15 21:15 | Install        |    4 
+     16 | remove nginx                                                                                                    | 2025-11-15 21:13 | Removed        |    4  < 
+      8 | install -y nginx                                                                                                | 2025-11-13 19:56 | Install        |    4 >< 
+      6 | remove nginx                                                                                                    | 2025-11-13 15:51 | Removed        |    4 >< 
+      4 | install -y nginx                                                                                                | 2025-11-10 20:48 | Install        |    4 > 
+```
+
+**说明**：事务历史记录了系统中所有包管理操作的详细信息，包括命令行、执行时间、操作类型（安装、移除等）以及更改的包数量。通过事务历史，可以追踪系统软件包的变更历史，方便进行故障排除和系统恢复。使用`history info <ID>`可以查看特定事务的详细信息，包括影响的具体软件包；使用`history <package>`可以筛选出与特定软件包相关的所有事务历史。
+
+# 查看DNF日志文件
+# DNF会将操作记录到多个日志文件中，便于问题排查和审计
+
+```bash
+ls /var/log/dnf.*
+```
+
+实际输出示例：
+```bash
+/var/log/dnf.librepo.log  /var/log/dnf.log  /var/log/dnf.rpm.log
+```
+
+**说明**：DNF使用多个日志文件记录不同类型的信息：
+- `dnf.log`：主要记录DNF操作的一般信息，如命令执行、依赖解析、包安装等
+- `dnf.rpm.log`：记录与RPM包相关的详细操作，如包的安装、移除、验证等
+- `dnf.librepo.log`：记录与librepo库相关的日志，主要用于调试仓库访问和元数据下载问题
 
 ### 5.4 安全更新
 
