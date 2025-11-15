@@ -482,6 +482,57 @@ mount: /mnt: WARNING: source write-protected, mounted read-only.
 
 通过这些命令，用户可以全面了解当前系统中配置的所有仓库，以及每个仓库的具体状态和配置详情。
 
+#### 使用yum-config-manager管理仓库
+
+yum-config-manager是一个用于管理yum仓库的命令行工具，它可以方便地添加、启用、禁用和修改仓库配置。以下是使用yum-config-manager的实际操作示例：
+
+1. **安装yum-utils包（包含yum-config-manager工具）**
+   ```bash
+   sudo yum install yum-utils
+   ```
+
+2. **验证yum-config-manager工具安装**
+   ```bash
+   rpm -qf `which yum-config-manager`
+   ```
+   实际输出示例：
+   ```
+   yum-utils-4.3.0-20.el9.noarch
+   ```
+
+3. **添加仓库**
+   ```bash
+   sudo yum-config-manager --add-repo=https://mirrors.nju.edu.cn/epel/9/Everything/x86_64
+   ```
+   实际输出示例：
+   ```
+   添加仓库自： https://mirrors.nju.edu.cn/epel/9/Everything/x86_64
+   ```
+
+4. **查看创建的仓库配置文件**
+   ```bash
+   cat /etc/yum.repos.d/mirrors.nju.edu.cn_epel_9_Everything_x86_64.repo
+   ```
+   实际输出示例：
+   ```
+   [mirrors.nju.edu.cn_epel_9_Everything_x86_64]
+   name=created by dnf config-manager from https://mirrors.nju.edu.cn/epel/9/Everything/x86_64
+   baseurl=https://mirrors.nju.edu.cn/epel/9/Everything/x86_64
+   enabled=1
+   ```
+
+5. **禁用仓库**
+   ```bash
+   sudo yum-config-manager --disable mirrors.nju.edu.cn_epel_9_Everything_x86_64
+   ```
+
+6. **启用仓库**
+   ```bash
+   sudo yum-config-manager --enable mirrors.nju.edu.cn_epel_9_Everything_x86_64
+   ```
+
+使用yum-config-manager工具可以快速方便地管理仓库，避免手动编辑配置文件的繁琐和可能的错误。
+
 ## 3. dnf命令基础
 
 ### 3.1 dnf命令语法
