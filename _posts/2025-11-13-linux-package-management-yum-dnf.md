@@ -967,6 +967,256 @@ dnf clean packages
 dnf makecache
 ```
 
+#### 实际输出示例（yum makecache）：
+
+```bash
+$ yum makecache
+警告：加载 '/etc/yum.repos.d/private.repo' 失败，跳过。
+Rocky Linux 9 - BaseOS                                                                                                                651 kB/s | 2.5 MB     00:03
+Rocky Linux 9 - AppStream                                                                                                             5.6 MB/s | 9.5 MB     00:01
+Rocky Linux 9 - Extras                                                                                                                 11 kB/s |  17 kB     00:01
+元数据缓存已建立。
+```
+
+#### 私有仓库配置示例
+
+可以通过配置文件创建自定义私有仓库，以下是一个私有仓库配置示例：
+
+```bash
+$ cat /etc/yum.repos.d/private.repo
+[private-extras]
+name=private extras
+baseurl= http://10.0.0.12/nju-extras/ 
+gpgcheck=0
+
+[private-baseos]
+name=private baseos
+baseurl= http://10.0.0.12/BaseOS/ 
+gpgcheck=0
+```
+
+**说明**：
+- `yum makecache`命令用于建立元数据缓存，可提高后续包管理操作的速度
+- 如果仓库配置有误（如示例中的private.repo），系统会显示警告但仍会处理其他有效仓库
+- 私有仓库配置通常包含仓库ID、名称、基础URL和GPG检查设置
+- 设置`gpgcheck=0`会禁用GPG签名检查，这在测试环境中常见，但在生产环境中建议启用以确保包的完整性和安全性
+
+### 创建和管理私有仓库
+
+私有仓库通常需要在服务器端创建和维护。以下是在Rocky Linux上创建和配置私有仓库的完整流程：
+
+#### 1. 准备仓库目录和软件包
+
+```bash
+# 在服务器上创建仓库目录
+mkdir -p /var/www/html/my-extras/Packages
+
+# 复制现有仓库内容（示例：从nju-extras复制到my-extras）
+sudo cp nju-extras/ -r my-extras
+
+# 删除旧的元数据
+sudo rm -rf my-extras/repodata/
+```
+
+#### 2. 安装createrepo工具
+
+```bash
+# 安装createrepo工具（用于生成仓库元数据）
+sudo yum install createrepo -y
+```
+
+#### 3. 生成仓库元数据
+
+```bash
+# 生成仓库元数据
+# 注意：需要以root权限运行，否则会出现权限错误
+sudo createrepo my-extras/
+
+# 查看生成的元数据文件
+ls my-extras/repodata/
+```
+
+**输出示例**：
+```bash
+Directory walk started
+Directory walk done - 56 packages
+Temporary output repo path: my-extras/.repodata/
+Preparing sqlite DBs
+Pool started (with 5 workers)
+Pool finished
+
+ls my-extras/repodata/
+1a19326166f536935eaeebeab1cf9cb32645a74e06c3b0b17163a14c9c119910-filelists.sqlite.bz2
+7206488f911b80d3cec3e29e1e214887d6ec7540497fd523ff38417a058f1cb4-filelists.xml.gz
+8b7151c6cf0d2e9d92700b188f6a61287610fbe16ca3cc38380c9f1c7aa1dcf1-other.sqlite.bz2
+b2b38d461faa99b789697a8619f7bfdf40bbad078786657d3261850c0592db31-primary.xml.gz
+e761810282a88f36e26d0593175e291a5febcc6ff92b49a55771fb25370efb4b-primary.sqlite.bz2
+f1c335aceb6e54ba07b2f53f125b65b59e580c0c75af8647af3902224350be9a-other.xml.gz
+repomd.xml
+```
+
+#### 4. 配置多私有仓库
+
+可以在同一配置文件中定义多个私有仓库：
+
+```bash
+$ cat /etc/yum.repos.d/private.repo
+[private-extras1]
+name=private extras1
+baseurl=http://10.0.0.12/nju-extras/
+gpgcheck=0
+
+[private-extras2]
+name=private extras2
+baseurl=http://10.0.0.12/my-extras/
+gpgcheck=0
+
+[private-baseos]
+name=private baseos
+baseurl=http://10.0.0.12/BaseOS/
+gpgcheck=0
+```
+
+#### 5. 验证私有仓库配置
+
+```bash
+# 重新生成缓存，检查所有私有仓库是否正常加载
+sudo yum makecache
+
+# 查看特定私有仓库中的软件包
+yum list --repo="private-extras2" anaconda-live
+```
+
+**验证结果示例**：
+```bash
+sudo yum makecache
+aliyun.baseos                                                                                                                          26 kB/s | 4.1 kB     00:00
+cdrom appstream                                                                                                                       4.4 MB/s | 4.5 kB     00:00
+cdrom baseos                                                                                                                          4.0 MB/s | 4.1 kB     00:00
+Extra Packages for Enterprise Linux 9 - x86_64                                                                                        638  B/s | 9.7 kB     00:15
+Extra Packages for Enterprise Linux 9 openh264 (From Cisco) - x86_64                                                                  718  B/s | 993  B  `https://mirrors.nju.edu.cn/epel/9/Everything/x86_64`                                                  37 kB/s | 4.0 kB     00:00
+nju AppStream                                                                                                                          43 kB/s | 4.5 kB     00:00
+nju BaseOS                                                                                                                             41 kB/s | 4.1 kB     00:00
+nju extras                                                                                                                             29 kB/s | 2.9 kB     00:00
+private extras1                                                                                                                       1.1 MB/s |  17 kB     00:00
+private extras2                                                                                                                       6.7 MB/s |  17 kB     00:00
+private baseos                                                                                                                        179 MB/s | 2.5 MB     00:00
+Rocky Linux 9 - BaseOS                                                                                                                4.2 kB/s | 4.1 kB     00:00
+Rocky Linux 9 - AppStream                                                                                                             5.9 kB/s | 4.5 kB     00:00
+Rocky Linux 9 - Extras                                                                                                                3.1 kB/s | 2.9 kB     00:00
+元数据缓存已建立。
+
+yum list --repo="private-extras2" anaconda-live
+private extras2                                                                                                                       1.1 MB/s |  17 kB     00:00
+可安装的软件包
+anaconda-live.x86_64                                                   34.25.5.17-1.el9_6.rocky.0.3                                                    private-extras2
+```
+
+**关键点说明**：
+- 私有仓库需要在服务器端使用`createrepo`工具生成元数据文件
+- 每个私有仓库应具有唯一的仓库ID（如[private-extras1]、[private-extras2]）
+- 可以通过`--repo`参数指定从特定仓库查询或安装软件包
+- 定期更新仓库内容后，需要重新运行`createrepo`更新元数据
+
+### 修复私有仓库加载失败的方法
+
+当遇到"加载 '/etc/yum.repos.d/private.repo' 失败，跳过"错误时，可以通过以下步骤排查和修复：
+
+#### 1. 检查仓库配置文件语法
+
+```bash
+# 使用dnf命令检查仓库配置语法
+dnf repolist -v
+
+# 或使用yum命令检查
+yum repolist -v
+```
+
+#### 2. 验证仓库服务器连接
+
+```bash
+# 测试仓库服务器是否可访问
+ping 10.0.0.12
+
+# 测试HTTP连接
+telnet 10.0.0.12 80
+
+# 使用curl检查仓库路径是否存在
+curl -I http://10.0.0.12/nju-extras/
+curl -I http://10.0.0.12/BaseOS/
+```
+
+#### 3. 检查仓库配置文件权限
+
+```bash
+# 确保配置文件权限正确
+chmod 644 /etc/yum.repos.d/private.repo
+
+# 检查文件所有者
+ls -l /etc/yum.repos.d/private.repo
+```
+
+#### 4. 修复配置文件格式问题
+
+配置文件中的URL不应有多余空格，修复后的配置示例：
+
+```bash
+$ cat /etc/yum.repos.d/private.repo
+[private-extras]
+name=private extras
+baseurl=http://10.0.0.12/nju-extras/
+gpgcheck=0
+
+enabled=0  # 可选：设置为0临时禁用仓库
+
+[private-baseos]
+name=private baseos
+baseurl=http://10.0.0.12/BaseOS/
+gpgcheck=0
+
+enabled=1  # 可选：设置为1启用仓库
+```
+
+**常见问题与解决方案**：
+- **URL格式错误**：确保`baseurl`后没有多余空格或特殊字符
+- **服务器不可达**：检查网络连接和防火墙设置
+- **仓库路径不存在**：确认服务器上的仓库路径正确配置
+- **语法错误**：确保每个配置项使用`key=value`格式，没有拼写错误
+- **隐藏特殊字符**：检查文件末尾是否有隐藏字符（如`~`符号）或错误的引号类型（如中文引号、反引号`` ` ``）
+- **权限问题**：确保配置文件对系统包管理器可读
+
+#### 实际修复案例
+
+用户在排查中发现，私有仓库配置文件的最后一行存在一个隐藏的`~`字符，这是导致仓库加载失败的根本原因：
+
+```bash
+# 修复前（存在隐藏~字符）
+[private-baseos]
+name=private baseos
+baseurl= `http://10.0.0.12/BaseOS/`  
+gpgcheck=0~
+
+# 修复后（移除隐藏~字符）
+[private-baseos]
+name=private baseos
+baseurl=http://10.0.0.12/BaseOS/
+gpgcheck=0
+```
+
+修复后，`yum makecache`命令成功执行：
+
+```bash
+$ yum makecache
+private extras                                                                                                                        971 kB/s |  17 kB     00:00
+private baseos                                                                                                                        134 MB/s | 2.5 MB     00:00
+Rocky Linux 9 - BaseOS                                                                                                                3.6 kB/s | 4.1 kB     00:01
+Rocky Linux 9 - AppStream                                                                                                             5.1 kB/s | 4.5 kB     00:00
+Rocky Linux 9 - Extras                                                                                                                2.1 kB/s | 2.9 kB     00:01
+元数据缓存已建立。
+```
+
+**提示**：使用`cat -A /etc/yum.repos.d/private.repo`命令可以显示文件中的隐藏字符，帮助排查类似问题。
+
 ### 5.3 事务管理
 
 ```bash
