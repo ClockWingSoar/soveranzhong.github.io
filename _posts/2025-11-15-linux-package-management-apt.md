@@ -152,6 +152,81 @@ add-apt-repository ppa:user/ppa-name
 add-apt-repository ppa:nginx/stable
 ```
 
+### 3.3 配置国内镜像源
+
+由于网络原因，使用国内镜像源可以显著提高软件包的下载速度。以下是配置阿里云和清华大学镜像源的方法：
+
+#### 3.3.1 阿里云镜像源
+
+阿里云提供了Ubuntu的官方镜像源，配置方法如下：
+
+```bash
+# 备份原有配置文件
+cp /etc/apt/sources.list /etc/apt/sources.list.backup
+
+# 编辑sources.list文件
+vim /etc/apt/sources.list
+```
+
+将文件内容替换为以下阿里云镜像源配置（以Ubuntu 24.04为例）：
+
+```
+# Ubuntu sources have moved to /etc/apt/sources.list.d/ubuntu.sources
+# 定制阿里云镜像仓库
+deb https://mirrors.aliyun.com/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-security main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-backports main restricted universe multiverse
+```
+
+#### 3.3.2 清华大学镜像源
+
+清华大学开源软件镜像站也提供了Ubuntu的镜像源，配置方法如下：
+
+```bash
+# 备份原有配置文件
+cp /etc/apt/sources.list /etc/apt/sources.list.backup
+
+# 编辑sources.list文件
+vim /etc/apt/sources.list
+```
+
+将文件内容替换为以下清华大学镜像源配置（以Ubuntu 24.04为例）：
+
+```
+# Ubuntu sources have moved to /etc/apt/sources.list.d/ubuntu.sources
+# 定制清华源镜像仓库
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble-backports main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble-security main restricted universe multiverse
+```
+
+#### 3.3.3 混合配置
+
+您也可以同时配置多个镜像源，系统会自动选择最快的源进行下载。例如：
+
+```
+# Ubuntu sources have moved to /etc/apt/sources.list.d/ubuntu.sources
+# 定制阿里云镜像仓库
+deb https://mirrors.aliyun.com/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-security main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-backports main restricted universe multiverse
+
+# 定制清华源镜像仓库
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble-backports main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble-security main restricted universe multiverse
+```
+
+配置完成后，运行以下命令更新软件源：
+
+```bash
+apt update
+```
+
 ## 4. 常见问题与解决方案
 
 ### 4.1 APT锁文件问题
