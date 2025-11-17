@@ -227,6 +227,187 @@ deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ noble-security main restricted 
 apt update
 ```
 
+### 3.4 实际配置案例
+
+以下是一个完整的软件源配置案例，展示如何从默认的光盘源切换到国内镜像源：
+
+**步骤1：查看当前软件源配置**
+
+```bash
+cat /etc/apt/sources.list
+```
+
+输出示例（默认光盘源）：
+```
+deb file:/cdrom noble main
+```
+
+**步骤2：备份原有配置文件**
+
+```bash
+cp /etc/apt/sources.list /etc/apt/sources.list.backup
+```
+
+**步骤3：编辑sources.list文件**
+
+```bash
+vim /etc/apt/sources.list
+```
+
+**步骤4：添加国内镜像源**
+
+将文件内容替换为阿里云或清华大学镜像源配置，例如：
+
+```
+# Ubuntu sources have moved to /etc/apt/sources.list.d/ubuntu.sources
+# 定制阿里云镜像仓库
+deb https://mirrors.aliyun.com/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-security main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-backports main restricted universe multiverse
+```
+
+**步骤5：更新软件源**
+
+```bash
+apt update
+```
+
+输出示例（使用光盘源时）：
+```
+获取:1 file:/cdrom noble InRelease
+忽略:1 file:/cdrom noble InRelease
+获取:2 file:/cdrom noble Release [1,072 B]
+获取:2 file:/cdrom noble Release [1,072 B]
+获取:3 file:/cdrom noble Release.gpg [833 B]
+获取:3 file:/cdrom noble Release.gpg [833 B]
+获取:4 file:/cdrom noble/main amd64 Packages [54.0 kB]
+忽略:4 file:/cdrom noble/main amd64 Packages
+获取:4 file:/cdrom noble/main amd64 Packages [54.0 kB]
+正在读取软件包列表... 完成
+正在分析软件包的依赖关系树... 完成
+正在读取状态信息... 完成
+所有软件包均为最新。
+```
+
+**步骤6：验证配置**
+
+配置国内镜像源后，再次运行`apt update`，系统将从配置的镜像源下载软件包信息。
+
+### 3.5 光盘源配置
+
+光盘源是指将Ubuntu安装光盘作为软件源，适用于网络环境受限或需要安装特定版本软件的场景。以下是配置和使用光盘源的详细步骤：
+
+#### 3.5.1 挂载光盘
+
+首先，将Ubuntu安装光盘插入光驱，然后创建挂载点并挂载光盘：
+
+```bash
+# 创建挂载点
+sudo mkdir -p /cdrom
+
+# 挂载光盘
+sudo mount /dev/cdrom /cdrom
+```
+
+如果系统识别到光盘，挂载过程应该会成功完成。
+
+#### 3.5.2 配置光盘源
+
+编辑sources.list文件，添加光盘源配置：
+
+```bash
+sudo vim /etc/apt/sources.list
+```
+
+添加或修改为以下内容：
+
+```
+# 光盘源配置
+deb file:/cdrom noble main
+```
+
+这里的`noble`是Ubuntu 24.04的版本代号，根据您实际使用的Ubuntu版本进行调整。
+
+#### 3.5.3 更新软件源
+
+配置完成后，更新软件源以识别光盘中的软件包：
+
+```bash
+sudo apt update
+```
+
+如果配置正确，您将看到类似以下的输出：
+
+```
+获取:1 file:/cdrom noble InRelease
+忽略:1 file:/cdrom noble InRelease
+获取:2 file:/cdrom noble Release [1,072 B]
+获取:2 file:/cdrom noble Release [1,072 B]
+获取:3 file:/cdrom noble Release.gpg [833 B]
+获取:3 file:/cdrom noble Release.gpg [833 B]
+获取:4 file:/cdrom noble/main amd64 Packages [54.0 kB]
+忽略:4 file:/cdrom noble/main amd64 Packages
+获取:4 file:/cdrom noble/main amd64 Packages [54.0 kB]
+正在读取软件包列表... 完成
+正在分析软件包的依赖关系树... 完成
+正在读取状态信息... 完成
+所有软件包均为最新。
+```
+
+#### 3.5.4 使用光盘源安装软件
+
+配置好光盘源后，您可以使用`apt install`命令从光盘安装软件：
+
+```bash
+sudo apt install package-name
+```
+
+例如，从光盘安装vim：
+
+```bash
+sudo apt install vim
+```
+
+#### 3.5.5 光盘源的优缺点
+
+**优点：**
+- 不需要网络连接，适用于离线环境
+- 软件包版本与安装光盘一致，稳定性高
+- 避免了网络下载可能遇到的版本兼容性问题
+
+**缺点：**
+- 软件包版本可能较旧，无法获取最新更新
+- 可用的软件包数量有限，通常只包含系统基本软件
+- 需要一直插着安装光盘，使用不便
+
+#### 3.5.6 切换回网络源
+
+如果您需要切换回网络源，只需编辑sources.list文件，注释掉光盘源配置并添加网络源：
+
+```bash
+sudo vim /etc/apt/sources.list
+```
+
+修改为：
+
+```
+# 注释掉光盘源
+# deb file:/cdrom noble main
+
+# 添加网络源（如阿里云）
+deb https://mirrors.aliyun.com/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-security main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-backports main restricted universe multiverse
+```
+
+然后更新软件源：
+
+```bash
+sudo apt update
+```
+
 ## 4. 常见问题与解决方案
 
 ### 4.1 APT锁文件问题
