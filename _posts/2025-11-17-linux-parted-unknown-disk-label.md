@@ -150,6 +150,94 @@ mount /dev/sdb1 /mnt/data
 echo '/dev/sdb1 /mnt/data ext4 defaults 0 2' >> /etc/fstab
 ```
 
+## 实践案例
+
+以下是一个完整的实践案例，展示了如何解决"无法辨识的磁盘卷标"错误并完成磁盘分区：
+
+```bash
+# 1. 尝试创建分区，遇到"无法辨识的磁盘卷标"错误
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb mkpart primary 1 1001 
+错误: /dev/sdb: 无法辨识的磁盘卷标
+
+# 2. 查看磁盘信息，确认分区表状态
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb print 
+错误: /dev/sdb: 无法辨识的磁盘卷标
+型号：VMware, VMware Virtual S (scsi) 
+磁盘 /dev/sdb: 215GB 
+扇区大小 (逻辑/物理)：512B/512B 
+分区表：unknown 
+磁盘标志：
+
+# 3. 创建GPT分区表
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb mklabel gpt 
+信息: 你可能需要 /etc/fstab。
+
+# 4. 验证分区表创建成功
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb print 
+型号：VMware, VMware Virtual S (scsi) 
+磁盘 /dev/sdb: 215GB 
+扇区大小 (逻辑/物理)：512B/512B 
+分区表：gpt 
+磁盘标志：
+
+编号  起始点  结束点  大小  文件系统  名称  标志
+
+# 5. 创建第一个分区（1MB-1001MB）
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb mkpart primary 1 1001 
+信息: 你可能需要 /etc/fstab。
+
+# 6. 查看分区创建结果
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb print 
+型号：VMware, VMware Virtual S (scsi) 
+磁盘 /dev/sdb: 215GB 
+扇区大小 (逻辑/物理)：512B/512B 
+分区表：gpt 
+磁盘标志：
+
+编号  起始点  结束点  大小    文件系统  名称     标志
+ 1    1049kB  1001MB  1000MB            primary
+
+# 7. 创建第二个分区（1002MB-1102MB）
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb mkpart primary 1002 1102 
+信息: 你可能需要 /etc/fstab。
+
+# 8. 创建第三个分区（1102MB-1902MB，指定ext4文件系统）
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb mkpart primary ext4 1102MB 1902MB 
+信息: 你可能需要 /etc/fstab。
+
+# 9. 进入parted交互模式
+root@ubuntu24,10.0.0.13:~ # parted /dev/sdb 
+GNU Parted 3.6 
+使用 /dev/sdb 
+欢迎使用 GNU Parted！输入 'help' 来查看命令列表。
+
+# 10. 使用百分比创建分区（3%-10%，ext4文件系统）
+(parted) mkpart primary ext4 3% 10%
+
+# 11. 使用百分比创建分区（10%-20%，xfs文件系统）
+(parted) mkpart primary xfs 10% 20%
+
+# 12. 查看所有分区结果
+(parted) print 
+型号：VMware, VMware Virtual S (scsi) 
+磁盘 /dev/sdb: 215GB 
+扇区大小 (逻辑/物理)：512B/512B 
+分区表：gpt 
+磁盘标志：
+
+编号  起始点  结束点  大小    文件系统  名称     标志
+ 1    1049kB  1001MB  1000MB            primary
+ 2    1002MB  1102MB  99.6MB            primary
+ 3    1102MB  1902MB  800MB             primary
+ 4    6442MB  21.5GB  15.0GB  ext4      primary
+ 5    21.5GB  42.9GB  21.5GB  xfs       primary
+
+# 13. 退出parted交互模式
+(parted) quit
+```
+
+这个实践案例展示了从遇到错误到成功创建多个分区的完整过程，包括使用MB和百分比两种方式指定分区大小，以及指定不同的文件系统类型。
+
 ## 总结
 
 "无法辨识的磁盘卷标"错误是因为新磁盘尚未创建分区表导致的。解决这个问题的步骤是：
