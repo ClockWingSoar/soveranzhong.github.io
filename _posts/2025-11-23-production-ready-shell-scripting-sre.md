@@ -73,17 +73,188 @@ cleanup() {
 trap cleanup EXIT
 ```
 
-### 4.4 实战：通用脚本模版
+### 4.4 浮点数运算 (bc 工具)
+
+Shell 的内置算术运算 `$(( ))` 只支持整数运算。当需要进行浮点数计算时（如计算资源使用率、性能指标等），我们需要使用 `bc` 命令。
+
+#### 关键参数：`scale`
+
+`scale` 是 `bc` 中控制**除法运算精度**的关键变量，它决定了结果保留几位小数。默认情况下 `scale=0`，会导致除法结果被截断为整数。
+
+#### 实战案例：计算表达式优先级
+
+假设我们需要计算 CPU 负载的归一化值，表达式为：`9 - 8 * 2 / 5^2`
+
+```bash
+# 设置精度为2位小数，然后执行运算
+$ echo "scale=2; 9 - 8 * 2 / 5^2" | bc
+8.36
+```
+
+**执行过程解析**（遵循数学运算优先级）：
+
+1. **指数运算** `5^2 = 25` → `9 - 8 * 2 / 25`
+2. **乘法运算** `8 * 2 = 16` → `9 - 16 / 25`
+3. **除法运算** `16 / 25 = 0.64` *（此时 scale=2 生效，保留2位小数）*
+4. **减法运算** `9 - 0.64 = 8.36`
+
+#### 生产环境应用场景
+
+```bash
+#!/bin/bash
+# 计算磁盘使用率百分比
+used=$(df -h / | awk 'NR==2 {print $3}' | sed 's/G//')
+total=$(df -h / | awk 'NR==2 {print $2}' | sed 's/G//')
+
+# 使用 bc 进行浮点数除法，保留2位小数
+usage_percent=$(echo "scale=2; ($used / $total) * 100" | bc)
+
+echo "磁盘使用率: ${usage_percent}%"
+
+# 告警阈值判断（bc 支持布尔运算，返回1或0）
+if [[ $(echo "$usage_percent > 80" | bc) -eq 1 ]]; then
+    log_error "磁盘使用率超过 80%，当前: ${usage_percent}%"
+fi
+```
+
+**最佳实践**：
+- 始终显式设置 `scale` 值，避免精度丢失
+- 对于百分比计算，通常 `scale=2` 已足够
+- 注意 `bc` 的运算符优先级：`^` > `*` `/` > `+` `-`
+
+### 4.5 实战：通用脚本模版
 
 为了规范团队的脚本编写风格，我整理了一个通用的 Shell 脚本模版。它包含了上述的所有最佳实践，以及标准的参数解析逻辑。
 
 **代码位置**：[`code/linux/production-shell/script_template.sh`](/code/linux/production-shell/script_template.sh)
 
-```bash
-{% include_relative ../code/linux/production-shell/script_template.sh %}
-```
+<details>
+<summary>点击查看完整代码</summary>
 
-### 4.5 案例分析：日志监控脚本
+```bash
+#!/bin/bash
+#
+# Script Name: script_template.sh
+# Description: A production-ready shell script template for SREs.
+# Author: SRE Team
+# Date: 2025-11-23
+# Version: 1.0
+#
+# Usage: ./script_template.sh [options]
+# Options:
+#   -h, --help      Show help message
+#   -v, --verbose   Enable verbose logging
+#   -d, --dry-run   Simulate execution without making changes
+
+# -----------------------------------------------------------------------------
+# Safety Settings
+# -----------------------------------------------------------------------------
+set -o errexit   # Exit on error
+set -o nounset   # Exit on undefined variable
+set -o pipefail  # Exit if any command in a pipe fails
+# set -o xtrace  # Uncomment for debugging (print commands)
+
+# -----------------------------------------------------------------------------
+# Global Variables
+# -----------------------------------------------------------------------------
+readonly SCRIPT_NAME=$(basename "$0")
+readonly LOG_FILE="/var/log/${SCRIPT_NAME%.*}.log"
+VERBOSE=false
+DRY_RUN=false
+
+# -----------------------------------------------------------------------------
+# Logging Functions
+# -----------------------------------------------------------------------------
+log() {
+    local level="$1"
+    shift
+    local message="$*"
+    local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
+    echo "[${timestamp}] [${level}] ${message}" | tee -a "${LOG_FILE}" >&2
+}
+
+log_info() { log "INFO" "$@"; }
+log_warn() { log "WARN" "$@"; }
+log_error() { log "ERROR" "$@"; }
+
+# -----------------------------------------------------------------------------
+# Helper Functions
+# -----------------------------------------------------------------------------
+usage() {
+    cat <<EOF
+Usage: ${SCRIPT_NAME} [options]
+
+Options:
+  -h, --help      Show this help message and exit
+  -v, --verbose   Enable verbose logging
+  -d, --dry-run   Enable dry-run mode (no changes applied)
+
+Example:
+  ${SCRIPT_NAME} --verbose --dry-run
+EOF
+}
+
+cleanup() {
+    # Add cleanup logic here (e.g., removing temp files)
+    if [[ "${VERBOSE}" == "true" ]]; then
+        log_info "Cleaning up..."
+    fi
+}
+trap cleanup EXIT
+
+# -----------------------------------------------------------------------------
+# Main Logic
+# -----------------------------------------------------------------------------
+main() {
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            -v|--verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d|--dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                usage
+                exit 1
+                ;;
+        esac
+    done
+
+    log_info "Starting script execution..."
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        log_warn "Dry-run mode enabled. No changes will be made."
+    fi
+
+    # Your business logic goes here
+    if [[ "${VERBOSE}" == "true" ]]; then
+        log_info "Verbose mode is on. Detailed logs will be shown."
+    fi
+    
+    # Example operation
+    log_info "Performing critical operation..."
+    # command_to_run
+
+    log_info "Script finished successfully."
+}
+
+# -----------------------------------------------------------------------------
+# Entry Point
+# -----------------------------------------------------------------------------
+main "$@"
+```
+</details>
+
+### 4.6 案例分析：日志监控脚本
 
 下面我们来看一个具体的案例：编写一个脚本，监控指定的日志文件，当发现特定关键字（如 "ERROR"）时触发告警。
 
@@ -94,9 +265,108 @@ trap cleanup EXIT
 
 **代码位置**：[`code/linux/production-shell/log_monitor.sh`](/code/linux/production-shell/log_monitor.sh)
 
+<details>
+<summary>点击查看完整代码</summary>
+
 ```bash
-{% include_relative ../code/linux/production-shell/log_monitor.sh %}
+#!/bin/bash
+#
+# Script Name: log_monitor.sh
+# Description: Monitors a log file for specific keywords and triggers an alert.
+# Author: SRE Team
+# Date: 2025-11-23
+# Version: 1.0
+#
+# Usage: ./log_monitor.sh -f <logfile> -k <keyword>
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+readonly SCRIPT_NAME=$(basename "$0")
+LOG_FILE="./monitor.log" # Local log for demo purposes
+
+log() {
+    local level="$1"
+    shift
+    local message="$*"
+    local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
+    echo "[${timestamp}] [${level}] ${message}" | tee -a "${LOG_FILE}" >&2
+}
+
+log_info() { log "INFO" "$@"; }
+log_error() { log "ERROR" "$@"; }
+
+usage() {
+    cat <<EOF
+Usage: ${SCRIPT_NAME} -f <logfile> -k <keyword>
+
+Options:
+  -f, --file      Path to the log file to monitor
+  -k, --keyword   Keyword to search for (e.g., "ERROR", "Exception")
+  -h, --help      Show help message
+EOF
+}
+
+send_alert() {
+    local message="$1"
+    # In a real scenario, this would call an API (e.g., Slack, PagerDuty)
+    log_info "ALERT TRIGGERED: ${message}"
+}
+
+main() {
+    local target_file=""
+    local keyword=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -f|--file)
+                target_file="$2"
+                shift 2
+                ;;
+            -k|--keyword)
+                keyword="$2"
+                shift 2
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            *)
+                log_error "Unknown argument: $1"
+                usage
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ -z "${target_file}" || -z "${keyword}" ]]; then
+        log_error "Missing required arguments."
+        usage
+        exit 1
+    fi
+
+    if [[ ! -f "${target_file}" ]]; then
+        log_error "File not found: ${target_file}"
+        exit 1
+    fi
+
+    log_info "Scanning ${target_file} for keyword '${keyword}'..."
+
+    # Count occurrences
+    local count
+    count=$(grep -c "${keyword}" "${target_file}" || true)
+
+    if [[ "${count}" -gt 0 ]]; then
+        send_alert "Found ${count} occurrences of '${keyword}' in ${target_file}"
+    else
+        log_info "No issues found."
+    fi
+}
+
+main "$@"
 ```
+</details>
 
 ## 总结
 
