@@ -250,6 +250,144 @@ echo "处理文件: $1"
 - ✅ **提供明确的退出码**：`exit 1` 表示参数错误
 - ⚠️ **简洁 vs 可读性**：生产环境建议用 `if-then-else`，调试脚本可用 `&&/||`
 
+#### 综合案例：网络连通性测试
+
+下面是一个完整的网络测试脚本，综合运用了本章节的多个知识点：
+
+**原始版本**：
+```bash
+#!/bin/bash
+host_addr="$1"
+
+# 参数验证
+[ -z ${host_addr} ] && echo "请输入待测试主机ip" && exit
+[ $# -ne 1 ] && echo "请保证输入1个脚本参数" && exit
+
+# 测试网络
+net_status=$(ping -c1 -w1 ${host_addr} >/dev/null 2>&1 && echo "正常" || echo "异常")
+
+# 输出结果
+echo -e "\e[31m\t主机网络状态信息\e[0m"
+echo -e "\e[32m================================"
+echo "${host_addr} 网络状态: ${net_status}"
+echo -e "================================\e[0m"
+```
+
+**优化版本**：
+
+**代码位置**：[`code/linux/production-shell/host_network_test.sh`](/code/linux/production-shell/host_network_test.sh)
+
+```bash
+#!/bin/bash
+#
+# Script Name: host_network_test.sh
+# Description: Test network connectivity to a remote host
+# Author: 钟翼翔 (clockwingsoar@outlook.com)
+# Date: 2025-11-23
+# Version: 2.0 (Production-Ready)
+#
+
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# Color definitions
+# -----------------------------------------------------------------------------
+readonly COLOR_RED='\e[31m'
+readonly COLOR_GREEN='\e[32m'
+readonly COLOR_YELLOW='\e[33m'
+readonly COLOR_RESET='\e[0m'
+
+# -----------------------------------------------------------------------------
+# Functions
+# -----------------------------------------------------------------------------
+usage() {
+    cat <<EOF
+用法: $0 <IP地址或主机名>
+
+描述: 
+  测试指定主机的网络连通性
+
+示例:
+  $0 10.0.0.13
+  $0 www.google.com
+EOF
+}
+
+# -----------------------------------------------------------------------------
+# Parameter Validation
+# -----------------------------------------------------------------------------
+# 检查参数数量
+if [ $# -ne 1 ]; then
+    echo -e "${COLOR_RED}错误：需要恰好 1 个参数${COLOR_RESET}" >&2
+    usage
+    exit 1
+fi
+
+# 检查参数是否为空
+if [ -z "$1" ]; then
+    echo -e "${COLOR_RED}错误：IP地址不能为空${COLOR_RESET}" >&2
+    exit 1
+fi
+
+readonly HOST_ADDR="$1"
+
+# -----------------------------------------------------------------------------
+# Network Test
+# -----------------------------------------------------------------------------
+echo -e "${COLOR_RED}\t主机网络状态信息${COLOR_RESET}"
+echo -e "${COLOR_GREEN}================================${COLOR_RESET}"
+
+# 使用 ping 测试网络（-c1: 发送1个包, -W1: 等待1秒超时）
+if ping -c1 -W1 "${HOST_ADDR}" >/dev/null 2>&1; then
+    echo -e "${COLOR_GREEN}${HOST_ADDR} 网络状态: 正常${COLOR_RESET}"
+    exit_code=0
+else
+    echo -e "${COLOR_YELLOW}${HOST_ADDR} 网络状态: 异常${COLOR_RESET}"
+    exit_code=1
+fi
+
+echo -e "${COLOR_GREEN}================================${COLOR_RESET}"
+
+exit ${exit_code}
+```
+
+**关键改进点**：
+
+| 改进项 | 原始版本 | 优化版本 | 优势 |
+|--------|----------|----------|------|
+| 变量引用 | `${host_addr}` 无引号 | `"${HOST_ADDR}"` | 防止包含空格的主机名出错 |
+| 参数验证顺序 | 先检查空，后检查数量 | 先检查数量，后检查空 | 逻辑更合理 |
+| 退出码 | `exit` 无参数 | `exit ${exit_code}` | 调用者可判断测试结果 |
+| 颜色定义 | 硬编码 | 定义为常量 | 易维护、可复用 |
+| 帮助信息 | 无 | `usage()` 函数 | 用户友好 |
+| ping 参数 | `-w1` (macOS不兼容) | `-W1` (POSIX标准) | 跨平台兼容 |
+
+**运行效果**：
+
+```bash
+# 测试成功
+$ ./host_network_test.sh 10.0.0.13
+        主机网络状态信息
+================================
+10.0.0.13 网络状态: 正常
+================================
+
+# 测试失败
+$ ./host_network_test.sh 192.168.1.254
+        主机网络状态信息
+================================
+192.168.1.254 网络状态: 异常
+================================
+$ echo $?
+1  # 退出码反映测试结果
+```
+
+**实战应用场景**：
+- 批量主机健康检查
+- CI/CD 部署前的网络验证
+- 监控系统的连通性探测
+- 故障诊断工具
+
 ### 4.5 浮点数运算 (bc 工具)
 
 Shell 的内置算术运算 `$(( ))` 只支持整数运算。当需要进行浮点数计算时（如计算资源使用率、性能指标等），我们需要使用 `bc` 命令。
