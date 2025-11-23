@@ -8,13 +8,38 @@ tags: [Linux, sed, 文本处理, 命令行, 正则表达式]
 
 # Linux sed命令完全指南：流式文本编辑的艺术
 
-在Linux命令行的工具箱中，`sed`命令是一个强大的流式文本编辑器，它能够以非交互式的方式对文本进行高效处理。无论是简单的文本替换，还是复杂的模式匹配和转换，`sed`都能胜任。本文将深入探讨`sed`命令的各种用法、选项和最佳实践，帮助您掌握这一强大的文本处理工具。
+## 1. 情境 (Situation)
+作为 SRE 或运维工程师，文本处理是我们日常工作中不可或缺的一部分。我们经常需要处理日志文件、配置文件，或者从命令输出中提取关键信息。
+
+## 2. 冲突 (Conflict)
+手动编辑文件（如使用 `vim`）在处理单个文件时很有效，但在面对自动化任务、大批量文件修改或管道流处理时显得力不从心。简单的工具如 `grep` 只能查找不能修改，而编写 Python 脚本对于简单的文本替换又显得过于厚重。
+
+## 3. 问题 (Question)
+有没有一种工具，既能像管道一样高效处理数据流，又能像编辑器一样灵活修改文本，并且无需交互即可完成复杂的编辑任务？
+
+## 4. 答案 (Answer)
+**`sed` (Stream EDitor)** 正是为此而生。它是一个非交互式的流式文本编辑器，能够高效地对文本进行过滤、替换、删除和转换。本文将带你深入理解 `sed` 的工作原理，通过可视化的方式掌握其核心概念，并提供生产环境的实战案例。
 
 ## 1. 命令概述
 
 `sed`（Stream EDitor）是一种流式文本编辑器，它通过在内存中创建一个模式空间（pattern space），逐行读取文件内容并进行处理。这种设计使得`sed`能够高效地处理大型文件，而不会占用过多内存。
 
 ### 1.1 工作原理
+
+`sed` 的工作流程是一个循环的过程，可以用下图表示：
+
+```mermaid
+graph TD
+    A[Start Cycle] --> B{End of Input?};
+    B -- Yes --> C[Exit];
+    B -- No --> D[Read Next Line to Pattern Space];
+    D --> E[Execute Commands];
+    E --> F{Auto Print?};
+    F -- Yes --> G[Print Pattern Space];
+    F -- No --> H[Clear Pattern Space];
+    G --> H;
+    H --> A;
+```
 
 1. `sed`在内存中创建一个模式空间（pattern space）
 2. 逐行读取输入文件（或标准输入）的内容到模式空间
@@ -220,7 +245,7 @@ sed -n '0~2p' sed_test.txt
 # 以下是用户在系统中执行的实际示例，展示了步进语法的效果：
 # 从第1行开始，每隔1行打印一次（奇数行）
 
-0 ✓ 22:08:55 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '1~2p' sed.txt 
+$ sed -n '1~2p' sed.txt 
  nihao sed1 sed2 sed3 
  nihao sed7 sed8 sed9 
 
@@ -237,11 +262,11 @@ sed -n '0~2p' sed_test.txt
 
 # 实际验证示例：以下命令都能正常工作
 
-0 ✓ 22:09:15 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n "0~2p" sed.txt 
+$ sed -n "0~2p" sed.txt 
  nihao sed4 sed5 sed6 
-0 ✓ 22:22:12 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n 0~2p sed.txt 
+$ sed -n 0~2p sed.txt 
  nihao sed4 sed5 sed6 
-0 ✓ 22:22:24 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '0~2p' sed.txt 
+$ sed -n '0~2p' sed.txt 
  nihao sed4 sed5 sed6 
 
 
@@ -257,14 +282,14 @@ sed -n '2!p' sed_test.txt
 # 实际应用示例：取反操作
 # 以下是用户在系统中执行的实际示例，展示了取反操作的效果：
 
-0 ✓ 22:30:03 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '2!p' sed.txt 
+$ sed -n '2!p' sed.txt 
 nihao sed1 sed2 sed3 
 nihao sed7 sed8 sed9 
 
 
 # 对比：打印第2行的效果
 
-0 ✓ 22:36:18 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '2p' sed.txt 
+$ sed -n '2p' sed.txt 
 nihao sed4 sed5 sed6 
 
 
@@ -288,11 +313,11 @@ sed -n -f sed_commands.txt sed_test.txt
 # 实际应用示例：创建sed脚本文件并执行
 # 以下是用户在系统中执行的实际示例，展示了如何创建和使用sed脚本文件：
 
-0 ✓ 22:28:52 soveran@rocky9.6-12,10.0.0.12:~ $ echo -e '1p\n3p' >sed-script.txt 
-0 ✓ 22:29:41 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed-script.txt 
+$ echo -e '1p\n3p' >sed-script.txt 
+$ cat sed-script.txt 
 1p 
 3p 
-0 ✓ 22:29:45 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n -f sed-script.txt sed.txt 
+$ sed -n -f sed-script.txt sed.txt 
 nihao sed1 sed2 sed3 
 nihao sed7 sed8 sed9 
 
@@ -314,7 +339,7 @@ sed -n '/sed4/=' sed_test.txt
 # 实际应用示例：显示匹配行号
 # 以下是用户在系统中执行的实际示例，展示了如何显示匹配特定模式的行号：
 
-0 ✓ 22:36:31 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '/sed4/=' sed.txt 
+$ sed -n '/sed4/=' sed.txt 
 2
 
 
@@ -335,16 +360,16 @@ sed -n -e '/sed4/=' -e '/sed4/p' sed_test.txt
 # 实际应用示例：同时显示匹配行号和内容
 # 以下是用户在系统中执行的实际示例，展示了如何同时查看匹配行的行号和内容：
 
-0 ✓ 21:55:14 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n '/sed4/=' sed_test.txt 
+$ sed -n '/sed4/=' sed_test.txt 
 2
-0 ✓ 21:56:16 soveran@rocky9.6-12,10.0.0.12:~ $ sed '/sed4/=' sed_test.txt 
+$ sed '/sed4/=' sed_test.txt 
 ihao sed1 sed2 sed3 
 2
 ihao sed4 sed5 sed6 
 ihao sed7 sed8 sed9 
 
 # 使用-e参数同时打印行号和内容的正确方式
-0 ✓ 22:00:00 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n -e '/sed4/=' -e '/sed4/p' sed_test.txt 
+$ sed -n -e '/sed4/=' -e '/sed4/p' sed_test.txt 
 2
 ihao sed4 sed5 sed6 
 
@@ -453,20 +478,20 @@ sed -n 'N;p' multi_line.txt
 - p：打印整个模式空间；P：打印模式空间直到第一个换行符（多行模式空间时能只输出首行）。
 
 ```sh
-   0 ✓ 15:09:45 soveran@,172.29.22.48:~ $ cat multi_line.txt
+$ cat multi_line.txt
 line1
 line2
 line3
 line4
 line5
-  0 ✓ 15:08:51 soveran@,172.29.22.48:~ $ sed -n 'N;P' multi_line.txt
+$ sed -n 'N;P' multi_line.txt
 line1
 line3
 
-  0 ✓ 15:09:20 soveran@,172.29.22.48:~ $ sed -n 'n;p' multi_line.txt
+$ sed -n 'n;p' multi_line.txt
 line2
 line4
-  0 ✓ 15:09:33 soveran@,172.29.22.48:~ $ sed -n 'n;P' multi_line.txt
+$ sed -n 'n;P' multi_line.txt
 line2
 line4
 ```
@@ -502,7 +527,7 @@ line4
 
 ```sh
 
-0 ✓ 16:22:32 soveran@,172.29.22.48:~ $ sed -n 'p;n' multi_line.txt
+$ sed -n 'p;n' multi_line.txt
 line1
 line3
 line5
@@ -631,10 +656,10 @@ sed 's/sed/SED/g' sed_test.txt
 # 实际应用示例：s替换命令中p标志的作用
 # 以下是用户在系统中执行的实际示例，展示了s替换命令中p标志的效果：
 
-0 ✓ 22:37:01 soveran@rocky9.6-12,10.0.0.12:~ $ sed -i 's#sed#SED#p' sed.txt 
+$ sed -i 's#sed#SED#p' sed.txt 
 
 # 查看修改后的文件内容：
-0 ✓ 22:55:45 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed.txt 
+$ cat sed.txt 
 nihao SED1 sed2 sed3 
 nihao SED1 sed2 sed3 
 nihao SED4 sed5 sed6 
@@ -675,11 +700,11 @@ sed 'y/SED/sed/' sed_test.txt
 
 
 # 尝试使用-n选项并添加p标志（会报错）
-1 ✗ 23:05:53 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n 'y#sed#SED#p' sed2.txt 
+$ sed -n 'y#sed#SED#p' sed2.txt 
 sed：-e 表达式 #1，字符 11：命令后含有多余的字符 
 
 # 只使用-n选项（不会显示任何输出）
-1 ✗ 23:06:08 soveran@rocky9.6-12,10.0.0.12:~ $ sed -n 'y#sed#SED#' sed2.txt 
+$ sed -n 'y#sed#SED#' sed2.txt 
 
 
 # 说明：
@@ -693,19 +718,19 @@ sed：-e 表达式 #1，字符 11：命令后含有多余的字符
 
 
 # 查看文件原始内容
-0 ✓ 23:06:33 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+$ cat sed2.txt 
 nihao SED1 sed2 sed3 
 nihao SED4 sed5 sed6 
 nihao SED7 sed8 sed9 
 
 # 使用y命令进行字符转换（会输出转换结果但不修改原文件）
-0 ✓ 23:06:44 soveran@rocky9.6-12,10.0.0.12:~ $ sed  'y#sed#SED#' sed2.txt 
+$ sed  'y#sed#SED#' sed2.txt 
 nihao SED1 SED2 SED3 
 nihao SED4 SED5 SED6 
 nihao SED7 SED8 SED9 
 
 # 再次查看原文件内容（确认未被修改）
-0 ✓ 23:07:18 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+$ cat sed2.txt 
 nihao SED1 sed2 sed3 
 nihao SED4 sed5 sed6 
 nihao SED7 sed8 sed9 
@@ -858,6 +883,29 @@ sed '3q' sample.txt  # 输出line 1、line 2和line 3
 - `N`：将数据流中的下一行添加到当前模式空间，创建一个多行组进行处理
 - `D`：删除多行组中的单行（删除模式空间中直到第一个换行符的部分）
 - `P`：打印多行组中的单行（打印模式空间中直到第一个换行符的部分）
+
+下图展示了多行处理命令的状态流转：
+
+```mermaid
+stateDiagram-v2
+    [*] --> ReadLine: Start Cycle
+    ReadLine --> PatternSpace: Read line N
+    
+    state PatternSpace {
+        [*] --> SingleLine
+        SingleLine --> MultiLine: N (Append line N+1)
+        MultiLine --> MultiLine: N (Append line N+2...)
+    }
+    
+    PatternSpace --> Print: p (Print All)
+    PatternSpace --> PrintFirst: P (Print First Line)
+    
+    PrintFirst --> DeleteFirst: D (Delete First Line)
+    DeleteFirst --> PatternSpace: Restart Cycle (Keep Remaining)
+    
+    Print --> DeleteAll: d (Delete All)
+    DeleteAll --> ReadLine: Restart Cycle (Read New)
+```
 
 #### 7.6.1 单行next命令（n）
 
@@ -1316,20 +1364,6 @@ Line 4
 `sed`使用两个重要的缓冲区来处理文本：模式空间（pattern space）和保持空间（hold space）。这些缓冲区允许我们执行更复杂的文本处理操作。
 
 ### 8.1 缓冲区概念与基本原理
-
-**模式空间（Pattern Space）**：
-- 主要工作区域，`sed`逐行读取输入到这里进行处理
-- 每次处理一行，处理完成后默认输出并清空
-- 可以理解为"工作台"，是命令操作的主要对象
-
-**保持空间（Hold Space）**：
-- 辅助存储空间，用于临时保存数据
-- 初始为空，不会自动清空或输出
-- 可以理解为"剪贴板"，用于在处理过程中暂存内容
-
-模式空间是`sed`编辑器检查文本时使用的活动缓冲区区域。然而，它并不是`sed`编辑器中唯一可用的文本存储缓冲区。
-
-`sed`编辑器还使用另一个称为保持空间的缓冲区区域。您可以使用保持空间在处理模式空间中的其他行时临时保存文本行。与保持空间操作相关的五个命令如下表所示：
 
 | 命令 | 描述 |
 | :--- | :--- |
@@ -2509,8 +2543,8 @@ sed -n '\|/bin/bash|p' /etc/passwd  # 使用|作为分隔符
 
 
 
-  0 ✓ 21:26:00 soveran@rocky9.6-12,10.0.0.12:~ $ df -h | sed -n '#^\/dev\/sd#p'
-  0 ✓ 21:26:41 soveran@rocky9.6-12,10.0.0.12:~ $ df -h | sed -n '/^\/dev\/sd/p'
+$ df -h | sed -n '#^\/dev\/sd#p'
+$ df -h | sed -n '/^\/dev\/sd/p'
 /dev/sda1            960M  481M  480M   51% /boot
 
 
@@ -3087,7 +3121,7 @@ line two
 
 ```sh
 
-  0 ✓ 09:16:24 soveran@rocky9.6-12,10.0.0.12:~ $ cat mixed_blank.txt
+$ cat mixed_blank.txt
 line one
 
 
@@ -3098,7 +3132,7 @@ line two
 
 
 line three
-  0 ✓ 09:16:53 soveran@rocky9.6-12,10.0.0.12:~ $ sed '/^$/d' mixed_blank.txt
+$ sed '/^$/d' mixed_blank.txt
 line one
 
 
@@ -3106,7 +3140,7 @@ line two
 
 
 line three
-  0 ✓ 09:17:05 soveran@rocky9.6-12,10.0.0.12:~ $ sed '/^[[:space:]]*$/d' mixed_blank.txt
+$ sed '/^[[:space:]]*$/d' mixed_blank.txt
 line one
 line two
 line three
@@ -4250,22 +4284,22 @@ sed 's#http://#https://#g' urls.txt
 # 以下是用户在系统中执行的实际示例，展示了如何使用-i.bak参数安全地修改文件：
 
 # 创建测试文件并查看内容
-0 ✓ 22:56:59 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+$ cat sed2.txt 
 nihao sed1 sed2 sed3 
 nihao sed4 sed5 sed6 
 nihao sed7 sed8 sed9 
 
 # 使用-i.bak参数进行安全替换（创建备份文件）
-1 ✗ 22:57:42 soveran@rocky9.6-12,10.0.0.12:~ $ sed -i.bak 's#sed#SED#' sed2.txt 
+$ sed -i.bak 's#sed#SED#' sed2.txt 
 
 # 查看修改后的文件内容
-0 ✓ 22:57:54 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt 
+$ cat sed2.txt 
 nihao SED1 sed2 sed3 
 nihao SED4 sed5 sed6 
 nihao SED7 sed8 sed9 
 
 # 查看自动创建的备份文件内容
-0 ✓ 22:57:59 soveran@rocky9.6-12,10.0.0.12:~ $ cat sed2.txt.bak 
+$ cat sed2.txt.bak 
 nihao sed1 sed2 sed3 
 nihao sed4 sed5 sed6 
 nihao sed7 sed8 sed9 
@@ -4293,11 +4327,11 @@ nihao sed7 sed8 sed9
 ```bash
 $ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)([^/]+\/$)#\2#'
 etc/sysconfig/network
-  0 ✓ 20:16:22 soveran@rocky9.6-12,10.0.0.12:~ $ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)network#\1#'
+$ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)network#\1#'
  #匹配network结尾，括号小组1匹配成功etc/sysconfig
 etc/sysconfig/
 #由于不匹配，替换不会发生，输出原始字符串
-  0 ✓ 20:16:38 soveran@rocky9.6-12,10.0.0.12:~ $ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)networks#\1#'
+$ echo 'etc/sysconfig/network' | sed -r 's#(.*\/)networks#\1#'
 etc/sysconfig/network
   0 ✓ 20:16:59 soveran@rocky9.6-12,10.0.0.12:~ $
 
