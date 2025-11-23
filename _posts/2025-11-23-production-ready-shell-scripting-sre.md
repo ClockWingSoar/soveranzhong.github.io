@@ -152,6 +152,36 @@ $ echo $?
 
 #### 变量检查的正确姿势
 
+**常用字符串测试操作符**：
+
+| 操作符 | 含义 | 示例 | 返回真的条件 |
+|--------|------|------|--------------|
+| `-z` | 字符串长度为零（zero） | `[ -z "$var" ]` | 变量为空或未定义 |
+| `-n` | 字符串长度非零（non-zero） | `[ -n "$var" ]` | 变量非空 |
+| `-v` | 变量已定义（Bash 4.2+） | `[ -v var ]` | 变量已声明（即使为空） |
+
+**实际测试示例**：
+
+```bash
+# -z 测试：判断字符串是否为空
+$ string="nihao"
+$ test -z $string
+$ echo $?
+1  # 返回假（字符串不为空）
+
+$ test -z $string1  # string1 未定义
+$ echo $?
+0  # 返回真（字符串为空）
+
+# 典型应用场景
+if [ -z "$1" ]; then
+    echo "错误：缺少参数" >&2
+    exit 1
+fi
+```
+
+**避免常见错误**：
+
 ```bash
 # ❌ 错误：变量未定义时会报错
 if [ $undefined_var == "value" ]; then
@@ -169,7 +199,12 @@ if [ -v my_var ]; then
     echo "Variable is set"
 fi
 
-# ✅ 方法3：使用双括号（推荐）
+# ✅ 方法3：使用 -z 判断变量是否为空
+if [ -z "$var" ]; then
+    echo "Variable is empty or unset"
+fi
+
+# ✅ 方法4：使用双括号（推荐）
 if [[ $undefined_var == "value" ]]; then
     echo "Match"  # [[ ]] 会自动处理未定义变量
 fi
