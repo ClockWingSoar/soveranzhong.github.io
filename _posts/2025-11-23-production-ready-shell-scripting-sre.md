@@ -165,18 +165,46 @@ $ echo $?
 ```bash
 # -z 测试：判断字符串是否为空
 $ string="nihao"
-$ test -z $string
+$ test -z "$string"
 $ echo $?
 1  # 返回假（字符串不为空）
 
-$ test -z $string1  # string1 未定义
+$ test -z "$string1"  # string1 未定义
 $ echo $?
 0  # 返回真（字符串为空）
 
-# 典型应用场景
+# -n 测试：判断字符串是否非空
+$ str="value"
+$ test -n "$str"
+$ echo $?
+0  # 返回真（字符串非空）
+
+$ unset str2
+$ test -n "$str2"
+$ echo $?
+1  # 返回假（字符串为空）
+```
+
+**-z 和 -n 对比表**：
+
+| 变量状态 | `-z "$var"` | `-n "$var"` | 说明 |
+|----------|-------------|-------------|------|
+| 未定义 | 0 (真) | 1 (假) | 变量不存在 |
+| 空字符串 `var=""` | 0 (真) | 1 (假) | 变量为空 |
+| 非空 `var="abc"` | 1 (假) | 0 (真) | 变量有值 |
+
+**典型应用场景**：
+
+```bash
+# 检查必需参数
 if [ -z "$1" ]; then
     echo "错误：缺少参数" >&2
     exit 1
+fi
+
+# 检查配置变量是否设置
+if [ -n "$DB_PASSWORD" ]; then
+    echo "数据库密码已配置"
 fi
 ```
 
@@ -237,6 +265,166 @@ if [[ $undefined_var == "value" ]]; then
     echo "Match"  # [[ ]] 会自动处理未定义变量
 fi
 ```
+
+#### 综合案例：用户登录验证
+
+下面是一个完整的登录验证脚本，综合运用了字符串测试、条件判断和逻辑运算符。
+
+**原始版本（有多个问题）**：
+```bash
+#!/bin/bash
+# 获取系统信息
+OS_INFO=$(cat /etc/redhat-release)
+KERNEL_INFO=$(uname -r)
+OS_ARCH=$(uname -m)
+HOSTNAME=$(hostname)
+
+# 清屏并显示信息
+clear
+echo -e "\e[32m${OS_INFO} \e[0m"
+echo -e "\e[32mKernel ${KERNEL_INFO} on an ${OS_ARCH} \e[0m"
+echo "---------------------------------"
+
+# 读取用户输入
+read -p "" account
+[ -z $account ] && read -p "" account  # 问题：没有引号
+read -s -t30 -p "" password
+echo
+echo "---------------------------------"
+
+# 验证（问题：没有引号，没有错误提示）
+[ $account == 'root' ] && [ $password == '123456' ] && echo "" || echo ""
+```
+
+**优化版本**：
+
+**代码位置**：[`code/linux/production-shell/simple_login.sh`](/code/linux/production-shell/simple_login.sh)
+
+```bash
+#!/bin/bash
+#
+# Script Name: simple_login.sh
+# Description: Simple login authentication demo
+# Author: clockwingsoar@outlook.com
+# Date: 2025-11-23
+# Version: 2.0 (Production-Ready)
+#
+# WARNING: This is for demonstration purposes only.
+# Do NOT use plain text passwords in production!
+#
+
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# System Information
+# -----------------------------------------------------------------------------
+readonly OS_INFO=$(cat /etc/redhat-release 2>/dev/null || echo "Unknown OS")
+readonly KERNEL_INFO=$(uname -r)
+readonly OS_ARCH=$(uname -m)
+readonly HOSTNAME=$(hostname)
+
+# -----------------------------------------------------------------------------
+# Configuration (In production, use hashed passwords!)
+# -----------------------------------------------------------------------------
+readonly VALID_USERNAME="root"
+readonly VALID_PASSWORD="123456"  # ⚠️ DEMO ONLY!
+
+# -----------------------------------------------------------------------------
+# Color definitions
+# -----------------------------------------------------------------------------
+readonly COLOR_GREEN='\e[32m'
+readonly COLOR_RED='\e[31m'
+readonly COLOR_RESET='\e[0m'
+
+# -----------------------------------------------------------------------------
+# Main Logic
+# -----------------------------------------------------------------------------
+clear
+
+# Display system information
+echo -e "${COLOR_GREEN}${OS_INFO}${COLOR_RESET}"
+echo -e "${COLOR_GREEN}Kernel ${KERNEL_INFO} on an ${OS_ARCH}${COLOR_RESET}"
+echo "---------------------------------"
+
+# Read username
+read -p "账号 (Username): " account
+
+# Validate username is not empty
+if [ -z "$account" ]; then
+    echo -e "${COLOR_RED}错误：用户名不能为空${COLOR_RESET}" >&2
+    exit 1
+fi
+
+# Read password (silent input, 30 seconds timeout)
+read -s -t30 -p "密码 (Password): " password || {
+    echo -e "\n${COLOR_RED}错误：输入超时${COLOR_RESET}" >&2
+    exit 1
+}
+echo  # New line after password input
+echo "---------------------------------"
+
+# Validate password is not empty
+if [ -z "$password" ]; then
+    echo -e "${COLOR_RED}错误：密码不能为空${COLOR_RESET}" >&2
+    exit 1
+fi
+
+# Authentication
+if [[ "$account" == "$VALID_USERNAME" && "$password" == "$VALID_PASSWORD" ]]; then
+    echo -e "${COLOR_GREEN}✓ 登录成功！欢迎, $account${COLOR_RESET}"
+    exit 0
+else
+    echo -e "${COLOR_RED}✗ 登录失败：用户名或密码错误${COLOR_RESET}" >&2
+    exit 1
+fi
+```
+
+**关键改进点**：
+
+| 改进项 | 原始版本 | 优化版本 | 原因 |
+|--------|----------|----------|------|
+| 变量引用 | `$account` 无引号 | `"$account"` | **本章核心：防止词分割** |
+| 条件判断 | `[ -z $account ]` | `[ -z "$account" ]` | **避免 -z 误判陷阱** |
+| 提示信息 | `read -p ""` 空提示 | `read -p "账号: "` | 用户友好 |
+| 空值处理 | 重复 `read` | `if [ -z ]` 验证 | 逻辑清晰 |
+| 超时处理 | 无 | `|| { ... }` 错误处理 | 避免挂起 |
+| 错误输出 | 无 | `>&2` 输出到 stderr | 符合规范 |
+| 成功/失败消息 | 空字符串 | 明确提示 | 用户体验 |
+| 安全性 | 单括号 `[ ]` | 双括号 `[[ ]]` | 更安全的字符串比较 |
+
+**运行效果**：
+
+```bash
+# 成功登录
+$ ./simple_login.sh
+Rocky Linux release 9.6 (Blue Onyx)
+Kernel 5.14.0-570.58.1.el9_6.x86_64 on an x86_64
+---------------------------------
+账号 (Username): root
+密码 (Password): 
+---------------------------------
+✓ 登录成功！欢迎, root
+
+# 失败场景
+$ ./simple_login.sh
+账号 (Username): soveran
+密码 (Password): 
+---------------------------------
+✗ 登录失败：用户名或密码错误
+```
+
+**安全警告**：
+- ⚠️ **仅供学习**：生产环境绝不使用明文密码
+- ✅ **实际方案**：使用 PAM、LDAP、OAuth 等认证系统
+- ✅ **密码存储**：使用 `sha256sum`、`bcrypt` 等哈希算法
+
+**本案例涵盖的知识点**：
+- ✅ `-z` 字符串空值检查（带引号）
+- ✅ `read` 命令的多种选项（`-s` 隐藏输入，`-t` 超时）
+- ✅ `[[ ]]` 双括号的安全字符串比较
+- ✅ `&&` 和 `||` 逻辑运算符
+- ✅ 错误输出重定向 `>&2`
+- ✅ 明确的退出码（0 成功，1 失败）
 
 #### 最佳实践
 
