@@ -276,6 +276,22 @@ $ [ -x memory_info.sh ] || echo "文件没有执行权限"
 $ [ -x memory_info.sh ] || chmod +x memory_info.sh  # 自动赋予权限
 $ [ -x memory_info.sh ] && ./memory_info.sh        # 再次检查并执行
 ... (脚本成功执行) ...
+
+# -s 测试：判断文件是否非空（大小 > 0）
+$ touch nihao.txt
+$ [ -s nihao.txt ] || echo "文件为空"
+文件为空
+
+$ echo nihao > file.txt
+$ [ -s file.txt ] && echo "文件不为空"
+文件不为空
+
+# -e 测试：判断文件是否存在（不区分类型）
+$ [ -e file.txt ] && echo "文件存在"
+文件存在
+
+$ [ -e file.txt1 ] || echo "文件不存在"
+文件不存在
 ```
 
 **典型应用场景**：
