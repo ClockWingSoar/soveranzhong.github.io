@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Script Name: memory_monitor.sh
+# Script Name: memory_info.sh
 # Description: Monitor system memory usage with colored output
 # Author: 钟翼翔 (clockwingsoar@outlook.com)
 # Date: 2025-11-23

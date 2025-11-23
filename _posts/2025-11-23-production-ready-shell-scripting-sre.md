@@ -268,6 +268,14 @@ $ [ -d weizhi.sddh ] || echo "不是一个目录"
 
 $ [ -d /tmp ] && echo "是一个目录"
 是一个目录
+
+# -x 测试：检查执行权限并自动修复
+$ [ -x memory_info.sh ] || echo "文件没有执行权限"
+文件没有执行权限
+
+$ [ -x memory_info.sh ] || chmod +x memory_info.sh  # 自动赋予权限
+$ [ -x memory_info.sh ] && ./memory_info.sh        # 再次检查并执行
+... (脚本成功执行) ...
 ```
 
 **典型应用场景**：
@@ -796,12 +804,12 @@ fi
 4. ✅ 使用 `bc` 进行布尔判断（阈值告警）
 5. ✅ 彩色输出分级（绿色=正常、黄色=警告、红色=严重）
 
-**代码位置**：[`code/linux/production-shell/memory_monitor.sh`](/code/linux/production-shell/memory_monitor.sh)
+**代码位置**：[`code/linux/production-shell/memory_info.sh`](/code/linux/production-shell/memory_info.sh)
 
 ```bash
 #!/bin/bash
 #
-# Script Name: memory_monitor.sh
+# Script Name: memory_info.sh
 # Description: Monitor system memory usage with colored output
 # Author: 钟翼翔 (clockwingsoar@outlook.com)
 # Date: 2025-11-23
@@ -898,7 +906,7 @@ main "$@"
 **运行效果**：
 
 ```bash
-$ ./memory_monitor.sh
+$ ./memory_info.sh
         rocky9.6-12 内存使用信息统计
 ==========================================
 内存总量:           3623 MB
