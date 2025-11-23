@@ -520,11 +520,6 @@ if (( (PERMISSION & READ_MASK) == READ_MASK )); then
     echo "拥有读权限"
 fi
 
-# 2. 简单的状态翻转 (逻辑非)
-FLAG=0
-FLAG=$(( ! FLAG ))
-echo $FLAG  # 输出 1
-```
 
 # 2. 简单的状态翻转 (逻辑非)
 FLAG=0
@@ -576,6 +571,56 @@ $ [[ $user == "root" || $pass == "wrong" ]] && echo "至少一项正确"
 **最佳实践**：
 - **推荐使用 `[[ ... && ... ]]`**：语法更接近现代编程语言，且支持短路求值。
 - **避免在 `[ ]` 中使用 `&&` 或 `||`**：这是语法错误（除非写成 `[ ] && [ ]`）。
+
+#### 实战技巧：网站可用性检测
+
+在脚本中检查 Web 服务状态时，我们可以利用 `wget` 或 `curl` 的退出码（Exit Code）。
+
+**使用 `wget` 检测**：
+- `--spider`: 不下载文件，只检查链接
+- `-T5`: 超时时间 5 秒
+- `-q`: 安静模式（不输出日志）
+- `-t2`: 重试 2 次
+
+```bash
+# 检测成功的网站
+$ wget --spider -T5 -q -t2 www.baidu.com
+$ echo $?
+0  # 0 表示成功
+
+# 检测不存在的网站
+$ wget --spider -T5 -q -t2 www.baidu.com1
+$ echo $?
+4  # 非 0 表示失败（4 表示网络错误）
+```
+
+**使用 `curl` 检测**：
+- `-s`: 静默模式
+- `-o /dev/null`: 丢弃输出内容
+
+```bash
+# 检测成功的网站
+$ curl -s -o /dev/null www.baidu.com
+$ echo $?
+0  # 0 表示成功
+
+# 检测不存在的网站
+$ curl -s -o /dev/null www.baidu.com1
+$ echo $?
+6  # 非 0 表示失败（6 表示无法解析主机）
+```
+
+**脚本应用示例**：
+
+```bash
+check_url() {
+    if curl -s --head --request GET "$1" | grep "200 OK" > /dev/null; then 
+        echo "✅ $1 is UP"
+    else
+        echo "❌ $1 is DOWN"
+    fi
+}
+```
 
 #### 综合案例：用户登录验证
 
