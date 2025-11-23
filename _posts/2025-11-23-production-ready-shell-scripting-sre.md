@@ -174,11 +174,19 @@ command1 || { echo "命令失败"; exit 1; }
 # 2. 检查目录存在，不存在则创建
 [ -d /tmp/mydir ] || mkdir -p /tmp/mydir
 
-# 3. 链式条件判断
+# 3. 目录存在性检查（一行 if-else）
+[ -d /etc ] && echo "dir is exist" || echo "dir is not exist"
+
+# 4. 用户名验证
+user="admin"
+[ "$user" == "admin" ] && echo "user name entered successfully" || echo "user name enter failed"
+
+# 5. 链式条件判断
 [ -f config.yml ] && [ -r config.yml ] && echo "配置文件可读"
 
-# 4. 一行实现 if-else
-[ $? -eq 0 ] && echo "成功" || echo "失败"
+# 6. 命令成功判断（使用退出码 $?）
+grep "error" /var/log/app.log
+[ $? -eq 0 ] && echo "发现错误日志" || echo "无错误"
 ```
 
 **注意事项**：
