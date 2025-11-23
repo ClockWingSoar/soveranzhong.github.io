@@ -57,6 +57,8 @@ TCP 是互联网的基石，理解其状态机是排查连接问题的关键。
 
 #### 三次握手 (The Handshake)
 
+![三次握手](../images/posts/2025-11-23-network-protocols-communication-sre/三次握手.jpg)
+
 ```mermaid
 sequenceDiagram
     participant Client
@@ -78,6 +80,8 @@ sequenceDiagram
 - **连接超时**：如果 Client 发出 SYN 后无响应，可能是防火墙丢包或 Server 没监听。
 
 #### 四次挥手 (The Wave)
+
+![四次挥手](../images/posts/2025-11-23-network-protocols-communication-sre/四次挥手.jpg)
 
 ```mermaid
 sequenceDiagram
