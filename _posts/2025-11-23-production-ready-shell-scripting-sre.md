@@ -622,6 +622,127 @@ check_url() {
 }
 ```
 
+#### 综合案例：网站健康检测脚本
+
+下面是一个生产级的网站健康检测脚本，支持选择 `wget` 或 `curl` 进行检测，并包含完整的错误处理和用户交互。
+
+**原始版本（存在问题）**：
+```bash
+#!/bin/bash
+site_addr="$1"
+[ -z ${site_addr} ] && echo "请输入待测试站点域名" && exit
+[ $# -ne 1 ] && echo "请保证输入1个脚本参数" && exit
+
+echo -e "\e[32m-----------检测平台支持的检测类型-----------
+1: wget
+2: curl
+----------------------------------------"'\033[0m'
+read -p "请输入网站的检测方法: " check_type
+
+# 问题：变量未引用，逻辑复杂，错误处理不规范
+[ ${check_type} == 1 ] && site_status=$(wget --spider -T5 -q -t2 ${site_addr} && echo "正常" || echo "异常")
+[ ${check_type} == 2 ] && site_status=$(curl -s -o /dev/null ${site_addr} && echo "正常" || echo "异常")
+
+echo "${site_addr} 站点状态: ${site_status}"
+```
+
+**优化版本**：
+
+**代码位置**：[`code/linux/production-shell/site_healthcheck.sh`](/code/linux/production-shell/site_healthcheck.sh)
+
+```bash
+#!/bin/bash
+#
+# Script Name: site_healthcheck.sh
+# Description: Check website availability using wget or curl
+# Author: clockwingsoar@outlook.com
+# Date: 2025-11-23
+# Version: 2.0 (Production-Ready)
+#
+
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# Color definitions
+# -----------------------------------------------------------------------------
+readonly COLOR_GREEN='\e[32m'
+readonly COLOR_RED='\e[31m'
+readonly COLOR_RESET='\e[0m'
+
+# -----------------------------------------------------------------------------
+# Functions
+# -----------------------------------------------------------------------------
+usage() {
+    echo -e "${COLOR_RED}用法: $0 <URL>${COLOR_RESET}" >&2
+    echo "示例: $0 www.baidu.com" >&2
+    exit 1
+}
+
+# -----------------------------------------------------------------------------
+# Main Logic
+# -----------------------------------------------------------------------------
+
+# 1. Parameter Validation
+if [ $# -ne 1 ]; then
+    echo -e "${COLOR_RED}错误：请提供待测试站点域名${COLOR_RESET}" >&2
+    usage
+fi
+
+readonly SITE_ADDR="$1"
+
+# 2. Select Check Method
+echo -e "${COLOR_GREEN}-----------检测平台支持的检测类型-----------"
+echo "1: wget (推荐)"
+echo "2: curl"
+echo -e "----------------------------------------${COLOR_RESET}"
+
+read -p "请输入网站的检测方法 [1/2]: " check_type
+
+# 3. Perform Check
+site_status="未知"
+
+case "$check_type" in
+    1)
+        # wget: --spider (不下载), -T5 (超时5秒), -q (静默), -t2 (重试2次)
+        if wget --spider -T5 -q -t2 "$SITE_ADDR"; then
+            site_status="正常"
+        else
+            site_status="异常"
+        fi
+        ;;
+    2)
+        # curl: -s (静默), -o /dev/null (丢弃输出), --fail (HTTP错误返回非0)
+        if curl -s -o /dev/null --fail "$SITE_ADDR"; then
+             site_status="正常"
+        else
+             site_status="异常"
+        fi
+        ;;
+    *)
+        echo -e "${COLOR_RED}错误：无效的选择${COLOR_RESET}" >&2
+        exit 1
+        ;;
+esac
+
+# 4. Output Result
+echo
+echo -e "${COLOR_RED}\t站点状态信息${COLOR_RESET}"
+echo -e "${COLOR_GREEN}================================${COLOR_RESET}"
+echo "${SITE_ADDR} 站点状态: ${site_status}"
+echo -e "${COLOR_GREEN}================================${COLOR_RESET}"
+```
+
+**关键改进点**：
+
+| 改进项 | 原始版本 | 优化版本 | 原因 |
+|--------|----------|----------|------|
+| 结构 | 线性执行 | `case` 语句 | 逻辑更清晰，易扩展 |
+| 变量引用 | 无引号 | 双引号 | 防止空值或空格导致的错误 |
+| 错误处理 | `exit` 无状态码 | `exit 1` | 明确告知失败 |
+| 输入验证 | 简单 `[ ]` | 严格检查 | 提高健壮性 |
+| `curl` 参数 | 无 `--fail` | 添加 `--fail` | 确保 HTTP 错误（如 404）被识别为失败 |
+| 用户体验 | 简单提示 | 颜色高亮 + 详细菜单 | 提升交互体验 |
+
 #### 综合案例：用户登录验证
 
 下面是一个完整的登录验证脚本，综合运用了字符串测试、条件判断和逻辑运算符。
