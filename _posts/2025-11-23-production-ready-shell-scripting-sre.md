@@ -207,9 +207,6 @@ fi
 
 **代码位置**：[`code/linux/production-shell/memory_monitor.sh`](/code/linux/production-shell/memory_monitor.sh)
 
-<details>
-<summary>点击查看完整代码</summary>
-
 ```bash
 #!/bin/bash
 #
@@ -307,8 +304,6 @@ main() {
 main "$@"
 ```
 
-</details>
-
 **运行效果**：
 
 ```bash
@@ -338,9 +333,6 @@ $ ./memory_monitor.sh
 为了规范团队的脚本编写风格，我整理了一个通用的 Shell 脚本模版。它包含了上述的所有最佳实践，以及标准的参数解析逻辑。
 
 **代码位置**：[`code/linux/production-shell/script_template.sh`](/code/linux/production-shell/script_template.sh)
-
-<details>
-<summary>点击查看完整代码</summary>
 
 ```bash
 #!/bin/bash
@@ -464,8 +456,6 @@ main() {
 main "$@"
 ```
 
-</details>
-
 ### 4.7 案例分析：日志监控脚本
 
 下面我们来看一个具体的案例：编写一个脚本，监控指定的日志文件，当发现特定关键字（如 "ERROR"）时触发告警。
@@ -476,9 +466,6 @@ main "$@"
 3. 结合 `grep` 进行逻辑判断。
 
 **代码位置**：[`code/linux/production-shell/log_monitor.sh`](/code/linux/production-shell/log_monitor.sh)
-
-<details>
-<summary>点击查看完整代码</summary>
 
 ```bash
 #!/bin/bash
@@ -578,8 +565,6 @@ main() {
 
 main "$@"
 ```
-
-</details>
 
 ## 总结
 
