@@ -399,6 +399,21 @@ $ [[ $string == v"*" ]] || echo "不匹配"
 $ [[ $string == v\* ]] || echo "不匹配"
 不匹配
 # 原因：\* 同样表示字面量星号
+
+# 5. 实战：检查文件扩展名
+$ script_name="file.sh"
+
+# 检查是否为 .sh 脚本
+$ [[ $script_name == *.sh ]] && echo "是 Shell 脚本"
+是 Shell 脚本
+
+# 检查是否为 .txt 文件
+$ [[ $script_name == *.txt ]] || echo "不是文本文件"
+不是文本文件
+
+# 使用 != 检查不匹配
+$ [[ $script_name != *.txt ]] && echo "确认不是 txt"
+确认不是 txt
 ```
 
 **实战测试：正则表达式匹配 (=~)**
