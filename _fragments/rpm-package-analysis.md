@@ -1,15 +1,15 @@
 ---
 layout: fragment
 title: RPM包管理与nginx包结构分析
- tags: [Linux, RPM, 包管理, nginx, Rocky Linux]
+tags: [Linux, RPM, 包管理, nginx, Rocky Linux]
 description: 详细介绍RPM包管理工具的使用，以及对nginx包结构的深入分析
- keywords: RPM, yum, nginx, 包管理, Rocky Linux, rpm2cpio
- mermaid: false
- sequence: false
- flow: false
- mathjax: false
- mindmap: false
- mindmap2: false
+keywords: RPM, yum, nginx, 包管理, Rocky Linux, rpm2cpio
+mermaid: false
+sequence: false
+flow: false
+mathjax: false
+mindmap: false
+mindmap2: false
 ---
 # RPM包管理与nginx包结构分析
 

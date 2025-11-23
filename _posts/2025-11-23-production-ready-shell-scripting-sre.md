@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Production-Ready Shell Scripting for SREs"
-date: 2025-11-23 12:00:00 +0800
+date: 2025-11-23 00:00:00 +0800
 categories: [Linux, SRE, DevOps]
 tags: [shell, bash, automation, best-practices]
 ---

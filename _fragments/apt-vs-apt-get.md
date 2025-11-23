@@ -1,15 +1,15 @@
 ---
 layout: fragment
 title: APT vs APT-GET 命令对比
- tags: [Linux, 包管理, Ubuntu, Debian]
+tags: [Linux, 包管理, Ubuntu, Debian]
 description: 详细对比Linux系统中APT和APT-GET命令的区别、功能和使用场景
- keywords: APT, APT-GET, Linux包管理, Ubuntu, Debian
- mermaid: false
- sequence: false
- flow: false
- mathjax: false
- mindmap: false
- mindmap2: false
+keywords: APT, APT-GET, Linux包管理, Ubuntu, Debian
+mermaid: false
+sequence: false
+flow: false
+mathjax: false
+mindmap: false
+mindmap2: false
 ---
 # APT vs APT-GET 命令对比
 

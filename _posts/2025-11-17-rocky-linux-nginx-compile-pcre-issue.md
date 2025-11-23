@@ -3,7 +3,7 @@ layout: post
 title: "Rocky Linux 9.6与Ubuntu 24手动编译安装Nginx详细指南"
 date: 2025-11-17 14:00:00
 categories: linux
- tags: [rocky-linux, ubuntu, nginx, 编译安装, 依赖管理]
+tags: [rocky-linux, ubuntu, nginx, 编译安装, 依赖管理]
 ---
 
 # Rocky Linux 9.6与Ubuntu 24手动编译安装Nginx详细指南
