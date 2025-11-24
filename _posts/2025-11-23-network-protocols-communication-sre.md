@@ -177,9 +177,13 @@ dig +trace www.google.com
 curl -w "\nDNS: %{time_namelookup}s\nTCP: %{time_connect}s\nSSL: %{time_appconnect}s\nTTFB: %{time_starttransfer}s\nTotal: %{time_total}s\n" -so /dev/null https://www.baidu.com
 ```
 
-#### 5. 物理链路诊断：`mii-tool`
+#### 5. 物理链路诊断：`mii-tool` 与 `ethtool`
 
-当怀疑是物理层问题（如网线松动、协商速率不匹配）时，`mii-tool` 是查看网卡底层状态的利器。
+当怀疑是物理层问题（如网线松动、协商速率不匹配）时，我们需要查看网卡的底层状态。
+
+##### 5.1 传统工具：`mii-tool`
+
+在较老的系统或特定的物理网卡上，`mii-tool` 非常直观。
 
 ```bash
 root@ubuntu24:~# mii-tool -v ens33
@@ -206,9 +210,66 @@ ens33: negotiated 1000baseT-FD flow-control, link ok
   # 对端设备（交换机）支持的能力。
 ```
 
+**局限性**：
+在现代 Linux 发行版（如 Rocky Linux 9）或虚拟化环境（如 VMware/KVM）中，`mii-tool` 可能会失效，因为它依赖的旧接口可能不被支持。
+
+```bash
+[root@rocky9 ~]# mii-tool ens160
+SIOCGMIIPHY on 'ens160' failed: Operation not supported
+# 原因：网卡驱动不支持 MII 寄存器访问（常见于 vmxnet3 等虚拟网卡）。
+```
+
+##### 5.2 现代标准：`ethtool`
+
+`ethtool` 是目前 Linux 下配置和查询网卡参数的标准工具，功能比 `mii-tool` 更强大。
+
+**查看网卡物理状态**：
+
+```bash
+[root@rocky9 ~]# ethtool ens160
+Settings for ens160:
+    Supported ports: [ TP ]
+    # 介质类型：双绞线 (Twisted Pair)
+
+    Supported link modes:   1000baseT/Full
+                            10000baseT/Full
+    # 支持的模式：千兆和万兆全双工
+
+    Supports auto-negotiation: No
+    # 不支持自动协商（虚拟网卡常见）
+
+    Speed: 10000Mb/s
+    # 当前速率：万兆
+
+    Duplex: Full
+    # 双工模式：全双工
+
+    Link detected: yes
+    # 物理链路正常
+```
+
+**查看驱动与固件信息**：
+
+通过 `ethtool -i` 可以区分物理网卡和虚拟网卡，这对于排查性能问题（如是否需要开启 TSO/GSO Offload）很重要。
+
+```bash
+# Ubuntu (VMware e1000 模拟网卡)
+root@ubuntu24:~# ethtool -i ens33
+driver: e1000
+version: 6.8.0-45-generic
+bus-info: 0000:02:01.0
+
+# Rocky Linux (VMware vmxnet3 半虚拟化网卡)
+[root@rocky9 ~]# ethtool -i ens160
+driver: vmxnet3
+# vmxnet3 是 VMware 的高性能半虚拟化驱动
+version: 1.7.0.0-k-NAPI
+bus-info: 0000:03:00.0
+```
+
 **SRE 关注点**：
-- **Link Status**: 如果不是 `link ok`，检查网线。
-- **Duplex Mismatch**: 如果一端是全双工 (FD)，另一端是半双工 (HD)，会导致严重的丢包和性能下降（Collision）。
+- **Link Status**: `Link detected: no` 意味着网线没插好或交换机端口关闭。
+- **Duplex/Speed**: 确认协商速率是否符合预期（比如千兆变百兆），以及是否全双工。
 
 ## 5. 总结
 
