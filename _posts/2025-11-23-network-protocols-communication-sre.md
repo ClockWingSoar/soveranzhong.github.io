@@ -271,6 +271,44 @@ bus-info: 0000:03:00.0
 - **Link Status**: `Link detected: no` 意味着网线没插好或交换机端口关闭。
 - **Duplex/Speed**: 确认协商速率是否符合预期（比如千兆变百兆），以及是否全双工。
 
+#### 6. 网络接口配置与状态：`ip addr`
+
+`ip addr` 是 `iproute2` 套件中最基础的命令，用于查看 IP 地址和接口状态。相比旧的 `ifconfig`，它能显示更多细节。
+
+```bash
+[root@rocky9 ~]# ip addr show ens160
+2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0c:29:b1:f4:54 brd ff:ff:ff:ff:ff:ff
+    altname enp3s0
+    inet 10.0.0.12/24 brd 10.0.0.255 scope global noprefixroute ens160
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:feb1:f454/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+```
+
+**详细解读**：
+
+1.  **接口状态与标志**：`<BROADCAST,MULTICAST,UP,LOWER_UP>`
+    *   `UP`: **管理状态**为开启（即管理员执行了 `ip link set up`）。
+    *   `LOWER_UP`: **物理层状态**为开启（即网线已插好，物理链路正常）。
+    *   **SRE 提示**：如果只有 `UP` 没有 `LOWER_UP`，说明网线没插好或交换机端口没开。
+
+2.  **MTU & Qdisc**：`mtu 1500 qdisc mq`
+    *   `mtu 1500`: 最大传输单元为 1500 字节（以太网标准）。如果两端 MTU 不一致（如一端开启巨型帧 9000），会导致大包丢弃。
+    *   `qdisc mq`: 排队规则 (Queueing Discipline)。`mq` 表示多队列，常见于多核 CPU 和高性能网卡。
+
+3.  **MAC 地址**：`link/ether 00:0c:29:b1:f4:54`
+    *   `brd ff:ff:ff:ff:ff:ff`: 广播地址，代表所有 MAC 地址。
+
+4.  **IPv4 地址**：`inet 10.0.0.12/24`
+    *   `brd 10.0.0.255`: 广播地址。
+    *   `scope global`: 全局有效，可用于互联网通信。
+    *   `noprefixroute`: 不自动添加路由（通常由 NetworkManager 管理）。
+
+5.  **IPv6 地址**：`inet6 fe80::.../64`
+    *   `scope link`: 仅在本地链路有效（Link-Local），不可路由到互联网。
+    *   `valid_lft forever`: 地址永久有效。
+
 ## 5. 总结
 
 网络协议看似枯燥，实则是分布式系统的血管。作为 SRE，我们不需要成为网络专家，但必须掌握：
