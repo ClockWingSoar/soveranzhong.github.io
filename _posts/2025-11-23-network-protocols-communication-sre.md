@@ -177,6 +177,39 @@ dig +trace www.google.com
 curl -w "\nDNS: %{time_namelookup}s\nTCP: %{time_connect}s\nSSL: %{time_appconnect}s\nTTFB: %{time_starttransfer}s\nTotal: %{time_total}s\n" -so /dev/null https://www.baidu.com
 ```
 
+#### 5. 物理链路诊断：`mii-tool`
+
+当怀疑是物理层问题（如网线松动、协商速率不匹配）时，`mii-tool` 是查看网卡底层状态的利器。
+
+```bash
+root@ubuntu24:~# mii-tool -v ens33
+ens33: negotiated 1000baseT-FD flow-control, link ok
+# 协商结果：1000Mbps 全双工 (FD)，启用了流量控制。
+# link ok：物理连接正常。
+
+  product info: Yukon 88E1011 rev 3
+  # 网卡型号信息
+
+  basic mode:   autonegotiation enabled
+  # 开启了自动协商，网卡会尝试与对端交换信息以选择最佳模式。
+
+  basic status: autonegotiation complete, link ok
+  # 自动协商成功完成。
+
+  capabilities: 1000baseT-FD 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  # 本端网卡支持的能力：1000/100/10 Mbps 的全双工/半双工。
+
+  advertising:  1000baseT-FD 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  # 本端宣告的能力。
+
+  link partner: 1000baseT-HD 1000baseT-FD 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  # 对端设备（交换机）支持的能力。
+```
+
+**SRE 关注点**：
+- **Link Status**: 如果不是 `link ok`，检查网线。
+- **Duplex Mismatch**: 如果一端是全双工 (FD)，另一端是半双工 (HD)，会导致严重的丢包和性能下降（Collision）。
+
 ## 5. 总结
 
 网络协议看似枯燥，实则是分布式系统的血管。作为 SRE，我们不需要成为网络专家，但必须掌握：
