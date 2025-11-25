@@ -96,7 +96,9 @@ cat /etc/services
 
 #### 三次握手 (The Handshake)
 
-![image-20251125173915440](/images/posts/2025-11-23-network-protocols-communication-sre/image-20251125173915440.png)
+<img src="2025-11-23-network-protocols-communication-sre.assets/image-20251125222530458.png" alt="image-20251125222530458" style="zoom:50%;" />
+
+![image-20251125173915440](/images/posts/2025-11-23-network-protocols-communication-sre/三次握手.png)
 
 ![三次握手](/images/posts/2025-11-23-network-protocols-communication-sre/三次握手.jpg)
 
@@ -185,10 +187,10 @@ root@ubuntu24:~# ss -tnl
 
 #### 四次挥手 (The Wave)
 
+<img src="2025-11-23-network-protocols-communication-sre.assets/image-20251125224404090.png" alt="image-20251125224404090" style="zoom:50%;" />
 
 
-![image-20251125182907386](/images/posts/2025-11-23-network-protocols-communication-sre/image-20251125182907386.png)
-
+![四次挥手](/images/posts/2025-11-23-network-protocols-communication-sre/四次挥手.png)
 ![四次挥手](/images/posts/2025-11-23-network-protocols-communication-sre/四次挥手.jpg)
 
 ```mermaid
