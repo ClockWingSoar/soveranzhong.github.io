@@ -96,6 +96,8 @@ cat /etc/services
 
 #### 三次握手 (The Handshake)
 
+![image-20251125173915440](../images/posts/2025-11-23-network-protocols-communication-sre/image-20251125173915440.png)
+
 ![三次握手](../images/posts/2025-11-23-network-protocols-communication-sre/三次握手.jpg)
 
 ```mermaid
@@ -182,6 +184,10 @@ root@ubuntu24:~# ss -tnl
 > netcat 是 SRE 工具箱中的瑞士军刀，掌握它可以快速解决很多网络相关问题。
 
 #### 四次挥手 (The Wave)
+
+
+
+![image-20251125182907386](../images/posts/2025-11-23-network-protocols-communication-sre/image-20251125182907386.png)
 
 ![四次挥手](../images/posts/2025-11-23-network-protocols-communication-sre/四次挥手.jpg)
 
