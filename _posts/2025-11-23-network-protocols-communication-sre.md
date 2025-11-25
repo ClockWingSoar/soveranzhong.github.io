@@ -118,6 +118,69 @@ sequenceDiagram
   - *优化*：开启 `net.ipv4.tcp_syncookies`。
 - **连接超时**：如果 Client 发出 SYN 后无响应，可能是防火墙丢包或 Server 没监听。
 
+### TCP连接实战：使用netcat模拟TCP通信
+
+**netcat** (简称 `nc`) 是 SRE 常用的网络工具，可以用来模拟 TCP/UDP 连接，测试端口连通性，甚至作为简单的服务器使用。
+
+#### 安装netcat
+```bash
+# Rocky/CentOS 系统
+yum install -y nc
+
+# Ubuntu/Debian 系统
+apt install -y netcat-openbsd
+```
+
+#### 模拟TCP连接过程
+
+**1. 服务端监听端口**
+在 Rocky 系统 (10.0.0.12) 上启动一个 TCP 监听服务：
+```bash
+# 监听 222 端口
+nc -l 222
+```
+
+**2. 客户端发起连接**
+在 Ubuntu 系统 (10.0.0.13) 上连接到服务端：
+```bash
+# 连接到 10.0.0.12 的 222 端口
+nc 10.0.0.12 222
+```
+
+**3. 双向通信**
+连接建立后，双方可以互相发送数据：
+```bash
+# 在客户端输入
+123
+333
+
+# 服务端会收到同样的数据，并可以回复
+```
+
+**4. 查看TCP连接状态**
+在服务端使用 `ss` 命令查看 TCP 连接状态：
+```bash
+ss -tn
+State      Recv-Q Send-Q Local Address:Port  Peer Address:Port
+ESTAB      0      0      10.0.0.12:222       10.0.0.13:51760   # 已建立的TCP连接
+```
+
+**5. 查看监听状态的TCP端口**
+```bash
+# 使用 ss 查看所有监听状态的TCP端口
+root@rocky9 ~]# ss -tnl
+root@ubuntu24:~# ss -tnl
+```
+
+**SRE 实战意义**：
+- **快速验证端口连通性**：不需要依赖具体服务，直接测试TCP连接
+- **模拟服务行为**：在服务开发完成前，可以用netcat模拟服务响应
+- **测试防火墙规则**：验证防火墙是否正确放行特定端口的流量
+- **调试网络问题**：通过简单的连接测试，定位是网络问题还是服务问题
+
+> [!TIP]
+> netcat 是 SRE 工具箱中的瑞士军刀，掌握它可以快速解决很多网络相关问题。
+
 #### 四次挥手 (The Wave)
 
 ![四次挥手](../images/posts/2025-11-23-network-protocols-communication-sre/四次挥手.jpg)
