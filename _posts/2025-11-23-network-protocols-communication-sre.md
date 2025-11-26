@@ -480,11 +480,41 @@ sudo tcpdump -i eth0 tcp port 80
 
 
 **SRE 关注点（高频故障点）**：
+
+#### TCP 状态详解
+
+| 状态 | 描述 | 常见角色 |
+|------|------|----------|
+| **LISTEN** | 套接字正在监听入站连接 | 服务端 |
+| **CLOSE** | 套接字未被使用 | 两端 |
+| **CLOSE_WAIT** | 远程端已关闭，等待本地关闭套接字（半关闭状态） | 服务端（被动关闭方） |
+| **TIME_WAIT** | 主动关闭后等待网络中残余数据包处理 | 客户端（主动关闭方） |
+| **FIN_WAIT_1** | 已发送FIN，等待ACK | 主动关闭方 |
+| **FIN_WAIT_2** | 已收到FIN的ACK，等待对方的FIN | 主动关闭方 |
+| **LAST_ACK** | 已关闭套接字，等待最后一个ACK | 被动关闭方 |
+| **CLOSING** | 双方同时关闭，等待所有数据发送完成 | 两端 |
+| **UNKNOWN** | 套接字状态未知 | - |
+
+#### 关闭场景分析
+
+- **只有服务端的ACK**：
+  客户端发送FIN后，只收到服务端的ACK，会进入FIN_WAIT_2状态。后续收到服务端的FIN时，回应ACK并进入TIME_WAIT状态。
+
+- **只有服务端的FIN**：
+  客户端收到服务端的FIN时，回应ACK进入CLOSING状态，然后收到服务端的ACK时进入TIME_WAIT状态。
+
+- **既有服务端的ACK，又有FIN**：
+  客户端同时收到服务端的ACK和FIN，直接进入TIME_WAIT状态。
+
+#### 关键状态深入分析
+
 - **CLOSE_WAIT**：**服务端**（被动关闭方）卡在这里，通常是**代码 Bug**。
   - *原因*：程序收到了 FIN，但没有调用 `close()` 关闭 socket。
   - *后果*：占用文件句柄，最终导致服务崩溃。
+
 - **TIME_WAIT**：**客户端**（主动关闭方）卡在这里，是**正常现象**，但过多会有害。
   - *作用*：确保迷路的包在网络中消失；确保 Server 收到最后的 ACK。
+  - *持续时间*：默认为2MSL（RFC 1122建议值2分钟），但实际由内核参数控制。
   - *危害*：短连接高并发场景下，耗尽源端口。
   - *持续时间控制*：由内核参数 `net.ipv4.tcp_fin_timeout` 决定，默认值为60秒（如用户实际环境所示）。
   - *查看参数值*：
@@ -497,11 +527,50 @@ sudo tcpdump -i eth0 tcp port 80
     cat /proc/sys/net/ipv4/tcp_fin_timeout
     # 输出：60
     ```
-  - *优化策略*：
-    - 开启 `net.ipv4.tcp_tw_reuse`（允许复用处于TIME_WAIT状态的连接，注意：`tcp_tw_recycle` 在新内核已废弃）
-    - 调整 `tcp_fin_timeout` 值（谨慎操作，过低可能导致连接异常）
-    - 增加可用源端口范围：调整 `net.ipv4.ip_local_port_range`
-  - *注意事项*：修改 `tcp_fin_timeout` 会影响所有TCP连接的TIME_WAIT持续时间，建议根据实际业务场景调整，一般在15-60秒之间
+
+#### TCP 内核参数调整
+
+以下是常见的TCP内核参数调整建议，可在`/etc/sysctl.conf`文件中配置：
+
+```bash
+# 查看当前配置
+cat /etc/sysctl.conf
+
+# 应用新配置
+sysctl -p
+```
+
+| 参数 | 描述 | 默认值 | 建议值 |
+|------|------|--------|--------|
+| **net.ipv4.tcp_fin_timeout** | 套接字保持在FIN-WAIT-2状态的时间 | 60秒 | 15-60秒 |
+| **net.ipv4.tcp_tw_reuse** | 允许将TIME-WAIT套接字重新用于新连接 | 0（关闭） | 1（开启） |
+| **net.ipv4.tcp_tw_recycle** | 开启TIME-WAIT套接字快速回收（新内核已废弃） | 0（关闭） | 0（不建议开启） |
+| **net.ipv4.tcp_syncookies** | 开启SYN Cookies防范SYN攻击 | 1（开启） | 1 |
+| **net.ipv4.tcp_keepalive_time** | TCP发送keepalive消息的频度 | 7200秒（2小时） | 600秒（10分钟） |
+| **net.ipv4.ip_local_port_range** | 向外连接的端口范围 | 32768 61000 | 2000 65000 |
+| **net.ipv4.tcp_max_syn_backlog** | SYN队列长度（半连接队列） | 1024 | 16384 |
+| **net.ipv4.tcp_max_tw_buckets** | 系统同时保持TIME_WAIT套接字的最大数量 | 180000 | 36000 |
+| **net.ipv4.route.gc_timeout** | 路由缓存过期时间 | - | 100 |
+| **net.ipv4.tcp_syn_retries** | 内核放弃建立连接前发送SYN包的数量 | 6 | 1 |
+| **net.ipv4.tcp_synack_retries** | 内核放弃连接前发送SYN+ACK包的数量 | 5 | 1 |
+| **net.ipv4.tcp_max_orphans** | 未关联到用户文件句柄的TCP套接字最大数量 | 8192 | 16384 |
+| **net.core.somaxconn** | 同时发起的TCP最大连接数（全连接队列） | 128 | 16384 |
+| **net.core.netdev_max_backlog** | 网络接口接收数据包的最大队列长度 | 1000 | 16384 |
+
+#### 优化策略
+
+- 开启 `net.ipv4.tcp_tw_reuse`（允许复用处于TIME_WAIT状态的连接）
+- 调整 `tcp_fin_timeout` 值（谨慎操作，过低可能导致连接异常）
+- 增加可用源端口范围：调整 `net.ipv4.ip_local_port_range`
+- 调整SYN队列和全连接队列长度，适应高并发场景
+- 缩短TCP连接超时时间，快速释放资源
+
+#### 注意事项
+
+- 修改 `tcp_fin_timeout` 会影响所有TCP连接的TIME_WAIT持续时间，建议根据实际业务场景调整，一般在15-60秒之间
+- `tcp_tw_recycle` 在新内核中已废弃，不建议开启
+- 调整参数时需谨慎，建议逐步调整并观察系统表现
+- 不同业务场景可能需要不同的参数配置，如LVS、Squid等中间件服务器需要特殊调优
 
 ### 4.3 应用层核心：DNS 与 HTTP
 
