@@ -166,6 +166,188 @@ root@ubuntu24:~# ss -tnl
 - **测试防火墙规则**：验证防火墙是否正确放行特定端口的流量
 - **调试网络问题**：通过简单的连接测试，定位是网络问题还是服务问题
 
+### TCP连接实战：实际三次握手和四次挥手分析
+
+#### 案例背景
+用户在Rocky Linux主机(10.0.0.12)上执行`curl 10.0.0.13`访问Ubuntu主机(10.0.0.13)上的Nginx服务，同时在Ubuntu主机上使用`tcpdump -i eth0 tcp port 80`捕获了完整的TCP连接过程。
+
+#### 捕获结果分析
+
+**1. 三次握手过程**
+```bash
+# 1. Client(10.0.0.12)发送SYN包，发起连接请求
+09:04:23.244955 IP 10.0.0.12.59090 > ubuntu24.http: Flags [S], seq 1442361078, win 64240, options [mss 1460,sackOK,TS val 3589742437 ecr 0,nop,wscale 7], length 0 
+# 标志位：[S] = SYN (同步序列编号)
+# 含义：Client请求建立连接，初始序列号(ISN)=1442361078
+
+# 2. Server(ubuntu24)发送SYN+ACK包，同意建立连接
+09:04:23.244976 IP ubuntu24.http > 10.0.0.12.59090: Flags [S.], seq 3759693292, ack 1442361079, win 65160, options [mss 1460,sackOK,TS val 3250495654 ecr 3589742437,nop,wscale 7], length 0 
+# 标志位：[S.] = SYN+ACK (同步+确认)
+# 含义：Server同意连接，Server的ISN=3759693292，确认号=Client的ISN+1
+
+# 3. Client发送ACK包，连接建立完成
+09:04:23.245259 IP 10.0.0.12.59090 > ubuntu24.http: Flags [.], ack 1, win 502, options [nop,nop,TS val 3589742437 ecr 3250495654], length 0 
+# 标志位：[.] = ACK (确认)
+# 含义：Client确认收到Server的SYN+ACK，确认号=Server的ISN+1
+# 此时TCP连接建立完成，进入ESTABLISHED状态
+```
+
+**2. 数据传输过程**
+```bash
+# Client发送HTTP GET请求
+09:04:23.245260 IP 10.0.0.12.59090 > ubuntu24.http: Flags [P.], seq 1:74, ack 1, win 502, options [nop,nop,TS val 3589742437 ecr 3250495654], length 73: HTTP: GET / HTTP/1.1 
+# 标志位：[P.] = PSH+ACK (推送+确认)
+# 含义：Client发送HTTP请求数据，PSH标志要求立即推送数据给应用层
+# 数据长度：73字节（GET / HTTP/1.1请求）
+
+# Server确认收到请求
+09:04:23.245290 IP ubuntu24.http > 10.0.0.12.59090: Flags [.], ack 74, win 509, options [nop,nop,TS val 3250495654 ecr 3589742437], length 0 
+
+# Server发送HTTP响应
+09:04:23.245470 IP ubuntu24.http > 10.0.0.12.59090: Flags [P.], seq 1:863, ack 74, win 509, options [nop,nop,TS val 3250495654 ecr 3250495654], length 862: HTTP: HTTP/1.1 200 OK 
+# 数据长度：862字节（HTTP 200 OK响应，包含HTML内容）
+
+# Client确认收到响应
+09:04:23.245801 IP 10.0.0.12.59090 > ubuntu24.http: Flags [.], ack 863, win 496, options [nop,nop,TS val 3589742437 ecr 3250495654], length 0 
+```
+
+**3. 四次挥手过程**
+```bash
+# 1. Client发送FIN包，请求关闭连接
+09:04:23.245994 IP 10.0.0.12.59090 > ubuntu24.http: Flags [F.], seq 74, ack 863, win 496, options [nop,nop,TS val 3589742438 ecr 3250495654], length 0 
+# 标志位：[F.] = FIN+ACK (结束+确认)
+# 含义：Client请求关闭连接，不再发送数据
+
+# 2. Server确认收到FIN
+09:04:23.246099 IP ubuntu24.http > 10.0.0.12.59090: Flags [F.], seq 863, ack 75, win 509, options [nop,nop,TS val 3250495655 ecr 3589742438], length 0 
+# 标志位：[F.] = FIN+ACK (结束+确认)
+# 含义：Server确认收到Client的FIN，同时也请求关闭连接
+
+# 3. Client确认收到Server的FIN
+09:04:23.246370 IP 10.0.0.12.59090 > ubuntu24.http: Flags [.], ack 864, win 496, options [nop,nop,TS val 3589742438 ecr 3250495655], length 0 
+# 标志位：[.] = ACK (确认)
+# 含义：Client确认收到Server的FIN，连接关闭完成
+```
+
+**4. 对应的curl命令结果**
+```bash
+0 ✓ 09:02:46 root@rocky9.6-12,10.0.0.12:~ # curl 10.0.0.13
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+...
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+0 ✓ 09:04:23 root@rocky9.6-12,10.0.0.12:~ #
+# 这是curl命令获取到的Nginx默认页面，对应TCP连接中的HTTP响应数据
+```
+
+**SRE关注点**：
+- **连接建立时间**：三次握手耗时约0.3ms（从SYN到ACK的时间差），说明网络延迟很低
+- **数据传输效率**：HTTP请求（73字节）和响应（862字节）都在单个TCP段中传输，没有分片
+- **连接关闭方式**：使用标准的四次挥手关闭连接，没有出现异常状态
+- **TCP参数**：双方都使用了MSS 1460、SACK和窗口缩放等优化参数
+
+**分析思路**：
+1. 首先确认TCP连接是否成功建立（三次握手是否完整）
+2. 检查数据传输是否正常（PSH标志位表示数据推送）
+3. 验证连接关闭是否正常（四次挥手是否完整）
+4. 关注TCP标志位和序列号的变化，理解连接状态的转换
+5. 结合应用层数据（HTTP请求/响应），理解端到端的通信过程
+
+### 网络故障排查案例：Wireshark看不到虚拟机间流量
+
+#### 问题现象
+在使用Wireshark监听VMnet8网卡时，只能看到10.0.0.12到10.0.0.1的流量，而看不到10.0.0.12到10.0.0.13的TCP流量，尽管执行`curl 10.0.0.13`能成功获取响应。
+
+#### 排查步骤
+
+**1. 验证网络连通性**
+```bash
+# 在Rocky主机(10.0.0.12)上ping Ubuntu主机(10.0.0.13)
+ping 10.0.0.13
+PING 10.0.0.13 (10.0.0.13) 56(84) 比特的数据。
+64 比特，来自 10.0.0.13: icmp_seq=1 ttl=64 时间=0.385 毫秒
+64 比特，来自 10.0.0.13: icmp_seq=2 ttl=64 时间=0.382 毫秒
+# 连通性正常
+
+# 追踪路由，验证直接通信
+0 ✓ 08:56:16 root@rocky9.6-12,10.0.0.12:~ # traceroute 10.0.0.13 
+ traceroute to 10.0.0.13 (10.0.0.13), 30 hops max, 60 byte packets 
+  1  10.0.0.13 (10.0.0.13)  0.379 ms  0.335 ms  0.313 ms 
+0 ✓ 08:56:23 root@rocky9.6-12,10.0.0.12:~ #
+# 直接到达，只经过1跳，验证虚拟机间直接通信
+```
+
+**2. 检查Nginx服务状态**
+```bash
+# 在Ubuntu主机(10.0.0.13)上检查Nginx配置
+cat /etc/nginx/sites-available/default
+# 确认监听80端口
+listen 80 default_server;
+listen [::]:80 default_server;
+
+# 检查Nginx是否正在监听80端口
+ss -lntup | grep 80
+tcp   LISTEN 0      511          0.0.0.0:80         0.0.0.0:*
+tcp   LISTEN 0      511             [::]:80            [::]:*
+# Nginx正常监听80端口
+```
+
+**3. 分析问题原因**
+- **VMware NAT模式特性**：在NAT模式下，虚拟机间的流量可能不会经过主机的虚拟网卡，而是直接在VMware内部交换机转发
+- **Wireshark捕获限制**：Wireshark只能捕获经过主机网卡的流量，无法捕获VMware内部交换机的直接流量
+- **网关转发现象**：10.0.0.2是VMnet8的网关IP，10.0.0.1是宿主机IP，部分流量可能通过网关转发
+
+**4. 解决方案**
+- 使用虚拟机内部的网络工具（如`tcpdump`）捕获流量：`tcpdump -i eth0 tcp port 80`
+- 将VMware网络模式改为**桥接模式**，使虚拟机直接连接到物理网络
+- 在VMware网络编辑器中调整NAT设置，启用流量监控
+
+**5. 验证解决方案**
+```bash
+# 在Ubuntu主机上使用tcpdump捕获流量
+sudo tcpdump -i eth0 tcp port 80
+# 此时可以看到来自10.0.0.12的TCP连接（如访问HTTP服务）
+```
+
+**常见问题：为什么没捕获到ping或traceroute流量？**
+- **协议不匹配**：当前命令只捕获`TCP port 80`流量，而`ping`使用ICMP协议，`traceroute`默认使用UDP协议
+- **过滤器限制**：tcpdump的过滤器决定了能捕获哪些流量
+
+**捕获不同协议流量的正确命令：**
+```bash
+# 捕获ICMP流量（包括ping）
+sudo tcpdump -i eth0 icmp
+
+# 捕获UDP流量（包括默认traceroute）
+sudo tcpdump -i eth0 udp
+
+# 捕获所有流量（不推荐，会产生大量数据）
+sudo tcpdump -i eth0
+
+# 捕获特定主机的所有流量
+sudo tcpdump -i eth0 host 10.0.0.12
+```
+
+**用户实际捕获结果分析**：
+```bash
+# 用户在10.0.0.13上执行的命令
+sudo tcpdump -i eth0 tcp port 80
+# 捕获到10.0.0.12访问docker.nju.edu.cn的HTTP流量，这是因为：
+# 1. 该流量使用TCP协议且端口为80
+# 2. 匹配了当前过滤器条件
+# 3. ping和traceroute使用其他协议，因此未被捕获
+```
+
+#### SRE 经验总结
+- **工具局限性**：不同工具的捕获范围不同，Wireshark无法捕获VMware内部流量
+- **网络模式理解**：深入理解VMware各种网络模式的流量路径
+- **多工具协作**：结合`ping`、`ss`、`tcpdump`和`Wireshark`等工具进行全面排查
+- **配置验证**：确认服务监听配置和网络连通性是排查的基础
+
 > [!TIP]
 > netcat 是 SRE 工具箱中的瑞士军刀，掌握它可以快速解决很多网络相关问题。
 
