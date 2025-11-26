@@ -835,7 +835,115 @@ dig +trace www.google.com
 curl -w "\nDNS: %{time_namelookup}s\nTCP: %{time_connect}s\nSSL: %{time_appconnect}s\nTTFB: %{time_starttransfer}s\nTotal: %{time_total}s\n" -so /dev/null https://www.baidu.com
 ```
 
-#### 5. 物理链路诊断：`mii-tool` 与 `ethtool`
+#### 5. 文件描述符网络通信：`/dev/tcp` 伪设备
+
+`/dev/tcp` 是 Bash 提供的一种特殊伪设备，允许通过文件描述符直接进行 TCP 网络通信。尽管 `ls /dev/tcp` 会显示"没有那个文件或目录"，但它是 Bash 内核中的一个虚拟设备，用于模拟网络套接字。
+
+##### 5.1 基本原理与使用示例
+
+```bash
+# 示例1：创建双向文件描述符连接到百度
+root@rocky9:~# exec 8<>/dev/tcp/www.baidu.com/80
+
+# 查看文件描述符状态
+root@rocky9:~# ll /proc/$$/fd
+lrwx------ 1 root root 64 11月 26 15:08 8 -> 'socket:[137398]'  # 已创建套接字
+
+# 发送 HTTP 请求
+root@rocky9:~# echo -e "GET / HTTP/1.1\nHost: www.baidu.com\n\n" >&8
+
+# 读取响应
+root@rocky9:~# cat <&8
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Length: 29506
+...
+
+# 示例2：仅测试 TCP 连通性（不发送数据）
+root@rocky9:~# < /dev/tcp/127.0.0.1/80  # 成功，无输出
+root@rocky9:~# < /dev/tcp/127.0.0.1/8088  # 失败，返回连接拒绝
+-bash: connect: 拒绝连接
+-bash: /dev/tcp/127.0.0.1/8088: 拒绝连接
+```
+
+##### 5.2 SRE 视角的使用场景
+
+**1. 轻量级连通性测试**
+- **优势**：无需依赖 `curl`、`telnet` 等外部工具，纯 Bash 内置实现
+- **适用场景**：容器镜像精简（仅保留 Bash）、嵌入式系统、初始化脚本
+- **示例**：启动脚本中检查服务端口是否就绪
+  ```bash
+  # 等待服务启动完成
+  while ! < /dev/tcp/localhost/8080 2>/dev/null; do
+      sleep 1
+  done
+  ```
+
+**2. 批量端口扫描**
+- **优势**：单进程、低资源消耗，适合快速扫描大量端口
+- **适用场景**：服务发现、安全审计、配置验证
+- **示例**：扫描 1-1000 端口，输出开放的端口
+  ```bash
+  for port in {1..1000}; do
+      < /dev/tcp/192.168.1.100/$port 2>/dev/null && echo "Port $port is open"
+  done
+  ```
+
+**3. 长连接保持与心跳检测**
+- **优势**：通过文件描述符可以轻松管理长连接
+- **适用场景**：监控系统、负载均衡器健康检查、服务间心跳
+- **示例**：定期发送心跳包保持连接
+  ```bash
+  exec 9<>/dev/tcp/monitor-server/9000
+  while true; do
+      echo "PING $(date)" >&9
+      read -t 1 response <&9
+      [ $? -eq 0 ] && echo "Heartbeat received: $response" || echo "No response"
+      sleep 60
+  done
+  ```
+
+**4. 网络延迟基准测试**
+- **优势**：排除应用层协议开销，仅测试 TCP 连接建立时间
+- **适用场景**：网络质量评估、跨 AZ/Region 延迟测试、CDN 节点选择
+- **示例**：测试连接建立延迟
+  ```bash
+  time bash -c "< /dev/tcp/baidu.com/80"
+  # 输出：0.02s user 0.01s system 0% cpu 0.150 total
+  ```
+
+**5. 生产环境应急排查**
+- **优势**：在系统资源耗尽（如内存不足、磁盘满）时，基础工具可能无法运行，但 Bash 内置功能仍可用
+- **适用场景**：系统崩溃前诊断、工具依赖损坏、容器资源受限
+- **示例**：在高负载下测试核心服务连通性
+  ```bash
+  # 当 top/ps 等工具无法运行时
+  if < /dev/tcp/db-server/3306 2>/dev/null; then
+      echo "Database connectivity: OK"
+  else
+      echo "Database connectivity: FAILED"
+  fi
+  ```
+
+##### 5.3 生产实践注意事项
+
+1. **仅支持 Bash**：`/dev/tcp` 是 Bash 特性，不支持其他 shell（如 sh、dash）
+2. **无超时机制**：默认情况下，连接尝试会一直阻塞，建议使用 `timeout` 命令包装
+   ```bash
+   timeout 5 bash -c "< /dev/tcp/unreachable-host/80" || echo "Connection timed out"
+   ```
+3. **资源泄漏风险**：使用 `exec` 创建的文件描述符需手动关闭，否则会持续占用资源
+   ```bash
+   exec 8<>/dev/tcp/example.com/80
+   # 使用完毕后关闭
+   exec 8<&-
+   exec 8>&-
+   ```
+4. **权限限制**：在容器或受限环境中，可能被 SELinux 或 AppArmor 限制使用
+
+#### 6. 物理链路诊断：`mii-tool` 与 `ethtool`
 
 当怀疑是物理层问题（如网线松动、协商速率不匹配）时，我们需要查看网卡的底层状态。
 
