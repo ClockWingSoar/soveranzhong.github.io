@@ -96,26 +96,10 @@ cat /etc/services
 
 #### 三次握手 (The Handshake)
 
-<img src="2025-11-23-network-protocols-communication-sre.assets/image-20251125222530458.png" alt="image-20251125222530458" style="zoom:50%;" />
 
 ![image-20251125173915440](/images/posts/2025-11-23-network-protocols-communication-sre/三次握手.png)
 
-![三次握手](/images/posts/2025-11-23-network-protocols-communication-sre/三次握手.jpg)
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Server
-    Note left of Client: CLOSED
-    Note right of Server: LISTEN
-    Client->>Server: SYN (seq=x)
-    Note left of Client: SYN_SENT
-    Server->>Client: SYN, ACK (seq=y, ack=x+1)
-    Note right of Server: SYN_RCVD
-    Client->>Server: ACK (ack=y+1)
-    Note left of Client: ESTABLISHED
-    Note right of Server: ESTABLISHED
-```
 
 **SRE 关注点**：
 - **SYN Flood 攻击**：如果 Server 收到大量 SYN 但没收到 ACK，`SYN_RCVD` 队列会满。
@@ -187,29 +171,9 @@ root@ubuntu24:~# ss -tnl
 
 #### 四次挥手 (The Wave)
 
-<img src="2025-11-23-network-protocols-communication-sre.assets/image-20251125224404090.png" alt="image-20251125224404090" style="zoom:50%;" />
-
 
 ![四次挥手](/images/posts/2025-11-23-network-protocols-communication-sre/四次挥手.png)
-![四次挥手](/images/posts/2025-11-23-network-protocols-communication-sre/四次挥手.jpg)
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Server
-    Note left of Client: ESTABLISHED
-    Note right of Server: ESTABLISHED
-    Client->>Server: FIN (seq=u)
-    Note left of Client: FIN_WAIT_1
-    Server->>Client: ACK (ack=u+1)
-    Note right of Server: CLOSE_WAIT
-    Note left of Client: FIN_WAIT_2
-    Server->>Client: FIN (seq=v)
-    Note right of Server: LAST_ACK
-    Client->>Server: ACK (ack=v+1)
-    Note left of Client: TIME_WAIT
-    Note right of Server: CLOSED
-```
 
 **SRE 关注点（高频故障点）**：
 - **CLOSE_WAIT**：**服务端**（被动关闭方）卡在这里，通常是**代码 Bug**。
