@@ -169,69 +169,84 @@ root@ubuntu24:~# ss -tnl
 ### TCP连接实战：实际三次握手和四次挥手分析
 
 #### 案例背景
-用户在Rocky Linux主机(10.0.0.12)上执行`curl 10.0.0.13`访问Ubuntu主机(10.0.0.13)上的Nginx服务，同时在Ubuntu主机上使用`tcpdump -i eth0 tcp port 80`捕获了完整的TCP连接过程。
+用户在Rocky Linux主机(10.0.0.12)上执行`curl 10.0.0.13`访问Ubuntu主机(10.0.0.13)上的Nginx服务，同时在Ubuntu主机上使用`tcpdump -S -i eth0 tcp port 80`捕获了完整的TCP连接过程（使用`-S`选项显示绝对序列号）。
 
 #### 捕获结果分析
 
 **1. 三次握手过程**
 ```bash
+# 使用tcpdump -S选项捕获的完整三次握手（显示绝对序列号）
+
 # 1. Client(10.0.0.12)发送SYN包，发起连接请求
-09:04:23.244955 IP 10.0.0.12.59090 > ubuntu24.http: Flags [S], seq 1442361078, win 64240, options [mss 1460,sackOK,TS val 3589742437 ecr 0,nop,wscale 7], length 0 
+10:34:35.592313 IP 10.0.0.12.35300 > ubuntu24.http: Flags [S], seq 734385442, win 64240, options [mss 1460,sackOK,TS val 3595154787 ecr 0,nop,wscale 7], length 0 
 # 标志位：[S] = SYN (同步序列编号)
-# 含义：Client请求建立连接，初始序列号(ISN)=1442361078
+# 含义：Client请求建立连接，初始序列号(ISN)=734385442
 
 # 2. Server(ubuntu24)发送SYN+ACK包，同意建立连接
-09:04:23.244976 IP ubuntu24.http > 10.0.0.12.59090: Flags [S.], seq 3759693292, ack 1442361079, win 65160, options [mss 1460,sackOK,TS val 3250495654 ecr 3589742437,nop,wscale 7], length 0 
+10:34:35.592336 IP ubuntu24.http > 10.0.0.12.35300: Flags [S.], seq 4168948236, ack 734385443, win 65160, options [mss 1460,sackOK,TS val 3255908001 ecr 3595154787,nop,wscale 7], length 0 
 # 标志位：[S.] = SYN+ACK (同步+确认)
-# 含义：Server同意连接，Server的ISN=3759693292，确认号=Client的ISN+1
+# 含义：Server同意连接，Server的ISN=4168948236，确认号=Client的ISN+1
 
 # 3. Client发送ACK包，连接建立完成
-09:04:23.245259 IP 10.0.0.12.59090 > ubuntu24.http: Flags [.], ack 1, win 502, options [nop,nop,TS val 3589742437 ecr 3250495654], length 0 
+10:34:35.592868 IP 10.0.0.12.35300 > ubuntu24.http: Flags [.], ack 4168948237, win 502, options [nop,nop,TS val 3595154788 ecr 3255908001], length 0 
 # 标志位：[.] = ACK (确认)
 # 含义：Client确认收到Server的SYN+ACK，确认号=Server的ISN+1
 # 此时TCP连接建立完成，进入ESTABLISHED状态
 ```
 
+**重要说明：tcpdump的序列号显示**
+
+- 使用`-S`选项时，tcpdump显示**绝对序列号**，如上面的`seq 734385442`和`ack 734385443`
+- 不使用`-S`选项时，tcpdump默认显示**相对序列号**，将ISN视为0的偏移值
+- 两种显示方式本质相同，相对序列号更易读，绝对序列号更精确
+
 **2. 数据传输过程**
 ```bash
 # Client发送HTTP GET请求
-09:04:23.245260 IP 10.0.0.12.59090 > ubuntu24.http: Flags [P.], seq 1:74, ack 1, win 502, options [nop,nop,TS val 3589742437 ecr 3250495654], length 73: HTTP: GET / HTTP/1.1 
+10:34:35.592869 IP 10.0.0.12.35300 > ubuntu24.http: Flags [P.], seq 734385443:734385516, ack 4168948237, win 502, options [nop,nop,TS val 3595154788 ecr 3255908001], length 73: HTTP: GET / HTTP/1.1 
 # 标志位：[P.] = PSH+ACK (推送+确认)
-# 含义：Client发送HTTP请求数据，PSH标志要求立即推送数据给应用层
-# 数据长度：73字节（GET / HTTP/1.1请求）
+# 含义：Client发送HTTP请求数据，PSH标志要求立即推送数据到应用层
+# 数据范围：seq 734385443-734385516（共73字节，即GET请求内容）
 
-# Server确认收到请求
-09:04:23.245290 IP ubuntu24.http > 10.0.0.12.59090: Flags [.], ack 74, win 509, options [nop,nop,TS val 3250495654 ecr 3589742437], length 0 
+# Server确认收到GET请求
+10:34:35.592903 IP ubuntu24.http > 10.0.0.12.35300: Flags [.], ack 734385516, win 509, options [nop,nop,TS val 3255908002 ecr 3595154788], length 0 
+# 标志位：[.] = ACK (确认)
+# 含义：Server已收到Client的GET请求，ack=734385516表示期望接收下一个字节
 
-# Server发送HTTP响应
-09:04:23.245470 IP ubuntu24.http > 10.0.0.12.59090: Flags [P.], seq 1:863, ack 74, win 509, options [nop,nop,TS val 3250495654 ecr 3250495654], length 862: HTTP: HTTP/1.1 200 OK 
-# 数据长度：862字节（HTTP 200 OK响应，包含HTML内容）
+# Server发送HTTP响应数据
+10:34:35.593105 IP ubuntu24.http > 10.0.0.12.35300: Flags [P.], seq 4168948237:4168949099, ack 734385516, win 509, options [nop,nop,TS val 3255908002 ecr 3595154788], length 862: HTTP: HTTP/1.1 200 OK 
+# 标志位：[P.] = PSH+ACK (推送+确认)
+# 含义：Server发送HTTP响应数据，包含状态码200 OK
+# 数据范围：seq 4168948237-4168949099（共862字节，即HTTP响应内容）
 
-# Client确认收到响应
-09:04:23.245801 IP 10.0.0.12.59090 > ubuntu24.http: Flags [.], ack 863, win 496, options [nop,nop,TS val 3589742437 ecr 3250495654], length 0 
+# Client确认收到HTTP响应
+10:34:35.593249 IP 10.0.0.12.35300 > ubuntu24.http: Flags [.], ack 4168949099, win 496, options [nop,nop,TS val 3595154788 ecr 3255908002], length 0 
+# 标志位：[.] = ACK (确认)
+# 含义：Client已收到Server的完整响应，ack=4168949099表示期望接收下一个字节
 ```
 
 **3. 四次挥手过程**
 ```bash
-# 1. Client发送FIN包，请求关闭连接
-09:04:23.245994 IP 10.0.0.12.59090 > ubuntu24.http: Flags [F.], seq 74, ack 863, win 496, options [nop,nop,TS val 3589742438 ecr 3250495654], length 0 
+# Client发起关闭连接请求
+10:34:35.594148 IP 10.0.0.12.35300 > ubuntu24.http: Flags [F.], seq 734385516, ack 4168949099, win 496, options [nop,nop,TS val 3595154789 ecr 3255908002], length 0 
 # 标志位：[F.] = FIN+ACK (结束+确认)
-# 含义：Client请求关闭连接，不再发送数据
+# 含义：Client完成数据发送，请求关闭连接
 
-# 2. Server确认收到FIN
-09:04:23.246099 IP ubuntu24.http > 10.0.0.12.59090: Flags [F.], seq 863, ack 75, win 509, options [nop,nop,TS val 3250495655 ecr 3589742438], length 0 
+# Server确认收到FIN请求
+10:34:35.594354 IP ubuntu24.http > 10.0.0.12.35300: Flags [F.], seq 4168949099, ack 734385517, win 509, options [nop,nop,TS val 3255908003 ecr 3595154789], length 0 
 # 标志位：[F.] = FIN+ACK (结束+确认)
-# 含义：Server确认收到Client的FIN，同时也请求关闭连接
+# 含义：Server确认收到Client的关闭请求，同时发送自己的FIN请求
 
-# 3. Client确认收到Server的FIN
-09:04:23.246370 IP 10.0.0.12.59090 > ubuntu24.http: Flags [.], ack 864, win 496, options [nop,nop,TS val 3589742438 ecr 3250495655], length 0 
+# Client确认收到Server的FIN请求
+10:34:35.594554 IP 10.0.0.12.35300 > ubuntu24.http: Flags [.], ack 4168949100, win 496, options [nop,nop,TS val 3595154790 ecr 3255908003], length 0 
 # 标志位：[.] = ACK (确认)
-# 含义：Client确认收到Server的FIN，连接关闭完成
+# 含义：Client确认收到Server的关闭请求，Server收到此ACK后连接关闭
+# 此时Client进入TIME_WAIT状态，等待2MSL（最大段生存期）时间
 ```
 
 **4. 对应的curl命令结果**
 ```bash
-0 ✓ 09:02:46 root@rocky9.6-12,10.0.0.12:~ # curl 10.0.0.13
+0 ✓ 10:34:35 root@rocky9.6-12,10.0.0.12:~ # curl 10.0.0.13
 <!DOCTYPE html>
 <html>
 <head>
@@ -240,22 +255,24 @@ root@ubuntu24:~# ss -tnl
 <p><em>Thank you for using nginx.</em></p>
 </body>
 </html>
-0 ✓ 09:04:23 root@rocky9.6-12,10.0.0.12:~ #
+0 ✓ 10:34:35 root@rocky9.6-12,10.0.0.12:~ #
 # 这是curl命令获取到的Nginx默认页面，对应TCP连接中的HTTP响应数据
 ```
 
 **SRE关注点**：
-- **连接建立时间**：三次握手耗时约0.3ms（从SYN到ACK的时间差），说明网络延迟很低
+- **连接建立时间**：三次握手耗时约0.555ms（从SYN到ACK的时间差：10:34:35.592313 → 10:34:35.592868），说明网络延迟很低
 - **数据传输效率**：HTTP请求（73字节）和响应（862字节）都在单个TCP段中传输，没有分片
 - **连接关闭方式**：使用标准的四次挥手关闭连接，没有出现异常状态
 - **TCP参数**：双方都使用了MSS 1460、SACK和窗口缩放等优化参数
+- **TIME_WAIT状态**：连接关闭后客户端进入TIME_WAIT状态，符合TCP协议规范
 
 **分析思路**：
 1. 首先确认TCP连接是否成功建立（三次握手是否完整）
-2. 检查数据传输是否正常（PSH标志位表示数据推送）
-3. 验证连接关闭是否正常（四次挥手是否完整）
+2. 检查数据传输是否正常（PSH标志位表示数据推送，ACK确认号递增正常）
+3. 验证连接关闭是否正常（四次挥手是否完整，序列号和确认号匹配）
 4. 关注TCP标志位和序列号的变化，理解连接状态的转换
 5. 结合应用层数据（HTTP请求/响应），理解端到端的通信过程
+6. 分析TCP参数（MSS、窗口大小、TS选项）对性能的影响
 
 ### 网络故障排查案例：Wireshark看不到虚拟机间流量
 
