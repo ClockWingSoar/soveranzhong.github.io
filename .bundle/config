@@ -1,0 +1,2 @@
+---
+BUNDLE_BUILD__EVENTMACHINE: "--with-ssl-dir=C:/Ruby32-x64/ssl"
