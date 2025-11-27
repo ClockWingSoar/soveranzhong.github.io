@@ -1496,7 +1496,89 @@ nmcli conn show
 ping 8.8.8.8
 ```
 
-#### 4.9.5 故障排除提示
+#### 4.9.5 扩展案例：手动创建虚拟网卡接口
+
+**问题现象**：用户创建了 `ifcfg-eth1` 配置文件，但系统中只有 `eth0` 网卡，执行 `nmcli conn up eth1` 时出现错误：
+```bash
+错误：连接激活失败：No suitable device found for this connection (device eth0 not available because profile is not compatible with device (mismatching interface name)).
+```
+
+**问题分析**：
+- 系统中不存在 `eth1` 设备，所以 NetworkManager 无法启动 `eth1` 连接
+- 错误信息提到 `eth0` 是因为它是系统中唯一的网卡，NetworkManager 尝试匹配但失败
+
+**解决方案**：使用 `dummy` 内核模块创建虚拟 `eth1` 接口
+
+##### 步骤1：加载 dummy 内核模块
+```bash
+# 临时加载 dummy 模块
+modprobe dummy
+
+# 设置开机自动加载
+echo "dummy" > /etc/modules-load.d/dummy.conf
+```
+
+##### 步骤2：创建虚拟 eth1 接口
+```bash
+# 使用 ip 命令创建 dummy 接口并命名为 eth1
+ip link add eth1 type dummy
+
+# 激活接口
+ip link set eth1 up
+```
+
+##### 步骤3：验证虚拟接口创建成功
+```bash
+# 查看接口状态
+ip a show eth1
+```
+
+##### 步骤4：启动 NetworkManager 连接
+```bash
+# 启动 eth1 连接
+nmcli conn up eth1
+
+# 查看连接状态
+nmcli conn show
+```
+
+##### 步骤5：设置开机自动创建虚拟接口
+创建 `systemd` 服务确保开机自动创建 `eth1` 接口：
+
+```bash
+cat > /etc/systemd/system/create-eth1.service << EOF
+[Unit]
+Description=Create virtual eth1 interface
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ip link add eth1 type dummy
+ExecStart=/usr/sbin/ip link set eth1 up
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 启用并启动服务
+systemctl enable create-eth1.service
+systemctl start create-eth1.service
+```
+
+##### 步骤6：验证完整解决方案
+```bash
+# 查看所有接口
+ip a
+
+# 查看所有连接
+nmcli conn show
+
+# 测试 eth1 的网络连通性
+ping -I eth1 10.0.0.2
+```
+
+#### 4.9.6 故障排除提示
 1. **检查 MAC 地址**：确保使用了正确的接口 MAC 地址
 2. **GRUB 配置**：验证内核参数是否正确添加
 3. **链接文件权限**：确保 `.link` 文件权限正确（644）
@@ -1505,12 +1587,14 @@ ping 8.8.8.8
    journalctl -u NetworkManager -f
    ```
 5. **UUID 冲突**：如果存在重复 UUID，使用 `uuidgen` 生成新 UUID
+6. **虚拟接口创建失败**：检查 dummy 模块是否正确加载，使用 `lsmod | grep dummy` 验证
 
-#### 4.9.6 SRE 经验总结
+#### 4.9.7 SRE 经验总结
 - **可预测接口名**：现代 Linux 发行版默认使用可预测接口名（如 `ens160`），基于 PCI 设备路径
 - **传统命名优势**：在某些场景下，传统的 `eth0` 命名更便于脚本编写和自动化管理
 - **配置一致性**：修改接口名时，必须确保所有相关配置文件保持一致
 - **多种重命名方式**：根据实际需求选择合适的重命名方法
+- **虚拟接口应用**：使用 dummy 模块可以创建纯虚拟的网络接口，适用于测试、负载均衡等场景
 
 ## 5. 总结
 
