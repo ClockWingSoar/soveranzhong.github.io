@@ -96,8 +96,12 @@ network:
       dhcp4: no
       addresses:
         - 10.0.0.113/24
+    eth2:
+      dhcp4: no
+      addresses:
+        - 10.0.0.114/24
       # 注意：通常只有一个默认网关（default route），
-      # 除非你做策略路由，否则不要在 eth1 上也配 gateway4/routes to default
+      # 除非你做策略路由，否则不要在 eth1/eth2 上也配 gateway4/routes to default
 ```
 
 **关键点：**
@@ -333,13 +337,113 @@ systemctl enable --now setup-veth.service
 
 这样 `eth0` 会同时拥有两个 IP 地址，完全满足服务监听的需求。
 
+## 实际案例：三网卡配置成功演示
+
+让我们通过一个实际案例来验证我们的方案。在 VMware 中直接添加第三块网卡后，我们只需要在 Netplan 配置文件中添加 `eth2` 配置即可：
+
+```bash
+# 1. 生成配置
+root@ubuntu24:~ # netplan generate 
+
+# 2. 应用配置
+root@ubuntu24:~ # netplan apply 
+
+# 3. 检查 Netplan 配置文件
+root@ubuntu24:~ # ll /etc/netplan/
+总计 24 
+drwxr-xr-x   2 root root  4096 11月 28 12:38 ./ 
+drwxr-xr-x 143 root root 12288 11月 26 20:48 ../ 
+-rw-------   1 root root   104  8月  6 00:54 01-network-manager-all.yaml 
+-rw-------   1 root root   473 11月 28 12:38 50-cloud-init.yaml 
+
+# 4. 检查生成的 NetworkManager 配置
+root@ubuntu24:~ # ll /run/NetworkManager/system-connections/
+总计 16 
+drwxr-xr-x 2 root root 120 11月 28 12:38 ./ 
+drwxr-xr-x 5 root root 140 11月 28 12:38 ../ 
+-rw------- 1 root root 314 11月 28 12:38 lo.nmconnection 
+-rw------- 1 root root 195 11月 28 12:38 netplan-eth0.nmconnection 
+-rw------- 1 root root 156 11月 28 12:38 netplan-eth1.nmconnection 
+-rw------- 1 root root 156 11月 28 12:38 netplan-eth2.nmconnection 
+
+# 5. 查看连接状态
+root@ubuntu24:~ # nmcli conn show 
+NAME          UUID                                  TYPE      DEVICE 
+netplan-eth0  626dd384-8b3d-3690-9511-192b2c79b3fd  ethernet  eth0   
+netplan-eth1  8bf25856-ca0b-388e-823c-b898666ab9d2  ethernet  eth1   
+netplan-eth2  e4f315ef-c9bc-3458-827e-dbff93a2bac6  ethernet  eth2   
+lo            fc5a4ff2-3833-4757-a98b-7aad73249f06  loopback  lo     
+
+# 6. 验证 IP 地址
+root@ubuntu24:~ # ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:0c:29:17:47:e5 brd ff:ff:ff:ff:ff:ff
+    altname enp2s1
+    altname ens33
+    inet 10.0.0.13/24 brd 10.0.0.255 scope global noprefixroute eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:fe17:47e5/64 scope link
+       valid_lft forever preferred_lft forever
+6: v-peer1@eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether ae:5f:a6:36:0d:4f brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::ac5f:a6ff:fe36:d4f/64 scope link
+       valid_lft forever preferred_lft forever
+7: eth1@v-peer1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 26:a7:bb:a2:c7:23 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.113/24 brd 10.0.0.255 scope global noprefixroute eth1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::24a7:bbff:fea2:c723/64 scope link
+       valid_lft forever preferred_lft forever
+8: eth2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:0c:29:17:47:ef brd ff:ff:ff:ff:ff:ff
+    altname enp2s5
+    altname ens37
+    inet 10.0.0.114/24 brd 10.0.0.255 scope global noprefixroute eth2
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:fe17:47ef/64 scope link
+       valid_lft forever preferred_lft forever
+
+# 7. 最终的 Netplan 配置文件内容
+root@ubuntu24:~ # cat /etc/netplan/50-cloud-init.yaml
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses:
+        - "10.0.0.13/24"
+      nameservers:
+        addresses:
+          - 10.0.0.2
+      routes:
+        - to: default
+          via: 10.0.0.2  # 注意这里添加了空格
+    eth1:
+      dhcp4: no
+      addresses:
+        - "10.0.0.113/24"
+    eth2:
+      dhcp4: no
+      addresses:
+        - "10.0.0.114/24"
+```
+
 ## 总结
 
 在 Ubuntu 24.04 中管理多网卡，**"Less is More"**。
 
 1.  **避免使用 UI 配置服务器网络**：UI 生成的配置不透明且难以维护。
 2.  **清理 `90-NM-*.yaml`**：这些是混乱之源。
-3.  **统一入口**：只维护一个 YAML 文件（如 `50-cloud-init.yaml`）。
+3.  **统一入口**：只维护一个 YAML 文件（如 `50-cloud-init.yaml`），新增网卡时只需在该文件中添加配置即可。
 4.  **注意路由优先级**：不要配置多个默认网关。
+5.  **直接添加物理网卡**：在 VMware 等虚拟化环境中直接添加物理网卡后，Netplan 能自动识别并应用配置。
 
-通过这种方式，你将获得一个稳定、可复现且易于排错的网络环境。
+通过这种方式，你将获得一个稳定、可复现且易于排错的网络环境，无论是双网卡还是多网卡配置都能轻松应对。
