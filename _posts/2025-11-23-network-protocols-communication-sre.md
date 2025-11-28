@@ -1143,7 +1143,144 @@ sudo tcpdump -i eth0 tcp port 80
 
 工欲善其事，必先利其器。
 
-#### 4.8.1 查看连接状态：`ss` (Socket Statistics)
+#### 4.8.1 系统信息与网络基础：`hostnamectl` 和 `ping`
+
+##### hostnamectl - 查看系统主机名和网络状态
+
+`hostnamectl` 命令用于显示和设置系统的主机名及相关信息，是 SRE 排查网络问题时的基础工具之一。
+
+**示例输出：**
+```bash
+root@ubuntu24,10.0.0.113:~ # hostnamectl status 
+  Static hostname: ubuntu24 
+        Icon name: computer-vm 
+          Chassis: vm 🖴 
+       Machine ID: 5dc5cd989883432e9d25d4ab5e50161d 
+          Boot ID: 5ed21e58b1954532a5eddea4640ece58 
+   Virtualization: vmware 
+ Operating System: Ubuntu 24.04.3 LTS              
+           Kernel: Linux 6.14.0-36-generic 
+     Architecture: x86-64 
+  Hardware Vendor: VMware, Inc. 
+   Hardware Model: VMware Virtual Platform 
+ Firmware Version: 6.00 
+    Firmware Date: Thu 2020-11-12 
+     Firmware Age: 5y 2w 1d                        
+```
+
+**SRE 关注点：**
+- **静态主机名**：确认系统主机名是否与配置一致，避免因主机名解析问题导致的服务异常
+- **IP 地址**：命令提示符中显示的 IP 地址（10.0.0.113）可快速确认当前系统的网络身份
+- **虚拟化信息**：确认系统运行环境（VMware 虚拟机），有助于排查虚拟化相关的网络问题
+- **操作系统版本**：Ubuntu 24.04.3 LTS，不同版本的网络配置工具和行为可能有所差异
+- **内核版本**：Linux 6.14.0-36-generic，内核版本影响网络协议栈的行为和性能
+
+##### ping - 测试网络连通性
+
+`ping` 命令是最基础的网络连通性测试工具，使用 ICMP 协议发送回显请求，用于验证目标主机是否可达。
+
+**示例输出：**
+```bash
+root@ubuntu24,10.0.0.113:~ # ping 10.0.0.115 
+PING 10.0.0.115 (10.0.0.115) 56(84) bytes of data. 
+64 bytes from 10.0.0.115: icmp_seq=1 ttl=64 time=0.726 ms 
+64 bytes from 10.0.0.115: icmp_seq=2 ttl=64 time=0.665 ms 
+64 bytes from 10.0.0.115: icmp_seq=3 ttl=64 time=1.04 ms 
+64 bytes from 10.0.0.115: icmp_seq=4 ttl=64 time=0.928 ms 
+^C 
+--- 10.0.0.115 ping statistics --- 
+4 packets transmitted, 4 received, 0% packet loss, time 3073ms 
+rtt min/avg/max/mdev = 0.665/0.840/1.041/0.151 ms 
+```
+
+**SRE 关注点：**
+- **丢包率**：0% 表示网络连通性良好，高丢包率可能指示网络拥塞或链路问题
+- **延迟**：avg 0.840 ms 表示低延迟，适合实时应用；高延迟可能影响服务响应时间
+- **TTL 值**：64 是 Linux 系统默认值，通过 TTL 变化可判断数据包经过的路由跳数
+- **抖动**：mdev 0.151 ms 表示延迟抖动小，网络稳定性好
+
+#### 4.8.2 路由表分析：`route` 和 `route -n`
+
+路由表是网络通信的核心，`route` 命令用于显示和管理 IP 路由表，是 SRE 排查网络可达性问题的关键工具。
+
+##### route - 查看路由表（解析主机名）
+
+**示例输出：**
+```bash
+root@ubuntu24,10.0.0.113:~ # route 
+内核 IP 路由表 
+目标            网关            子网掩码        标志  跃点   引用  使用 接口 
+default         _gateway        0.0.0.0         UG    100    0        0 eth0 
+10.0.0.0        0.0.0.0         255.255.255.0   U     100    0        0 eth0 
+10.0.0.0        0.0.0.0         255.255.255.0   U     101    0        0 eth2 
+10.0.0.0        0.0.0.0         255.255.255.0   U     102    0        0 eth1 
+```
+
+##### route -n - 查看路由表（不解析主机名，更快）
+
+**示例输出：**
+```bash
+root@ubuntu24,10.0.0.113:~ # route -n 
+内核 IP 路由表 
+目标            网关            子网掩码        标志  跃点   引用  使用 接口 
+0.0.0.0         10.0.0.2        0.0.0.0         UG    100    0        0 eth0 
+10.0.0.0        0.0.0.0         255.255.255.0   U     100    0        0 eth0 
+10.0.0.0        0.0.0.0         255.255.255.0   U     101    0        0 eth2 
+10.0.0.0        0.0.0.0         255.255.255.0   U     102    0        0 eth1 
+```
+
+**SRE 关注点：**
+- **默认路由**：`0.0.0.0` 目标指向网关 `10.0.0.2`，通过 `eth0` 接口，跃点 100
+- **直连路由**：三个 `10.0.0.0/24` 网段的直连路由，分别对应 `eth0`、`eth2`、`eth1` 接口
+- **跃点值**：跃点值越小，路由优先级越高（eth0 优先级最高）
+- **多接口同网段**：同一 `10.0.0.0/24` 网段有三个接口，可能用于负载均衡或冗余
+- **网关 IP**：`route -n` 显示的是实际 IP 地址 `10.0.0.2`，而 `route` 显示的是解析后的主机名 `_gateway`
+
+**SRE 实战应用：**
+- 排查"无法访问外部网络"问题时，首先检查默认路由是否存在
+- 排查"特定网段无法访问"问题时，检查对应网段的路由条目
+- 多接口同网段场景下，通过跃点值控制流量走向
+- 使用 `route -n` 避免 DNS 解析延迟，适合在 DNS 服务异常时使用
+
+#### 4.8.3 网络接口状态：`ifconfig -s`
+
+`ifconfig -s` 命令用于显示网络接口的简要统计信息，是 SRE 监控网络接口健康状态的常用工具。
+
+**示例输出：**
+```bash
+root@ubuntu24,10.0.0.113:~ # ifconfig -s 
+Iface      MTU    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg 
+eth0             1500   448484      0      0 0         90527      0     34      0 BMRU 
+eth1             1500       30      0      0 0           143      0      0      0 BMRU 
+eth2             1500      881      0      0 0           230      0      0      0 BMRU 
+lo              65536      902      0      0 0           902      0      0      0 LRU 
+v-peer1          1500      143      0      0 0            30      0      0      0 BMRU 
+```
+
+**SRE 关注点：**
+- **接口状态标志**：
+  - `B`：广播功能已启用
+  - `M`：混杂模式已启用
+  - `R`：接口已启用
+  - `U`：接口处于活动状态
+  - `L`：回环接口
+- **错误统计**：
+  - `RX-ERR`：接收错误包数量，非零值表示物理链路或驱动问题
+  - `TX-ERR`：发送错误包数量，非零值表示网络拥塞或硬件故障
+  - `RX-DRP`/`TX-DRP`：丢包数量，`eth0` 的 `TX-DRP` 为 34，可能指示发送队列已满
+- **流量统计**：
+  - `RX-OK`：成功接收的数据包数量，`eth0` 接收了 448,484 个包，是主要流量接口
+  - `TX-OK`：成功发送的数据包数量，`eth0` 发送了 90,527 个包
+- **MTU 值**：`eth0`/`eth1`/`eth2` 的 MTU 为 1500（标准以太网 MTU），`lo` 为 65536（回环接口）
+- **虚拟接口**：`v-peer1` 是虚拟接口，可能用于容器或虚拟机通信
+
+**SRE 实战应用：**
+- 监控 `RX-ERR`/`TX-ERR` 识别物理链路故障
+- 分析 `RX-DRP`/`TX-DRP` 排查网络拥塞问题
+- 对比不同接口的流量统计，识别主要流量路径
+- 检查接口状态标志，确认接口是否正常启用
+
+#### 4.8.4 查看连接状态：`ss` (Socket Statistics)
 
 比 `netstat` 更快更强。
 
