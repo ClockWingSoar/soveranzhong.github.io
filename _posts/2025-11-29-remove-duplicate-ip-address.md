@@ -202,6 +202,90 @@ Netplan 是 Ubuntu 18.04 及以上版本的默认网络配置工具。需要检�
 ip a show eth0
 ```
 
+## 常见问题及解决方法
+
+### 问题：使用 nmcli 配置静态 IP 时出现 "method 'manual' requires at least an address or a route" 错误
+
+**现象**：当尝试使用 `nmcli con mod eth1 ipv4.method manual` 命令将网络连接改为静态 IP 配置时，出现以下错误：
+
+```bash
+错误：修改连接 "eth1" 失败：ipv4.method: method 'manual' requires at least an address or a route
+```
+
+**原因**：NetworkManager 要求当 IP 配置方法为 `manual`（静态 IP）时，必须同时提供至少一个 IP 地址或路由信息。
+
+**解决方案**：在同一个命令中同时指定 IP 配置方法和 IP 地址：
+
+```bash
+# 同时设置 IP 配置方法和 IP 地址
+nmcli con mod eth1 \
+    ipv4.method manual \
+    ipv4.addresses "192.168.1.100/24" \
+    ipv4.gateway "192.168.1.1" \
+    ipv4.dns "8.8.8.8,8.8.4.4"
+
+# 重启连接以应用配置
+nmcli con down eth1 && nmcli con up eth1
+```
+
+**完整操作流程**：
+
+1. 查看当前连接信息
+2. 同时修改 IP 方法和地址
+3. 重启连接
+4. 验证配置
+
+```bash
+# 查看当前连接
+nmcli con show
+
+# 配置静态 IP
+nmcli con mod eth1 ipv4.method manual ipv4.addresses "192.168.1.100/24" ipv4.gateway "192.168.1.1"
+
+# 重启连接
+nmcli con down eth1 && nmcli con up eth1
+
+# 验证配置
+ip a show eth1
+```
+
+### 问题：修改配置后 IP 地址没有立即生效
+
+**现象**：使用 `nmcli` 修改网络配置后，IP 地址没有立即变化。
+
+**原因**：NetworkManager 需要重启连接才能应用新的配置。
+
+**解决方案**：使用 `nmcli con down` 和 `nmcli con up` 命令重启连接：
+
+```bash
+nmcli con down eth0 && nmcli con up eth0
+```
+
+### 问题：无法删除旧的 IP 地址
+
+**现象**：尝试删除旧的 IP 地址时，命令执行成功但 IP 地址仍然存在。
+
+**原因**：可能存在多个网络配置文件或配置冲突。
+
+**解决方案**：
+
+1. 检查是否有多个网络配置文件
+2. 重启 NetworkManager 服务
+3. 重新启动系统（如果必要）
+
+```bash
+# 检查配置文件
+ls -la /etc/NetworkManager/system-connections/
+ls -la /run/NetworkManager/system-connections/
+
+# 重启 NetworkManager
+systemctl restart NetworkManager
+```
+
+```bash
+ip a show eth0
+```
+
 ## 预防措施
 
 1. **统一网络配置工具**：在 Ubuntu 系统中，建议只使用一种网络配置工具（Netplan + NetworkManager 或 systemd-networkd）
