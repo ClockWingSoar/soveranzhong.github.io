@@ -2,7 +2,7 @@
 layout: post
 title: 从 SRE 角度看软路由：网络可靠性与性能优化的实践指南
 layout: post
-date: 2025-11-30 16:00:00
+date: 2025-11-27 16:00:00
 categories: [SRE, Network]
 tags: [软路由, SRE, 网络可靠性, 性能优化, 可观测性]
 description: 从 SRE 视角深入探讨软路由的核心价值、技术优势以及在生产环境中的最佳实践，涵盖可靠性、性能、可观测性和自动化等关键维度。

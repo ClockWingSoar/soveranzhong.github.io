@@ -4,7 +4,7 @@ title: "Ubuntu 24 多张网卡配置失败问题分析与解决方案"
 categories: [Linux, Network]
 tags: [ubuntu, network, netplan, networkmanager, nic]
 author: "soveranzhong"
-date: 2025-11-29 00:00:00
+date: 2025-11-27 00:00:00
 ---
 
 ## 问题描述

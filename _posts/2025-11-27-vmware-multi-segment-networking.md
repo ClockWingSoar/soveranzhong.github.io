@@ -2,7 +2,7 @@
 layout: post
 title: VMware Workstation 多网段网络配置实践：实现跨网段虚拟机通信
 layout: post
-date: 2025-11-30 17:00:00
+date: 2025-11-27 17:00:00
 categories: [Linux, Network, Virtualization]
 tags: [VMware, 跨网段通信, 软路由, Rocky Linux, Ubuntu]
 description: 详细介绍如何使用 VMware Workstation 创建多网段网络环境，通过两台 Rocky Linux 虚拟机充当路由器，实现不同网段 Ubuntu 客户端之间的跨网段通信。

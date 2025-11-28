@@ -2,7 +2,7 @@
 layout: post
 title: Linux 网卡出现两个 IP 地址的原因及解决方法
 layout: post
-date: 2025-11-29 15:00:00
+date: 2025-11-28 15:00:00
 categories: [Linux, Network]
 tags: [Linux网络, IP地址, NetworkManager, Netplan]
 description: 详细分析 Linux 网卡出现两个 IP 地址的原因，并提供多种解决方案来去除不需要的 IP 地址。

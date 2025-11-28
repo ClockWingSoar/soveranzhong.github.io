@@ -2,7 +2,7 @@
 layout: post
 title: 解决 nmcli 静态 IP 配置错误：method 'manual' requires at least an address or a route
 layout: post
-date: 2025-11-30 15:00:00
+date: 2025-11-27 15:00:00
 categories: [Linux, Network]
 tags: [nmcli, 静态IP, NetworkManager, 网络配置]
 description: 详细解释 nmcli 配置静态 IP 时出现 "method 'manual' requires at least an address or a route" 错误的原因及解决方案。
