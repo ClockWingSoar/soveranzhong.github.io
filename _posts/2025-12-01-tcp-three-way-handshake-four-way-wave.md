@@ -1,9 +1,17 @@
 ---
 layout: post
 title: "TCP三次握手与四次挥手深度解析 - SRE视角"
-date: 2025-12-01 19:49:11
+date: 2025-12-01
 categories: [network, sre]
 tags: [tcp, networking, sre, troubleshooting]
+description: 从SRE视角深入解析TCP三次握手和四次挥手的全流程，结合实际tcpdump抓包结果，详细解释每一个字段含义，并分析常见异常情况。
+keywords: TCP, 三次握手, 四次挥手, sre, 网络故障排查, tcpdump
+mermaid: false
+sequence: false
+flow: false
+mathjax: false
+mindmap: false
+mindmap2: false
 ---
 
 # TCP三次握手与四次挥手深度解析 - SRE视角
