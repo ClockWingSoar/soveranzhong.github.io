@@ -44,579 +44,133 @@ mindmap2: false
 
 ### 题目格式示例
 
-#### 题目1：
+1. You want to associate each VM with its respective department  -- **Assign tags to the virtual machines.**
 
-Your company has serval departments. Each department has a number of virtual machines (VMs).
-The company has an Azure subscription that contains a resource group named RG1.
-All VMs are located in RG1.
-You want to associate each VM with its respective department.
-What should you do?
+2. You access the multi-factor authentication page to alter the user settings -- **No**
 
-**选项**：
-A. Create Azure Management Groups for each department.
-B. Create a resource group for each department.
-C. Assign tags to the virtual machines. Most Voted
-D. Modify the settings of the virtual machines
+3. You access the Azure portal to alter the session control of the Azure AD conditional access policy. -- **No**
 
-**正确答案**：C
+4. You access the Azure portal to alter the grant control of the Azure AD conditional access policy. -- **Yes**
 
+5. You are required to implement a custom deployment that includes adding a particular trusted root certification authority (CA).
+  Which of the following should you use to create the virtual machine?  -- **The az vm create command.**
 
+6. You reconfigure the existing usage model via the Azure portal -- **No**
 
----
+7. You reconfigure the existing usage model via the Azure CLI -- **No**
 
-#### 题目2：
+8. You create a new Multi-Factor Authentication provider with a backup from the existing Multi-Factor Authentication provider data  -- **No**
 
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an Azure Active Directory (Azure AD) subscription.
-You want to implement an Azure AD conditional access policy.
-The policy must be configured to require members of the Global Administrators group to use Multi-Factor Authentication and
-an Azure AD-joined device when they connect to Azure AD from untrusted locations.
-Solution: You access the multi-factor authentication page to alter the user settings.
-Does the solution meet the goal?
+9. You run the Start-ADSyncSyncCycle -PolicyType Initial PowerShell cmdlet. -- **No**
 
-**选项**：
-A. Yes
-B. No
+10. You use Active Directory Sites and Services to force replication of the Global Catalog on a domain controller. -- **No**
 
-**正确答案**：B
+11. You restart the NetLogon service on a domain controller. -- **No**
 
----
+12. Which of the following Azure stored redundancy options should you recommend -- **Read-only geo-redundant storage**
 
-#### 题目3：
+13. You want to review the ARM template that was used by Jon Ross. You access the Virtual Machine blade -- **No**
 
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an Azure Active Directory (Azure AD) subscription.
-You want to implement an Azure AD conditional access policy.
-The policy must be configured to require members of the Global Administrators group to use Multi-Factor Authentication and
-an Azure AD-joined device when they connect to Azure AD from untrusted locations.
-Solution: You access the Azure portal to alter the session control of the Azure AD conditional access policy.
-Does the solution meet the goal?
+14. You want to review the ARM template that was used by Jon Ross. You access the Resource Group blade - **Yes**
 
-**选项**：
-A. Yes
-B. No
+15. You want to review the ARM template that was used by Jon Ross. You access the Container blade.  -- **No**
 
-**正确答案**：B
+16. You try to resize one of the VMs, which returns an allocation failure message.It is imperative that the VM is resized -- **You should stop all three VMs.**
 
----
+17. You need to make sure that your strategy allows for the virtual machines to be offline for the least amount of time possible.
+    Which of the following is the action you should take FIRST?  -- **Detach the data disk.**
 
-#### 题目4：
+18. You are required to make sure that the ARM template you configure allows for as many VMs as possible to remain accessible
+    in the event of fabric failure or maintenance.
+    Which of the following is the value that you should configure for the platformFaultDomainCount property? -- **Max Value**
 
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an Azure Active Directory (Azure AD) subscription.
-You want to implement an Azure AD conditional access policy.
-The policy must be configured to require members of the Global Administrators group to use Multi-Factor Authentication and
-an Azure AD-joined device when they connect to Azure AD from untrusted locations.
-Solution: You access the Azure portal to alter the grant control of the Azure AD conditional access policy.
-Does the solution meet the goal?
+19. You are required to make sure that the ARM template you configure allows for as many VMs as possible to remain accessible
+    in the event of fabric failure or maintenance.
+    Which of the following is the value that you should configure for the platformUpdateDomainCount property?  -- **20**
 
-**选项**：
-A. Yes
-B. No
+20. You need to make sure that the password cannot be stored in plain text.
+    You are preparing to create the necessary components to achieve your goal.
+    Which of the following should you create to achieve your goal?  -- **An Azure Key Vault, An Access key**
 
-**正确答案**：A
+21. You have created some PowerShell scripts to automate the configuration of newly created VMs. You plan to create several new
+    VMs.
+    You need a solution that ensures the scripts are run on the new VMs -- **Configure a SetupComplete.cmd batch file in the %windir%\setup\scripts directory.**
 
----
+22. You configure a reference VM in the on-premise virtual environment. You then generalize the VM to create an image.
+    You need to upload the image to Azure to ensure that it is available for selection when you create the new Azure VMs.
+    Which PowerShell cmdlets should you use?  -- **Add-AzVhd**
 
-#### 题目5：
+23. Your company has an Azure subscription that includes a number of Azure virtual machines (VMs), which are all part of the
+    same virtual network.
+    Your company also has an on-premises Hyper-V server that hosts a VM, named VM1, which must be replicated to Azure -- **Hyper-V site, Azure Recovery Services Vault, Replication policy**
 
-**题目描述**：You are planning to deploy an Ubuntu Server virtual machine to your company's Azure subscription.
-You are required to implement a custom deployment that includes adding a particular trusted root certification authority (CA).
-Which of the following should you use to create the virtual machine?
+24. You choose the Allow gateway transit setting on VirtualNetworkA. -- **No**
 
-**选项**：
-A. The New-AzureRmVm cmdlet.
-B. The New-AzVM cmdlet.
-C. The Create-AzVM cmdlet.
-D. The az vm create command.
+25. You choose the Allow gateway transit setting on VirtualNetworkB. -- **No**
 
-**正确答案**：D
+26. You download and re-install the VPN client configuration package on the Windows 10 workstation. -- **Yes**
 
----
+27. The company has users that work remotely. The remote workers require access to the VMs on VNet1.
+    You need to provide access for the remote workers.  -- **Configure a Point-to-Site (P2S) VPN.**
 
+28. You create an HTTP health probe on port 1433. -- **No**
 
+29. You set Session persistence to Client IP  -- **No**
 
-#### 题目6：
+30. You enable Floating IP.  -- **Yes**
 
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company makes use of Multi-Factor Authentication for when users are not in the office. The Per Authentication option has
-been configured as the usage model.
-After the acquisition of a smaller business and the addition of the new staff to Azure Active Directory (Azure AD) obtains a
-different company and adding the new employees to Azure Active Directory (Azure AD), you are informed that these employees
-should also make use of Multi-Factor Authentication.
-To achieve this, the Per Enabled User setting must be set for the usage model.
-Solution: You reconfigure the existing usage model via the Azure portal.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目7：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company's Azure solution makes use of Multi-Factor Authentication for when users are not in the office. The Per
-Authentication option has been configured as the usage model.
-After the acquisition of a smaller business and the addition of the new staff to Azure Active Directory (Azure AD) obtains a
-different company and adding the new employees to Azure Active Directory (Azure AD), you are informed that these employees
-should also make use of Multi-Factor Authentication.
-To achieve this, the Per Enabled User setting must be set for the usage model.
-Solution: You reconfigure the existing usage model via the Azure CLI.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目8：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company's Azure solution makes use of Multi-Factor Authentication for when users are not in the office. The Per
-Authentication option has been configured as the usage model.
-After the acquisition of a smaller business and the addition of the new staff to Azure Active Directory (Azure AD) obtains a
-different company and adding the new employees to Azure Active Directory (Azure AD), you are informed that these employees
-should also make use of Multi-Factor Authentication.
-To achieve this, the Per Enabled User setting must be set for the usage model.
-Solution: You create a new Multi-Factor Authentication provider with a backup from the existing Multi-Factor Authentication
-provider data.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目9：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an Azure Active Directory (Azure AD) tenant named weyland.com that is configured for hybrid coexistence
-with the on-premises Active
-Directory domain.
-You have a server named DirSync1 that is configured as a DirSync server.
-You create a new user account in the on-premise Active Directory. You now need to replicate the user information to Azure AD
-immediately.
-Solution: You run the Start-ADSyncSyncCycle -PolicyType Initial PowerShell cmdlet.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目10：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an Azure Active Directory (Azure AD) tenant named weyland.com that is configured for hybrid coexistence
-with the on-premises Active
-Directory domain.
-You have a server named DirSync1 that is configured as a DirSync server.
-You create a new user account in the on-premise Active Directory. You now need to replicate the user information to Azure AD
-immediately.
-Solution: You use Active Directory Sites and Services to force replication of the Global Catalog on a domain controller.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目11：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an Azure Active Directory (Azure AD) tenant named weyland.com that is configured for hybrid coexistence
-with the on-premises Active
-Directory domain.
-You have a server named DirSync1 that is configured as a DirSync server.
-You create a new user account in the on-premise Active Directory. You now need to replicate the user information to Azure AD
-immediately.
-Solution: You restart the NetLogon service on a domain controller.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目12：
-
-**题目描述**：Your company has a Microsoft Azure subscription.
-The company has datacenters in Los Angeles and New York.
-You are configuring the two datacenters as geo-clustered sites for site resiliency.
-You need to recommend an Azure storage redundancy option.
-You have the following data storage requirements:
-? Data must be stored on multiple nodes.
-? Data must be stored on nodes in separate geographic locations.
-? Data can be read from the secondary location as well as from the primary location.
-Which of the following Azure stored redundancy options should you recommend?
-
-**选项**：
-A. Geo-redundant storage
-B. Read-only geo-redundant storage Most Voted
-C. Zone-redundant storage
-D. Locally redundant storage
+31. You need to configure the two VMs with static internal IP addresses. --   **Modify the VM properties in the Azure Management Portal**
 
-**正确答案**：B
+32. Which of the following is the least amount of network interfaces needed for this configuration? -- **5**
 
----
+33. Which of the following is the least amount of security groups needed for this configuration? -- **1**
 
-#### 题目13：
+34. When the VM becomes infected with data encrypting ransomware, you decide to recover the VM's files. -- **You can recover the files to any VM within the company's subscription.**
 
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an azure subscription that includes a storage account, a resource group, a blob container and a file share.
-A colleague named Jon Ross makes use of a solitary Azure Resource Manager (ARM) template to deploy a virtual machine and
-an additional Azure Storage account.
-You want to review the ARM template that was used by Jon Ross.
-Solution: You access the Virtual Machine blade.
-Does the solution meet the goal?
+35. When the VM becomes infected with data encrypting ransomware, you are required to restore the VM. -- **You should restore the VM to a new Azure VM**
 
-**选项**：
-A. Yes
-B. No
+36. You need to find the cause of the performance issues pertaining to metrics on the Azure infrastructure. -- **Azure Monitor**
 
-**正确答案**：B
+37. You want to use Azure Backup to schedule a backup of your company's virtual machines (VMs) to the Recovery Services vault.
+    Which of the following VMs can you back up?  -- **ABCDE**
 
----
+    ```
+    A. VMs that run Windows 10. 
+    B. VMs that run Windows Server 2012 or higher. 
+    C. VMs that have NOT been shut down.
+    D. VMs that run Debian 8.2+.
+    E. VMs that have been shut down.
+    ```
 
-#### 题目14：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an azure subscription that includes a storage account, a resource group, a blob container and a file share.
-A colleague named Jon Ross makes use of a solitary Azure Resource Manager (ARM) template to deploy a virtual machine and
-an additional Azure Storage account.
-You want to review the ARM template that was used by Jon Ross.
-Solution: You access the Resource Group blade.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：A
-
----
-
-#### 题目15：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has an azure subscription that includes a storage account, a resource group, a blob container and a file share.
-A colleague named Jon Ross makes use of a solitary Azure Resource Manager (ARM) template to deploy a virtual machine and
-an additional Azure Storage account.
-You want to review the ARM template that was used by Jon Ross.
-Solution: You access the Container blade.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目16：
-
-**题目描述**：Your company has three virtual machines (VMs) that are included in an availability set.
-You try to resize one of the VMs, which returns an allocation failure message.
-It is imperative that the VM is resized.
-Which of the following actions should you take?
-
-**选项**：
-A. You should only stop one of the VMs.
-B. You should stop two of the VMs.
-C. You should stop all three VMs. Most Voted
-D. You should remove the necessary VM from the availability set
-
-**正确答案**：C
-
----
-
-#### 题目17：
-
-**题目描述**：You have an Azure virtual machine (VM) that has a single data disk. You have been tasked with attaching this data disk to
-another Azure VM.
-You need to make sure that your strategy allows for the virtual machines to be offline for the least amount of time possible.
-Which of the following is the action you should take FIRST?
-
-**选项**：
-A. Stop the VM that includes the data disk.
-B. Stop the VM that the data disk must be attached to.
-C. Detach the data disk. Most Voted
-D. Delete the VM that includes the data disk
-
-**正确答案**：C
-
----
-
-
-
-#### 题目18：
-
-**题目描述**：Your company has an Azure subscription.
-You need to deploy a number of Azure virtual machines (VMs) using Azure Resource Manager (ARM) templates. You have been
-informed that the VMs will be included in a single availability set.
-You are required to make sure that the ARM template you configure allows for as many VMs as possible to remain accessible
-in the event of fabric failure or maintenance.
-Which of the following is the value that you should configure for the platformFaultDomainCount property?
-
-**选项**：
-A. 10
-B. 30
-C. Min Value
-D. Max Value
-
-**正确答案**：D
-
----
-
-#### 题目19：
-
-**题目描述**：Your company has an Azure subscription.
-You need to deploy a number of Azure virtual machines (VMs) using Azure Resource Manager (ARM) templates. You have been
-informed that the VMs will be included in a single availability set.
-You are required to make sure that the ARM template you configure allows for as many VMs as possible to remain accessible
-in the event of fabric failure or maintenance.
-Which of the following is the value that you should configure for the platformUpdateDomainCount property?
-
-**选项**：
-A. 10
-B. 20 Most Voted
-C. 30
-D. 40
-
-**正确答案**：B
-
----
-
-#### 题目20：
-
-**题目描述**：DRAG DROP -
-You have downloaded an Azure Resource Manager (ARM) template to deploy numerous virtual machines (VMs). The ARM
-template is based on a current VM, but must be adapted to reference an administrative password.
-You need to make sure that the password cannot be stored in plain text.
-You are preparing to create the necessary components to achieve your goal.
-Which of the following should you create to achieve your goal? Answer by dragging the correct option from the list to the
-answer area.
-Select and Place
-
-![image-20251204161151174](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251204161151174.png)
-
-![image-20251204161316180](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251204161316180.png)
-
-**选项**：
-
-**正确答案**：Key vault + access policy
-
----
-
-
-
-#### 题目21：
-
-**题目描述**：Your company has an Azure Active Directory (Azure AD) tenant that is configured for hybrid coexistence with the on-premises
-Active Directory domain.
-The on-premise virtual environment consists of virtual machines (VMs) running on Windows Server 2012 R2 Hyper-V host
-servers.
-You have created some PowerShell scripts to automate the configuration of newly created VMs. You plan to create several new
-VMs.
-You need a solution that ensures the scripts are run on the new VMs.
-Which of the following is the best solution?
-
-**选项**：
-A. Configure a SetupComplete.cmd batch file in the %windir%\setup\scripts directory. Most Voted
-B. Configure a Group Policy Object (GPO) to run the scripts as logon scripts.
-C. Configure a Group Policy Object (GPO) to run the scripts as startup scripts.
-D. Place the scripts in a new virtual hard disk (VHD)
-
-**正确答案**：A
-
----
-
-#### 题目22：
-
-**题目描述**：Your company has an Azure Active Directory (Azure AD) tenant that is configured for hybrid coexistence with the on-premises
-Active Directory domain.
-You plan to deploy several new virtual machines (VMs) in Azure. The VMs will have the same operating system and custom
-software requirements.
-You configure a reference VM in the on-premise virtual environment. You then generalize the VM to create an image.
-You need to upload the image to Azure to ensure that it is available for selection when you create the new Azure VMs.
-Which PowerShell cmdlets should you use?
-
-**选项**：
-A. Add-AzVM
-B. Add-AzVhd Most Voted
-C. Add-AzImage
-D. Add-AzImageDataDisk
-
-**正确答案**：B
-
----
-
-#### 题目23：
-
-**题目描述**：DRAG DROP -
-Your company has an Azure subscription that includes a number of Azure virtual machines (VMs), which are all part of the
-same virtual network.
-Your company also has an on-premises Hyper-V server that hosts a VM, named VM1, which must be replicated to Azure.
-Which of the following objects that must be created to achieve this goal? Answer by dragging the correct option from the list to
-the answer area.
-Select and Place:![image-20251204194734293](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251204194734293.png)
-
-![image-20251204194749639](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251204194749639.png)
-
-**选项**：
-
-**正确答案**：For physical servers
-- Storage Account
-- Azure Recovery Services Vault
-- Replication policy
-For Hyper-v server
-- Hyper-V site
-- Azure Recovery Services Vault
-- Replication policy
-
----
-
-#### 题目24：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company's Azure subscription includes two Azure networks named VirtualNetworkA and VirtualNetworkB.
-VirtualNetworkA includes a VPN gateway that is configured to make use of static routing. Also, a site-to-site VPN connection
-exists between your company's on- premises network and VirtualNetworkA.
-You have configured a point-to-site VPN connection to VirtualNetworkA from a workstation running Windows 10. After
-configuring virtual network peering between
-VirtualNetworkA and VirtualNetworkB, you confirm that you are able to access VirtualNetworkB from the company's on-
-premises network. However, you find that you cannot establish a connection to VirtualNetworkB from the Windows 10
-workstation.
-You have to make sure that a connection to VirtualNetworkB can be established from the Windows 10 workstation.
-Solution: You choose the Allow gateway transit setting on VirtualNetworkA.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目25：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company's Azure subscription includes two Azure networks named VirtualNetworkA and VirtualNetworkB.
-VirtualNetworkA includes a VPN gateway that is configured to make use of static routing. Also, a site-to-site VPN connection
-exists between your company's on- premises network and VirtualNetworkA.
-You have configured a point-to-site VPN connection to VirtualNetworkA from a workstation running Windows 10. After
-configuring virtual network peering between
-VirtualNetworkA and VirtualNetworkB, you confirm that you are able to access VirtualNetworkB from the company's on-
-premises network. However, you find that you cannot establish a connection to VirtualNetworkB from the Windows 10
-workstation.
-You have to make sure that a connection to VirtualNetworkB can be established from the Windows 10 workstation.
-Solution: You choose the Allow gateway transit setting on VirtualNetworkB.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 题目26：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company's Azure subscription includes two Azure networks named VirtualNetworkA and VirtualNetworkB.
-VirtualNetworkA includes a VPN gateway that is configured to make use of static routing. Also, a site-to-site VPN connection
-exists between your company's on- premises network and VirtualNetworkA.
-You have configured a point-to-site VPN connection to VirtualNetworkA from a workstation running Windows 10. After
-configuring virtual network peering between
-VirtualNetworkA and VirtualNetworkB, you confirm that you are able to access VirtualNetworkB from the company's on-
-premises network. However, you find that you cannot establish a connection to VirtualNetworkB from the Windows 10
-workstation.
-You have to make sure that a connection to VirtualNetworkB can be established from the Windows 10 workstation.
-Solution: You download and re-install the VPN client configuration package on the Windows 10 workstation.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：A
-
----
-
-#### 题目27：
-
-**题目描述**：Your company has virtual machines (VMs) hosted in Microsoft Azure. The VMs are located in a single Azure virtual network
-named VNet1.
-The company has users that work remotely. The remote workers require access to the VMs on VNet1.
-You need to provide access for the remote workers.
-What should you do?
-
-**选项**：
-A. Configure a Site-to-Site (S2S) VPN.
-B. Configure a VNet-toVNet VPN.
-C. Configure a Point-to-Site (P2S) VPN. Most Voted
-D. Configure DirectAccess on a Windows Server 2012 server VM.
-E. Configure a Multi-Site VPN
-
-**正确答案**：C
-
----
-
-#### 题目28：
-
-**题目描述**：Note: The question is included in a number of questions that depicts the identical set-up. However, every question has a
-distinctive result. Establish if the solution satisfies the requirements.
-Your company has a Microsoft SQL Server Always On availability group configured on their Azure virtual machines (VMs).
-You need to configure an Azure internal load balancer as a listener for the availability group.
-Solution: You create an HTTP health probe on port 1433.
-Does the solution meet the goal?
-
-**选项**：
-A. Yes
-B. No
-
-**正确答案**：B
-
----
-
-#### 
+38. You create a PowerShell script that runs the New-AzureADUser cmdlet for each user -- **No**
+39. From Azure AD in the Azure portal, you use the Bulk create user operation. -- **No**
+40. You create a PowerShell script that runs the New-AzureADMSInvitation cmdlet for each external user.  -- **Yes**
+41. You need to ensure that an administrator named Admin1 can manage LB1 and LB2. The solution must follow the principle of
+    least privilege.
+    Which role should you assign to Admin1 for each task? -- **Box 1. Network Contributor on RG1 , Box 2. Network Contributor on RG1**
+42. An administrator reports that she is unable to grant access to AKS1 to the users in contoso.com.
+    You need to ensure that access to AKS1 can be granted to the contoso.com users. -- **From contoso.com, create an OAuth 2.0 authorization endpoint.**
+43.  You need to create groups for the users. The solution must ensure that the groups are deleted automatically after 180 days. -- **a Microsoft 365 group that uses the Assigned membership type, a Microsoft 365 group that uses the Dynamic User membership type**
+44. User3 can perform an access review of User1 = No
+    User3 can perform an access review of UserA = No
+    User3 can perform an access review of UserB = No
+45. ![image-20251211153923254](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211153923254.png)
+46. What is the effect of the policy? -- **You can create Azure SQL servers in ContosoRG1 only**
+47. VNET1 will only have Department: D1 tag & VNET 2 will only have Label : Value1 tag![image-20251211154116336](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211154116336.png)
+48. You need to identify which resources can be moved to AZPT2 -- **VM1, storage1, VNET1, VM1Managed, and RVAULT1**
+49. You need to ensure that Admin1 can deploy the Marketplace resource successfully -- **From Azure PowerShell, run the Set-AzMarketplaceTerms cmdlet**
+50. You need to assign the User administrator administrative role to AdminUser1  -- **From the Directory role blade, modify the directory role**
+51. You need to ensure that 10 users can use all the Azure AD Premium features -- **From the Licenses blade of Azure AD, assign a license**
+52. You need to ensure that an alert is set in Service Manager when the amount of available memory on VM1 is below 10 percent -- **Deploy the IT Service Management Connector (ITSM)**
+53. You need to add a user named admin1@contoso.com as an administrator on all the computers that will be joined to the Azure AD domain -- **Device settings from the Devices blade**
+54. User1 can add Device2 to Group1: No
+    User2 can add Device1 to Group1: Yes
+    User2 can add Device2 to Group2: No
+55. When the project is complete, you attempt to delete RG26 from the Azure portal. The deletion fails.
+    You need to delete RG26.  -- **Stop the backup of SQLDB01**
+56. You need to ensure that User1 can assign the Reader role for VNet1 to other users.  -- **Assign User1 the User Access Administrator role for VNet1.**
+57. You need to ensure that Azure can verify the domain name, Which type of DNS record should you create?  -- **MX**
+58. On Subscription1, you assign the DevTest Labs User role to the Developers group  -- **No**
 
 
 
