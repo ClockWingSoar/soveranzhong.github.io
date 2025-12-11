@@ -621,7 +621,622 @@ the scope he is reading - Storage Blob Data Owner on storage1, which contains bl
 
 247. You need to add a custom domain named www.contoso.com to webapp1 -- **Create a DNS record**
 
- 
+248. You move VM1 to RG2, and then you add a new network interface to VM1 --**No**
+
+249. You delete VM1. You recreate VM1, and then you create a new network interface for VM1 and connect it to VNET2.
+     Does this meet the goal?  -- **Yes**
+
+250. You turn off VM1, and then you add a new network interface to VM1 -- **No**
+
+251. ![image-20251211213721768](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211213721768.png)
+
+252. ![image-20251211213734991](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211213734991.png)
+
+253. You need to provide internet users with access to the applications that run in Cluster1.
+     Which IP address should you include in the DNS record for Cluster1?![image-20251211213800954](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211213800954.png)
+
+ --  **131.107.2.1**
+
+254. You need to identify what to deploy before you deploy Template1 -- **one App Service plan**
+
+255. ![image-20251211213901170](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211213901170.png)
+
+256. Which change will cause downtime for VM1 -- **Change the size to D8s v3** 
+
+257. You need to ensure that the App1 update is tested before the update is made available to users -- **Swap the slots， Deploy the App1 update to webapp1-test, and then test the update**
+
+258. You need to record all the successful and failed connection attempts to VM1 -- **Create an Azure Storage account，Register the Microsoft.Insights resource provider.Enable Azure Network Watcher flow logs.** 
+
+259. You need to deploy an Azure virtual machine scale set that contains five instances as quickly as possible -- **Deploy one virtual machine scale set that is set to ScaleSetVM orchestration mode**
+
+260. ![image-20251211214151421](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211214151421.png)
+
+     What is the minimum number of App Service plans you should create for the web apps?  -- **2**
+
+261. ![image-20251211214235499](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211214235499.png)
+
+262.  From the Subscriptions blade, you select the subscription, and then click Programmatic deployment -- **No**
+
+263. You create a new network interface, and then you add the network interface to VM1 -- **No**
+
+264. Which users are members of the local Administrators group?![image-20251211214359726](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211214359726.png)
+
+-- **User1 and User2 only**
+
+265. ![image-20251211214455520](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211214455520.png)
+
+266. ![image-20251211214520440](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211214520440.png)
+
+267. ![image-20251211214528733](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211214528733.png)
+
+268. You plan to use Vault1 for the backup of as many virtual machines as possible  -- **VM1, VM3, VMA, and VMC only**
+
+269. You need to configure cluster autoscaler for AKS1 --  **the az aks command，the Azure portal**
+
+270. You create a container image named App1 on your administrative workstation -- **Run the docker push command.**
+
+271. Which proximity placement groups should you use? --**Proximity2 only**
+
+272. From the Subscriptions blade, you select the subscription, and then click Resource providers.  -- **No**
+
+273. From the RG1 blade, you click Automation script. -- **No**
+
+274. From the RG1 blade, you click Deployments.  -- **yes**
+
+275. You need to monitor the metrics and the logs of VM1 -- **Linux Diagnostic Extension (LAD) 3.0**
+
+276. ![image-20251211215156219](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211215156219.png)
+
+277. You need to ensure that at least two virtual machines are available if a single Azure datacenter becomes unavailable -- **each virtual machine in a separate Availability Zone**
+
+278. You plan to deploy a virtual machine named VM2 from Template1. -- **resource group**
+
+279. What task should you include in the runbook? --  **Modify the VM size property of VM1**
+
+280. You need to ensure that NGINX is available on all the virtual machines after they are deployed --  **A Desired State Configuration (DSC) extension， Azure Custom Script Extension**
+
+281. ![image-20251211215600348](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211215600348.png)
+
+282. Which changes will be lost after you redeploy VM1 -- **the new files on drive D**
+
+283. You need to ensure that you can use the disks attached to VM1 as a template for Azure virtual machines.
+     What should you modify on VM1?  -- **the hard drive**
+
+284. ![image-20251211215734282](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211215734282.png)
+
+285. From which blade can you view the template that was used for the deployment  -- **RG1**
+
+286. You swap webapp1-test for webapp1-prod and discover that App1 is experiencing performance issues.
+     You need to revert to the previous version of App1 as quickly as possible. --**Swap the slots**
+
+287. ![image-20251211220019157](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211220019157.png)
+
+288. What is a possible cause of the Warning status  -- **VM1 does not have the latest version of the Azure VM Agent (WaAppAgent.exe) installed**
+
+289. From the Overview blade, you move the virtual machine to a different resource group. -- **No**
+
+290. ![image-20251211220156142](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211220156142.png)
+
+291. You create an Azure Log Analytics workspace and configure the Agent configuration settings. You install the
+     Microsoft Monitoring Agent on VM1. You create an alert in Azure Monitor and specify the Log Analytics workspace as the
+     source.  --**Yes**
+
+292. ![image-20251211220234856](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211220234856.png)
+
+293. You need to identify in which of the currently used locations you can deploy ASP5. -- **West US, Central US, or East US**
+
+294. ![image-20251211220538634](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211220538634.png)
+
+295.  From Azure Cloud Shell, you run az aks.  -- **No**
+
+296. You create an Azure Log Analytics workspace and configure the Agent configuration settings. You install the
+     Microsoft Monitoring Agent on VM1. You create an alert in Azure Monitor and specify the Log Analytics workspace as the
+     source.-- **No**
+
+297. ![image-20251211220733038](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211220733038.png)
+
+298. ![image-20251211220915096](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211220915096.png)
+
+299. You create an Azure Log Analytics workspace and configure the **Agent configuration settings**. You install the
+     Microsoft Monitoring Agent on VM1. You create an alert in Azure Monitor and specify the Log Analytics workspace as the
+     source.   
+
+     -- **Yes**
+
+     You create an Azure Log Analytics workspace and configure the **data settings.** You add the Microsoft Monitoring
+     **Agent VM extension** to VM1. You create an alert in Azure Monitor and specify the Log Analytics workspace as the source. 
+
+      -- **No**
+
+     You create an Azure Log Analytics workspace and configure the **data settings**. You install the Microsoft Monitoring
+     **Agent** on VM1. You create an alert in Azure Monitor and specify the Log Analytics workspace as the source.  
+
+     --**Yes**
+
+300. You plan to restore the backup to a different virtual machine. -- **From VM2, install the Microsoft Azure Recovery Services Agent**
+
+301. ![image-20251211221548319](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211221548319.png)
+
+302. You create NIC2 in RG1 and West US. -- **Yes**
+
+303. You create NIC2 in RG2 and Central US. -- **No**
+
+304. You create NIC2 in RG2 and West US. -- **Yes**
+
+305. You develop the following Azure Resource Manager (ARM) template to create a resource group and deploy an Azure Storage
+     account to the resource group  -- **New-AzDeployment**
+
+306. ![image-20251211221815017](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211221815017.png)
+
+307. ![image-20251211221832593](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211221832593.png)
+
+308. You need to scale up VM1 to a new virtual machine size, but the intended size is unavailable. --**Deallocate VM1**
+
+309. ![image-20251211221918446](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211221918446.png)
+
+310. ![image-20251211221927912](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211221927912.png)
+
+311. ![image-20251211221936703](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211221936703.png)
+
+312. You set Admin user to Enable for Registry1. -- **No**
+
+313. You create a private endpoint connection for Registry1-- **No**
+
+314. You need to ensure that Plan1 will scale automatically when the CPU usage of the web app exceeds 80 percent  -- **Rules Based in the Scale out method settings**
+
+315. Which certificate can you use from Vault1 -- **Cert1 or Cert2 only**
+
+316. From the resource group blade, move VM1 to another subscription  --**No**
+
+317. From the VM1 Redeploy + reapply blade, you select Redeploy --**yes**
+
+318. From the VM1 Updates blade, select One-time update.--**No**
+
+319. You need to meet the technical requirements for the KEK --**Set-AzVMDiskEncryptionExtension and Key1.**
+
+320. ![image-20251211222329829](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222329829.png)
+
+321. You need to connect the datacenters to the subscription. The solution must minimize network latency between the
+     datacenters. -- **three virtual hubs and one virtual WAN**
+
+322. ![image-20251211222411568](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222411568.png)
+
+323. What should you create on LB1 before you can create the new inbound NAT rules -- **a frontend IP address**
+
+324. ![image-20251211222444440](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222444440.png)
+
+325. ![image-20251211222502524](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222502524.png)
+
+326. To which virtual networks can you establish a peering connection from VNet1![image-20251211222535724](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222535724.png)  
+
+     --**VNet3 and VNet4 only**
+
+327.You need to implement an Azure load balancer for the NVAs. The solution must meet the following requirements:
+? The NVAs must run in an active-active configuration that uses automatic failover.
+? The load balancer must load balance traffic to two services on the Production subnet. The services have different IP
+addresses.
+Which three actions should you perform ---**Deploy a standard load balancer，Add two load balancing rules that have HA Ports and Floating IP enabled，Add a frontend IP configuration, two backend pools, and a health probe**
+
+328.You need to ensure that you can connect Client1 to VNet2 --**Download and re-install the VPN client configuration package on Client1**
+
+329. ![image-20251211222750347](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222750347.png)
+330. To which subnets can you apply NSG1?![image-20251211222822995](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222822995.png)
+
+--  **the subnets on VNet3 only**
+
+331. ![image-20251211222853872](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222853872.png)
+
+332. ![image-20251211222903764](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222903764.png)
+
+333. You need to ensure that webapp1 can access the data hosted on VM1  -- **Connect webapp1 to VNET1**
+
+334. You need to enable Desired State Configuration for VM1 -- **Start VM1**
+
+335. You need to ensure that visitors are serviced by the same web server for each request -- **Session persistence to Client IP and protocol**
+
+336. You add an inbound security rule to NSG-Subnet1 that allows connections from the Any source to the *destination for
+     port range 3389 and uses the TCP protocol. You remove NSG-VM1 from the network interface of VM1.  
+
+     **--yes**
+     You add an inbound security rule to NSG-Subnet1 that allows connections from the internet source to the
+     VirtualNetwork destination for port range 3389 and uses the UDP protocol. 
+
+     **-- no**
+
+337. You add an inbound security rule to NSG-Subnet1 and NSG-VM1 that allows connections from the internet source to
+     the VirtualNetwork destination for port range 3389 and uses the TCP protocol. **--yes**
+
+338. ![image-20251211223442650](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211223442650.png)
+
+339. What is the minimum number of NSGs you should create?  -- **1**
+
+340. in RG1, you need to create a new virtual machine named VM2, and then connect VM2 to VNET1  --**Remove Microsoft.Compute/virtualMachines from the policy**
+
+341. You need to move the adatum.com zone to an Azure DNS zone in Subscription1  -- **Azure CLI**
+
+342. You need to direct all the Remote Desktop Protocol (RDP) connections to VM3 only  -- **an inbound NAT rule**
+
+343. ![image-20251211223638524](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211223638524.png)
+
+344. ![image-20251211223650196](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211223650196.png)
+
+345. ![image-20251211223701949](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211223701949.png)
+
+346. You need to prevent users of VM1 and VM2 from accessing websites on the Internet over TCP port 80 --**Associate the NSG to Subnet1**
+
+347. You need to connect VNet1 to VNet2  -- **Provision virtual network gateways**
+
+348. You need to ensure that VM1 can be created in an Availability Zone.  -- **Use managed disks，Availability options**
+
+349. ![image-20251211223846913](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211223846913.png)
+
+350. ![image-20251211223858291](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211223858291.png)
+
+351. You modify the Azure Active Directory (Azure AD) authentication policies  -- **No**
+
+352. You join Computer2 to Azure Active Directory (Azure AD)  -- **No**
+
+353. You create a resource lock, and then you assign the lock to the subscription  -- **No**
+
+354. You need to ensure that all the virtual machines can resolve DNS names by using the DNS service on VM1  -- **Configure peering between VNET1, VNET2, and VNET3**
+
+355. ![image-20251211224058174](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224058174.png)
+
+356. You need to prevent RDP access to the virtual machines from the Internet, unless the RDP connection is established from the
+     on-premises network  -- **Create a deny rule in a network security group (NSG) that is linked to Subnet1** 
+
+357. Subnet1 is associated to VNet1. NIC1 attaches VM1 to Subnet1.  -- **Associate NIC1 to ASG1** 
+
+358. You need to connect VNet1 to the on-premises network by using a site-to-site VPN  -- **Create a connection， Create a local site VPN gateway，Create a VPN gateway that uses the VpnGw1 SKU**
+
+359. ![image-20251211224243231](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224243231.png)
+
+360. ![image-20251211224252101](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224252101.png)
+
+361. ![image-20251211224259361](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224259361.png)
+
+362. You need to create a network interface named NIC1  -- **East US only**
+
+363. You need to ensure that VM1 can resolve host names in adatum.com  --**Configure the name servers for adatum.com at the domain registrar**
+
+364. ![image-20251211224416052](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224416052.png)
+
+365. ![image-20251211224429979](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224429979.png)
+
+366. ![image-20251211224543959](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224543959.png)
+
+367. You create a Basic SKU public IP address, associate the address to the network interface of VM1   --**No**
+
+368. You create a Standard SKU public IP address, associate the address to the network interface of VM1, and then stop
+     VM2.--**No**
+
+369. You create two Standard SKU public IP addresses and associate a Standard SKU public IP address to the network
+     interface of each virtual machine --**yes**
+
+370. You export the client certificate from Computer1 and install the certificate on Computer2  --**yes**
+
+371. You need to ensure that users can connect to the website from the Internet. --**For Rule5, change the Action to Allow and change the priority to 401** 
+
+372. From the Resource providers blade, you unregister the Microsoft.ClassicNetwork provider. --**No**
+
+373. ![image-20251211224830974](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211224830974.png)
+
+374. You create an inbound security rule that denies all traffic from the 131.107.100.50 source and has a cost of 64999. --**No**
+
+375. You delete the BlockAllOther443 inbound security rule --**No**
+
+376. You modify the priority of the Allow_131.107.100.50 inbound security rule.  --**No**
+
+377. You assign a built-in policy definition to the subscription.  --**No**
+
+378. For the AKS cluster, you need to choose a network type that will support App1  -- **Azure Container Networking Interface (CNI)**
+
+379. You disassociate the public IP address from the network interface of VM2. -- **Yes**
+
+380. You configure a custom policy definition, and then you assign the policy to the subscription.-- **Yes**
+
+381. You need to view the average round-trip time (RTT) of the packets from VM1 to VM2 --**Connection monitor**
+
+382. ![image-20251211225149726](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225149726.png)
+
+383. ![image-20251211225157204](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225157204.png)
+
+384. You perform a reverse DNS lookup for 10.0.0.4 from VM2.
+     Which FQDN will be returned?  -- **vm1.internal.cloudapp.net**
+
+385. You create an inbound security rule that allows any traffic from the AzureLoadBalancer source and has a cost of 150.  **--No**
+
+386. You need to ensure that you can configure a point-to-site connection from an on-premises computer to VNet1.  -- **Create a route-based virtual network gateway，Delete GW1**
+
+387. ![image-20251211225337492](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225337492.png)
+
+388. ![image-20251211225347096](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225347096.png)
+
+389. ![image-20251211225355992](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225355992.png)
+
+390. From Azure Network Watcher, you create a packet capture.  --**Yes**
+
+391. From Azure Network Watcher, you create a connection monitor. **--No**
+
+392.  From Performance Monitor, you create a Data Collector Set (DCS). **--No**
+
+393. ![image-20251211225502889](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225502889.png)
+
+394.  From Azure Monitor, you create a metric on Network In and Network Out  **--No**
+
+395. You create an inbound security rule that denies all traffic from the 131.107.100.50 source and has a priority of 64999.   **--No**
+
+396. ![image-20251211225601897](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225601897.png)
+
+397. ![image-20251211225612776](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225612776.png)
+
+398. You plan to peer VNet1 to another virtual network named VNet2. VNet2 has an address space of 10.2.0.0/16.  --**Modify the address space of VNet1**
+
+399. Which DNS names can you use to ping VM2?  -- **comp2.contoso.com only**
+
+400. ![image-20251211225705871](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225705871.png)
+
+401. On Computer2, you set the Startup type for the IPSec Policy Agent service to Automatic.  -**-No**
+
+402. Which public IP addresses can you use![image-20251211225923132](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211225923132.png)
+
+-**- IP3 only**
+
+403. You need to restrict network traffic between the pods  -- **the Calico network policy**
+404. ![image-20251211230007978](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230007978.png)
+405. ![image-20251211230042035](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230042035.png)
+406. You plan to create a load balancing rule that will load balance HTTPS traffic between VM1 and VM2  --**a backend pool，a health probe**
+407. Which type of public IP address SKU and assignment should you use for the gateway  -- **a standard SKU and a static IP address assignment**
+408. ![image-20251211230149962](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230149962.png)
+409. ![image-20251211230202485](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230202485.png)
+410. Which SKU should you deploy  -- **ErGw3AZ**
+411. ![image-20251211230242349](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230242349.png)
+412. ![image-20251211230250563](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230250563.png)
+413. You need to ensure that webapp1 can connect to Share1.  --**an Azure Virtual Network Gateway**
+414. Which two resources can you associate to IP1? Each correct answer presents a complete solution.  --  **LB1，NIC1**
+415. You need to allow access to storage1 from selected networks and your home office. The solution must minimize administrative effort.  --**Modify the Public network access settings.**
+416. Which tunneling protocol should you use  -- **IKEv2**
+417. You perform a test failover of VM1 and specify VNET2 as the target virtual network.  --**DemoSubnet1**
+418. ![image-20251211230454379](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230454379.png)
+419. You need to configure NSG1 to allow inbound access to the virtual machines via Bastion1.  -- **443**
+420. ![image-20251211230530129](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230530129.png)
+421. You need to deploy an Azure firewall named AF1 to RG1 in the West US Azure region.  -- **VNET1 only**
+422. You need to monitor connectivity between the virtual machines and the on-premises network by using Connection Monitor.![image-20251211230628064](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230628064.png)
+
+What is the minimum number of connection monitors you should deploy?
+
+-- **2**
+
+423. ![image-20251211230714325](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230714325.png)
+424. You need to ensure that inbound user traffic uses the Microsoft point-of-presence (POP) closest to the user's location.  -- **Routing preference**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
