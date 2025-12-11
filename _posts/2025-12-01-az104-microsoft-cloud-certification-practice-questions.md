@@ -1,5 +1,5 @@
 ---
-layout: post
+ layout: post
 title: AZ104 微软云认证备考题库
 categories: [Cloud, Azure, Certification]
 description: 包含AZ104微软Azure管理员认证考试的备考题目、解析和答案，帮助考生系统复习和准备考试。
@@ -400,7 +400,228 @@ NSG1
 
 
 
-112. 
+112. ![image-20251211191413665](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211191413665.png)
+
+
+
+
+
+113. You need to assign User1 the Storage File Data SMB Share Contributor role for share1 -- **Configure Access control (IAM) for share1**
+114. ![image-20251211191532480](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211191532480.png)
+
+
+
+115. ![image-20251211191558283](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211191558283.png)
+116. You create a PowerShell script that runs the New-MgUser cmdlet for each external user  -- **No**
+117. You create a PowerShell script that runs the New-MgInvitation cmdlet for each external user -- **Yes**
+118. ![image-20251211191756853](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211191756853.png)
+
+119. ![image-20251211191825728](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211191825728.png)
+120. You need to assign Workspace1 a role to allow read, write, and delete operations for the data stored in the containers of
+     storage1. -- **Storage Blob Data Contributor**
+121. You purchase Azure Active Directory Premium P2 licenses.![image-20251211192013748](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211192013748.png)
+     To which groups can you assign a license?  -- **Group1 and Group3 only**
+122. ![image-20251211192041465](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211192041465.png)
+
+
+
+123. ![image-20251211192102611](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211192102611.png)
+
+124. ![image-20251211192121907](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211192121907.png)
+
+
+
+
+
+1- User 1 can read Blob2 - No, because he is reading, then the condition a. applies, and he is not reading cont1
+2- User 1 can read Blob3 - No, because he is reading, then the condition a. applies, and he is not reading cont1
+3- User 2 can read blob 1 - Yes. He is not writing, so the condition b. does not apply. He has permissions granted by the role on
+the scope he is reading - Storage Blob Data Owner on storage1, which contains blob
+
+125. You create a PowerShell script that runs the New-MgUser cmdlet for each user  -- **No**
+126. ![image-20251211192230370](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211192230370.png)
+
+
+
+
+
+
+
+
+
+127. To what can you add Admin1 as a co-administrator  -- **Sub1**
+
+128. ![image-20251211201248473](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211201248473.png)
+
+129. ![image-20251211201311093](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211201311093.png)
+
+
+
+130. You need to ensure that imported user objects are added automatically as the members of a specific group based on each
+     user's department. The solution must minimize administrative effort -- **Create groups that use the Dynamic User membership type， Create a CSV file that contains user information and the appropriate attributes**
+131. You need to ensure that the access keys for storage1 rotate automatically -- **an Azure key vault**
+132. You need to enable self-service password reset (SSPR)  -- **Group1 and Group2 only**
+133. ![image-20251211201616416](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211201616416.png)
+
+134. ![image-20251211201644241](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211201644241.png)
+135. ![image-20251211201659191](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211201659191.png)
+136. You need to ensure that invitations can be sent only to fabrikam.com users  -- **From External collaboration settings, configure the Collaboration restrictions settings**
+137. You need to assign a role to a user named User1 to ensure that the user can access the blob data in storage1. The role
+     assignment must support conditions -- **Storage Blob Data Contributor，Storage Blob Data Owner**
+138. ![image-20251211201912105](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211201912105.png)
+139. You purchase a Microsoft Fabric license，To which identities can you assign the license? -**-User1 only**
+140. You need to ensure that users receive a warning message when they generate a SAS that exceeds a seven-day time period.
+     What should you do for storage? -- **Set Allow recommended upper limit for shared access signature (SAS) expiry interval to Enabled**
+141. You plan to use the Azure Import/Export service to export data from Subscription1 --**storage4**
+142. ![image-20251211202249995](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202249995.png)
+143. You plan to export data by using Azure import/export job named Export1 --**container1**
+144. ![image-20251211202355055](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202355055.png)
+145. ![image-20251211202421295](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202421295.png)
+146. You need to synchronize the files in the file share named data to an on-premises server named Server1 --**Register Server1 ，Install the Azure File Sync agent on Server1，Create a sync group**
+147. ![image-20251211202554256](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202554256.png)
+148. ![image-20251211202628515](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202628515.png)
+149. ![image-20251211202646461](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202646461.png)
+150. ![image-20251211202719362](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202719362.png)
+151. ![image-20251211202742020](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202742020.png)
+152. ![image-20251211202749980](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202749980.png)
+153. ![image-20251211202800002](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202800002.png)
+154. ![image-20251211202810071](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211202810071.png)
+155. You need to identify which storage account can be converted to zone-redundant storage (ZRS) replication by requesting a live
+     migration from Azure support  --- **storage2**
+156. You plan to use the disk files to provision an Azure virtual machine named VM1 -- **From the Networking blade of account1, select Selected networks.，From the Networking blade of account1, add the 131.107.1.0/24 IP address range.**
+157. ![image-20251211203021339](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203021339.png)
+158. ![image-20251211203044362](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203044362.png)
+159. Which two files should you create before you prepare the drives for the import job -- **a dataset CSV file，a driveset CSV file**
+160. You need to delete the Recovery Services vault -- **From the Recovery Service vault, stop the backup of each backup item.**
+161. ![image-20251211203239776](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203239776.png)
+162. You have an Azure subscription named Subscription1.
+     You have 5 TB of data that you need to transfer to Subscription1.
+     You plan to use an Azure Import/Export job.
+     What can you use as the destination of the imported data?  -- **Azure File Storage，Azure Blob storage*
+163. ![image-20251211203511465](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203511465.png)
+164. You plan to use AzCopy to copy data to storage1 -- **blob and file only** 
+165. ![image-20251211203648430](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203648430.png)
+166. You need to configure a storage service for Container1 --  **Azure Files**
+167. What should you include in the Availability Set --  **two update domains**
+168. ![image-20251211203827038](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203827038.png)
+169. ![image-20251211203848386](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203848386.png)
+170. ![image-20251211203921802](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203921802.png)
+171. ![image-20251211203938921](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203938921.png)
+172. ![image-20251211203959086](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211203959086.png)
+173. You need to back up VM2 to RSV2  -- **From the RSV1 blade, click Backup items and stop the VM2 backup**
+174. You need to ensure that the data in the storage account is protected if a zone fails  -- **Upgrade the account to general-purpose v2**
+175. You plan to manage the data stored in the accounts by using lifecycle management rules. -- **storage1, storage2, and storage3 only**
+176. Which outbound port should you open between the home computers and the data file share --**445**
+177. ![image-20251211204733184](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211204733184.png)
+178. From which devices can you use AzCopy to copy data to storage1 -- **Device1, Device2 and Device3**
+179. You need to prevent new content added to container1 from being modified for one year -- **an access policy**
+180. ![image-20251211204909886](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211204909886.png)
+181. You need to ensure that the members of a group named Group1 can upload files by using the Azure portal. The solution must use the principle of least privilege -- **Storage Blob Data Contributor，Reader**
+182. ![image-20251211205014099](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205014099.png)
+183. You need to copy the contents of D:\Folder1 to the public container in an Azure Storage account named contosodata -- **azcopy copy D:\folder1 https://contosodata.blob.core.windows.net/public --recursive**
+184. You need to ensure that you can set Account kind for storage1 to BlockBlobStorage -- **Performance**
+185. ![image-20251211205157686](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205157686.png)
+186. For one of the containers, you need to use a different key to encrypt data at rest -- **Create an encryption scope**
+187. ![image-20251211205301114](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205301114.png)
+188. ![image-20251211205323704](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205323704.png)
+189. ![image-20251211205350884](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205350884.png)
+190. ![image-20251211205423816](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205423816.png)
+191. Which tasks can you perform by using Azure Storage Explorer -- **Task2, Task3, and Task4 only**
+192. ![image-20251211205641672](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205641672.png)
+193. You need to use customer-managed key encryption for container1 --**an RSA key type with a key size of 2048, 3072, or 4096 only**
+194. ![image-20251211205740496](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205740496.png)
+195. ![image-20251211205753707](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205753707.png)
+196. What is the state of File1 on June 7 -- **deleted**
+197. ![image-20251211205902487](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205902487.png)
+198. ![image-20251211205955476](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211205955476.png)
+199. You need to ensure that share1 can support SMB Multichannel，The solution must minimize costs. -- **Premium performance with locally-redundant storage (LRS)**
+200. You plan to use conditions when assigning role-based access control (RBAC) roles to storage1 -- **containers and queues only**
+201. ![image-20251211210133811](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210133811.png)
+202. You assign the Storage Account Encryption Scope Contributor Role to User1  -- **No**
+203. ![image-20251211210234271](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210234271.png)
+204. ![image-20251211210245984](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210245984.png)
+205. You need to ensure that the users can view only specific blobs based on blob index tags -- **a role assignment condition**
+206. Which storage types can you encrypt by using Scope -- **containers only**
+207. ![image-20251211210400098](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210400098.png)
+208. ![image-20251211210417813](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210417813.png)
+209. You need to prepare Vault1 for Azure Disk Encryption -- **Create a new key.， Select Azure Disk Encryption for volume encryption**
+210. Store and use the encryption key in KV1. -- **Azure Disk Encryption**
+211. ![image-20251211210543063](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210543063.png)
+212. Apply access permissions to all the content in the container  -- **a shared access signature (SAS)**
+213. Automatically replicate data to a secondary Azure region -- **the Cool access tire，geo-redundant storage (GRS)，hierarchical namespace**
+214. ![image-20251211210744836](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210744836.png)
+215. Which storage account can be converted to zone-redundant storage (ZRS) replication  ![image-20251211210909851](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211210909851.png)
+
+-- **Storage2**
+
+216. On which devices can you install Azure Storage Explorer![image-20251211211034521](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211034521.png)
+
+     **Device1, Device2, and Device3 only**
+
+217. You assign the Storage Account Key Operator Service Role to User1 -- **Yes**
+
+218. ![image-20251211211208934](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211208934.png)
+
+219. ![image-20251211211339547](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211339547.png)
+
+220. ![image-20251211211355305](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211355305.png)
+
+221. ![image-20251211211404735](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211404735.png)
+
+222. ![image-20251211211418491](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211418491.png)
+
+223. ![image-20251211211428439](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211428439.png)
+
+224. You assign the Reader and Data Access role to User1  -- **No**
+
+225. What should you do first for ContReg1 --  **Upgrade the SKU**
+
+226. ![image-20251211211540891](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211540891.png)
+
+227. You need to configure encryption for the virtual machines. -- **VM2 and VM3**
+
+228. You need to implement the planned changes for the storage account content -- **cont1, share1, and share2 only**
+
+229. From Azure CLI, you run az aks -- **No**
+
+230. From Azure CLI, you run the kubectl client -- **Yes**
+
+231. From Azure CLI, you run azcopy -- **No**
+
+232.  You create an Azure storage account and configure shared access signatures (SASs) -- **No**
+
+233. ![image-20251211211846416](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211846416.png)
+
+234. What should you create to store the password --**an Azure Key Vault and an access policy**
+
+235. ![image-20251211211925109](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211925109.png)
+
+236. ![image-20251211211934481](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211211934481.png)
+
+237. You plan to automate the deployment of a virtual machine scale set that uses the Windows Server 2016 Datacenter image. --  **Upload a configuration script，Modify the extensionProfile section of the Azure Resource Manager template**
+
+238. ![image-20251211212116852](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211212116852.png)
+
+239. ![image-20251211212128007](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211212128007.png)
+
+240. You need to deploy the virtual machine to the West US location by using Template1 -- **Modify the location in the resources section to westus**
+
+241. You need to create a staging slot for Plan1 -- **From Plan1, scale up the App Service plan**
+
+242. You need to ensure that App1 always runs on at least eight virtual machines during planned Azure maintenance. -- **one virtual machine scale set that has 10 virtual machines instances**
+
+243. You create an event subscription on VM1. You create an alert in Azure Monitor and specify VM1 as the source
+     Does this meet the goal --**No**
+
+244. From the Overview blade, you move the virtual machine to a different subscription -- **No**
+
+245. From the Redeploy blade, you click Redeploy -- **Yes**
+
+246. From the Update management blade, you click Enable -- **No**
+
+247. You need to add a custom domain named www.contoso.com to webapp1 -- **Create a DNS record**
+
+ 
 
 
 
