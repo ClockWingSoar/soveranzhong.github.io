@@ -1204,263 +1204,66 @@ What is the minimum number of connection monitors you should deploy?
 510. ![image-20251212091237647](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091237647.png)
 
 511. ![image-20251212091253813](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091253813.png)
+
 512. ![image-20251212091301770](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091301770.png)
+
 513. You need to meet the user requirement for Admin1  -- **From the Subscriptions blade, select the subscription, and then modify the Properties**
+
 514. ![image-20251212091346674](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091346674.png)
+
 515. ![image-20251212091358124](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091358124.png)
+
 516. ![image-20251212091408571](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091408571.png)
+
 517. You need to ensure that you can grant Group4 Azure RBAC read only permissions to all the Azure file shares.
      What should you do?  --**On storage2, enable identity-based access for the file shares.**
+
 518. You need to implement a backup solution for App1 after the application is moved.
      What should you create first?  --**a Recovery Services vault**
+
 519. You need to move the blueprint files to Azure  --Use Azure Storage Explorer to copy the files.
+
 520. ![image-20251212091543716](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091543716.png)
+
 521. ![image-20251212091604726](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091604726.png)
+
 522. ![image-20251212091606682](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091606682.png)
+
 523. ![image-20251212091616977](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091616977.png)
+
 524. You need to identify which storage account to use for the flow logging of IP traffic from VM5. The solution must meet the
      retention requirements.
      Which storage account should you identify?   --**storage2**
+
 525. You discover that VM3 does NOT meet the technical requirements.
      You need to verify whether the issue relates to the NSGs.
      What should you use?  --**IP flow verify in Azure Network Watcher**
+
 526. You need to ensure that VM1 can communicate with VM4. The solution must minimize the administrative effort.
      What should you do?  --**Establish peering between VNET1 and VNET3.** 
+
 527. ![image-20251212091746956](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091746956.png)
+
 528. ![image-20251212091804173](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091804173.png)
+
 529. You are planning the move of App1 to Azure.
      You create a network security group (NSG).
      You need to recommend a solution to provide users with access to App1.
      What should you recommend?  --**Create an incoming security rule for port 443 from the Internet. Associate the NSG to the subnet that contains the web servers.**
+
 530. ![image-20251212091852703](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091852703.png)
+
 531. You need to add VM1 and VM2 to the backend pool of LB1  --**Redeploy VM1 and VM2 to the same availability set.**
+
 532. You need to ensure that VM1 can communicate with VM4. The solution must minimize administrative effort  --**Establish peering between VNET1 and VNET3.** 
+
 533. ![image-20251212091957574](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091957574.png)
+
 534. You need to recommend a solution to automate the configuration for the finance department users. The solution must meet
      the technical requirements.
      What should you include in the recommendation?   --**dynamic groups and conditional access policies** 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+     
 
 ## 备考建议
 
