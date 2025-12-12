@@ -53,7 +53,7 @@ mindmap2: false
 4. You access the Azure portal to alter the grant control of the Azure AD conditional access policy. -- **Yes**
 
 5. You are required to implement a custom deployment that includes adding a particular trusted root certification authority (CA).
-  Which of the following should you use to create the virtual machine?  -- **The az vm create command.**
+    Which of the following should you use to create the virtual machine?  -- **The az vm create command.**
 
 6. You reconfigure the existing usage model via the Azure portal -- **No**
 
@@ -817,7 +817,7 @@ the scope he is reading - Storage Blob Data Owner on storage1, which contains bl
 addresses.
 Which three actions should you perform ---**Deploy a standard load balancer，Add two load balancing rules that have HA Ports and Floating IP enabled，Add a frontend IP configuration, two backend pools, and a health probe**
 
-328.You need to ensure that you can connect Client1 to VNet2 --**Download and re-install the VPN client configuration package on Client1**
+328.You need to ensure that you can connect Client1 to VNet2.  --**Download and re-install the VPN client configuration package on Client1**
 
 329. ![image-20251211222750347](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222750347.png)
 330. To which subnets can you apply NSG1?![image-20251211222822995](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211222822995.png)
@@ -832,7 +832,7 @@ Which three actions should you perform ---**Deploy a standard load balancer，Ad
 
 334. You need to enable Desired State Configuration for VM1 -- **Start VM1**
 
-335. You need to ensure that visitors are serviced by the same web server for each request -- **Session persistence to Client IP and protocol**
+335. You need to ensure that visitors are serviced by the same web server for each request -- **Session persistence to Client IP and protocol ** or **Session persistence to Client IP**
 
 336. You add an inbound security rule to NSG-Subnet1 that allows connections from the Any source to the *destination for
      port range 3389 and uses the TCP protocol. You remove NSG-VM1 from the network interface of VM1.  
@@ -1008,15 +1008,237 @@ What is the minimum number of connection monitors you should deploy?
 -- **2**
 
 423. ![image-20251211230714325](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251211230714325.png)
+
 424. You need to ensure that inbound user traffic uses the Microsoft point-of-presence (POP) closest to the user's location.  -- **Routing preference**
 
+425. You need to prevent VM1 from accessing VM2 on port 3389  -- **Create a network security group (NSG) that has an outbound security rule to deny destination port 3389 and apply the NSG to the network interface of VM1**
+
+426. You need to manage outbound traffic from VNET1 by using Firewall1 --**Create a route table**
+
+427. You plan to deploy an Azure Bastion host named Bastion1 to VNet1 -- **VM1 only** 
+
+428. You need to ensure that Bastion1 can support 100 concurrent SSH users.  --**Upgrade Bastion1 to the Standard SKU**
+
+429. ![image-20251212082649432](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212082649432.png)
+
+430. You plan to deploy an Azure Bastion Basic SKU host named Bastion1 ![image-20251212082821374](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212082821374.png) 
+
+     -- **IP1 only**
+
+431. You need to move VM1 to Sub2.  -- **VM1, Disk1, NetInt1, and VNet1**
+
+432. You need to add a route to RT1 that specifies the next hop IP address  --**Virtual appliance**
+
+433. You have the virtual networks shown in the following table,Which virtual networks can you peer with VNet1![image-20251212084153401](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084153401.png)  
+
+     -- **VNet2, VNet3, VNet4, and VNet5**
+
+434. You need to enable multi-user authorization (MAU) for Vault1  -- **a resource guard** 
+
+435. You create an inbound security rule that allows any traffic from the AzureLoadBalancer source and has a **priority** of 150  
+     -- **Yes**
+     You create an inbound security rule that allows any traffic from the AzureLoadBalancer source and has a **cost** of 150.
+     -- **No**
+
+436. You create a route table named RT1 in the East US Azure region  -- **Subnet1 only**
+
+437. ![image-20251212083549717](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212083549717.png)
+
+438. You need to configure secure RDP connections to the virtual machines by using Azure Bastion ![image-20251212083632406](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212083632406.png) 
+
+     What is the minimum number of Bastion hosts required?  -- **1**
+
+439. ![image-20251212083719394](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212083719394.png)
+
+440. ![image-20251212083730047](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212083730047.png)
+
+441. What is the maximum number of virtual machines that can connect to Subnet1 -- **123**
+
+442. What should you configure for container1  -- **the public networking type** 
+
+443. ![image-20251212083848713](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212083848713.png)
+
+444. ![image-20251212083901849](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212083901849.png)
+
+445. You need to ensure that cont1 can be configured to use private networking  -- **Networking type**
+
+446. To which virtual machines can you connect through Bastion1 -- **VM1 and VM2 only**
+
+447. Which virtual networks can you peer with VNet1
+
+     ![image-20251212084101076](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084101076.png)
+
+     --**VNet3 and VNet4 only**
 
 
 
+448. You create a Recovery Services vault  -- **Configure a virtual network.**
+449. ![image-20251212084333003](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084333003.png)
+450. You need to ensure that all the traffic between VNet1 and VNet2 traverses the Microsoft backbone network.  --**peering** 
+451. You need to configure access for users on the on-premises network to connect to a virtual machine on VNet2. The solution
+     must minimize costs.  --**service chaining and user-defined routes (UDRs)**
+452. You need to ensure that the traffic from VNet1 to VNet2 is inspected by using NetVA1  --**a route table that has custom routes**
+453. You plan to schedule backups to occur every night at 23:00![image-20251212084546211](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084546211.png)
+
+--**VM1, VM2, VM3 and VM4**
+
+454. What should you create for Azure Monitor --**an action group**
+
+455. You need to protect VM3 and VM4 by using Recovery Services  --**Create a new Recovery Services vault**
+
+456. ![image-20251212084718418](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084718418.png)
+
+457. You need to identity who will receive an email notification when Alert1 is triggered  --**User1 and User2 only**
+
+458. ![image-20251212084800863](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084800863.png)
+
+459. ![image-20251212084819767](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084819767.png)
+
+460. You need to ensure that all the changes to VM1 are restored  --**Copy Budget.xls to Data**
+
+461. ![image-20251212084903490](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084903490.png)
+
+462. You need to ensure that User1 can join the device to Azure AD  --**From the Device settings blade, modify the Maximum number of devices per user setting**
+
+463. ![image-20251212084938273](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084938273.png)
+
+464. ![image-20251212084950359](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212084950359.png)
+
+465. You instruct User1 to create the user accounts.  -- **Yes**
+
+466. You need to monitor the latency between your on-premises network and the virtual machines -- **Network Performance Monitor**
+
+467. ![image-20251212085110490](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085110490.png)
+
+468. ![image-20251212085137053](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085137053.png)
+
+469. ![image-20251212085200296](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085200296.png)
+
+470. Which target resource should you monitor in the alert rule  -- **Azure Log Analytics workspace** 
+
+471. You need to identify unattached disks that can be deleted  --**From Azure Cost Management, view Advisor Recommendations**
+
+472. You need to provide the developers of webapp1 with real-time access to the connection errors. The solution must provide all
+     the connection error details  -- **From webapp1, enable Web server logging**
+
+473. You need to monitor the availability of App1 by using a multi-step web test -- **Azure Application Insights**
+
+474. ![image-20251212085409041](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085409041.png)
+
+475. You need to recover VM1 to a point eight days ago. The solution must minimize downtime.  --**Restore VM1 by using the Create new restore configuration option**
+
+476. ![image-20251212085440777](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085440777.png)
+
+477. ![image-20251212085543979](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085543979.png)
+
+478. ![image-20251212085556977](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085556977.png)
+
+479. ![image-20251212085608026](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085608026.png)
+
+480. ![image-20251212085805756](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085805756.png)
+
+481. You need to centrally monitor user activity across all the subscriptions  -- **a Log Analytics workspace**
+
+482. ![image-20251212085855987](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212085855987.png)
+
+483. To what should you set Destination in the rule  --**Service Tag**
+
+484. You need to collect performance traces for App1 --**Azure Application Insights Profiler**
+
+485. You need to back up App1. The solution must minimize costs.  --**storage2** 
+
+486. ![image-20251212090044009](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212090044009.png)
+
+487. You need to use Traffic Analytics in Azure Network Watcher to monitor virtual machine traffic.  --**a Log Analytics workspace,a storage account** 
+
+488. ![image-20251212090202325](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212090202325.png)
+
+     What is the minimum number of service endpoints you should add to VNET1  --**2**
+
+489. You need to configure an Azure web app named contoso.azurewebsites.net to host www.contoso.com. -- **Create a *TXT record named asuid* that contains the domain verification ID.**
+
+490. You need to configure an Azure Monitor Network Insights alert that will be triggered when suspicious network traffic is
+     detected.  -- **Configure NSG flow logs.**
+
+491. ![image-20251212090433495](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212090433495.png)
+
+492. You need to ensure that when blob data is added to storage1, a secondary copy is created in the East US region. The solution
+     must minimize administrative effort.  -- **object replication**
+
+493. You need to collect performance data and events from the virtual machines. The solution must meet the following
+     requirements:
+     • Logs must be sent to Workspace1 and Workspace 2.
+     • All Windows events must be captured.
+     • All security events must be captured.
+     What should you install and configure on each virtual machine?
+
+-- **the Azure Monitor agent**
 
 
 
+494. You need to create an alert rule that will run App1 if VM1 stops  --**an action group**
+495. You need to create a dashboard to display detailed metrics and a visual representation of the network topology -- **Azure Monitor Network Insights**
+496. A user reports that he cannot use port 33000 to connect from a virtual machine in one region to a virtual machine in another
+     region. Which two options can you use to diagnose the issue?   --**IP flow verify,Connection troubleshoot**
+497. You need to receive an email alert when a resource lock is removed from any resource in the subscription.   -**-a resource, a condition, and an action group**
+498. ![image-20251212090809726](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212090809726.png)
+499. ![image-20251212090819035](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212090819035.png)
+500. ![image-20251212090827319](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212090827319.png)
+501. You need to ensure that all the virtual machines only communicate with Azure Monitor through VNet1  --**an Azure Monitor Private Link Scope (AMPLS)**
+502. ![image-20251212090936132](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212090936132.png)
+503. You need to monitor input events for Job1 to identify the number of events that were NOT processed --**Backlogged Input Events**
+504. You plan to use Azure Monitor to monitor the performance of DB1. You must be able to run queries to analyze log data  -- **Send to a Log Analytics workspace**
+505. You plan to use the Azure Monitor Agent to collect events from Windows System event logs.
+     You only need to collect system events that have an ID of 1001.
+     Which type of query should you use for the data source in Rule1?
 
+**-- XPath**
+
+
+
+506. You need to use Connection Monitor to identify network latency between VM1 and DC1.
+     What should you install on DC1?  -- **an Azure Monitor agent extension** 
+507. You need to monitor VM1 traffic by using Traffic Analytics.  --**NSG flow logs for NSG1**
+508. You need to collect the IIS logs from each virtual machine and store them in a Log Analytics workspace.  --**Diagnostic settings**
+509. ![image-20251212091226098](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091226098.png)
+510. ![image-20251212091237647](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091237647.png)
+
+511. ![image-20251212091253813](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091253813.png)
+512. ![image-20251212091301770](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091301770.png)
+513. You need to meet the user requirement for Admin1  -- **From the Subscriptions blade, select the subscription, and then modify the Properties**
+514. ![image-20251212091346674](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091346674.png)
+515. ![image-20251212091358124](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091358124.png)
+516. ![image-20251212091408571](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091408571.png)
+517. You need to ensure that you can grant Group4 Azure RBAC read only permissions to all the Azure file shares.
+     What should you do?  --**On storage2, enable identity-based access for the file shares.**
+518. You need to implement a backup solution for App1 after the application is moved.
+     What should you create first?  --**a Recovery Services vault**
+519. You need to move the blueprint files to Azure  --Use Azure Storage Explorer to copy the files.
+520. ![image-20251212091543716](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091543716.png)
+521. ![image-20251212091604726](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091604726.png)
+522. ![image-20251212091606682](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091606682.png)
+523. ![image-20251212091616977](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091616977.png)
+524. You need to identify which storage account to use for the flow logging of IP traffic from VM5. The solution must meet the
+     retention requirements.
+     Which storage account should you identify?   --**storage2**
+525. You discover that VM3 does NOT meet the technical requirements.
+     You need to verify whether the issue relates to the NSGs.
+     What should you use?  --**IP flow verify in Azure Network Watcher**
+526. You need to ensure that VM1 can communicate with VM4. The solution must minimize the administrative effort.
+     What should you do?  --**Establish peering between VNET1 and VNET3.** 
+527. ![image-20251212091746956](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091746956.png)
+528. ![image-20251212091804173](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091804173.png)
+529. You are planning the move of App1 to Azure.
+     You create a network security group (NSG).
+     You need to recommend a solution to provide users with access to App1.
+     What should you recommend?  --**Create an incoming security rule for port 443 from the Internet. Associate the NSG to the subnet that contains the web servers.**
+530. ![image-20251212091852703](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091852703.png)
+531. You need to add VM1 and VM2 to the backend pool of LB1  --**Redeploy VM1 and VM2 to the same availability set.**
+532. You need to ensure that VM1 can communicate with VM4. The solution must minimize administrative effort  --**Establish peering between VNET1 and VNET3.** 
+533. ![image-20251212091957574](2025-12-01-az104-microsoft-cloud-certification-practice-questions.assets/image-20251212091957574.png)
+534. You need to recommend a solution to automate the configuration for the finance department users. The solution must meet
+     the technical requirements.
+     What should you include in the recommendation?   --**dynamic groups and conditional access policies** 
 
 
 
