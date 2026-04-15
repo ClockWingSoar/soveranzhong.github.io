@@ -361,6 +361,140 @@
 - 在配置防火墙规则时，需要确保只开放必要的端口
 - 对于生产环境，建议使用非默认端口以提高安全性
 
+### 17. Nginx配置文件和日志文件在哪里？怎么找（不是你装的nginx）
+
+**问题分析**：在实际工作中，我们经常需要排查他人部署的Nginx环境，快速定位配置文件和日志文件位置是SRE工程师的必备技能。
+
+## 一、查找Nginx配置文件的方法
+
+#### 1. 通过 `nginx -t` 命令查找
+```bash
+# 查找nginx配置文件（同时测试配置语法）
+nginx -t
+# 输出示例：
+# nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+# nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+#### 2. 通过 `nginx -V` 查看编译配置
+```bash
+# 查看nginx编译时的配置参数
+nginx -V
+# 输出示例：
+# configure arguments: --prefix=/etc/nginx --conf-path=/etc/nginx/nginx.conf ...
+# 可以看到 --conf-path 指定了配置文件路径
+```
+
+#### 3. 通过 `nginx -T` 查看完整配置
+```bash
+# 打印完整的nginx配置（包括所有include文件）
+nginx -T
+# 此命令会输出所有配置文件内容，可以从中找到access_log和error_log的路径
+```
+
+#### 4. 通过ps命令查看进程信息
+```bash
+# 查找nginx进程
+ps aux | grep nginx
+# 输出示例：
+# root       1234  0.0  0.1  12345  6789 ?        Ss   10:00   0:00 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
+# nginx      5678  0.0  0.2  23456  8901 ?        S    10:00   0:00 nginx: worker process
+
+# 根据-c参数找到配置文件
+```
+
+#### 5. 通过 `/proc` 文件系统查找
+```bash
+# 1. 找到nginx master进程的PID
+ps aux | grep "nginx: master process"
+# 假设PID是1234
+
+# 2. 查看进程的可执行文件路径
+ls -l /proc/1234/exe
+# 输出示例：
+# lrwxrwxrwx 1 root root 0 Apr 16 10:00 /proc/1234/exe -> /usr/sbin/nginx
+
+# 3. 使用找到的nginx执行文件查看配置
+/usr/sbin/nginx -t
+/usr/sbin/nginx -V
+```
+
+#### 6. 常见的Nginx配置文件默认路径
+```bash
+# 不同发行版的默认路径
+# CentOS/RHEL
+/etc/nginx/nginx.conf
+
+# Ubuntu/Debian
+/etc/nginx/nginx.conf
+
+# 编译安装的常见路径
+/usr/local/nginx/conf/nginx.conf
+/usr/local/etc/nginx/nginx.conf
+```
+
+## 二、查找Nginx日志文件的方法
+
+#### 1. 通过配置文件查找（最可靠）
+```bash
+# 先找到配置文件，然后查找日志路径
+cat /etc/nginx/nginx.conf | grep access_log
+cat /etc/nginx/nginx.conf | grep error_log
+
+# 如果配置文件中有include，可能需要查看子配置
+cat /etc/nginx/conf.d/*.conf | grep access_log
+cat /etc/nginx/sites-enabled/* | grep access_log
+```
+
+#### 2. 通过lsof命令查找已打开的日志文件
+```bash
+# 查找nginx进程打开的日志文件
+lsof -p $(cat /var/run/nginx.pid) | grep log
+# 或者查找所有nginx进程的文件描述符
+lsof | grep nginx | grep log
+```
+
+#### 3. 通过find命令查找已修改的日志文件
+```bash
+# 查找最近修改过的日志文件（适用于访问量较大的情况）
+find /var/log -name "*nginx*" -type f -mtime -1 2>/dev/null
+find /var/log -name "*access*" -o -name "*error*" -type f -mtime -1 2>/dev/null
+```
+
+#### 4. 常见的Nginx日志默认路径
+```bash
+# 不同发行版的默认路径
+# CentOS/RHEL
+/var/log/nginx/access.log
+/var/log/nginx/error.log
+
+# Ubuntu/Debian
+/var/log/nginx/access.log
+/var/log/nginx/error.log
+
+# 编译安装的常见路径
+/usr/local/nginx/logs/access.log
+/usr/local/nginx/logs/error.log
+
+# Docker容器内的路径
+/var/log/nginx/access.log
+/var/log/nginx/error.log
+```
+
+## 三、查找流程总结
+
+**配置文件查找流程**：
+1. 优先使用 `nginx -t` 或 `nginx -V` 查找
+2. 如果命令不可用，通过 `ps aux` 找到nginx进程
+3. 通过 `/proc/[pid]/exe` 找到nginx可执行文件
+4. 使用找到的可执行文件运行 `nginx -t` 或 `nginx -V`
+5. 记住常见的默认路径作为备选
+
+**日志文件查找流程**：
+1. 先找到配置文件，查看其中的 `access_log` 和 `error_log` 指令
+2. 如果无法找到配置文件，尝试 `lsof` 或 `find` 命令
+3. 记住常见的默认路径作为备选
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
