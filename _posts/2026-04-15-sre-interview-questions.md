@@ -32,6 +32,30 @@
   ```
   注：状态列中的 `Ssl` 表示该进程是多线程的（`l` 标志）
 
+- **查看 `/proc` 文件系统**：通过 `/proc/[pid]/status` 文件查看线程数
+  ```bash
+  # 查看进程状态文件中的线程数
+  cat /proc/5352/status | grep Thread
+  # 输出示例：
+  # Threads:        7
+  ```
+
+  **完整操作示例**：
+  ```bash
+  # 查看进程树
+  pstree -p | grep zabbix
+  # `-zabbix_agent2(5352)-+-{zabbix_agent2}(5361)
+  #                      |-{zabbix_agent2}(5362)
+  #                      |-{zabbix_agent2}(5363)
+  #                      |-{zabbix_agent2}(5364)
+  #                      |-{zabbix_agent2}(5376)
+  #                      `-{zabbix_agent2}(5390)
+
+  # 查看进程状态文件
+  cat /proc/5352/status | grep Thread
+  # Threads:        7
+  ```
+
 ### 2. 你写过哪些类型的Shell脚本？
 
 **问题分析**：Shell脚本是SRE工程师自动化运维的重要工具，通过脚本类型可以了解候选人的技术广度和实际经验。
