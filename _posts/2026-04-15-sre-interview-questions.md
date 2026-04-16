@@ -464,6 +464,96 @@
   2. 如果无法找到配置文件，尝试 `lsof` 或 `find` 命令
   3. 记住常见的默认路径作为备选
 
+### 18. 如何查询当前Linux主机上各种TCP连接状态的个数？TCP连接状态有多少种？
+
+**问题分析**：查询TCP连接状态是SRE工程师排查网络问题、监控系统状态的重要技能，了解TCP连接状态的种类和数量对于系统性能分析和故障排查至关重要。
+
+**查询TCP连接状态的方法**：
+
+- **使用 `netstat` 命令**：
+  ```bash
+  # 查看所有TCP连接状态
+  netstat -nta
+  
+  # 统计ESTABLISHED状态的连接数
+  netstat -nta | grep -c ESTABLISHED
+  
+  # 统计所有状态的连接数
+  netstat -nta | awk '{print $6}' | sort | uniq -c
+  ```
+
+- **使用 `ss` 命令**（更高效，推荐）：
+  ```bash
+  # 查看所有TCP连接状态
+  ss -nta
+  
+  # 统计ESTABLISHED状态的连接数
+  ss -nta | grep -c ESTABLISHED
+  
+  # 统计所有状态的连接数
+  ss -nta | awk '{print $1}' | sort | uniq -c
+  ```
+
+- **使用 `ss` 命令的内置功能**：
+  ```bash
+  # 直接统计各种状态的连接数
+  ss -s
+  ```
+
+**TCP连接状态种类**：
+
+- **LISTEN**：服务器处于监听状态，等待客户端连接
+- **SYN_SENT**：客户端发送SYN包后，等待服务器的SYN-ACK包
+- **SYN_RECV**：服务器收到SYN包后，发送SYN-ACK包，等待客户端的ACK包
+- **ESTABLISHED**：连接已建立，数据可以传输
+- **FIN_WAIT1**：主动关闭方发送FIN包后，等待对方的ACK包
+- **FIN_WAIT2**：主动关闭方收到ACK包后，等待对方的FIN包
+- **TIME_WAIT**：连接关闭后，等待2MSL时间，确保所有数据包都已处理
+- **CLOSE_WAIT**：被动关闭方收到FIN包后，发送ACK包，等待应用程序关闭连接
+- **LAST_ACK**：被动关闭方发送FIN包后，等待对方的ACK包
+- **CLOSING**：双方同时关闭连接，都发送了FIN包但还未收到ACK包
+- **CLOSED**：连接已完全关闭
+
+**常见状态解释**：
+
+- **ESTABLISHED**：正常的活跃连接，数据正在传输
+- **TIME_WAIT**：连接已关闭，但系统需要等待一段时间确保所有数据包都已处理
+- **CLOSE_WAIT**：对方已关闭连接，但本地应用程序还未关闭连接，可能是应用程序问题
+- **LISTEN**：服务器正在监听端口，准备接受连接
+
+**实用命令示例**：
+
+- **查看特定状态的连接**：
+  ```bash
+  # 查看ESTABLISHED状态的连接
+  netstat -nta | grep ESTABLISHED
+  
+  # 查看TIME_WAIT状态的连接
+  netstat -nta | grep TIME_WAIT
+  ```
+
+- **按状态统计连接数**：
+  ```bash
+  # 使用netstat
+  netstat -nta | awk '{print $6}' | sort | uniq -c | sort -nr
+  
+  # 使用ss
+  ss -nta | awk '{print $1}' | sort | uniq -c | sort -nr
+  ```
+
+- **查看特定端口的连接**：
+  ```bash
+  # 查看80端口的连接
+  netstat -nta | grep :80
+  ss -nta | grep :80
+  ```
+
+**注意事项**：
+- `ss` 命令比 `netstat` 更高效，在高并发场景下推荐使用
+- `TIME_WAIT` 状态过多可能导致端口耗尽，需要调整系统参数
+- `CLOSE_WAIT` 状态过多通常表示应用程序存在问题，需要检查代码
+- 定期监控TCP连接状态有助于及时发现系统异常
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
