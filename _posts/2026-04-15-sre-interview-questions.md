@@ -1573,6 +1573,76 @@
 - 定期进行Redis性能评估和容量规划
 - 制定Redis故障应急预案
 
+### 28. 你们公司的RDB文件备份策略是什么？
+
+**问题分析**：Redis的RDB持久化机制是数据安全的重要保障，了解RDB备份策略是SRE工程师的必备技能。
+
+**RDB备份策略配置**：
+
+- 在redis.conf中配置自动备份策略：
+  ```bash
+  save 3600 1 300 100 60 10000
+  ```
+  - 含义：3600秒（1小时）内有1次写入 → 触发RDB
+  - 含义：300秒（5分钟）内有100次写入 → 触发RDB
+  - 含义：60秒内有10000次写入 → 触发RDB
+
+**RDB持久化原理**：
+
+- Redis会 fork 出一个子进程进行数据备份
+- 使用 copy-on-write 机制，不影响主进程处理请求
+- RDB文件是紧凑的二进制文件，适合备份和灾难恢复
+
+**RDB最佳配置建议**：
+
+- 生产环境推荐使用混合持久化（AOF + RDB）
+  ```bash
+  # redis.conf
+  save 3600 1 300 100 60 10000
+  appendonly yes
+  appendfsync everysec
+  rdbcompression yes
+  rdbchecksum yes
+  ```
+
+**RDB备份方案**：
+
+- **本地备份**：
+  ```bash
+  # 保留多个RDB文件版本
+  cp dump.rdb dump.rdb.backup.$(date +%Y%m%d%H%M%S)
+  ```
+- **异地备份**：
+  ```bash
+  # 定期上传到远程存储
+  rsync -avz dump.rdb backup-server:/redis-backup/
+  ```
+- **定期演练**：
+  - 每月进行一次备份恢复演练
+  - 验证备份文件的完整性和可用性
+
+**Redis备份工具**：
+
+- redis-cli SAVE / BGSAVE：手动触发备份
+- redis-shake：支持集群迁移和备份
+- rdb-tools：RDB文件分析工具
+
+**备份恢复流程**：
+
+1. 停止Redis写入（可选，减少数据差异）
+2. 备份当前AOF和RDB文件
+3. 验证备份文件完整性
+4. 配置恢复：cp backup.rdb /var/lib/redis/dump.rdb
+5. 重启Redis服务
+
+**注意事项**：
+
+- RDB是异步的，可能丢失最后一次快照后的数据（最多丢失1个配置周期的数据）
+- 建议开启AOF作为补充，获得更好的数据安全性
+- 定期检查备份文件完整性
+- 验证备份恢复流程，确保灾难时能快速恢复
+- 备份文件要存储在可靠的存储介质上
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
