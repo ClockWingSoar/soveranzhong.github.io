@@ -1406,6 +1406,18 @@
     - hash-max-ziplist-value 64
     - list-max-ziplist-size -2
     - set-max-intset-entries 512
+  - **系统内存设置**：
+    - 设置vm.overcommit_memory=1，允许内核分配超过物理内存的内存
+    ```bash
+    # 临时设置
+    echo 1 > /proc/sys/vm/overcommit_memory
+    
+    # 永久设置
+    echo "vm.overcommit_memory=1" >> /etc/sysctl.conf
+    sysctl -p
+    ```
+    - 合理设置vm.swappiness，避免频繁交换
+    - 关闭透明大页（Transparent Huge Pages）
 
 - **性能优化**：
   - **命令优化**：
