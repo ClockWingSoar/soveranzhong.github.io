@@ -1227,6 +1227,162 @@
 - 避免存储过大的value，建议控制在10KB以内
 - 定期进行容量规划和性能评估
 
+### 26. 缓存击穿、缓存穿透、缓存雪崩、缓存宕机是什么？怎么处理？
+
+**问题分析**：缓存问题是互联网架构中常见的高并发场景问题，缓存击穿、穿透、雪崩和宕机是SRE工程师必须掌握的核心概念。了解这些问题的成因和解决方案对于保障系统稳定性至关重要。
+
+**四大缓存问题解析**：
+
+- **缓存击穿（Cache Breakdown）**：
+  - **问题描述**：某个热点key突然过期，导致大量并发请求直接打到数据库
+  - **发生场景**：热点数据过期、缓存更新失败、大促期间流量激增
+  - **影响后果**：数据库压力骤增，可能导致数据库宕机
+  - **解决方案**：
+    - 使用互斥锁（Mutex）：只允许一个请求去查询数据库并更新缓存
+    - 热点数据永不过期：设置较长的过期时间，定期异步更新
+    - 逻辑过期：缓存不设置过期时间，逻辑过期后异步更新
+    ```python
+    # 互斥锁实现示例
+    def get_data(key):
+        cache = redis.get(key)
+        if cache:
+            return cache
+        
+        # 尝试获取锁
+        lock = redis.set(f"lock:{key}", "1", nx=True, ex=10)
+        if lock:
+            # 获取到锁，从数据库查询
+            data = db.query(key)
+            redis.setex(key, 3600, data)
+            redis.delete(f"lock:{key}")
+            return data
+        else:
+            # 未获取到锁，短暂等待后重试
+            time.sleep(0.1)
+            return get_data(key)
+    ```
+
+- **缓存穿透（Cache Penetration）**：
+  - **问题描述**：查询不存在的数据，缓存和数据库都没有，导致请求直接打到数据库
+  - **发生场景**：恶意攻击、系统漏洞、查询条件校验不当
+  - **影响后果**：大量无效请求消耗数据库资源
+  - **解决方案**：
+    - 布隆过滤器（Bloom Filter）：在缓存层前增加布隆过滤器，快速判断数据是否存在
+    - 空值缓存：对查询结果为空的数据也进行缓存，设置较短过期时间
+    - 参数校验：加强请求参数校验，过滤非法请求
+    ```python
+    # 布隆过滤器示例
+    from bloom_filter import BloomFilter
+    
+    bloom = BloomFilter(max_elements=1000000, error_rate=0.01)
+    
+    def get_data(key):
+        # 先检查布隆过滤器
+        if key not in bloom:
+            return None  # 一定不存在，直接返回
+        
+        # 布隆过滤器存在，可能存在，再查缓存和数据库
+        cache = redis.get(key)
+        if cache:
+            return cache
+        
+        data = db.query(key)
+        if data:
+            redis.setex(key, 3600, data)
+        else:
+            # 空值也缓存，防止穿透
+            redis.setex(key, 60, "NULL")
+        
+        return data
+    ```
+
+- **缓存雪崩（Cache Avalanche）**：
+  - **问题描述**：大量缓存key同时过期，导致请求集中打到数据库
+  - **发生场景**：缓存服务宕机、大量key同时过期、促销高峰
+  - **影响后果**：数据库压力骤增，可能引发级联故障
+  - **解决方案**：
+    - 过期时间随机化：为缓存过期时间添加随机值，避免同时过期
+    - 多级缓存：本地缓存 + Redis缓存 + MySQL，多层防护
+    - 熔断限流：缓存服务不可用时，启用熔断机制保护数据库
+    - 高可用架构：使用Redis Sentinel或Redis Cluster保证缓存高可用
+    ```python
+    # 过期时间随机化
+    def set_cache(key, value, base_expire=3600):
+        # 过期时间 = 基础时间 + 随机时间（0-600秒）
+        expire = base_expire + random.randint(0, 600)
+        redis.setex(key, expire, value)
+    ```
+
+- **缓存宕机（Cache Downtime）**：
+  - **问题描述**：缓存服务整体不可用，所有请求直接打到数据库
+  - **发生场景**：缓存服务器硬件故障、网络中断、Redis集群分片不均衡
+  - **影响后果**：数据库承受全部流量，可能直接宕机
+  - **解决方案**：
+    - 熔断机制：缓存不可用时，自动切换到数据库直查模式
+    - 本地缓存：热点数据同时存储在应用本地内存
+    - 数据库限流：数据库层实施限流，保护数据库不被压垮
+    - 异步修复：缓存恢复后，异步预热数据
+    ```python
+    # 熔断机制示例
+    class CircuitBreaker:
+        def __init__(self, failure_threshold=5, timeout=60):
+            self.failure_count = 0
+            self.failure_threshold = failure_threshold
+            self.timeout = timeout
+            self.state = "CLOSED"
+        
+        def call(self, func):
+            if self.state == "OPEN":
+                # 熔断开启，直接查数据库
+                return db_query_direct()
+            
+            try:
+                result = func()
+                self.failure_count = 0
+                return result
+            except:
+                self.failure_count += 1
+                if self.failure_count >= self.failure_threshold:
+                    self.state = "OPEN"
+                return db_query_direct()
+    ```
+
+**缓存问题处理流程**：
+
+- **发现问题**：监控系统告警、用户反馈变慢、数据库CPU飙升
+- **快速止血**：
+  - 缓存击穿：临时禁用过期、启用互斥锁
+  - 缓存穿透：临时启用黑名单、参数校验
+  - 缓存雪崩：快速扩容、启用多级缓存
+  - 缓存宕机：启用熔断、数据库限流
+- **问题定位**：分析日志、监控数据、代码审查
+- **彻底解决**：优化缓存策略、完善容灾机制
+- **复盘总结**：制定预防措施、完善监控告警
+
+**缓存高可用设计原则**：
+
+- **数据一致性**：缓存与数据库数据保持一致
+- **可用性优先**：保证服务可用，适度容忍数据不一致
+- **隔离保护**：重要业务单独部署缓存，避免相互影响
+- **容量规划**：根据业务量合理规划缓存容量
+- **监控告警**：完善缓存相关指标监控，及时发现问题
+
+**缓存最佳实践**：
+
+- 热点数据设置较长过期时间或永不过期
+- 过期时间分散设置，避免集中过期
+- 重要数据多级缓存保护
+- 完善监控指标，及时发现异常
+- 定期进行缓存预热和容量评估
+- 制定详细的缓存故障应急预案
+
+**注意事项**：
+- 缓存问题是高并发系统常见问题，需要提前预防
+- 不同问题有不同的解决方案，要针对性处理
+- 监控系统要完善，提前发现问题比事后处理更重要
+- 缓存策略要根据业务场景灵活调整
+- 定期进行缓存故障演练，提高团队应急能力
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
