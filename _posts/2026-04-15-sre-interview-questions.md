@@ -1433,6 +1433,19 @@
     - 合理设置tcp-keepalive，避免连接断开
     - 配置timeout，清理空闲连接
     - 限制最大连接数：maxclients
+    - 提高连接队列大小：
+      - 提高全连接队列大小：/proc/sys/net/core/somaxconn
+      - 提高半连接队列大小：/proc/sys/net/ipv4/tcp_max_syn_backlog
+    ```bash
+    # 临时设置
+    echo 65535 > /proc/sys/net/core/somaxconn
+    echo 65535 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+    
+    # 永久设置
+    echo "net.core.somaxconn = 65535" >> /etc/sysctl.conf
+    echo "net.ipv4.tcp_max_syn_backlog = 65535" >> /etc/sysctl.conf
+    sysctl -p
+    ```
   - **系统资源限制**：
     - 增加文件描述符限制（ulimit -n）超过10000
     ```bash
