@@ -1487,7 +1487,14 @@
   - **访问控制**：
     - 设置requirepass，使用强密码
     - 绑定IP：bind 127.0.0.1 192.168.1.100
-    - 禁用危险命令：rename-command FLUSHALL ""
+    - 禁用危险命令：
+      ```bash
+      # 在redis.conf中添加
+      rename-command KEYS ""
+      rename-command FLUSHALL ""
+      rename-command FLUSHDB ""
+      rename-command SHUTDOWN ""
+      ```
   - **网络安全**：
     - 使用TLS加密传输
     - 配置防火墙，限制访问端口
