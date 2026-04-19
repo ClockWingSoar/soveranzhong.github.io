@@ -1095,6 +1095,138 @@
 - 根据业务场景选择合适的数据结构和持久化策略
 - 定期监控Redis性能指标，及时发现和处理问题
 
+### 25. Redis在什么场景下使用？
+
+**问题分析**：Redis作为高性能的内存数据库，在互联网架构中应用广泛。了解Redis的典型使用场景能够帮助SRE工程师在架构设计时做出更好的技术选型决策。
+
+**Redis典型使用场景**：
+
+- **缓存场景**：
+  - 页面缓存：存储HTML、JSON等静态内容
+  - 数据缓存：缓存数据库查询结果，减少数据库压力
+  - 会话缓存：存储用户登录Session，实现分布式会话
+  - 接口缓存：缓存高频访问的API响应结果
+  - 示例：
+    ```bash
+    # 设置缓存，30分钟过期
+    SET product:detail:1001 '{"id":1001,"name":"商品名称","price":99.9}' EX 1800
+    
+    # 获取缓存
+    GET product:detail:1001
+    ```
+
+- **会话存储**：
+  - 用户登录状态存储
+  - 分布式Session共享
+  - 购物车数据存储
+  - 示例：
+    ```bash
+    # 存储用户登录信息
+    HSET user:session:12345 username "admin" email "admin@example.com" login_time "2024-01-01 10:00:00"
+    EXPIRE user:session:12345 3600
+    ```
+
+- **消息队列**：
+  - 延迟任务队列
+  - 异步处理任务
+  - 限流控制
+  - 示例：
+    ```bash
+    # 生产者：添加任务到队列
+    LPUSH task:async '{"task_id":"001","type":"send_email","data":"..."}'
+    
+    # 消费者：获取任务执行
+    BRPOP task:async 0
+    ```
+
+- **排行榜/计数器**：
+  - 游戏积分排行
+  - 热搜榜单
+  - UV/PV统计
+  - 接口调用计数
+  - 示例：
+    ```bash
+    # 增加用户积分
+    ZINCRBY game:rankings 100 "player_001"
+    
+    # 获取Top10玩家
+    ZREVRANGE game:rankings 0 9 WITHSCORES
+    ```
+
+- **分布式锁**：
+  - 资源互斥访问
+  - 订单处理幂等性
+  - 防止重复提交
+  - 示例：
+    ```bash
+    # 获取锁
+    SET lock:order:10001 "lock_holder_123" NX EX 30
+    
+    # 释放锁
+    EVAL "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end" 1 lock:order:10001 "lock_holder_123"
+    ```
+
+- **实时分析**：
+  - 用户行为分析
+  - 实时统计在线人数
+  - 热点数据识别
+  - 访问频率限制
+
+- **位图应用**：
+  - 用户签到统计
+  - 活跃用户统计
+  - 数据类型标记
+  - 示例：
+    ```bash
+    # 用户签到
+    SETBIT user:sign:2024:01 12345 1
+    
+    # 统计当月签到天数
+    BITCOUNT user:sign:2024:01
+    ```
+
+- **发布/订阅**：
+  - 实时消息推送
+  - 直播间弹幕
+  - 系统事件通知
+  - 示例：
+    ```bash
+    # 订阅频道
+    SUBSCRIBE system:notifications
+    
+    # 发布消息
+    PUBLISH system:notifications '{"type":"alert","msg":"系统负载过高"}'
+    ```
+
+**Redis不适合的场景**：
+
+- **大规模数据存储**：Redis是内存数据库，存储成本高，不适合存储海量数据
+- **复杂查询**：Redis不支持SQL查询，不适合需要复杂查询的场景
+- **强事务要求**：Redis的事务能力有限，不适合强一致性要求的场景
+- **持久化要求高**：虽然Redis支持持久化，但不适合作为唯一的数据存储
+
+**Redis使用注意事项**：
+
+- **数据安全**：合理配置持久化策略，AOF + RDB混合使用
+- **内存管理**：设置maxmemory，防止内存溢出
+- **性能监控**：监控内存使用、命令延迟、连接数等指标
+- **高可用**：生产环境使用Redis Sentinel或Redis Cluster
+- **安全加固**：设置密码、禁用危险命令、限制IP访问
+
+**常见架构方案**：
+
+- **Redis + MySQL**：Redis作为缓存层，MySQL存储持久化数据
+- **Redis Sentinel**：主从自动切换，保证高可用
+- **Redis Cluster**：数据分片，支持大规模数据存储
+- **Codis/Cluster**：Proxy方案，支持跨机房部署
+
+**注意事项**：
+- 根据业务场景选择合适的数据结构
+- 合理设置过期时间，避免内存浪费
+- 生产环境必须配置持久化和高可用
+- 避免存储过大的value，建议控制在10KB以内
+- 定期进行容量规划和性能评估
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
