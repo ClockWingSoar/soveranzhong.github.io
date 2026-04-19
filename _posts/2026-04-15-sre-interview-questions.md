@@ -1425,6 +1425,20 @@
     - 大数据量删除使用UNLINK代替DEL（非阻塞删除）
     - 使用SCAN代替KEYS进行遍历
     - 合理使用管道（Pipeline）减少网络往返
+  - **慢查询优化**：
+    - 配置合理的慢查询阈值：slowlog-log-slower-than 10000（微秒）
+    - 设置慢查询日志长度：slowlog-max-len 1000
+    - 定期分析慢查询日志，优化慢命令
+    ```bash
+    # 查看慢查询日志
+    redis-cli slowlog get
+    
+    # 查看慢查询日志数量
+    redis-cli slowlog len
+    
+    # 重置慢查询日志
+    redis-cli slowlog reset
+    ```
   - **IO优化**：
     - 配置合理的持久化策略
     - Redis 6.0+开启多线程I/O：io-threads 4
