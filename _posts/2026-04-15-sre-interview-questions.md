@@ -1433,6 +1433,16 @@
     - 合理设置tcp-keepalive，避免连接断开
     - 配置timeout，清理空闲连接
     - 限制最大连接数：maxclients
+  - **系统资源限制**：
+    - 增加文件描述符限制（ulimit -n）超过10000
+    ```bash
+    # 临时设置
+    ulimit -n 65535
+    
+    # 永久设置
+    echo "* soft nofile 65535" >> /etc/security/limits.conf
+    echo "* hard nofile 65535" >> /etc/security/limits.conf
+    ```
 
 - **高可用优化**：
   - **主从复制**：配置从节点，实现读写分离
