@@ -1475,6 +1475,18 @@
   - **主从复制**：配置从节点，实现读写分离
     - 从节点设置：replicaof master_ip master_port
     - 从节点只读：replica-read-only yes
+    - **复制缓冲区配置**：
+      - master的写入数据缓冲区，用于记录自上一次同步后到下一次同步过程中间的写入命令
+      - 计算公式：repl-backlog-size = 允许从节点最大中断时长 * 主实例offset每秒写入量
+      - 示例：master每秒最大写入64mb，最大允许60秒，那么就要设置为64mb*60秒=3840MB(3.8G)
+      - 建议此值设置足够大，默认值为1M
+      ```bash
+      # redis.conf
+      repl-backlog-size 3840mb
+      # 如果一段时间后没有slave连接到master，则backlog size的内存将会被释放
+      # 如果值为0则表示永远不释放这部份内存
+      repl-backlog-ttl 3600
+      ```
   - **哨兵模式（Sentinel）**：实现自动故障转移
     - 配置至少3个哨兵节点
     - 合理设置故障转移参数
