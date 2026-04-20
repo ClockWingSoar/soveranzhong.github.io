@@ -1725,6 +1725,193 @@ aof-use-rdb-preamble yes
   - AOF：实时或近实时备份
   - 组合使用：RDB做冷备，AOF做热备
 
+### 30. Redis的工作模式有哪些？
+
+**问题分析**：Redis提供了多种工作模式，不同模式适用于不同的场景和需求。了解Redis的工作模式对于SRE工程师进行架构设计和部署非常重要。
+
+**Redis工作模式**：
+
+- **单机模式**：
+  - 单节点部署，最简单的部署方式
+  - 优点：部署简单，配置方便
+  - 缺点：无高可用性，存在单点故障
+  - 适用场景：开发测试环境，低流量应用
+
+- **主从复制模式**：
+  - 一主多从架构，主节点负责写操作，从节点负责读操作
+  - 优点：实现读写分离，提高读性能
+  - 缺点：主节点故障后需手动切换
+  - 适用场景：读多写少的应用，需要提高读性能
+  - 配置示例：
+    ```bash
+    # 从节点配置
+    replicaof master_ip master_port
+    replica-read-only yes
+    ```
+
+- **主从复制 + Sentinel模式**：
+  - 在主从复制基础上，增加Sentinel节点实现自动故障转移
+  - 优点：实现高可用，自动故障转移
+  - 缺点：配置相对复杂
+  - 适用场景：生产环境，需要高可用性的应用
+  - 配置示例：
+    ```bash
+    # sentinel.conf
+    sentinel monitor mymaster 127.0.0.1 6379 2
+    sentinel down-after-milliseconds mymaster 30000
+    sentinel failover-timeout mymaster 180000
+    sentinel parallel-syncs mymaster 1
+    ```
+
+- **Redis Cluster模式**：
+  - 多主多从架构，数据分片存储
+  - 优点：水平扩展，自动数据分片，高可用
+  - 缺点：配置复杂，运维成本高
+  - 适用场景：大规模应用，需要水平扩展的场景
+  - 配置示例：
+    ```bash
+    # redis.conf
+    cluster-enabled yes
+    cluster-config-file nodes.conf
+    cluster-node-timeout 15000
+    ```
+
+- **代理模式**：
+  - 通过代理（如Twemproxy、Codis）管理Redis集群
+  - 优点：简化客户端连接管理，支持多种分片策略
+  - 缺点：增加额外网络开销
+  - 适用场景：需要兼容旧版本客户端，或需要特定分片策略的场景
+
+**各模式对比**：
+
+| 模式 | 优点 | 缺点 | 适用场景 |
+|------|------|------|----------|
+| 单机模式 | 部署简单，配置方便 | 无高可用性，单点故障 | 开发测试环境，低流量应用 |
+| 主从复制 | 读写分离，提高读性能 | 需手动故障切换 | 读多写少的应用 |
+| 主从+Sentinel | 高可用，自动故障转移 | 配置相对复杂 | 生产环境，需要高可用 |
+| Redis Cluster | 水平扩展，自动分片 | 配置复杂，运维成本高 | 大规模应用，需要水平扩展 |
+| 代理模式 | 简化客户端管理 | 增加网络开销 | 兼容旧版本客户端 |
+
+**模式选择建议**：
+
+- **小规模应用**（<10GB数据）：主从复制 + Sentinel
+- **中大规模应用**（>10GB数据）：Redis Cluster
+- **开发测试环境**：单机模式
+- **特殊需求**：代理模式
+
+**最佳实践**：
+
+- 生产环境推荐使用主从复制 + Sentinel或Redis Cluster
+- 配置合理的监控告警
+- 定期备份数据
+- 制定故障应急预案
+- 根据业务增长情况，提前规划扩容方案
+
+### 31. 更改了docker.service文件后你需要做什么？
+
+**问题分析**：修改Docker的systemd服务配置文件后，需要按照正确的步骤重启服务才能使配置生效。了解systemd服务的配置和重启流程是SRE工程师的基础技能。
+
+**修改docker.service文件后的操作步骤**：
+
+- **重新加载systemd配置**：
+  ```bash
+  systemctl daemon-reload
+  ```
+  - 作用：重新加载systemd管理器配置，读取新的或修改过的单元文件
+  - 必须在重启服务之前执行，否则修改不会生效
+
+- **重启Docker服务**：
+  ```bash
+  systemctl restart docker
+  ```
+  - 作用：重启Docker服务，使新的配置生效
+  - 重启期间会停止所有运行中的容器
+
+- **验证配置是否生效**：
+  ```bash
+  # 查看Docker服务状态
+  systemctl status docker
+  
+  # 查看Docker服务配置
+  systemctl show docker
+  
+  # 查看docker.service文件内容
+  cat /usr/lib/systemd/system/docker.service
+  ```
+
+**完整操作流程**：
+
+1. 备份原配置文件（可选但推荐）：
+   ```bash
+   cp /usr/lib/systemd/system/docker.service /usr/lib/systemd/system/docker.service.backup
+   ```
+
+2. 编辑docker.service文件：
+   ```bash
+   vim /usr/lib/systemd/system/docker.service
+   ```
+
+3. 重新加载systemd配置：
+   ```bash
+   systemctl daemon-reload
+   ```
+
+4. 重启Docker服务：
+   ```bash
+   systemctl restart docker
+   ```
+
+5. 验证配置：
+   ```bash
+   systemctl status docker
+   docker ps
+   ```
+
+**常用docker.service配置修改**：
+
+- **修改数据目录**：
+  ```bash
+  ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --data-root=/data/docker
+  ```
+
+- **修改日志配置**：
+  ```bash
+  ExecStart=/usr/bin/dockerd --log-driver=json-file --log-opt max-size=100m --log-opt max-file=3
+  ```
+
+- **修改镜像加速**：
+  ```bash
+  ExecStart=/usr/bin/dockerd --registry-mirror=https://mirror.ccs.tencentyun.com
+  ```
+
+- **修改资源限制**：
+  ```bash
+  LimitNPROC=infinity
+  LimitCORE=infinity
+  TasksMax=infinity
+  ```
+
+**注意事项**：
+
+- 修改配置前务必备份原文件
+- daemon-reload必须在restart之前执行
+- 重启Docker服务会影响所有运行中的容器
+- 生产环境建议在维护窗口期进行操作
+- 修改后建议在测试环境验证
+
+**常见问题排查**：
+
+- **配置未生效**：检查是否执行了daemon-reload
+- **服务启动失败**：检查配置文件语法是否正确
+- **容器无法启动**：检查Docker服务状态和日志
+- **权限问题**：检查文件权限和SELinux设置
+
+**其他systemd服务配置修改**：
+
+- 修改任何systemd服务配置文件后，都需要执行daemon-reload
+- 常见需要修改的服务：nginx、mysql、redis等
+- 配置文件位置：/usr/lib/systemd/system/ 或 /etc/systemd/system/
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
