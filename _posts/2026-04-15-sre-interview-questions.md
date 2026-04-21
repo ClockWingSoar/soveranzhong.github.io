@@ -4531,6 +4531,223 @@ CMD ["./app"]
 - 合理使用.dockerignore文件，减少构建上下文的大小
 - 测试Dockerfile的构建结果，确保文件复制和处理正确
 
+### 46. Dockerfile中CMD和ENTRYPOINT指令的区别？
+
+**问题分析**：在Dockerfile中，CMD和ENTRYPOINT指令都是用于指定容器启动时执行的命令，但它们之间存在重要的区别。了解这些区别有助于SRE工程师在编写Dockerfile时正确配置容器的启动行为，确保应用能够正常运行。
+
+**CMD和ENTRYPOINT指令的区别**：
+
+**基本功能**：
+
+**CMD指令**：
+- **作用**：指定容器启动时执行的默认命令
+- **语法**：
+  - `CMD <命令>`（shell形式）
+  - `CMD ["<可执行文件>", "<参数1>", "<参数2>"]`（exec形式）
+  - `CMD ["<参数1>", "<参数2>"]`（作为ENTRYPOINT的默认参数）
+- **示例**：
+  ```dockerfile
+  # shell形式
+  CMD echo "Hello World"
+  
+  # exec形式
+  CMD ["nginx", "-g", "daemon off;"]
+  
+  # 作为ENTRYPOINT的默认参数
+  CMD ["--port", "8080"]
+  ```
+
+**ENTRYPOINT指令**：
+- **作用**：指定容器的入口点，定义容器的主要执行命令
+- **语法**：
+  - `ENTRYPOINT <命令>`（shell形式）
+  - `ENTRYPOINT ["<可执行文件>", "<参数1>", "<参数2>"]`（exec形式）
+- **示例**：
+  ```dockerfile
+  # shell形式
+  ENTRYPOINT echo "Hello World"
+  
+  # exec形式
+  ENTRYPOINT ["nginx", "-g", "daemon off;"]
+  ```
+
+**执行方式**：
+
+**CMD指令**：
+- **执行方式**：
+  - shell形式：在`/bin/sh -c`中执行
+  - exec形式：直接执行命令，不通过shell
+- **覆盖方式**：可以被`docker run`命令的参数覆盖
+- **示例**：
+  ```bash
+  # 覆盖CMD
+  docker run myimage echo "Override CMD"
+  ```
+
+**ENTRYPOINT指令**：
+- **执行方式**：
+  - shell形式：在`/bin/sh -c`中执行
+  - exec形式：直接执行命令，不通过shell
+- **覆盖方式**：需要使用`--entrypoint`参数才能覆盖
+- **示例**：
+  ```bash
+  # 覆盖ENTRYPOINT
+  docker run --entrypoint echo myimage "Override ENTRYPOINT"
+  ```
+
+**组合使用**：
+
+**CMD作为ENTRYPOINT的参数**：
+- **作用**：ENTRYPOINT定义固定的执行命令，CMD提供默认参数
+- **示例**：
+  ```dockerfile
+  ENTRYPOINT ["nginx"]
+  CMD ["-g", "daemon off;"]
+  ```
+- **执行结果**：`nginx -g "daemon off;"`
+
+**修改参数**：
+- **示例**：
+  ```bash
+  # 修改CMD参数
+  docker run myimage -g "daemon off;" -c /etc/nginx/nginx.conf
+  ```
+- **执行结果**：`nginx -g "daemon off;" -c /etc/nginx/nginx.conf`
+
+**使用场景**：
+
+**CMD指令适用场景**：
+- 定义容器的默认启动命令
+- 提供可被覆盖的默认行为
+- 作为ENTRYPOINT的默认参数
+
+**ENTRYPOINT指令适用场景**：
+- 定义容器的主要执行命令
+- 确保容器总是以相同的方式启动
+- 与CMD组合使用，提供固定的命令和可变的参数
+
+**exec "$@"的作用**：
+
+**在启动脚本中使用exec "$@"**：
+- **作用**：
+  - 替换当前进程，避免生成新的父进程
+  - 确保容器的PID 1是应用进程，而非shell进程
+  - 确保信号能够正确传递给应用进程
+- **示例**：
+  ```bash
+  #!/bin/sh
+  # 环境初始化
+  echo "Initializing environment..."
+  
+  # 执行CMD传递的命令
+  exec "$@"
+  ```
+- **好处**：
+  - 避免进程嵌套，简化进程管理
+  - 确保信号（如SIGTERM）能够正确传递
+  - 减少容器中的进程数量，提高性能
+
+**完整示例**：
+
+**示例1：单独使用CMD**：
+```dockerfile
+# 使用Alpine作为基础镜像
+FROM alpine:3.14
+
+# 设置CMD
+CMD ["echo", "Hello World"]
+```
+
+**示例2：单独使用ENTRYPOINT**：
+```dockerfile
+# 使用Alpine作为基础镜像
+FROM alpine:3.14
+
+# 设置ENTRYPOINT
+ENTRYPOINT ["echo", "Hello World"]
+```
+
+**示例3：组合使用ENTRYPOINT和CMD**：
+```dockerfile
+# 使用Alpine作为基础镜像
+FROM alpine:3.14
+
+# 设置ENTRYPOINT
+ENTRYPOINT ["echo"]
+
+# 设置CMD作为默认参数
+CMD ["Hello World"]
+```
+
+**示例4：使用启动脚本**：
+```dockerfile
+# 使用Alpine作为基础镜像
+FROM alpine:3.14
+
+# 创建启动脚本
+RUN echo '#!/bin/sh\necho "Initializing..."\nexec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
+
+# 设置ENTRYPOINT
+ENTRYPOINT ["/entrypoint.sh"]
+
+# 设置CMD
+CMD ["echo", "Hello World"]
+```
+
+**最佳实践**：
+
+**1. 优先使用exec形式**：
+- exec形式直接执行命令，不通过shell
+- 避免shell形式可能导致的信号传递问题
+- 示例：`CMD ["nginx", "-g", "daemon off;"]`
+
+**2. 组合使用ENTRYPOINT和CMD**：
+- ENTRYPOINT定义固定的命令
+- CMD提供默认参数
+- 允许通过`docker run`命令修改参数
+
+**3. 使用启动脚本**：
+- 当需要复杂的环境初始化时使用
+- 在脚本末尾使用`exec "$@"`确保信号传递
+- 保持脚本简洁，只做必要的初始化
+
+**4. 明确容器的启动行为**：
+- 清晰定义容器的主要执行命令
+- 避免使用多个CMD或ENTRYPOINT指令
+- 测试容器的启动行为，确保符合预期
+
+**5. 安全性考虑**：
+- 避免在CMD或ENTRYPOINT中硬编码敏感信息
+- 使用环境变量传递配置信息
+- 确保启动命令的安全性
+
+**常见问题与解决方案**：
+
+**问题1：容器启动后立即退出**
+- 解决方案：确保启动命令是前台运行的
+- 对于后台服务，确保使用`daemon off`等参数
+
+**问题2：信号无法正确传递**
+- 解决方案：使用exec形式的ENTRYPOINT
+- 在启动脚本中使用`exec "$@"`
+
+**问题3：无法覆盖CMD参数**
+- 解决方案：确保CMD使用exec形式
+- 检查Dockerfile中是否有多个CMD指令
+
+**问题4：ENTRYPOINT无法被覆盖**
+- 解决方案：使用`--entrypoint`参数覆盖
+- 考虑使用CMD替代ENTRYPOINT
+
+**注意事项**：
+
+- 每个Dockerfile只能有一个CMD和一个ENTRYPOINT指令，多个指令只执行最后一个
+- exec形式的指令不会通过shell执行，因此无法使用shell特性（如环境变量替换）
+- shell形式的指令会通过`/bin/sh -c`执行，可能导致信号传递问题
+- 生产环境中应优先使用exec形式的指令
+- 使用启动脚本时，必须在脚本末尾使用`exec "$@"`
+- 测试容器的启动行为，确保符合预期
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
