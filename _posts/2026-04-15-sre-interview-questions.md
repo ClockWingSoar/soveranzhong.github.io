@@ -1912,6 +1912,134 @@ aof-use-rdb-preamble yes
 - 常见需要修改的服务：nginx、mysql、redis等
 - 配置文件位置：/usr/lib/systemd/system/ 或 /etc/systemd/system/
 
+### 32. 如何把一个服务器的docker image导出到另外一台服务器？
+
+**问题分析**：Docker镜像是容器化应用的分发方式，掌握镜像的导入导出技能对于SRE工程师在不同环境之间迁移应用非常重要。
+
+**Docker镜像导出方法**：
+
+- **导出单个镜像**：
+  ```bash
+  docker save -o backup.tar image_name:tag
+  # 示例
+  docker save -o nginx.tar nginx:latest
+  ```
+
+- **导出多个镜像**：
+  ```bash
+  # 方法1：使用命令替换
+  docker save -o backup.tar $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>")
+  
+  # 方法2：使用awk获取镜像列表（跳过标题行）
+  docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | awk 'NR>1{print $1}' | xargs docker save -o backup.tar
+  
+  # 方法3：导出所有镜像
+  docker save -o all-images.tar $(docker images -q)
+  ```
+
+- **导出所有镜像（推荐）**：
+  ```bash
+  # 导出所有镜像为tar文件
+  docker save $(docker images -q) -o /tmp/all-images.tar
+  
+  # 或者分页导出避免参数过长
+  docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" > /tmp/images.txt
+  while read img; do docker save -o /tmp/images.tar "$img"; done < /tmp/images.txt
+  ```
+
+**Docker镜像导入方法**：
+
+- **导入镜像**：
+  ```bash
+  docker load -i backup.tar
+  # 或者
+  docker load < backup.tar
+  ```
+
+- **验证导入结果**：
+  ```bash
+  docker images
+  ```
+
+**完整迁移流程**：
+
+1. 在源服务器导出镜像：
+   ```bash
+   # 导出所有镜像
+   docker save -o images.tar $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>")
+   
+   # 压缩节省传输时间（可选）
+   gzip -c images.tar > images.tar.gz
+   ```
+
+2. 传输镜像文件到目标服务器：
+   ```bash
+   # 使用scp传输
+   scp images.tar.gz user@target-server:/tmp/
+   
+   # 或者使用rsync传输
+   rsync -avz images.tar.gz user@target-server:/tmp/
+   ```
+
+3. 在目标服务器导入镜像：
+   ```bash
+   # 解压（如果压缩过）
+   gunzip images.tar.gz
+   
+   # 导入镜像
+   docker load -i images.tar
+   ```
+
+4. 验证导入结果：
+   ```bash
+   docker images
+   ```
+
+**docker save与docker export的区别**：
+
+| 特性 | docker save | docker export |
+|------|-------------|---------------|
+| **适用对象** | 镜像 | 容器 |
+| **包含内容** | 完整的镜像层和元数据 | 容器的文件系统快照 |
+| **导出格式** | 包含历史记录和元数据 | 纯文件系统tar包 |
+| **导入命令** | docker load | docker import |
+| **大小** | 相对较大 | 相对较小 |
+| **使用场景** | 镜像备份和迁移 | 容器快照 |
+
+**最佳实践**：
+
+- **定期备份镜像**：使用私有镜像仓库（Harbor）管理镜像
+- **压缩传输**：大镜像先压缩再传输，节省带宽和时间
+- **镜像命名规范**：统一命名规范便于管理
+- **增量更新**：对于大镜像，考虑使用镜像分层传输
+- **验证完整性**：传输后验证MD5/SHA256值
+
+**常见问题排查**：
+
+- **镜像导入失败**：检查tar文件是否损坏，尝试重新传输
+- **镜像名冲突**：导入前先删除同名旧镜像，或使用docker tag重命名
+- **磁盘空间不足**：清理磁盘或更换导入目录
+- **传输超时**：使用rsync支持断点续传
+
+**其他镜像迁移方式**：
+
+- **使用镜像仓库**：
+  ```bash
+  # 推送镜像到私有仓库
+  docker tag image_name:tag registry.example.com/image_name:tag
+  docker push registry.example.com/image_name:tag
+  
+  # 在目标服务器拉取
+  docker pull registry.example.com/image_name:tag
+  ```
+
+- **使用docker commit**（不推荐，仅容器场景）：
+  ```bash
+  # 将容器保存为镜像
+  docker commit container_id image_name:tag
+  docker save -o backup.tar image_name:tag
+  ```
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
