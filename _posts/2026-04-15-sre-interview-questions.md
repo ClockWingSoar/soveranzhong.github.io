@@ -2211,6 +2211,238 @@ fi
 - 定期检查系统进程表使用情况
 - 从应用层面正确处理子进程生命周期
 
+### 34. 什么是MySQL慢查询，union all和union的区别，排序以及各种join的用法区别？
+
+**问题分析**：MySQL是Web应用中最常用的数据库系统，掌握MySQL的慢查询排查、SQL语句编写（union、排序、join）是SRE工程师的必备技能。
+
+**MySQL慢查询**：
+
+- **慢查询定义**：执行时间超过指定阈值（默认10秒）的SQL查询
+- **开启慢查询日志**：
+  ```sql
+  -- 临时开启（重启后失效）
+  SET GLOBAL slow_query_log = 'ON';
+  SET GLOBAL long_query_time = 2;  -- 设置阈值为2秒
+  
+  -- 配置文件永久开启（my.cnf）
+  slow_query_log = 1
+  slow_query_log_file = /var/log/mysql/slow.log
+  long_query_time = 2
+  ```
+
+- **查看慢查询日志**：
+  ```bash
+  # 查看日志内容
+  cat /var/log/mysql/slow.log
+  
+  # 使用mysqldumpslow工具分析
+  mysqldumpslow -s t -t 10 /var/log/mysql/slow.log
+  
+  # 使用pt-query-digest分析（percona工具）
+  pt-query-digest /var/log/mysql/slow.log
+  ```
+
+- **慢查询分析**：
+  ```sql
+  -- 查看慢查询数量
+  SHOW GLOBAL STATUS LIKE 'Slow_queries';
+  
+  -- 查看当前慢查询配置
+  SHOW VARIABLES LIKE 'slow_query%';
+  SHOW VARIABLES LIKE 'long_query_time';
+  
+  -- 使用EXPLAIN分析查询
+  EXPLAIN SELECT * FROM users WHERE name = 'test';
+  EXPLAIN ANALYZE SELECT * FROM users WHERE name = 'test';
+  ```
+
+- **慢查询优化方法**：
+  - 优化索引：为WHERE、JOIN、ORDER BY字段添加索引
+  - 优化SQL语句：避免SELECT *，减少返回数据量
+  - 避免函数操作：WHERE id + 1 = 100
+  - 分页优化：使用游标分页替代OFFSET
+  - 避免子查询：使用JOIN替代子查询
+  - 分解大查询：将一个复杂查询分解为多个简单查询
+
+**UNION与UNION ALL的区别**：
+
+| 特性 | UNION | UNION ALL |
+|------|-------|-----------|
+| **去重** | 自动去除重复记录 | 保留所有记录 |
+| **性能** | 较慢（需要去重） | 较快（不去重） |
+| **排序** | 可以使用ORDER BY | 可以使用ORDER BY |
+| **适用场景** | 需要去重的合并查询 | 保留所有记录的合并查询 |
+
+- **示例**：
+  ```sql
+  -- UNION：自动去重
+  SELECT name FROM users WHERE status = 1
+  UNION
+  SELECT name FROM admins WHERE status = 1;
+  
+  -- UNION ALL：保留所有记录（包括重复）
+  SELECT name FROM users WHERE status = 1
+  UNION ALL
+  SELECT name FROM admins WHERE status = 1;
+  
+  -- UNION配合ORDER BY
+  SELECT name, id FROM users WHERE status = 1
+  UNION
+  SELECT name, id FROM admins WHERE status = 1
+  ORDER BY id DESC;
+  ```
+
+**MySQL排序**：
+
+- **ORDER BY基础语法**：
+  ```sql
+  -- 单字段排序
+  SELECT * FROM users ORDER BY created_at DESC;
+  
+  -- 多字段排序
+  SELECT * FROM users ORDER BY status ASC, created_at DESC;
+  
+  -- 按表达式排序
+  SELECT *, (score1 + score2) AS total FROM users ORDER BY total DESC;
+  
+  -- 按字段位置排序（不推荐）
+  SELECT * FROM users ORDER BY 1, 2;
+  ```
+
+- **ASC与DESC**：
+  - ASC：升序（从小到大，默认）
+  - DESC：降序（从大到小）
+
+- **NULL值排序**：
+  ```sql
+  -- NULL值排在最前面（MySQL默认）
+  SELECT * FROM users ORDER BY name ASC NULLS FIRST;
+  
+  -- NULL值排在最后面
+  SELECT * FROM users ORDER BY name ASC NULLS LAST;
+  
+  -- 使用IFNULL处理NULL值
+  SELECT * FROM users ORDER BY IFNULL(name, 'zzz') ASC;
+  ```
+
+- **使用索引优化排序**：
+  ```sql
+  -- 创建合适的索引支持排序
+  CREATE INDEX idx_status_created ON users(status, created_at);
+  
+  -- EXPLAIN检查是否使用索引排序
+  EXPLAIN SELECT * FROM users WHERE status = 1 ORDER BY created_at DESC;
+  ```
+
+- **文件排序（Using filesort）**：
+  - 当无法使用索引排序时，MySQL使用文件排序
+  - 尽量避免：SELECT * FROM users ORDER BY name;
+  - 优化方式：添加合适的索引
+
+**各种JOIN的用法区别**：
+
+- **JOIN类型对比表**：
+
+| 类型 | 描述 | 示例 |
+|------|------|------|
+| **INNER JOIN** | 只返回两表匹配的记录 | A ∩ B |
+| **LEFT JOIN** | 返回左表所有记录，右表无匹配则返回NULL | A + (A ∩ B) |
+| **RIGHT JOIN** | 返回右表所有记录，左表无匹配则返回NULL | B + (A ∩ B) |
+| **FULL OUTER JOIN** | 返回两表所有记录，无匹配则返回NULL | A ∪ B |
+| **CROSS JOIN** | 笛卡尔积，所有组合 | A × B |
+
+- **INNER JOIN（内连接）**：
+  ```sql
+  -- 只返回两个表中匹配的记录
+  SELECT u.name, o.order_id
+  FROM users u
+  INNER JOIN orders o ON u.id = o.user_id;
+  
+  -- 等效于
+  SELECT u.name, o.order_id
+  FROM users u, orders o
+  WHERE u.id = o.user_id;
+  ```
+
+- **LEFT JOIN（左连接）**：
+  ```sql
+  -- 返回左表所有记录，右表无匹配则返回NULL
+  SELECT u.name, o.order_id
+  FROM users u
+  LEFT JOIN orders o ON u.id = o.user_id;
+  
+  -- 应用场景：查询所有用户及其订单（包括没有订单的用户）
+  SELECT u.*, COUNT(o.id) AS order_count
+  FROM users u
+  LEFT JOIN orders o ON u.id = o.user_id
+  GROUP BY u.id;
+  ```
+
+- **RIGHT JOIN（右连接）**：
+  ```sql
+  -- 返回右表所有记录，左表无匹配则返回NULL
+  SELECT u.name, o.order_id
+  FROM users u
+  RIGHT JOIN orders o ON u.id = o.user_id;
+  
+  -- 应用场景：查询所有订单及其用户（包括没有用户的订单）
+  ```
+
+- **FULL OUTER JOIN（全外连接）**：
+  ```sql
+  -- MySQL不直接支持，可以使用UNION实现
+  SELECT u.name, o.order_id
+  FROM users u
+  LEFT JOIN orders o ON u.id = o.user_id
+  UNION
+  SELECT u.name, o.order_id
+  FROM users u
+  RIGHT JOIN orders o ON u.id = o.user_id;
+  ```
+
+- **CROSS JOIN（交叉连接）**：
+  ```sql
+  -- 返回笛卡尔积（所有组合）
+  SELECT u.name, o.order_id
+  FROM users u
+  CROSS JOIN orders o;
+  
+  -- 应用场景：生成测试数据、枚举组合
+  ```
+
+- **多表JOIN**：
+  ```sql
+  SELECT u.name, o.order_id, p.product_name
+  FROM users u
+  INNER JOIN orders o ON u.id = o.user_id
+  INNER JOIN products p ON o.product_id = p.id
+  WHERE u.status = 1;
+  ```
+
+- **JOIN优化建议**：
+  - 确保ON条件字段有索引
+  - 尽量使用INNER JOIN（性能最好）
+  - 避免SELECT *，只查询需要的字段
+  - 注意驱动表的选择（小表驱动大表）
+  - 使用EXPLAIN检查执行计划
+
+**常用MySQL监控命令**：
+
+```bash
+# 查看当前连接
+SHOW FULL PROCESSLIST;
+
+# 查看状态
+SHOW STATUS LIKE 'Threads%';
+
+# 查看变量
+SHOW VARIABLES LIKE 'slow_query%';
+SHOW VARIABLES LIKE 'long_query_time';
+
+# 重建查询缓存（MySQL 8.0已移除）
+RESET QUERY CACHE;
+```
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
