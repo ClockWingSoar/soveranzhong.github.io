@@ -2443,6 +2443,139 @@ SHOW VARIABLES LIKE 'long_query_time';
 RESET QUERY CACHE;
 ```
 
+### 35. 如何查看某个命令属于哪个包？
+
+**问题分析**：在Linux系统中，很多命令可能通过符号链接指向其他路径，了解如何查找命令所属的包是SRE工程师进行软件包管理的必备技能。
+
+**查看命令所属包的方法**：
+
+- **查找命令路径**：
+  ```bash
+  # 使用which查找命令路径
+  which ip
+  # 输出：/usr/sbin/ip
+  
+  # 如果是符号链接，解析真实路径
+  ls -la /usr/sbin/ip
+  # 输出：lrwxrwxrwx 1 root root 7  7月 10  2025 /usr/sbin/ip -> /bin/ip*
+  
+  # 使用readlink解析符号链接
+  readlink -f /usr/sbin/ip
+  ```
+
+- **Debian/Ubuntu系统（dpkg）**：
+  ```bash
+  # 查找命令所属包
+  dpkg -S /bin/ip
+  # 输出：iproute2: /bin/ip
+  
+  # 搜索包含指定文件的包
+  dpkg -S /usr/sbin/ifconfig
+  
+  # 查看包信息
+  dpkg -l iproute2
+  dpkg -s iproute2
+  ```
+
+- **RedHat/CentOS系统（rpm）**：
+  ```bash
+  # 查找命令所属包
+  rpm -qf /bin/ip
+  # 输出：iproute2-5.10.0-xxx.x86_64
+  
+  # 搜索包含指定文件的包
+  rpm -qf /usr/sbin/ifconfig
+  ```
+
+- **通用方法（适用所有Linux）**：
+  ```bash
+  # 方法1：使用package.ibistory查找（需要网络）
+  # https://command-not-found.com/ip
+  
+  # 方法2：使用yum/dnf provides
+  yum provides /bin/ip
+  dnf provides /bin/ip
+  
+  # 方法3：使用apt-file（需要安装）
+  apt-get install apt-file
+  apt-file update
+  apt-file search /bin/ip
+  ```
+
+**完整操作示例**：
+
+```bash
+# 1. 查找命令路径
+$ which ip
+/usr/sbin/ip
+
+# 2. 检查是否为符号链接
+$ ls -la /usr/sbin/ip
+lrwxrwxrwx 1 root root 7  7月 10  2025 /usr/sbin/ip -> /bin/ip*
+
+# 3. 解析真实路径（符号链接指向/bin/ip）
+$ which ip
+/usr/sbin/ip
+$ readlink /usr/sbin/ip
+/bin/ip
+
+# 4. 使用真实路径查找所属包（Debian/Ubuntu）
+$ dpkg -S /bin/ip
+iproute2: /bin/ip
+
+# 5. 查看包详情
+$ dpkg -s iproute2
+Package: iproute2
+Status: install ok installed
+Priority: important
+Section: net
+...
+```
+
+**常见命令与所属包对照表**：
+
+| 命令 | 所属包 | 说明 |
+|------|--------|------|
+| ip | iproute2 | 网络配置工具 |
+| ifconfig | net-tools | 网络配置工具（已过时） |
+| ss | iproute2 | 网络连接查看工具 |
+| ping | iputils | 网络测试工具 |
+| telnet | telnet | 远程登录工具 |
+| curl | curl | HTTP客户端工具 |
+| wget | wget | 文件下载工具 |
+| ssh | openssh-client | SSH客户端 |
+| scp | openssh-client | SSH文件传输 |
+| mount | mount | 文件系统挂载 |
+| fdisk | fdisk | 磁盘分区工具 |
+| mkfs | dosfstools/mke2fs | 文件系统创建 |
+| docker | docker.io | 容器引擎 |
+| kubectl | kubernetes-client | K8s命令行工具 |
+
+**注意事项**：
+
+- 命令可能是符号链接，需要先解析真实路径
+- 不同Linux发行版可能使用不同的包管理器
+- 某些命令可能来自多个包（如Python pip包）
+- 系统命令和手动安装的命令可能混在一起
+
+**包管理常用命令**：
+
+- **Debian/Ubuntu**：
+  ```bash
+  apt-get update          # 更新包列表
+  apt-get install <包名>  # 安装包
+  apt-get remove <包名>   # 卸载包
+  dpkg -l                 # 列出已安装包
+  ```
+
+- **RedHat/CentOS**：
+  ```bash
+  yum update              # 更新包
+  yum install <包名>     # 安装包
+  yum remove <包名>      # 卸载包
+  rpm -qa                 # 列出已安装包
+  ```
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
