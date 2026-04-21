@@ -5338,6 +5338,126 @@ http {
 - 优化后应进行充分测试，确保功能正常
 - 保持Nginx版本更新，获取最新的安全补丁和性能改进
 
+### 49. 容器里面怎么做持久化？
+
+**问题分析**：容器默认的文件系统是临时的，容器删除后数据也会丢失。因此，了解容器数据持久化的方法对于SRE工程师来说至关重要，特别是在处理数据库、配置文件等需要长期保存的数据时。
+
+**容器持久化存储方式**：
+
+**匿名卷（Anonymous Volume）**：
+- **特点**：Docker自动创建，没有指定名称，使用随机生成的ID作为卷名
+- **使用方法**：
+  ```bash
+  # 运行容器时创建匿名卷
+  docker run -d -v /var/lib/mysql --name mysql mysql:8.0
+  ```
+- **存储位置**：Docker会将数据存储在`/var/lib/docker/volumes/<随机ID>/_data`目录
+- **适用场景**：临时测试、日志缓存等不需要长期保存的数据
+- **优点**：创建简单，无需手动管理
+- **缺点**：难以追踪和管理，容易产生孤儿卷
+
+**绑定挂载（Bind Mount）**：
+- **特点**：直接将宿主机目录挂载到容器中，由用户完全控制
+- **使用方法**：
+  ```bash
+  # 将宿主机目录挂载到容器
+  docker run -d -v /host/path:/container/path --name nginx nginx
+  
+  # 只读挂载
+  docker run -d -v /host/path:/container/path:ro --name nginx nginx
+  ```
+- **存储位置**：用户指定的宿主机任意目录
+- **适用场景**：开发调试、配置文件挂载、需要宿主机直接访问数据的场景
+- **优点**：数据完全由宿主机管理，方便直接操作
+- **缺点**：权限问题可能导致容器无法访问，跨平台兼容性较差
+
+**命名卷（Named Volume）**：
+- **特点**：用户显式创建，有明确的名称，便于管理和引用
+- **使用方法**：
+  ```bash
+  # 创建命名卷
+  docker volume create mydata
+  
+  # 挂载命名卷到容器
+  docker run -d -v mydata:/app/data --name myapp nginx
+  
+  # 也可以直接运行，Docker会自动创建不存在的卷
+  docker run -d -v named-volume:/path/in/container nginx
+  ```
+- **存储位置**：Docker会将数据存储在`/var/lib/docker/volumes/<卷名>/_data`目录
+- **适用场景**：生产环境、数据库、多容器共享数据等需要长期保存的数据
+- **优点**：Docker自动管理权限，数据独立于容器，适合生产环境
+- **缺点**：需要手动清理不再使用的卷
+
+**容器持久化最佳实践**：
+
+**生产环境**：
+- 使用命名卷（Named Volume）存储重要数据
+- 定期备份数据卷
+- 合理设置卷的权限和所有权
+
+**开发环境**：
+- 使用绑定挂载（Bind Mount）方便代码修改和调试
+- 注意权限问题，确保容器能够正常访问挂载的目录
+
+**数据备份与恢复**：
+- **备份卷**：
+  ```bash
+  docker run --rm 
+    -v nginx_data:/data 
+    -v $(pwd):/backup 
+    busybox tar cvf /backup/backup.tar /data
+  ```
+- **恢复卷**：
+  ```bash
+  docker run --rm 
+    -v nginx_data:/data 
+    -v $(pwd):/backup 
+    busybox tar xvf /backup/backup.tar -C /
+  ```
+
+**卷管理**：
+- **查看所有卷**：
+  ```bash
+  docker volume ls
+  ```
+- **查看卷详情**：
+  ```bash
+  docker volume inspect <卷名>
+  ```
+- **删除卷**：
+  ```bash
+  docker volume rm <卷名>
+  ```
+- **清理未使用的卷**：
+  ```bash
+  docker volume prune
+  ```
+
+**Docker Compose中的数据卷**：
+- **配置示例**：
+  ```yaml
+  version: "3"
+  services:
+    nginx:
+      image: nginx
+      ports:
+        - "8080:80"
+      volumes:
+        - ./www:/usr/share/nginx/html  # 绑定挂载
+        - nginx_conf:/etc/nginx/conf.d  # 命名卷
+  volumes:
+    nginx_conf:  # 自动创建命名卷
+  ```
+
+**注意事项**：
+- 容器删除时，默认不会删除关联的卷，需要手动清理
+- 使用`docker rm -v`命令可以在删除容器的同时删除关联的卷
+- 定期清理未使用的卷，避免磁盘空间浪费
+- 生产环境中，考虑使用外部存储解决方案（如NFS、云存储等）以提高数据可靠性和可扩展性
+- 注意卷的权限设置，确保容器能够正常读写数据
+- 对于数据库等重要数据，建议使用命名卷并定期备份
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
