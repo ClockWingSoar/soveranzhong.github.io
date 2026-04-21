@@ -5758,6 +5758,163 @@ http {
 - 容器间通信需要确保在同一网络中
 - 生产环境建议使用自定义网络进行隔离
 
+### 52. 你对Linux系统做了什么优化？
+
+**问题分析**：Linux系统优化是SRE工程师的核心技能之一，直接影响服务器性能、稳定性和高并发处理能力。系统优化涉及内核参数调优、资源限制调整、文件系统优化、网络优化等多个层面。了解Linux系统优化的方法和最佳实践，能够帮助SRE工程师构建高性能、高可用的服务器环境。
+
+**Linux系统优化方法**：
+
+**内核参数调优**：
+- **TCP网络参数优化**：
+  ```bash
+  # /etc/sysctl.conf 配置
+  # TCP连接队列长度
+  net.core.somaxconn = 65535
+  net.core.netdev_max_backlog = 5000
+  net.ipv4.tcp_max_syn_backlog = 65535
+  
+  # TCP连接复用和超时
+  net.ipv4.tcp_tw_reuse = 1
+  net.ipv4.tcp_fin_timeout = 30
+  net.ipv4.tcp_keepalive_time = 600
+  net.ipv4.tcp_keepalive_intvl = 30
+  net.ipv4.tcp_keepalive_probes = 3
+  
+  # TCP窗口和缓冲区
+  net.core.rmem_default = 262144
+  net.core.rmem_max = 16777216
+  net.core.wmem_default = 262144
+  net.core.wmem_max = 16777216
+  net.ipv4.tcp_rmem = 4096 87380 6291456
+  net.ipv4.tcp_wmem = 4096 16384 4194304
+  
+  # 端口范围
+  net.ipv4.ip_local_port_range = 1024 65535
+  
+  # 应用配置
+  sysctl -p
+  ```
+- **虚拟内存参数优化**：
+  ```bash
+  # /etc/sysctl.conf 配置
+  # 降低swap使用倾向
+  vm.swappiness = 10
+  
+  # 脏页回写控制
+  vm.dirty_ratio = 15
+  vm.dirty_background_ratio = 5
+  vm.dirty_writeback_centisecs = 500
+  
+  # 内存过载保护
+  vm.overcommit_memory = 1
+  vm.overcommit_ratio = 80
+  
+  # 应用配置
+  sysctl -p
+  ```
+- **文件系统参数优化**：
+  ```bash
+  # /etc/sysctl.conf 配置
+  # 文件描述符限制
+  fs.file-max = 2097152
+  fs.nr_open = 1048576
+  
+  # inotify限制
+  fs.inotify.max_user_watches = 524288
+  fs.inotify.max_user_instances = 8192
+  
+  # 应用配置
+  sysctl -p
+  ```
+
+**文件描述符限制优化**：
+- **临时设置**：
+  ```bash
+  ulimit -n 65535
+  ```
+- **永久设置**：
+  ```bash
+  # /etc/security/limits.conf
+  * soft nofile 65535
+  * hard nofile 65535
+  * soft nproc 32768
+  * hard nproc 32768
+  root soft nofile 65535
+  root hard nofile 65535
+  ```
+
+**文件系统优化**：
+- **挂载参数优化**：
+  ```bash
+  # /etc/fstab 配置
+  # noatime：禁止记录文件最后访问时间，减少磁盘I/O
+  # discard：启用TRIM功能（SSD适用）
+  UUID=xxx / ext4 defaults,noatime,discard 0 1
+  ```
+- **I/O调度器优化**：
+  ```bash
+  # SSD使用mq-deadline或noop
+  echo mq-deadline > /sys/block/sda/queue/scheduler
+  
+  # HDD使用cfq或deadline
+  echo deadline > /sys/block/sda/queue/scheduler
+  ```
+
+**系统服务优化**：
+- **关闭无用服务**：
+  ```bash
+  # 查看当前运行的服务
+  systemctl list-units --type=service --state=running
+  
+  # 关闭无用服务
+  systemctl stop bluetooth && systemctl disable bluetooth
+  systemctl stop cups && systemctl disable cups
+  systemctl stop postfix && systemctl disable postfix
+  systemctl stop avahi-daemon && systemctl disable avahi-daemon
+  ```
+
+**网络优化**：
+- **网卡队列优化**：
+  ```bash
+  # 调整网卡队列长度
+  ethtool -G eth0 rx 4096 tx 4096
+  
+  # 查看网卡信息
+  ethtool eth0
+  ```
+- **中断亲和性配置**：
+  ```bash
+  # 将网卡中断绑定到特定CPU核心
+  echo 2 > /proc/irq/24/smp_affinity
+  ```
+
+**Linux系统优化最佳实践**：
+- **优化顺序**：先定位瓶颈，再针对性优化，避免盲目调整
+- **监控先行**：使用top、iostat、vmstat、ss等工具定位性能瓶颈
+- **逐步调整**：每次只修改一个参数，观察效果后再继续
+- **备份配置**：修改前备份原始配置，便于回滚
+- **文档记录**：记录优化过程和效果，便于后续维护
+
+**常见问题与解决方案**：
+- **问题1：too many open files**
+  - 解决方案：调整fs.file-max和ulimit -n参数，增加文件描述符限制
+- **问题2：TCP连接被拒绝**
+  - 解决方案：调整net.core.somaxconn和net.ipv4.tcp_max_syn_backlog参数
+- **问题3：端口耗尽**
+  - 解决方案：调整net.ipv4.ip_local_port_range参数，扩大端口范围
+- **问题4：系统负载高**
+  - 解决方案：使用top、ps等工具定位高CPU进程，优化或限制资源使用
+- **问题5：内存不足**
+  - 解决方案：调整vm.swappiness参数，优化内存使用策略，或增加物理内存
+
+**注意事项**：
+- 优化前备份原始配置，避免配置错误导致系统异常
+- 修改内核参数后执行sysctl -p使配置生效
+- 生产环境优化需先在测试环境验证
+- 根据实际业务场景调整参数，不要盲目照搬
+- 定期监控系统性能，及时发现和解决问题
+- 保持系统版本更新，获取最新的性能改进和安全补丁
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
