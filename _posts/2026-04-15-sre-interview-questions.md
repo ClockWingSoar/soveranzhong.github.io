@@ -1389,191 +1389,187 @@
 
 **Redis优化措施**：
 
-- **内存优化**：
-  - **数据结构选择**：根据业务场景选择合适的数据结构
-    - 字符串（String）：适合存储小数据，避免存储过大value
-    - 哈希（Hash）：适合存储对象，field数量不宜过多
-    - 列表（List）：适合队列场景，关注长度控制
-    - 集合（Set）：适合去重和交集运算
-    - 有序集合（Sorted Set）：适合排行榜场景
-  - **内存淘汰策略**：根据业务场景选择合适的maxmemory-policy
-    - volatile-lru：淘汰过期键中最近最少使用的
-    - allkeys-lru：淘汰所有键中最近最少使用的
-    - volatile-ttl：淘汰过期键中剩余时间最短的
-    - noeviction：不淘汰，直接返回错误
-  - **内存压缩**：使用ziplist、intset等压缩数据结构
-    - hash-max-ziplist-entries 512
-    - hash-max-ziplist-value 64
-    - list-max-ziplist-size -2
-    - set-max-intset-entries 512
-  - **系统内存设置**：
-    - 设置vm.overcommit_memory=1，允许内核分配超过物理内存的内存
+**内存优化**：
+- 数据结构选择：根据业务场景选择合适的数据结构
+  - 字符串（String）：适合存储小数据，避免存储过大value
+  - 哈希（Hash）：适合存储对象，field数量不宜过多
+  - 列表（List）：适合队列场景，关注长度控制
+  - 集合（Set）：适合去重和交集运算
+  - 有序集合（Sorted Set）：适合排行榜场景
+- 内存淘汰策略：根据业务场景选择合适的maxmemory-policy
+  - volatile-lru：淘汰过期键中最近最少使用的
+  - allkeys-lru：淘汰所有键中最近最少使用的
+  - volatile-ttl：淘汰过期键中剩余时间最短的
+  - noeviction：不淘汰，直接返回错误
+- 内存压缩：使用ziplist、intset等压缩数据结构
+  - hash-max-ziplist-entries 512
+  - hash-max-ziplist-value 64
+  - list-max-ziplist-size -2
+  - set-max-intset-entries 512
+- 系统内存设置：
+  - 设置vm.overcommit_memory=1，允许内核分配超过物理内存的内存
+  ```bash
+  # 临时设置
+  echo 1 > /proc/sys/vm/overcommit_memory
+  
+  # 永久设置
+  echo "vm.overcommit_memory=1" >> /etc/sysctl.conf
+  sysctl -p
+  ```
+  - 合理设置vm.swappiness，避免频繁交换
+  - 关闭透明大页（Transparent Huge Pages）
+
+**性能优化**：
+- 命令优化：
+  - 避免使用KEYS、FLUSHALL、FLUSHDB等阻塞命令
+  - 大数据量删除使用UNLINK代替DEL（非阻塞删除）
+  - 使用SCAN代替KEYS进行遍历
+  - 合理使用管道（Pipeline）减少网络往返
+- 慢查询优化：
+  - 配置合理的慢查询阈值：slowlog-log-slower-than 10000（微秒）
+  - 设置慢查询日志长度：slowlog-max-len 1000
+  - 定期分析慢查询日志，优化慢命令
+  ```bash
+  # 查看慢查询日志
+  redis-cli slowlog get
+  
+  # 查看慢查询日志数量
+  redis-cli slowlog len
+  
+  # 重置慢查询日志
+  redis-cli slowlog reset
+  ```
+- IO优化：
+  - 配置合理的持久化策略
+  - Redis 6.0+开启多线程I/O：io-threads 4
+  - 使用SSD存储，提高持久化性能
+- 网络优化：
+  - 合理设置tcp-keepalive，避免连接断开
+  - 配置timeout，清理空闲连接
+  - 限制最大连接数：maxclients
+  - 提高连接队列大小：
+    - 提高全连接队列大小：/proc/sys/net/core/somaxconn
+    - 提高半连接队列大小：/proc/sys/net/ipv4/tcp_max_syn_backlog
+  ```bash
+  # 临时设置
+  echo 65535 > /proc/sys/net/core/somaxconn
+  echo 65535 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+  
+  # 永久设置
+  echo "net.core.somaxconn = 65535" >> /etc/sysctl.conf
+  echo "net.ipv4.tcp_max_syn_backlog = 65535" >> /etc/sysctl.conf
+  sysctl -p
+  ```
+- 系统资源限制：
+  - 增加文件描述符限制（ulimit -n）超过10000
+  ```bash
+  # 临时设置
+  ulimit -n 65535
+  
+  # 永久设置
+  echo "* soft nofile 65535" >> /etc/security/limits.conf
+  echo "* hard nofile 65535" >> /etc/security/limits.conf
+  ```
+
+**高可用优化**：
+- 主从复制：配置从节点，实现读写分离
+  - 从节点设置：replicaof master_ip master_port
+  - 从节点只读：replica-read-only yes
+  - 复制缓冲区配置：
+    - master的写入数据缓冲区，用于记录自上一次同步后到下一次同步过程中间的写入命令
+    - 计算公式：repl-backlog-size = 允许从节点最大中断时长 * 主实例offset每秒写入量
+    - 示例：master每秒最大写入64mb，最大允许60秒，那么就要设置为64mb*60秒=3840MB(3.8G)
+    - 建议此值设置足够大，默认值为1M
     ```bash
-    # 临时设置
-    echo 1 > /proc/sys/vm/overcommit_memory
-    
-    # 永久设置
-    echo "vm.overcommit_memory=1" >> /etc/sysctl.conf
-    sysctl -p
+    # redis.conf
+    repl-backlog-size 3840mb
+    # 如果一段时间后没有slave连接到master，则backlog size的内存将会被释放
+    # 如果值为0则表示永远不释放这部份内存
+    repl-backlog-ttl 3600
     ```
-    - 合理设置vm.swappiness，避免频繁交换
-    - 关闭透明大页（Transparent Huge Pages）
+- 哨兵模式（Sentinel）：实现自动故障转移
+  - 配置至少3个哨兵节点
+  - 合理设置故障转移参数
+- 集群模式（Cluster）：实现数据分片和高可用
+  - 配置至少3个主节点
+  - 每个主节点至少1个从节点
+- 监控告警：
+  - 监控内存使用率、CPU使用率、连接数
+  - 监控命令延迟、复制延迟
+  - 设置合理的告警阈值
 
-- **性能优化**：
-  - **命令优化**：
-    - 避免使用KEYS、FLUSHALL、FLUSHDB等阻塞命令
-    - 大数据量删除使用UNLINK代替DEL（非阻塞删除）
-    - 使用SCAN代替KEYS进行遍历
-    - 合理使用管道（Pipeline）减少网络往返
-  - **慢查询优化**：
-    - 配置合理的慢查询阈值：slowlog-log-slower-than 10000（微秒）
-    - 设置慢查询日志长度：slowlog-max-len 1000
-    - 定期分析慢查询日志，优化慢命令
+**持久化优化**：
+- RDB优化：
+  - 合理设置快照频率，平衡性能和数据安全
+  - 配置save 900 1 save 300 10 save 60 10000
+- AOF优化：
+  - 使用appendfsync everysec平衡性能和安全性
+  - 开启AOF重写：auto-aof-rewrite-percentage 100
+- 混合持久化：
+  - 开启aof-use-rdb-preamble yes
+  - 结合RDB和AOF的优点
+
+**安全优化**：
+- 访问控制：
+  - 设置requirepass，使用强密码
+  - 绑定IP：bind 127.0.0.1 192.168.1.100
+  - 禁用危险命令：
     ```bash
-    # 查看慢查询日志
-    redis-cli slowlog get
-    
-    # 查看慢查询日志数量
-    redis-cli slowlog len
-    
-    # 重置慢查询日志
-    redis-cli slowlog reset
+    # 在redis.conf中添加
+    rename-command KEYS ""
+    rename-command FLUSHALL ""
+    rename-command FLUSHDB ""
+    rename-command SHUTDOWN ""
     ```
-  - **IO优化**：
-    - 配置合理的持久化策略
-    - Redis 6.0+开启多线程I/O：io-threads 4
-    - 使用SSD存储，提高持久化性能
-  - **网络优化**：
-    - 合理设置tcp-keepalive，避免连接断开
-    - 配置timeout，清理空闲连接
-    - 限制最大连接数：maxclients
-    - 提高连接队列大小：
-      - 提高全连接队列大小：/proc/sys/net/core/somaxconn
-      - 提高半连接队列大小：/proc/sys/net/ipv4/tcp_max_syn_backlog
-    ```bash
-    # 临时设置
-    echo 65535 > /proc/sys/net/core/somaxconn
-    echo 65535 > /proc/sys/net/ipv4/tcp_max_syn_backlog
-    
-    # 永久设置
-    echo "net.core.somaxconn = 65535" >> /etc/sysctl.conf
-    echo "net.ipv4.tcp_max_syn_backlog = 65535" >> /etc/sysctl.conf
-    sysctl -p
-    ```
-  - **系统资源限制**：
-    - 增加文件描述符限制（ulimit -n）超过10000
-    ```bash
-    # 临时设置
-    ulimit -n 65535
-    
-    # 永久设置
-    echo "* soft nofile 65535" >> /etc/security/limits.conf
-    echo "* hard nofile 65535" >> /etc/security/limits.conf
-    ```
+- 网络安全：
+  - 使用TLS加密传输
+  - 配置防火墙，限制访问端口
+- 权限管理：
+  - 遵循最小权限原则
+  - 生产环境避免使用默认端口
 
-- **高可用优化**：
-  - **主从复制**：配置从节点，实现读写分离
-    - 从节点设置：replicaof master_ip master_port
-    - 从节点只读：replica-read-only yes
-    - **复制缓冲区配置**：
-      - master的写入数据缓冲区，用于记录自上一次同步后到下一次同步过程中间的写入命令
-      - 计算公式：repl-backlog-size = 允许从节点最大中断时长 * 主实例offset每秒写入量
-      - 示例：master每秒最大写入64mb，最大允许60秒，那么就要设置为64mb*60秒=3840MB(3.8G)
-      - 建议此值设置足够大，默认值为1M
-      ```bash
-      # redis.conf
-      repl-backlog-size 3840mb
-      # 如果一段时间后没有slave连接到master，则backlog size的内存将会被释放
-      # 如果值为0则表示永远不释放这部份内存
-      repl-backlog-ttl 3600
-      ```
-  - **哨兵模式（Sentinel）**：实现自动故障转移
-    - 配置至少3个哨兵节点
-    - 合理设置故障转移参数
-  - **集群模式（Cluster）**：实现数据分片和高可用
-    - 配置至少3个主节点
-    - 每个主节点至少1个从节点
-  - **监控告警**：
-    - 监控内存使用率、CPU使用率、连接数
-    - 监控命令延迟、复制延迟
-    - 设置合理的告警阈值
-
-- **持久化优化**：
-  - **RDB优化**：
-    - 合理设置快照频率，平衡性能和数据安全
-    - 配置save 900 1 save 300 10 save 60 10000
-  - **AOF优化**：
-    - 使用appendfsync everysec平衡性能和安全性
-    - 开启AOF重写：auto-aof-rewrite-percentage 100
-  - **混合持久化**：
-    - 开启aof-use-rdb-preamble yes
-    - 结合RDB和AOF的优点
-
-- **安全优化**：
-  - **访问控制**：
-    - 设置requirepass，使用强密码
-    - 绑定IP：bind 127.0.0.1 192.168.1.100
-    - 禁用危险命令：
-      ```bash
-      # 在redis.conf中添加
-      rename-command KEYS ""
-      rename-command FLUSHALL ""
-      rename-command FLUSHDB ""
-      rename-command SHUTDOWN ""
-      ```
-  - **网络安全**：
-    - 使用TLS加密传输
-    - 配置防火墙，限制访问端口
-  - **权限管理**：
-    - 遵循最小权限原则
-    - 生产环境避免使用默认端口
-
-- **架构优化**：
-  - **多级缓存**：
-    - 本地缓存（如Caffeine）+ Redis缓存
-    - 减轻Redis压力，提高响应速度
-  - **读写分离**：
-    - 主节点负责写操作
-    - 从节点负责读操作
-  - **热点数据处理**：
-    - 热点数据预热
-    - 热点数据永不过期，定期异步更新
-  - **限流保护**：
-    - 客户端限流
-    - 服务端使用redis-cell模块实现限流
+**架构优化**：
+- 多级缓存：
+  - 本地缓存（如Caffeine）+ Redis缓存
+  - 减轻Redis压力，提高响应速度
+- 读写分离：
+  - 主节点负责写操作
+  - 从节点负责读操作
+- 热点数据处理：
+  - 热点数据预热
+  - 热点数据永不过期，定期异步更新
+- 限流保护：
+  - 客户端限流
+  - 服务端使用redis-cell模块实现限流
 
 **Redis优化案例**：
-
-- **案例1：内存使用率过高**：
-  - **问题**：Redis内存使用率超过80%
-  - **解决方案**：
+- 案例1：内存使用率过高：
+  - 问题：Redis内存使用率超过80%
+  - 解决方案：
     - 分析大键，使用SCAN和MEMORY USAGE命令
     - 优化数据结构，使用哈希表替代多个字符串
     - 合理设置过期时间，清理过期数据
     - 实施内存淘汰策略
-
-- **案例2：命令执行延迟高**：
-  - **问题**：Redis命令执行时间超过100ms
-  - **解决方案**：
+- 案例2：命令执行延迟高：
+  - 问题：Redis命令执行时间超过100ms
+  - 解决方案：
     - 分析慢查询日志，识别慢命令
     - 优化命令，如使用HMGET代替多次HGET
     - 避免在Redis中执行复杂计算
     - 考虑使用Lua脚本批量处理
-
-- **案例3：缓存雪崩**：
-  - **问题**：大量key同时过期，数据库压力骤增
-  - **解决方案**：
+- 案例3：缓存雪崩：
+  - 问题：大量key同时过期，数据库压力骤增
+  - 解决方案：
     - 过期时间随机化
     - 实施多级缓存
     - 热点数据永不过期
     - 配置熔断机制
 
 **Redis版本选择与升级**：
-
-- **版本选择**：
+- 版本选择：
   - 生产环境推荐使用Redis 6.2+或7.0+
   - 新特性：多线程I/O、客户端缓存、ACL权限管理
-- **升级策略**：
+- 升级策略：
   - 先在测试环境验证
   - 采用滚动升级，避免服务中断
   - 升级前备份数据
