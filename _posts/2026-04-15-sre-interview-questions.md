@@ -5458,6 +5458,157 @@ http {
 - 注意卷的权限设置，确保容器能够正常读写数据
 - 对于数据库等重要数据，建议使用命名卷并定期备份
 
+### 50. MySQL怎么优化？
+
+**问题分析**：MySQL是企业级应用中最常用的关系型数据库之一，其性能直接影响系统的整体响应速度和稳定性。了解MySQL的优化方法，包括SQL语句优化、索引优化、配置优化、架构优化等，是SRE工程师必备的技能。
+
+**MySQL优化方法**：
+
+**SQL语句优化**：
+- **开启慢查询日志**：
+  ```sql
+  -- 临时开启
+  SET GLOBAL slow_query_log = 'ON';
+  SET GLOBAL long_query_time = 1;  -- 超过1秒记录
+  SET GLOBAL slow_query_log_file = '/var/lib/mysql/mysql-slow.log';
+  
+  -- 永久配置（my.cnf）
+  # slow_query_log = ON
+  # long_query_time = 1
+  # slow_query_log_file = /var/lib/mysql/mysql-slow.log
+  ```
+- **使用EXPLAIN分析执行计划**：
+  ```sql
+  EXPLAIN SELECT * FROM users WHERE status = 1 AND created_time > '2024-01-01';
+  ```
+- **常见SQL优化规则**：
+  - 避免SELECT *，只查询需要的字段
+  - 避免在索引列上使用函数或运算
+  - 避免使用!=、<>、IS NULL等导致索引失效的操作
+  - 模糊查询避免以%开头
+  - JOIN关联字段必须建立索引且类型一致
+  - 优化分页查询，避免LIMIT 1000000, 10
+
+**索引优化**：
+- **索引设计原则**：
+  - 最左前缀原则：联合索引(a,b,c)，查询必须包含a才能命中索引
+  - 区分度高的字段放前面
+  - 单张表索引不超过5个
+  - 联合索引不超过3个字段
+  - 频繁更新的字段不建索引
+  - 小表不建索引
+- **必须建索引的场景**：
+  - WHERE条件频繁使用的字段
+  - JOIN关联字段
+  - ORDER BY/GROUP BY字段
+  - 覆盖索引（查询字段全部在索引中）
+- **索引失效场景**：
+  - 索引列使用函数、运算、类型转换
+  - 以%开头的模糊查询
+  - OR连接的条件有一个字段无索引
+  - 使用NOT IN、!=、<>、IS NOT NULL
+  - 联合索引不满足最左前缀
+
+**表结构优化**：
+- **字段类型选择**：
+  - 能用TINYINT不用INT
+  - 能用INT不用BIGINT
+  - 时间用DATETIME不用字符串
+  - 字符串长度固定用CHAR，可变用VARCHAR
+  - 禁止使用TEXT/BLOB做查询条件
+- **设计规范**：
+  - 必须有主键（推荐自增ID/BIGINT）
+  - 所有字段设置NOT NULL，用默认值代替NULL
+  - 大字段拆分到副表
+  - 禁止频繁ALTER TABLE
+- **分表分库**：
+  - 单表超过1000万考虑分表
+  - 水平分表：按时间、用户ID哈希
+  - 垂直分表：冷热字段分离
+
+**MySQL配置优化**：
+- **内存配置**：
+  ```ini
+  # 8G内存推荐配置
+  [mysqld]
+  # 连接数
+  max_connections = 1000
+  back_log = 512
+  # 缓冲池（最重要！）
+  innodb_buffer_pool_size = 6G  # 设为物理内存的50%~70%
+  # 日志
+  innodb_log_file_size = 2G
+  innodb_log_buffer_size = 64M
+  innodb_flush_log_at_trx_commit = 1  # 安全模式
+  sync_binlog = 1
+  # 临时表
+  tmp_table_size = 256M
+  max_heap_table_size = 256M
+  # 排序&连接
+  sort_buffer_size = 2M
+  join_buffer_size = 2M
+  read_buffer_size = 2M
+  # 其他
+  innodb_file_per_table = 1
+  innodb_flush_method = O_DIRECT
+  ```
+
+**架构层面优化**：
+- **读写分离**：
+  - 主库写，从库读
+  - 工具：MyCat、Sharding-JDBC、MySQL Router
+- **缓存**：
+  - 热点数据放Redis，避免频繁查库
+  - 页面缓存、接口缓存
+- **防止数据库雪崩**：
+  - 限流
+  - 熔断
+  - 降级
+  - 超时控制
+
+**操作系统层面优化**：
+- 关闭swap
+- 文件系统用ext4/xfs
+- IO调度：noop/deadline
+- 打开文件数限制调高
+- 关闭数据库所在磁盘的atime
+
+**日常监控与维护**：
+- **必看状态**：
+  ```sql
+  SHOW GLOBAL STATUS;
+  SHOW ENGINE INNODB STATUS;
+  SHOW VARIABLES;
+  ```
+- **定期维护**：
+  - 优化表：`OPTIMIZE TABLE table_name`
+  - 重建索引：`ALTER TABLE table_name ENGINE=InnoDB`
+  - 定期备份：`mysqldump`或物理备份
+
+**MySQL优化最佳实践**：
+- **优化顺序**：SQL语句 → 索引 → 表结构 → 配置参数 → 架构
+- **监控先行**：先监控、再定位、最后优化
+- **数据备份**：定期备份，确保数据安全
+- **版本更新**：保持MySQL版本更新，获取最新的性能改进和安全补丁
+- **压力测试**：使用sysbench等工具进行压力测试，评估优化效果
+
+**常见问题与解决方案**：
+- **问题1：MySQL连接数过多**
+  - 解决方案：调整max_connections参数，检查应用是否正确关闭连接
+- **问题2：InnoDB缓冲池不足**
+  - 解决方案：增加innodb_buffer_pool_size参数
+- **问题3：慢查询过多**
+  - 解决方案：开启慢查询日志，分析并优化慢SQL
+- **问题4：主从复制延迟**
+  - 解决方案：优化主库写入性能，调整从库配置，使用半同步复制
+
+**注意事项**：
+- 优化需要根据实际业务场景调整，不要盲目照搬配置
+- 优化前应进行性能测试，记录优化前后的性能指标
+- 定期监控MySQL的性能指标，及时发现和解决问题
+- 优化后应进行充分测试，确保功能正常
+- 保持MySQL版本更新，获取最新的安全补丁和性能改进
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
