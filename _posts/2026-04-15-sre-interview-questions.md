@@ -803,6 +803,7 @@
   - 使用Ansible批量部署Zabbix Agent
   - 编写playbook实现配置管理
   - 示例playbook：
+  
     ```yaml
     - name: 部署Zabbix Agent
       hosts: all
@@ -1412,7 +1413,7 @@
   #临时设置
   echo 1 > /proc/sys/vm/overcommit_memory
   
-  # 永久设置
+  #永久设置
   echo "vm.overcommit_memory=1" >> /etc/sysctl.conf
   sysctl -p
   ```
@@ -3030,6 +3031,184 @@ $ docker inspect --format '{{.NetworkSettings.Networks.bridge.IPAddress}}' isola
 - 生产环境中应根据安全需求合理配置隔离选项
 - 定期更新Docker版本，获取安全补丁和新特性
 - 结合其他安全措施（如SELinux、AppArmor）增强容器安全性
+
+### 39. 你如何清理没用的容器垃圾？
+
+**问题分析**：Docker在使用过程中会产生各种垃圾，如停止的容器、未使用的镜像、网络和卷等。定期清理这些垃圾可以释放磁盘空间，提高系统性能，是SRE工程师日常维护的重要任务。
+
+**Docker垃圾清理方法**：
+
+**使用docker system prune**：
+- **作用**：清理所有未使用的容器、网络、镜像和卷
+- **命令**：
+  ```bash
+  # 清理所有未使用的资源
+  docker system prune
+  
+  # 强制清理（不提示确认）
+  docker system prune -f
+  
+  # 清理包括已停止的容器和未使用的镜像
+  docker system prune -a
+  ```
+- **适用场景**：快速清理所有类型的Docker垃圾
+
+**清理停止的容器**：
+- **作用**：清理所有已停止的容器
+- **命令**：
+  ```bash
+  # 清理已停止的容器
+  docker container prune
+  
+  # 强制清理
+  docker container prune -f
+  ```
+- **适用场景**：专门清理停止的容器，保留其他资源
+
+**清理未使用的镜像**：
+- **作用**：清理所有未被使用的镜像
+- **命令**：
+  ```bash
+  # 清理未使用的镜像
+  docker image prune
+  
+  # 清理所有未使用的镜像（包括中间层镜像）
+  docker image prune -a
+  
+  # 强制清理
+  docker image prune -f
+  ```
+- **适用场景**：专门清理未使用的镜像，释放磁盘空间
+
+**清理未使用的网络**：
+- **作用**：清理所有未被使用的网络
+- **命令**：
+  ```bash
+  # 清理未使用的网络
+  docker network prune
+  
+  # 强制清理
+  docker network prune -f
+  ```
+- **适用场景**：清理不再使用的网络配置
+
+**清理未使用的卷**：
+- **作用**：清理所有未被使用的卷
+- **命令**：
+  ```bash
+  # 清理未使用的卷
+  docker volume prune
+  
+  # 强制清理
+  docker volume prune -f
+  ```
+- **适用场景**：清理不再使用的卷，释放存储空间
+
+**Docker垃圾清理的最佳实践**：
+
+**定期清理**：
+- 建立定期清理机制，如使用cron任务每周执行清理
+- 根据系统使用情况调整清理频率
+- 生产环境建议在低峰期执行清理操作
+
+**选择性清理**：
+- 根据实际需求选择清理范围
+- 对于重要的镜像和卷，使用标签或命名进行保护
+- 清理前确认不需要的资源，避免误删
+
+**监控磁盘使用**：
+- 定期监控Docker相关目录的磁盘使用情况
+- 设置磁盘使用告警，及时发现并处理磁盘空间不足问题
+- 结合监控工具（如Prometheus、Grafana）跟踪Docker资源使用
+
+**自动化清理**：
+- 使用脚本自动化清理过程
+- 在CI/CD流水线中集成清理步骤
+- 结合容器编排工具（如Kubernetes）的清理机制
+
+**清理前的准备工作**：
+
+**备份重要数据**：
+- 清理前备份重要的容器数据和配置
+- 确保卷中的重要数据已备份
+- 保存重要的镜像到私有仓库
+
+**确认资源状态**：
+- 检查容器状态，确保需要的容器正常运行
+- 确认镜像使用情况，避免删除正在使用的镜像
+- 检查网络和卷的使用情况
+
+**完整清理示例**：
+
+```bash
+# 1. 查看当前Docker资源使用情况
+$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          10        3         5.2GB     3.8GB (73%)
+Containers      5         2         1.1GB     800MB (72%)
+Local Volumes   8         3         2.5GB     1.8GB (72%)
+Build Cache     0         0         0B        0B
+
+# 2. 清理停止的容器
+$ docker container prune -f
+Deleted Containers:
+abc123def456
+789ghi012jkl
+
+# 3. 清理未使用的镜像
+$ docker image prune -a -f
+Deleted Images:
+untagged: nginx:latest
+untagged: ubuntu:18.04
+deleted: sha256:1234567890abcdef
+
+# 4. 清理未使用的网络
+$ docker network prune -f
+Deleted Networks:
+docker_default
+my-network
+
+# 5. 清理未使用的卷
+$ docker volume prune -f
+Deleted Volumes:
+my-volume
+data-volume
+
+# 6. 执行全面清理
+$ docker system prune -a -f
+Total reclaimed space: 6.5GB
+
+# 7. 再次查看资源使用情况
+$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          3         3         1.4GB     0B (0%)
+Containers      2         2         300MB     0B (0%)
+Local Volumes   3         3         700MB     0B (0%)
+Build Cache     0         0         0B        0B
+```
+
+**常见问题与解决方案**：
+
+**问题1：清理时误删重要资源**
+- 解决方案：使用`--filter`选项进行选择性清理，或在清理前备份重要资源
+
+**问题2：清理后容器无法启动**
+- 解决方案：确保清理前容器已停止，且相关镜像和卷已备份
+
+**问题3：清理过程缓慢**
+- 解决方案：在低峰期执行清理，或使用`-f`选项跳过确认步骤
+
+**问题4：磁盘空间释放不明显**
+- 解决方案：检查是否有其他占用磁盘空间的Docker资源，如构建缓存
+- 尝试使用`docker system prune -a`清理所有未使用的资源
+
+**注意事项**：
+
+- 清理操作不可逆，请谨慎执行
+- 生产环境清理前应进行充分测试
+- 定期清理可以避免磁盘空间不足问题
+- 结合监控工具及时发现资源使用异常
+- 建立清理策略，平衡资源使用和系统性能
 
 ## 总结与建议
 
