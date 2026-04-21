@@ -832,6 +832,7 @@
 - **API调用脚本**：
   - 使用Zabbix API实现自动化操作
   - 示例Python脚本：
+
     ```python
     import requests
     import json
@@ -1242,6 +1243,7 @@
     - 使用互斥锁（Mutex）：只允许一个请求去查询数据库并更新缓存
     - 热点数据永不过期：设置较长的过期时间，定期异步更新
     - 逻辑过期：缓存不设置过期时间，逻辑过期后异步更新
+
     ```python
     # 互斥锁实现示例
     def get_data(key):
@@ -1271,6 +1273,7 @@
     - 布隆过滤器（Bloom Filter）：在缓存层前增加布隆过滤器，快速判断数据是否存在
     - 空值缓存：对查询结果为空的数据也进行缓存，设置较短过期时间
     - 参数校验：加强请求参数校验，过滤非法请求
+
     ```python
     # 布隆过滤器示例
     from bloom_filter import BloomFilter
@@ -1306,6 +1309,7 @@
     - 多级缓存：本地缓存 + Redis缓存 + MySQL，多层防护
     - 熔断限流：缓存服务不可用时，启用熔断机制保护数据库
     - 高可用架构：使用Redis Sentinel或Redis Cluster保证缓存高可用
+
     ```python
     # 过期时间随机化
     def set_cache(key, value, base_expire=3600):
@@ -1323,6 +1327,7 @@
     - 本地缓存：热点数据同时存储在应用本地内存
     - 数据库限流：数据库层实施限流，保护数据库不被压垮
     - 异步修复：缓存恢复后，异步预热数据
+    
     ```python
     # 熔断机制示例
     class CircuitBreaker:
@@ -5608,6 +5613,150 @@ http {
 - 定期监控MySQL的性能指标，及时发现和解决问题
 - 优化后应进行充分测试，确保功能正常
 - 保持MySQL版本更新，获取最新的安全补丁和性能改进
+
+### 51. Docker的5种网络模式？
+
+**问题分析**：Docker容器化技术的核心优势之一就是其灵活的网络配置能力。了解Docker的5种网络模式（Bridge、Host、None、Container、自定义网络），对于SRE工程师设计和管理容器化架构至关重要。不同的网络模式适用于不同的场景，选择合适的网络模式可以提高容器间通信效率、增强网络安全性或满足特定业务需求。
+
+**Docker网络模式详解**：
+
+**Bridge模式（桥接模式）**：
+- **特点**：Docker默认的网络模式，容器拥有独立的网络命名空间
+- **工作原理**：Docker创建虚拟网桥docker0，为每个容器分配私有IP地址（如172.17.0.x）
+- **使用方法**：
+  ```bash
+  # 默认就是Bridge模式
+  docker run -d --name myapp nginx
+  
+  # 显式指定Bridge模式
+  docker run -d --name myapp --network bridge nginx
+  
+  # 自定义Bridge网络
+  docker network create mynet --driver bridge
+  docker run -d --name myapp --network mynet nginx
+  ```
+- **端口映射**：
+  ```bash
+  # -p 宿主机端口:容器端口
+  docker run -d -p 8080:80 --name nginx nginx
+  ```
+- **适用场景**：大多数单机应用部署、Web服务、数据库、多容器应用
+- **优点**：隔离性好，易于扩展，可创建多个自定义网络
+- **缺点**：NAT导致性能损失，需要手动管理端口映射
+
+**Host模式（主机模式）**：
+- **特点**：容器共享宿主机的网络命名空间，无隔离
+- **工作原理**：容器直接使用宿主机的IP和端口，无需NAT转换
+- **使用方法**：
+  ```bash
+  docker run -d --name myapp --network host nginx
+  ```
+- **适用场景**：高性能网络需求、监控代理、低延迟服务、需要固定端口的服务
+- **优点**：网络性能最高，无需端口映射
+- **缺点**：端口冲突风险高，隔离性差，不支持Windows/macOS
+
+**None模式（无网络模式）**：
+- **特点**：容器完全隔离，无任何外部网络连接
+- **工作原理**：容器仅有loopback接口（lo），不分配IP，不连接网桥，不配置路由
+- **使用方法**：
+  ```bash
+  docker run -d --name myapp --network none nginx
+  ```
+- **适用场景**：完全隔离的离线任务、数据处理、批处理作业、安全要求高的沙箱
+- **优点**：最高级别的网络隔离，安全性极佳
+- **缺点**：容器内无法访问外网，外部也无法访问容器
+
+**Container模式（容器共享模式）**：
+- **特点**：新容器复用另一个已存在容器的网络命名空间
+- **工作原理**：共享IP、端口、网络接口，但PID、文件系统、用户等仍相互隔离
+- **使用方法**：
+  ```bash
+  # 先运行主容器
+  docker run -d --name main-container busybox sleep 3600
+  
+  # 新容器共享主容器的网络
+  docker run -d --name sidecar --network container:main-container busybox
+  ```
+- **适用场景**：Sidecar模式（主应用+日志收集器共享网络）、调试工具容器与目标容器网络一致
+- **优点**：容器间网络通信效率高，适合协同工作
+- **缺点**：依赖目标容器生命周期，端口易冲突
+
+**自定义网络（Network Name模式）**：
+- **特点**：用户创建的自定义网络，支持桥接驱动、覆盖驱动等
+- **工作原理**：通过docker network create创建，可设置子网、网关等参数
+- **使用方法**：
+  ```bash
+  # 创建自定义网络
+  docker network create --driver bridge --subnet 172.30.0.0/16 mynet
+  
+  # 创建带网关的网络
+  docker network create --driver bridge --gateway 172.30.0.1 --subnet 172.30.0.0/16 mynet
+  
+  # 容器连接自定义网络
+  docker run -d --name myapp --network mynet nginx
+  
+  # 查看网络详情
+  docker network inspect mynet
+  ```
+- **适用场景**：多容器应用隔离、环境隔离（开发/测试/生产）、跨宿主机容器通信
+- **优点**：灵活的网络配置，支持网络隔离和通信控制
+- **缺点**：需要额外的网络规划和管理
+
+**Docker网络模式对比**：
+
+| 模式 | 网络隔离 | IP地址 | 端口映射 | 容器间通信 | 性能 | 典型场景 |
+|------|---------|--------|---------|-----------|------|---------|
+| **Bridge** | 高 | 独立私有IP | 需要-p | 通过docker0 | 中 | 默认部署、Web服务 |
+| **Host** | 低 | 共享宿主机IP | 无需-p | 直接宿主机 | 高 | 高性能服务、监控 |
+| **None** | 极高 | 无（仅lo） | 无 | 不可用 | 零 | 离线任务、安全沙箱 |
+| **Container** | 中 | 共享目标容器 | 同目标容器 | 与目标容器 | 低 | Sidecar、调试 |
+| **自定义网络** | 可配置 | 可配置 | 需要-p | 可配置 | 中 | 环境隔离、多容器应用 |
+
+**Docker网络常用命令**：
+- **查看网络**：
+  ```bash
+  docker network ls
+  docker network inspect bridge
+  ```
+- **创建网络**：
+  ```bash
+  docker network create mynet
+  docker network create --driver bridge --subnet 172.30.0.0/16 mynet
+  ```
+- **连接容器到网络**：
+  ```bash
+  docker network connect mynet container_name
+  docker network disconnect mynet container_name
+  ```
+- **删除网络**：
+  ```bash
+  docker network rm mynet
+  docker network prune  # 清理未使用的网络
+  ```
+
+**Docker网络模式最佳实践**：
+- **开发环境**：使用自定义Bridge网络，便于容器间通信和调试
+- **生产环境**：根据性能需求选择Host模式（高性能）或Bridge模式（隔离性）
+- **安全场景**：使用None模式实现极致隔离
+- **微服务架构**：使用自定义网络隔离不同服务，配合容器编排工具
+- **监控部署**：使用Host模式部署监控代理，减少网络开销
+
+**常见问题与解决方案**：
+- **问题1：容器无法访问外网**
+  - 解决方案：检查Bridge网络配置，确认iptables规则是否正确
+- **问题2：端口冲突**
+  - 解决方案：使用Host模式时避免端口冲突，或改用Bridge模式
+- **问题3：跨容器通信失败**
+  - 解决方案：确保容器在同一网络中，使用docker network connect连接
+- **问题4：网络性能差**
+  - 解决方案：高并发场景使用Host模式，或优化NAT配置
+
+**注意事项**：
+- 容器删除时网络命名空间会自动清理
+- 自定义网络需要手动删除
+- Host模式在Windows/macOS上不支持
+- 容器间通信需要确保在同一网络中
+- 生产环境建议使用自定义网络进行隔离
 
 ## 总结与建议
 
