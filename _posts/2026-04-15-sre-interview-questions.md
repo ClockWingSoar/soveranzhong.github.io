@@ -3805,6 +3805,263 @@ $ nsenter --target $PID --mount --uts --ipc --net --pid
 - 进入容器执行操作后，应及时退出，避免占用系统资源
 - 对于需要频繁进入容器执行的操作，考虑使用自动化脚本
 
+### 43. 你知道哪些dockerfile的指令？
+
+**问题分析**：Dockerfile是构建Docker镜像的核心文件，包含了一系列构建指令。了解Dockerfile的指令及其用法，是SRE工程师必备的技能，有助于构建高效、安全的Docker镜像。
+
+**Dockerfile的指令**：
+
+**基础指令**：
+
+**FROM**：
+- **作用**：指定基础镜像
+- **语法**：`FROM <镜像名称>:<标签>`
+- **示例**：`FROM ubuntu:20.04`
+- **说明**：每个Dockerfile必须以FROM指令开头，指定构建镜像的基础镜像
+
+**RUN**：
+- **作用**：在镜像构建过程中执行命令
+- **语法**：
+  - `RUN <命令>`（shell形式）
+  - `RUN ["<可执行文件>", "<参数1>", "<参数2>"]`（exec形式）
+- **示例**：
+  - `RUN apt-get update && apt-get install -y nginx`
+  - `RUN ["/bin/bash", "-c", "echo hello"]`
+- **说明**：每条RUN指令都会创建一个新的镜像层
+
+**CMD**：
+- **作用**：指定容器启动时执行的命令
+- **语法**：
+  - `CMD <命令>`（shell形式）
+  - `CMD ["<可执行文件>", "<参数1>", "<参数2>"]`（exec形式）
+  - `CMD ["<参数1>", "<参数2>"]`（作为ENTRYPOINT的默认参数）
+- **示例**：`CMD ["nginx", "-g", "daemon off;"]`
+- **说明**：每个Dockerfile只能有一个CMD指令，多个CMD指令只执行最后一个
+
+**ENTRYPOINT**：
+- **作用**：指定容器的入口点
+- **语法**：
+  - `ENTRYPOINT <命令>`（shell形式）
+  - `ENTRYPOINT ["<可执行文件>", "<参数1>", "<参数2>"]`（exec形式）
+- **示例**：`ENTRYPOINT ["nginx", "-g", "daemon off;"]`
+- **说明**：ENTRYPOINT与CMD的区别在于，ENTRYPOINT不会被docker run命令的参数覆盖
+
+**环境配置指令**：
+
+**ENV**：
+- **作用**：设置环境变量
+- **语法**：
+  - `ENV <键> <值>`
+  - `ENV <键1>=<值1> <键2>=<值2>`
+- **示例**：`ENV NGINX_VERSION=1.18.0`
+- **说明**：设置的环境变量在容器运行时仍然有效
+
+**ARG**：
+- **作用**：定义构建参数
+- **语法**：`ARG <参数名>[=<默认值>]`
+- **示例**：`ARG VERSION=1.0`
+- **说明**：构建参数只在构建过程中有效，容器运行时不存在
+
+**WORKDIR**：
+- **作用**：设置工作目录
+- **语法**：`WORKDIR <路径>`
+- **示例**：`WORKDIR /app`
+- **说明**：后续的RUN、CMD、ENTRYPOINT指令都会在该目录下执行
+
+**USER**：
+- **作用**：指定运行容器的用户
+- **语法**：`USER <用户名或UID>`
+- **示例**：`USER nginx`
+- **说明**：设置后，后续的RUN、CMD、ENTRYPOINT指令都会以该用户身份执行
+
+**文件操作指令**：
+
+**COPY**：
+- **作用**：复制文件或目录到镜像中
+- **语法**：
+  - `COPY <源路径> <目标路径>`
+  - `COPY ["<源路径1>", "<目标路径>"]`
+- **示例**：`COPY . /app`
+- **说明**：可以复制本地文件到镜像中，支持通配符
+
+**ADD**：
+- **作用**：复制文件或目录到镜像中，支持自动解压
+- **语法**：
+  - `ADD <源路径> <目标路径>`
+  - `ADD ["<源路径1>", "<目标路径>"]`
+- **示例**：`ADD nginx-1.18.0.tar.gz /usr/local/src`
+- **说明**：ADD会自动解压压缩文件，COPY不会
+
+**EXPOSE**：
+- **作用**：声明容器暴露的端口
+- **语法**：`EXPOSE <端口1> [<端口2> ...]`
+- **示例**：`EXPOSE 80 443`
+- **说明**：只是声明端口，不会自动映射到主机
+
+**VOLUME**：
+- **作用**：创建挂载点
+- **语法**：
+  - `VOLUME <路径>`
+  - `VOLUME ["<路径1>", "<路径2>"]`
+- **示例**：`VOLUME /data`
+- **说明**：用于持久化数据，避免数据丢失
+
+**配置指令**：
+
+**LABEL**：
+- **作用**：为镜像添加元数据
+- **语法**：`LABEL <键>=<值> [<键>=<值> ...]`
+- **示例**：`LABEL maintainer="example@example.com" version="1.0"`
+- **说明**：替代已废弃的MAINTAINER指令
+
+**MAINTAINER**：
+- **作用**：指定镜像的维护者（已废弃）
+- **语法**：`MAINTAINER <维护者信息>`
+- **示例**：`MAINTAINER John Doe <john@example.com>`
+- **说明**：已被LABEL指令替代，建议使用LABEL
+
+**ONBUILD**：
+- **作用**：设置镜像的触发指令
+- **语法**：`ONBUILD <指令>`
+- **示例**：`ONBUILD COPY . /app`
+- **说明**：当该镜像被用作基础镜像时，ONBUILD指令会被执行
+
+**STOPSIGNAL**：
+- **作用**：指定容器停止时发送的信号
+- **语法**：`STOPSIGNAL <信号>`
+- **示例**：`STOPSIGNAL SIGTERM`
+- **说明**：默认发送SIGTERM信号
+
+**HEALTHCHECK**：
+- **作用**：设置容器的健康检查
+- **语法**：
+  - `HEALTHCHECK [OPTIONS] CMD <命令>`
+  - `HEALTHCHECK NONE`
+- **示例**：`HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1`
+- **说明**：用于检查容器是否健康运行
+
+**SHELL**：
+- **作用**：指定默认的shell
+- **语法**：`SHELL ["<shell路径>", "<参数>"]`
+- **示例**：`SHELL ["/bin/bash", "-c"]`
+- **说明**：默认使用`/bin/sh -c`
+
+**Dockerfile指令的最佳实践**：
+
+**基础镜像选择**：
+- 使用官方镜像作为基础镜像
+- 选择合适的标签，避免使用latest
+- 优先选择Alpine等轻量级镜像
+
+**指令优化**：
+- 合并RUN指令，减少镜像层数
+- 使用COPY替代ADD，除非需要自动解压
+- 合理使用WORKDIR，避免使用绝对路径
+- 使用非root用户运行容器
+
+**缓存利用**：
+- 按照指令的变化频率排序，不变的指令放在前面
+- 对于依赖文件，先复制依赖文件再复制代码
+- 使用ARG参数避免缓存问题
+
+**安全考虑**：
+- 避免在Dockerfile中硬编码敏感信息
+- 定期更新基础镜像，获取安全补丁
+- 最小化镜像大小，减少攻击面
+
+**完整示例**：
+
+**示例1：构建Nginx镜像**：
+```dockerfile
+# 使用官方Alpine镜像作为基础
+FROM alpine:3.14
+
+# 设置维护者信息（使用LABEL替代MAINTAINER）
+LABEL maintainer="example@example.com"
+
+# 安装Nginx
+RUN apk update && \
+    apk add --no-cache nginx && \
+    rm -rf /var/cache/apk/*
+
+# 创建Nginx配置目录
+RUN mkdir -p /etc/nginx/conf.d
+
+# 复制配置文件
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/conf.d/
+
+# 暴露端口
+EXPOSE 80
+
+# 设置工作目录
+WORKDIR /usr/share/nginx/html
+
+# 复制静态文件
+COPY index.html .
+
+# 启动Nginx
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+**示例2：构建Node.js应用镜像**：
+```dockerfile
+# 使用官方Node.js镜像作为基础
+FROM node:14-alpine
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制package.json和package-lock.json
+COPY package*.json ./
+
+# 安装依赖
+RUN npm install --production
+
+# 复制应用代码
+COPY . .
+
+# 暴露端口
+EXPOSE 3000
+
+# 启动应用
+CMD ["npm", "start"]
+```
+
+**常见问题与解决方案**：
+
+**问题1：镜像构建失败**
+- 解决方案：检查Dockerfile语法，确保指令正确
+- 检查网络连接，确保能拉取基础镜像
+- 检查文件路径，确保COPY/ADD指令的源路径正确
+
+**问题2：镜像体积过大**
+- 解决方案：使用轻量级基础镜像
+- 合并RUN指令，减少镜像层数
+- 清理临时文件和缓存
+- 使用多阶段构建
+
+**问题3：容器启动失败**
+- 解决方案：检查CMD指令是否正确
+- 确保容器内的服务能够正常启动
+- 检查端口映射和网络配置
+
+**问题4：环境变量不生效**
+- 解决方案：使用ENV指令设置环境变量
+- 确保环境变量的名称和值正确
+- 检查容器启动时是否覆盖了环境变量
+
+**注意事项**：
+
+- Dockerfile的指令顺序会影响构建速度，应将不变的指令放在前面
+- 每条RUN指令都会创建一个新的镜像层，应尽量合并
+- COPY和ADD的区别：ADD会自动解压压缩文件，COPY不会
+- MAINTAINER指令已废弃，应使用LABEL指令替代
+- 生产环境中应避免使用latest标签，指定具体的版本号
+- 使用多阶段构建可以减小镜像体积
+- 定期更新基础镜像，获取安全补丁
+- 避免在Dockerfile中硬编码敏感信息，使用环境变量或密钥管理
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
