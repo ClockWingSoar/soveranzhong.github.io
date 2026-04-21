@@ -2040,6 +2040,177 @@ aof-use-rdb-preamble yes
   docker save -o backup.tar image_name:tag
   ```
 
+### 33. 怎么查看僵尸态的进程？
+
+**问题分析**：僵尸进程是系统中已经结束但未被父进程回收资源的进程。了解如何识别和处理僵尸进程是SRE工程师的必备技能。
+
+**僵尸进程简介**：
+
+- 僵尸进程是已经终止（EXIT_ZOMBIE状态）但仍在进程表中存在的进程
+- 父进程未调用wait()或waitpid()回收子进程资源
+- 僵尸进程占用进程表条目，过多会导致无法创建新进程
+
+**查看僵尸进程的方法**：
+
+- **使用ps命令**：
+  ```bash
+  # 查看所有进程，包括僵尸进程
+  ps aux | grep Z
+  
+  # 查看状态为Z的进程（僵尸进程）
+  ps -eo pid,ppid,state,cmd | grep ^[[:space:]]*[0-9]*[[:space:]]*[0-9]*[[:space:]]*Z
+  
+  # 查看僵尸进程的详细信息
+  ps -eo pid,ppid,stat,comm,etime --sort=-stat | grep Z
+  ```
+
+- **使用top命令**：
+  ```bash
+  # top默认会显示僵尸进程数量
+  top
+  # 在top界面按shift+z可以看到高亮显示的僵尸进程
+  ```
+
+- **使用proc文件系统**：
+  ```bash
+  # 查找所有僵尸进程的父进程
+  for i in /proc/[0-9]*/stat; do 
+    if grep -q ' Z ' "$i"; then 
+      echo "$(dirname $i): $(cat $i)" 
+    fi 
+  done
+  
+  # 查看进程状态
+  cat /proc/<pid>/stat | awk '{print $3}'
+  ```
+
+- **使用pstree命令**：
+  ```bash
+  # 以树状结构显示进程，包括僵尸进程
+  pstree -ap | grep -E 'Z|defunct'
+  ```
+
+**识别僵尸进程的特征**：
+
+- 进程状态显示为Z
+- 进程名显示为<defunct>
+- 没有命令行显示
+- 父进程ID（PPID）为1或某个仍在运行的进程
+
+**僵尸进程的危害**：
+
+- 占用进程表条目（每个僵尸进程占用约1KB内存）
+- 进程表满时无法创建新进程
+- 导致系统无法分配新的PID
+- 影响系统稳定性和性能
+
+**处理僵尸进程的方法**：
+
+- **方法1：重启父进程**：
+  ```bash
+  # 找到僵尸进程的父进程
+  ps -eo pid,ppid,stat,cmd | grep Z
+  
+  # 重启父进程（谨慎操作）
+  kill -9 <父进程PID>
+  systemctl restart <服务名>
+  ```
+
+- **方法2：杀死父进程**：
+  ```bash
+  # 找到父进程
+  ps -eo pid,ppid,stat,cmd | grep Z
+  
+  # 向父进程发送SIGCHLD信号，迫使其回收子进程
+  kill -SIGCHLD <父进程PID>
+  
+  # 如果无效，杀死父进程
+  kill -9 <父进程PID>
+  ```
+
+- **方法3：重启系统**（最后手段）：
+  ```bash
+  # 备份重要数据
+  sync
+  
+  # 重启系统
+  reboot
+  ```
+
+**预防僵尸进程的措施**：
+
+- **正确处理子进程**：
+  ```c
+  // C语言中正确回收子进程
+  signal(SIGCHLD, SIG_IGN);  // 让内核回收
+  // 或
+  pid = wait(NULL);  // 阻塞等待
+  // 或
+  waitpid(pid, NULL, WNOHANG);  // 非阻塞等待
+  ```
+
+- **使用 supervisord 管理进程**：
+  ```bash
+  # supervisord.conf配置
+  [program:myapp]
+  stopsignal=TERM
+  ```
+
+- **使用 systemd 管理服务**：
+  ```bash
+  # 服务配置中添加
+  KillMode=process
+  ```
+
+**常见场景与解决方案**：
+
+- **场景1：nginx/php-fpm产生僵尸进程**：
+  ```bash
+  # 重启nginx
+  systemctl restart nginx
+  
+  # 重启php-fpm
+  systemctl restart php-fpm
+  ```
+
+- **场景2：Java应用产生僵尸进程**：
+  ```bash
+  # JVM参数添加 -XX:+ExitOnOutOfMemoryError
+  # 检查Java代码中的ProcessBuilder管理
+  ```
+
+- **场景3：Docker容器内产生僵尸进程**：
+  ```bash
+  # 进入容器查看
+  docker exec -it <container_id> ps aux | grep Z
+  
+  # 重启容器
+  docker restart <container_id>
+  ```
+
+**监控僵尸进程的脚本**：
+
+```bash
+#!/bin/bash
+# 检查僵尸进程数量
+ZOMBIE_COUNT=$(ps aux | grep -c ' Z ')
+
+if [ "$ZOMBIE_COUNT" -gt 10 ]; then
+    echo "Warning: $ZOMBIE_COUNT zombie processes found"
+    ps aux | grep -E ' Z |defunct' | head -20
+    # 发送告警
+    # curl -X POST "http://alert.example.com/webhook" -d "msg=Too many zombie processes"
+fi
+```
+
+**注意事项**：
+
+- 僵尸进程无法直接被kill命令杀死
+- 杀死父进程是解决僵尸进程的最直接方法
+- 生产环境中要先评估影响，再做操作
+- 定期检查系统进程表使用情况
+- 从应用层面正确处理子进程生命周期
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
