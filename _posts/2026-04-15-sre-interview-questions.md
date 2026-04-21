@@ -2576,6 +2576,137 @@ Section: net
   rpm -qa                 # 列出已安装包
   ```
 
+### 36. 怎么查看一个容器的ip地址？
+
+**问题分析**：在容器化环境中，了解如何查看容器的IP地址是SRE工程师进行网络配置和故障排查的基础技能。
+
+**查看容器IP地址的方法**：
+
+- **使用docker inspect命令**：
+  ```bash
+  # 方法1：使用格式化输出（推荐）
+  docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+  
+  # 方法2：直接查看完整信息
+  docker inspect nginx01
+  
+  # 方法3：查看所有网络信息
+  docker inspect --format='{{json .NetworkSettings.Networks}}' nginx01 | python -m json.tool
+  ```
+
+- **使用docker exec进入容器查看**：
+  ```bash
+  # 进入容器内部
+  docker exec -it nginx01 bash
+  
+  # 查看IP地址
+  ifconfig
+  ip addr
+  hostname -I
+  ```
+
+- **使用docker network inspect**：
+  ```bash
+  # 查看网络信息
+  docker network inspect bridge
+  
+  # 查找特定容器的IP
+  docker network inspect bridge | grep -A 5 -B 5 nginx01
+  ```
+
+- **使用docker ps和grep**：
+  ```bash
+  # 查看容器ID
+  docker ps | grep nginx01
+  
+  # 根据ID查看IP
+  docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' <容器ID>
+  ```
+
+**不同网络模式的IP查看**：
+
+- **bridge网络**（默认）：
+  ```bash
+  docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+  ```
+
+- **host网络**：
+  ```bash
+  # 容器使用主机网络，IP与主机相同
+  docker inspect -f '{{.NetworkSettings.Networks.host.IPAddress}}' nginx01
+  ```
+
+- **自定义网络**：
+  ```bash
+  # 查看自定义网络的IP
+  docker inspect -f '{{.NetworkSettings.Networks.my-network.IPAddress}}' nginx01
+  ```
+
+**完整操作示例**：
+
+```bash
+# 1. 运行一个容器
+$ docker run -d --name nginx01 nginx
+
+# 2. 查看容器IP（方法1）
+$ docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+172.17.0.2
+
+# 3. 查看容器IP（方法2）
+$ docker exec -it nginx01 ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+21: eth0@if22: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+# 4. 查看网络信息
+$ docker network inspect bridge | grep -A 10 -B 2 172.17.0.2
+        {
+            "Name": "nginx01",
+            "EndpointID": "...",
+            "MacAddress": "02:42:ac:11:00:02",
+            "IPv4Address": "172.17.0.2/16",
+            "IPv6Address": ""
+        }
+```
+
+**注意事项**：
+
+- 容器必须处于运行状态才能查看IP地址
+- 不同网络模式的IP查看命令不同
+- 自定义网络需要指定网络名称
+- 主机网络模式下容器没有独立IP
+
+**常见问题排查**：
+
+- **容器没有IP地址**：检查容器是否运行，网络配置是否正确
+- **IP地址冲突**：检查网络是否有IP冲突，重启Docker网络
+- **无法访问容器IP**：检查防火墙规则，网络策略
+- **跨主机容器通信**：需要配置Overlay网络或使用第三方网络插件
+
+**其他有用的Docker网络命令**：
+
+```bash
+# 查看所有网络
+docker network ls
+
+# 创建自定义网络
+docker network create my-network
+
+# 将容器加入网络
+docker network connect my-network nginx01
+
+# 查看容器网络信息
+docker inspect --format='{{.NetworkSettings}}' nginx01
+
+# 测试网络连通性
+docker exec -it nginx01 ping 172.17.0.1
+```
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
