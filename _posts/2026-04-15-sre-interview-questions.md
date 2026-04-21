@@ -5833,6 +5833,7 @@ http {
   ulimit -n 65535
   ```
 - **永久设置**：
+
   ```bash
   # /etc/security/limits.conf
   * soft nofile 65535
