@@ -5027,6 +5027,317 @@ CMD ["node", "index.js"]
 - 定期审查Dockerfile，发现潜在的优化点
 - 记录优化过程和效果，方便后续维护
 
+### 48. nginx做了哪些优化？
+
+**问题分析**：Nginx作为高性能的Web服务器和反向代理服务器，其优化对于提高网站性能、处理高并发请求至关重要。了解Nginx的优化方法，包括配置优化、系统优化、网络优化等，是SRE工程师必备的技能。
+
+**Nginx优化方法**：
+
+**配置优化**：
+
+**worker_processes配置**：
+- **作用**：设置Nginx工作进程的数量
+- **配置**：
+  ```nginx
+  # 自动设置工作进程数量（推荐）
+  worker_processes auto;
+  
+  # 手动设置工作进程数量
+  worker_processes 4;
+  ```
+- **说明**：通常设置为CPU核心数，auto会自动检测CPU核心数
+
+**worker_connections配置**：
+- **作用**：设置每个工作进程的最大连接数
+- **配置**：
+  ```nginx
+  # 设置每个工作进程的最大连接数
+  worker_connections 65536;
+  
+  # 或根据实际情况调整
+  worker_connections 10240;
+  ```
+- **说明**：最大连接数 = worker_processes * worker_connections
+
+**events配置**：
+- **配置**：
+  ```nginx
+  events {
+      use epoll;
+      worker_connections 65536;
+      multi_accept on;
+  }
+  ```
+- **说明**：use epoll指定使用epoll事件模型，multi_accept on允许同时接受多个连接
+
+**http配置**：
+- **配置**：
+  ```nginx
+  http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+      
+      # 开启高效传输
+      sendfile on;
+      tcp_nopush on;
+      tcp_nodelay on;
+      
+      # 保持连接
+      keepalive_timeout 65;
+      keepalive_requests 100;
+      
+      # 包含其他配置文件
+      include /etc/nginx/conf.d/*.conf;
+  }
+  ```
+- **说明**：sendfile on开启高效文件传输，tcp_nopush和tcp_nodelay优化TCP传输
+
+**性能优化**：
+
+**开启gzip压缩**：
+- **配置**：
+  ```nginx
+  gzip on;
+  gzip_vary on;
+  gzip_min_length 1024;
+  gzip_comp_level 6;
+  gzip_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/rss+xml font/truetype font/opentype application/vnd.ms-fontobject image/svg+xml;
+  ```
+- **说明**：压缩文本内容，减少传输数据量，提高加载速度
+
+**缓存配置**：
+- **配置**：
+  ```nginx
+  # 静态文件缓存
+  location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+      expires 30d;
+      add_header Cache-Control "public, immutable";
+  }
+  
+  # 代理缓存
+  proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m max_size=10g inactive=60m;
+  proxy_cache my_cache;
+  proxy_cache_valid 200 60m;
+  proxy_cache_valid 404 1m;
+  ```
+- **说明**：缓存静态文件和代理响应，减少服务器负载
+
+**连接优化**：
+- **配置**：
+  ```nginx
+  # 客户端请求头缓冲区大小
+  client_header_buffer_size 32k;
+  large_client_header_buffers 4 32k;
+  
+  # 客户端请求体大小限制
+  client_max_body_size 50m;
+  
+  # 超时设置
+  client_body_timeout 12;
+  client_header_timeout 12;
+  send_timeout 10;
+  ```
+- **说明**：调整缓冲区和超时设置，适应不同的请求场景
+
+**系统优化**：
+
+**文件描述符限制**：
+- **配置**：
+  ```bash
+  # 临时设置
+  ulimit -n 65536
+  
+  # 永久设置（/etc/security/limits.conf）
+  * soft nofile 65536
+  * hard nofile 65536
+  ```
+- **说明**：增加系统允许打开的文件描述符数量
+
+**内核参数优化**：
+- **配置**：
+  ```bash
+  # /etc/sysctl.conf
+  net.core.somaxconn = 65535
+  net.ipv4.tcp_max_syn_backlog = 65535
+  net.ipv4.tcp_tw_reuse = 1
+  net.ipv4.tcp_fin_timeout = 30
+  net.ipv4.tcp_keepalive_time = 600
+  net.ipv4.ip_local_port_range = 1024 65535
+  net.ipv4.tcp_max_tw_buckets = 5000
+  ```
+- **说明**：优化TCP参数，提高网络性能
+
+**日志优化**：
+
+**日志格式配置**：
+- **配置**：
+  ```nginx
+  log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                  '$status $body_bytes_sent "$http_referer" '
+                  '"$http_user_agent" "$http_x_forwarded_for" '
+                  '$request_time $upstream_response_time';
+  
+  access_log /var/log/nginx/access.log main;
+  ```
+- **说明**：自定义日志格式，包含请求时间、响应时间等重要信息
+
+**日志轮转**：
+- **配置**：
+  ```bash
+  # /etc/logrotate.d/nginx
+  /var/log/nginx/*.log {
+      daily
+      rotate 14
+      compress
+      delaycompress
+      notifempty
+      create 0640 www-data adm
+      sharedscripts
+      postrotate
+          [ -f /var/run/nginx.pid ] && kill -USR1 `cat /var/run/nginx.pid`
+      endscript
+  }
+  ```
+- **说明**：自动轮转和压缩日志文件，避免日志文件过大
+
+**安全优化**：
+
+**隐藏版本号**：
+- **配置**：
+  ```nginx
+  server_tokens off;
+  ```
+- **说明**：隐藏Nginx版本号，提高安全性
+
+**限制请求方法**：
+- **配置**：
+  ```nginx
+  if ($request_method !~ ^(GET|HEAD|POST)$ ) {
+      return 405;
+  }
+  ```
+- **说明**：只允许GET、HEAD、POST请求方法
+
+**限制访问频率**：
+- **配置**：
+  ```nginx
+  limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
+  limit_req zone=one burst=20 nodelay;
+  ```
+- **说明**：限制每个IP的请求频率，防止DDoS攻击
+
+**完整示例**：
+
+**优化后的nginx.conf**：
+```nginx
+user nginx;
+worker_processes auto;
+worker_rlimit_nofile 65535;
+
+events {
+    use epoll;
+    worker_connections 65536;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    
+    # 日志格式
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for" '
+                    '$request_time $upstream_response_time';
+    
+    access_log /var/log/nginx/access.log main;
+    error_log /var/log/nginx/error.log warn;
+    
+    # 高效传输
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    
+    # 保持连接
+    keepalive_timeout 65;
+    keepalive_requests 100;
+    
+    # Gzip压缩
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/rss+xml font/truetype font/opentype application/vnd.ms-fontobject image/svg+xml;
+    
+    # 客户端配置
+    client_header_buffer_size 32k;
+    large_client_header_buffers 4 32k;
+    client_max_body_size 50m;
+    client_body_timeout 12;
+    client_header_timeout 12;
+    send_timeout 10;
+    
+    # 隐藏版本号
+    server_tokens off;
+    
+    # 包含其他配置文件
+    include /etc/nginx/conf.d/*.conf;
+}
+```
+
+**最佳实践**：
+
+**性能优化**：
+- 合理设置worker_processes和worker_connections
+- 开启sendfile、tcp_nopush、tcp_nodelay
+- 开启gzip压缩
+- 配置缓存策略
+
+**系统优化**：
+- 增加文件描述符限制
+- 优化内核参数
+- 调整TCP参数
+
+**安全优化**：
+- 隐藏版本号
+- 限制请求方法
+- 限制访问频率
+- 定期更新Nginx版本
+
+**监控优化**：
+- 配置详细的日志格式
+- 实施日志轮转
+- 监控Nginx性能指标
+
+**常见问题与解决方案**：
+
+**问题1：Nginx无法处理大量并发连接**
+- 解决方案：增加worker_connections和文件描述符限制
+- 优化内核参数，提高TCP连接处理能力
+
+**问题2：Nginx响应速度慢**
+- 解决方案：开启gzip压缩
+- 配置缓存策略
+- 优化sendfile和TCP参数
+
+**问题3：Nginx日志文件过大**
+- 解决方案：配置日志轮转
+- 压缩历史日志文件
+- 调整日志级别
+
+**问题4：Nginx遭受DDoS攻击**
+- 解决方案：配置访问频率限制
+- 使用防火墙规则
+- 使用CDN和负载均衡
+
+**注意事项**：
+
+- Nginx优化需要根据实际业务场景调整，不要盲目照搬配置
+- 优化前应进行性能测试，记录优化前后的性能指标
+- 定期监控Nginx的性能指标，及时发现和解决问题
+- 优化后应进行充分测试，确保功能正常
+- 保持Nginx版本更新，获取最新的安全补丁和性能改进
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
