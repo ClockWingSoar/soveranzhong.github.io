@@ -3603,6 +3603,208 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - 敏感信息（如密码）不应直接存储在容器配置中，应使用密钥管理工具
 - 生产环境中的容器应建立完善的配置管理机制
 
+### 42. 如何进入一个容器执行命令？
+
+**问题分析**：在Docker容器的日常管理中，经常需要进入容器内部执行命令，如查看日志、修改配置、调试问题等。了解不同的进入容器方法及其特点，是SRE工程师必备的Docker操作技能。
+
+**进入容器的方法**：
+
+**方法1：使用docker attach**：
+- **作用**：附加到正在运行的容器的主进程
+- **命令**：
+  ```bash
+  # 进入容器
+  docker attach <容器ID或名称>
+  
+  # 示例
+  docker attach nginx01
+  ```
+- **特点**：
+  - 多个用户可以同时附加到同一个容器
+  - 所有用户共享同一个终端会话，命令输入和输出会同步
+  - 当其中一个用户执行`exit`命令时，所有用户的终端都会退出
+  - 只适用于正在运行的容器
+- **适用场景**：
+  - 查看容器主进程的输出
+  - 监控容器的实时日志
+  - 调试需要与主进程交互的场景
+
+**方法2：使用docker exec**：
+- **作用**：在运行的容器中执行新的命令
+- **命令**：
+  ```bash
+  # 进入容器并打开交互式终端
+  docker exec -it <容器ID或名称> /bin/bash
+  
+  # 或使用其他shell
+  docker exec -it <容器ID或名称> /bin/sh
+  
+  # 示例
+  docker exec -it nginx01 /bin/bash
+  ```
+- **特点**：
+  - 每个用户拥有独立的终端会话
+  - 不同用户之间的操作互不影响
+  - 执行`exit`命令只会退出当前用户的会话，不会影响容器运行
+  - 可以在容器中执行任何命令
+- **适用场景**：
+  - 在容器中执行管理命令
+  - 查看容器内部文件和配置
+  - 调试容器中的应用
+  - 在容器中安装和配置软件
+
+**方法3：使用nsenter**：
+- **作用**：进入容器的命名空间执行命令
+- **安装**：
+  ```bash
+  # 在Ubuntu/Debian上
+  apt-get install util-linux
+  
+  # 在CentOS/RHEL上
+  yum install util-linux
+  ```
+- **使用**：
+  ```bash
+  # 获取容器的PID
+  PID=$(docker inspect --format '{{.State.Pid}}' <容器ID或名称>)
+  
+  # 进入容器的命名空间
+  nsenter --target $PID --mount --uts --ipc --net --pid
+  ```
+- **特点**：
+  - 直接进入容器的命名空间
+  - 提供更底层的访问方式
+  - 可以访问容器的所有命名空间
+- **适用场景**：
+  - 高级调试和故障排查
+  - 需要访问容器的底层命名空间
+  - 容器无法正常启动时的诊断
+
+**方法4：使用docker run**：
+- **作用**：创建并进入新的容器
+- **命令**：
+  ```bash
+  # 创建并进入新容器
+  docker run -it --name <新容器名称> <镜像名称> /bin/bash
+  
+  # 示例
+  docker run -it --name test-container ubuntu:latest /bin/bash
+  ```
+- **特点**：
+  - 创建新的容器而非进入现有容器
+  - 可以指定镜像和启动命令
+  - 适合临时测试和实验
+- **适用场景**：
+  - 测试新镜像
+  - 临时环境搭建
+  - 学习和实验
+
+**docker attach与docker exec的区别**：
+
+**docker attach**：
+- 附加到容器的主进程
+- 共享同一个终端会话
+- 退出会影响所有用户
+- 主要用于查看输出和监控
+
+**docker exec**：
+- 在容器中执行新命令
+- 每个用户拥有独立会话
+- 退出不影响其他用户
+- 主要用于管理和调试
+
+**进入容器的最佳实践**：
+
+**选择合适的方法**：
+- 查看容器输出使用`docker attach`
+- 执行管理命令使用`docker exec`
+- 高级调试使用`nsenter`
+- 临时测试使用`docker run`
+
+**安全考虑**：
+- 避免在生产环境中直接进入容器修改配置
+- 使用`--read-only`模式限制容器的写权限
+- 定期审计容器的访问日志
+- 避免在容器中执行高权限操作
+
+**性能考虑**：
+- 避免同时使用多个`docker attach`连接到同一个容器
+- 执行完命令后及时退出容器，避免占用资源
+- 对于长时间运行的命令，考虑使用后台执行
+
+**完整示例**：
+
+**示例1：使用docker attach**：
+```bash
+# 1. 启动一个容器
+$ docker run -d --name web-server nginx
+
+# 2. 查看容器ID
+$ docker ps | grep web-server
+abc123def456   nginx   "nginx -g 'daemon of..."   2 minutes ago   Up 2 minutes   80/tcp   web-server
+
+# 3. 附加到容器
+$ docker attach web-server
+# 此时可以看到nginx的启动日志
+
+# 4. 退出容器（会导致容器停止）
+^C # 按Ctrl+C
+```
+
+**示例2：使用docker exec**：
+```bash
+# 1. 启动一个容器
+$ docker run -d --name web-server nginx
+
+# 2. 进入容器执行命令
+$ docker exec -it web-server /bin/bash
+root@web-server:/# ls -la
+root@web-server:/# cat /etc/nginx/nginx.conf
+root@web-server:/# exit
+
+# 3. 在容器中执行单条命令
+$ docker exec web-server ls -la /etc/nginx
+```
+
+**示例3：使用nsenter**：
+```bash
+# 1. 启动一个容器
+$ docker run -d --name web-server nginx
+
+# 2. 获取容器PID
+$ PID=$(docker inspect --format '{{.State.Pid}}' web-server)
+
+# 3. 进入容器命名空间
+$ nsenter --target $PID --mount --uts --ipc --net --pid
+# 现在你已经进入了容器的命名空间
+```
+
+**常见问题与解决方案**：
+
+**问题1：无法进入容器**
+- 解决方案：确保容器处于运行状态，检查容器ID或名称是否正确
+- 预防措施：使用`docker ps`确认容器状态
+
+**问题2：进入容器后无法执行命令**
+- 解决方案：检查容器中是否安装了相应的shell（如bash、sh）
+- 备选方案：尝试使用不同的shell或直接执行命令
+
+**问题3：docker attach后无法退出**
+- 解决方案：按`Ctrl+P`然后按`Ctrl+Q`可以在不停止容器的情况下退出
+- 注意：直接按`Ctrl+C`会停止容器的主进程
+
+**问题4：容器中没有bash**
+- 解决方案：尝试使用`/bin/sh`或其他可用的shell
+- 示例：`docker exec -it <容器ID> /bin/sh`
+
+**注意事项**：
+
+- `docker attach`会附加到容器的主进程，退出时可能会停止容器
+- `docker exec`是进入容器执行命令的推荐方法，不会影响容器的运行
+- 生产环境中应限制容器的访问权限，避免随意进入容器
+- 进入容器执行操作后，应及时退出，避免占用系统资源
+- 对于需要频繁进入容器执行的操作，考虑使用自动化脚本
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
