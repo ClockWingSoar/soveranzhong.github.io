@@ -1932,10 +1932,10 @@ aof-use-rdb-preamble yes
 
   ```bash
   # 方法1：使用命令替换
-  docker save -o backup.tar $(docker images --format "\{{.Repository}}:{{.Tag}}" | grep -v "<none>")
+  docker save -o backup.tar $(docker images --format "{{ {{ }}.Repository}}:{{ {{ }}.Tag}}" | grep -v "<none>")
   
   # 方法2：使用awk获取镜像列表（跳过标题行）
-  docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | awk 'NR>1{print $1}' | xargs docker save -o backup.tar
+  docker images --format "{{ {{ }}.Repository}}:{{ {{ }}.Tag}}" | grep -v "<none>" | awk 'NR>1{print $1}' | xargs docker save -o backup.tar
   
   # 方法3：导出所有镜像
   docker save -o all-images.tar $(docker images -q)
@@ -1948,7 +1948,7 @@ aof-use-rdb-preamble yes
   docker save $(docker images -q) -o /tmp/all-images.tar
   
   # 或者分页导出避免参数过长
-  docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" > /tmp/images.txt
+  docker images --format "{{ {{ }}.Repository}}:{{ {{ }}.Tag}}" | grep -v "<none>" > /tmp/images.txt
   while read img; do docker save -o /tmp/images.tar "$img"; done < /tmp/images.txt
   ```
 
@@ -1972,7 +1972,7 @@ aof-use-rdb-preamble yes
 
    ```bash
    # 导出所有镜像
-   docker save -o images.tar $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>")
+   docker save -o images.tar $(docker images --format "{{ {{ }}.Repository}}:{{ {{ }}.Tag}}" | grep -v "<none>")
    
    # 压缩节省传输时间（可选）
    gzip -c images.tar > images.tar.gz
@@ -2592,13 +2592,13 @@ Section: net
 - **使用docker inspect命令**：
   ```bash
   # 方法1：使用格式化输出（推荐）
-  docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+  docker inspect -f '{{ {{ }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
   
   # 方法2：直接查看完整信息
   docker inspect nginx01
   
   # 方法3：查看所有网络信息
-  docker inspect --format='{{json .NetworkSettings.Networks}}' nginx01 | python -m json.tool
+  docker inspect --format='{{ {{ }}json .NetworkSettings.Networks}}' nginx01 | python -m json.tool
   ```
 
 - **使用docker exec进入容器查看**：
@@ -2627,26 +2627,26 @@ Section: net
   docker ps | grep nginx01
   
   # 根据ID查看IP
-  docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' <容器ID>
+  docker inspect -f '{{ {{ }}.NetworkSettings.Networks.bridge.IPAddress}}' <容器ID>
   ```
 
 **不同网络模式的IP查看**：
 
 - **bridge网络**（默认）：
   ```bash
-  docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+  docker inspect -f '{{ {{ }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
   ```
 
 - **host网络**：
   ```bash
   # 容器使用主机网络，IP与主机相同
-  docker inspect -f '{{.NetworkSettings.Networks.host.IPAddress}}' nginx01
+  docker inspect -f '{{ {{ }}.NetworkSettings.Networks.host.IPAddress}}' nginx01
   ```
 
 - **自定义网络**：
   ```bash
   # 查看自定义网络的IP
-  docker inspect -f '{{.NetworkSettings.Networks.my-network.IPAddress}}' nginx01
+  docker inspect -f '{{ {{ }}.NetworkSettings.Networks.my-network.IPAddress}}' nginx01
   ```
 
 **完整操作示例**：
@@ -2656,7 +2656,7 @@ Section: net
 $ docker run -d --name nginx01 nginx
 
 # 2. 查看容器IP（方法1）
-$ docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+$ docker inspect -f '{{ {{ }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
 172.17.0.2
 
 # 3. 查看容器IP（方法2）
@@ -2708,7 +2708,7 @@ docker network create my-network
 docker network connect my-network nginx01
 
 # 查看容器网络信息
-docker inspect --format='{{.NetworkSettings}}' nginx01
+docker inspect --format='{{ {{ }}.NetworkSettings}}' nginx01
 
 # 测试网络连通性
 docker exec -it nginx01 ping 172.17.0.1
@@ -2750,10 +2750,10 @@ docker exec -it nginx01 ping 172.17.0.1
   docker inspect nginx01
   
   # 查看容器的启动命令
-  docker inspect --format='{{.Config.Cmd}}' nginx01
+  docker inspect --format='{{ {{ }}.Config.Cmd}}' nginx01
   
   # 查看容器的环境变量
-  docker inspect --format='{{.Config.Env}}' nginx01
+  docker inspect --format='{{ {{ }}.Config.Env}}' nginx01
   ```
 
 **检查端口映射**：
@@ -2767,7 +2767,7 @@ docker exec -it nginx01 ping 172.17.0.1
 - 检查容器的网络配置
   ```bash
   # 查看容器的网络信息
-  docker inspect --format='{{.NetworkSettings}}' nginx01
+  docker inspect --format='{{ {{ }}.NetworkSettings}}' nginx01
   
   # 测试网络连通性
   docker run --rm busybox ping -c 2 nginx01
@@ -2777,7 +2777,7 @@ docker exec -it nginx01 ping 172.17.0.1
 - 检查容器的资源限制是否合理
   ```bash
   # 查看容器的资源限制
-  docker inspect --format='{{.HostConfig}}' nginx01
+  docker inspect --format='{{ {{ }}.HostConfig}}' nginx01
   ```
 
 **检查镜像问题**：
@@ -3006,7 +3006,7 @@ $ docker run -d \
   nginx
 
 # 查看容器的PID命名空间
-$ docker inspect --format '{{.State.Pid}}' isolated-container
+$ docker inspect --format '{{ {{ }}.State.Pid}}' isolated-container
 12345
 
 # 进入容器查看进程
@@ -3016,7 +3016,7 @@ root         1  0.0  0.0  78000  6720 ?        Ss   08:00   0:00 nginx: master p
 nginx        2  0.0  0.0  78440  9800 ?        S    08:00   0:00 nginx: worker process
 
 # 查看容器的网络配置
-$ docker inspect --format '{{.NetworkSettings.Networks.bridge.IPAddress}}' isolated-container
+$ docker inspect --format '{{ {{ }}.NetworkSettings.Networks.bridge.IPAddress}}' isolated-container
 172.17.0.2
 ```
 
@@ -3428,19 +3428,19 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
   docker inspect <容器ID或名称>
   
   # 查看容器的启动命令
-  docker inspect --format='{{.Config.Cmd}}' <容器ID或名称>
+  docker inspect --format='{{ {{ }}.Config.Cmd}}' <容器ID或名称>
   
   # 查看容器的工作目录
-  docker inspect --format='{{.Config.WorkingDir}}' <容器ID或名称>
+  docker inspect --format='{{ {{ }}.Config.WorkingDir}}' <容器ID或名称>
   
   # 查看容器的环境变量
-  docker inspect --format='{{.Config.Env}}' <容器ID或名称>
+  docker inspect --format='{{ {{ }}.Config.Env}}' <容器ID或名称>
   
   # 查看容器的端口映射
-  docker inspect --format='{{.NetworkSettings.Ports}}' <容器ID或名称>
+  docker inspect --format='{{ {{ }}.NetworkSettings.Ports}}' <容器ID或名称>
   
   # 查看容器的挂载卷
-  docker inspect --format='{{.Mounts}}' <容器ID或名称>
+  docker inspect --format='{{ {{ }}.Mounts}}' <容器ID或名称>
   ```
 
 **方法2：使用runlike工具**：
@@ -3521,7 +3521,7 @@ done
 **示例1：使用docker inspect**：
 ```bash
 # 1. 查找容器的启动命令
-$ docker inspect --format='{{.Config.Cmd}}' mysql01
+$ docker inspect --format='{{ {{ }}.Config.Cmd}}' mysql01
 [mysqld]
 
 # 2. 查看完整配置
@@ -3676,7 +3676,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **使用**：
   ```bash
   # 获取容器的PID
-  PID=$(docker inspect --format '{{.State.Pid}}' <容器ID或名称>)
+  PID=$(docker inspect --format '{{ {{ }}.State.Pid}}' <容器ID或名称>)
   
   # 进入容器的命名空间
   nsenter --target $PID --mount --uts --ipc --net --pid
@@ -3782,7 +3782,7 @@ $ docker exec web-server ls -la /etc/nginx
 $ docker run -d --name web-server nginx
 
 # 2. 获取容器PID
-$ PID=$(docker inspect --format '{{.State.Pid}}' web-server)
+$ PID=$(docker inspect --format '{{ {{ }}.State.Pid}}' web-server)
 
 # 3. 进入容器命名空间
 $ nsenter --target $PID --mount --uts --ipc --net --pid
