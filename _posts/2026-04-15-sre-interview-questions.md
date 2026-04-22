@@ -1921,6 +1921,7 @@ aof-use-rdb-preamble yes
 **Docker镜像导出方法**：
 
 - **导出单个镜像**：
+
   ```bash
   docker save -o backup.tar image_name:tag
   # 示例
@@ -1928,9 +1929,10 @@ aof-use-rdb-preamble yes
   ```
 
 - **导出多个镜像**：
+
   ```bash
   # 方法1：使用命令替换
-  docker save -o backup.tar $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>")
+  docker save -o backup.tar $(docker images --format "\{{.Repository}}:{{.Tag}}" | grep -v "<none>")
   
   # 方法2：使用awk获取镜像列表（跳过标题行）
   docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" | awk 'NR>1{print $1}' | xargs docker save -o backup.tar
@@ -1940,8 +1942,9 @@ aof-use-rdb-preamble yes
   ```
 
 - **导出所有镜像（推荐）**：
+
   ```bash
-  # 导出所有镜像为tar文件
+  #导出所有镜像为tar文件
   docker save $(docker images -q) -o /tmp/all-images.tar
   
   # 或者分页导出避免参数过长
@@ -1966,6 +1969,7 @@ aof-use-rdb-preamble yes
 **完整迁移流程**：
 
 1. 在源服务器导出镜像：
+
    ```bash
    # 导出所有镜像
    docker save -o images.tar $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>")
@@ -1975,6 +1979,7 @@ aof-use-rdb-preamble yes
    ```
 
 2. 传输镜像文件到目标服务器：
+
    ```bash
    # 使用scp传输
    scp images.tar.gz user@target-server:/tmp/
