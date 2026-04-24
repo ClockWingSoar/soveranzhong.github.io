@@ -8527,6 +8527,243 @@ spec:
 - 定期监控Pod的重启次数和原因，及时发现潜在问题
 - 优雅终止配置对于有连接状态的应用尤为重要
 
+### 68. pod的镜像拉取策略有哪些？
+
+**问题分析**：Pod的镜像拉取策略（imagePullPolicy）是Kubernetes控制容器镜像行为的重要配置项，决定了 kubelet 在启动容器时如何获取镜像。理解不同的镜像拉取策略对于优化镜像下载速度、节省网络带宽、确保使用正确版本的镜像至关重要。
+
+**Pod的三种镜像拉取策略**：
+
+**Always**
+- **核心特点**：每次启动容器前都会从镜像仓库拉取镜像
+- **工作原理**：无论本地是否已存在该镜像，都会重新下载最新版本
+- **适用场景**：需要始终使用最新版本的镜像、镜像标签为 `latest` 或不稳定版本
+- **典型用途**：开发环境、快速迭代的业务应用
+- **配置示例**：
+  ```yaml
+  spec:
+    containers:
+    - name: my-container
+      image: my-image:latest
+      imagePullPolicy: Always
+  ```
+
+**IfNotPresent**
+- **核心特点**：仅在本地不存在该镜像时才拉取
+- **工作原理**：优先使用本地缓存的镜像，本地不存在时才从镜像仓库下载
+- **适用场景**：生产环境、需要使用稳定版本的镜像
+- **典型用途**：有版本控制的生产应用、离线环境部署
+- **配置示例**：
+  ```yaml
+  spec:
+    containers:
+    - name: my-container
+      image: my-image:v1.2.3
+      imagePullPolicy: IfNotPresent
+  ```
+
+**Never**
+- **核心特点**：完全不会从镜像仓库拉取镜像，只使用本地镜像
+- **工作原理**：仅使用本地存在的镜像，如果本地不存在则启动失败
+- **适用场景**：已预先加载镜像到节点、使用本地镜像仓库
+- **典型用途**：离线环境、私有镜像中心、特殊安全要求的环境
+- **配置示例**：
+  ```yaml
+  spec:
+    containers:
+    - name: my-container
+      image: my-image:v1.2.3
+      imagePullPolicy: Never
+  ```
+
+**镜像拉取策略与镜像标签的关系**：
+
+**默认拉取策略规则**
+- 镜像标签为 `latest` 时，默认拉取策略为 `Always`
+- 镜像标签为非 `latest` 或具体版本号时，默认拉取策略为 `IfNotPresent`
+- 显式指定 `imagePullPolicy` 会覆盖默认行为
+
+**最佳实践建议**
+- 生产环境应避免使用 `latest` 标签，使用具体版本号
+- 使用 `latest` 标签时应显式设置 `imagePullPolicy: Always`
+- 稳定版本应设置 `imagePullPolicy: IfNotPresent` 以节省拉取时间
+
+**镜像拉取策略对节点的影响**：
+
+**节点镜像缓存**
+- kubelet 会缓存已拉取的镜像信息到节点本地
+- 镜像层（layers）会存储在节点的存储系统中
+- 不同 Pod 使用相同镜像时不会重复拉取
+
+**磁盘空间管理**
+- 频繁使用 `Always` 策略可能导致磁盘空间被镜像占用
+- 定期清理未使用的镜像可以释放磁盘空间
+- 使用 `docker image prune` 或 `crictl rmi` 清理本地镜像
+
+**网络带宽消耗**
+- `Always` 策略每次都会消耗网络带宽下载镜像
+- `IfNotPresent` 和 `Never` 策略在镜像存在时节省带宽
+- 离线环境应使用 `Never` 策略或预先拉取镜像
+
+**镜像拉取失败的原因与解决方案**：
+
+**ImagePullBackOff**
+- **原因**：镜像拉取失败后进入回退状态，kubelet 指数退避重试
+- **常见原因**：
+  - 镜像名称错误或镜像不存在
+  - 私有仓库认证失败
+  - 网络连接问题
+  - 镜像仓库服务不可用
+- **解决方案**：检查镜像名称、验证认证信息、确认网络连接
+
+**RegistryUnavailable**
+- **原因**：镜像仓库服务不可用
+- **解决方案**：检查镜像仓库状态、等待服务恢复、使用备用镜像
+
+**ImagePullBackOff InvalidImageName**
+- **原因**：镜像名称格式不正确
+- **解决方案**：检查镜像名称语法，确保符合规范
+
+**私有镜像仓库的认证配置**：
+
+**Docker Config Secret**
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-registry-secret
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: <base64编码的docker config.json>
+```
+
+**ServiceAccount 关联**
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-service-account
+secrets:
+- name: my-registry-secret
+```
+
+**Pod 使用私有镜像**
+```yaml
+spec:
+  serviceAccountName: my-service-account
+  containers:
+  - name: my-container
+    image: private-registry.com/my-image:v1.0
+    imagePullPolicy: IfNotPresent
+```
+
+**镜像拉取策略的最佳实践**：
+
+**1. 生产环境配置**
+- 使用具体版本标签而非 `latest`
+- 设置 `imagePullPolicy: IfNotPresent`
+- 预先拉取生产镜像到节点
+- 配置私有镜像仓库认证
+
+**2. 开发环境配置**
+- 使用 `latest` 标签或频繁更新的版本
+- 设置 `imagePullPolicy: Always`
+- 配置镜像构建钩子自动推送新版本
+- 使用标签区分开发、测试、生产环境
+
+**3. 离线环境配置**
+- 预先将镜像打包到节点或加载到本地镜像仓库
+- 设置 `imagePullPolicy: Never` 或 `IfNotPresent`
+- 定期更新本地镜像仓库中的镜像
+- 确保所有依赖镜像都已预先加载
+
+**4. 安全考虑**
+- 使用私有镜像仓库存储敏感应用的镜像
+- 定期扫描镜像漏洞
+- 使用签名镜像确保镜像完整性
+- 避免使用不受信任的公共镜像
+
+**镜像拉取策略配置示例**：
+
+**生产环境配置示例**
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: production-app
+    image: my-registry.com/app:v1.2.3
+    imagePullPolicy: IfNotPresent
+  imagePullSecrets:
+  - name: my-registry-secret
+```
+
+**开发环境配置示例**
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: development-app
+    image: my-registry.com/app:latest
+    imagePullPolicy: Always
+```
+
+**离线环境配置示例**
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: offline-app
+    image: local-registry.com/app:v1.0.0
+    imagePullPolicy: Never
+```
+
+**多容器Pod的镜像拉取策略**
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: main-container
+    image: main-app:v1.0
+    imagePullPolicy: IfNotPresent
+  - name: sidecar-container
+    image: sidecar:v1.0
+    imagePullPolicy: IfNotPresent
+```
+
+**镜像拉取策略的常见问题与解决方案**：
+
+**问题1：镜像拉取缓慢**
+- 原因：网络带宽限制、镜像仓库地理位置远、大镜像文件
+- 解决方案：使用就近的镜像仓库、优化镜像大小、使用多级构建减少镜像体积
+
+**问题2：镜像拉取失败 ImagePullBackOff**
+- 原因：认证信息错误、镜像不存在、网络问题
+- 解决方案：检查 imagePullSecrets 配置、验证镜像名称和标签、排查网络连接
+
+**问题3：节点磁盘空间不足**
+- 原因：镜像过多占用磁盘空间、未清理旧版本镜像
+- 解决方案：定期清理未使用的镜像、使用精简基础镜像、配置镜像清理策略
+
+**问题4：使用 latest 标签导致版本不一致**
+- 原因：不同节点拉取时机不同导致使用不同版本的镜像
+- 解决方案：使用具体版本标签、配置镜像拉取策略为 Always 或 IfNotPresent
+
+**问题5：私有镜像无法拉取**
+- 原因：缺少 imagePullSecrets 配置、Secret 配置错误
+- 解决方案：正确配置 imagePullSecrets、检查 Secret 类型和内容、关联到正确的 ServiceAccount
+
+**注意事项**：
+
+- 生产环境应避免使用 `latest` 标签，确保版本一致性
+- 私有镜像仓库必须正确配置 imagePullSecrets
+- 离线环境应预先拉取所有需要的镜像或配置本地镜像仓库
+- 定期清理节点上的旧版本镜像，释放磁盘空间
+- 监控镜像拉取时间和失败率，及时发现和解决问题
+- 镜像拉取策略影响应用的启动速度和资源使用
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
