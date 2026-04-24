@@ -8335,6 +8335,198 @@ readinessProbe:
 - 定期更新Kubernetes版本，获取性能改进和安全补丁
 - 建立优化的评估标准，衡量优化效果
 
+### 67. pod的重启策略有哪些？
+
+**问题分析**：Pod的重启策略（restartPolicy）是Kubernetes容器生命周期管理的重要组成部分，决定了容器终止后如何处理。理解不同重启策略的特点和适用场景，对于SRE工程师配置健壮的应用程序至关重要。
+
+**Pod的三种重启策略**：
+
+**Always**
+- **核心特点**：只要容器退出，kubelet就会自动重启该容器
+- **适用场景**：长期运行的服务，如Web应用、API服务、数据库等
+- **典型用途**：Deployment、DaemonSet、StatefulSet管理的Pod
+- **配置示例**：
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  spec:
+    restartPolicy: Always
+  ```
+
+**OnFailure**
+- **核心特点**：仅当容器异常退出（退出码非0）时才会重启
+- **适用场景**：需要执行一次性任务或批处理作业的容器
+- **典型用途**：Job管理的Pod
+- **配置示例**：
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  spec:
+    restartPolicy: OnFailure
+  ```
+
+**Never**
+- **核心特点**：容器退出后不会自动重启，需要人工介入或外部控制器处理
+- **适用场景**：一次性任务、执行完成后不再需要的作业
+- **典型用途**：独立的Job或需要手动管理的Pod
+- **配置示例**：
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  spec:
+    restartPolicy: Never
+  ```
+
+**重启策略与控制器的配合**：
+
+**Deployment + restartPolicy: Always**
+- Deployment通常用于管理无状态服务
+- 容器会持续运行，退出后自动重启
+- 配合Readiness Probe和Liveness Probe使用
+- 适合长期运行的应用
+
+**Job + restartPolicy: OnFailure 或 Never**
+- Job用于执行一次性任务
+- 任务完成后容器不会自动重启
+- 适用于数据处理、批处理等场景
+- OnFailure会在失败时重试，Never则完全由外部处理
+
+**CronJob + restartPolicy: OnFailure 或 Never**
+- CronJob用于定时任务
+- 每次执行都是一个新的Pod
+- 配合OnFailure可以实现失败重试
+- 适用于定时备份、报表生成等场景
+
+**重启策略与容器状态的关系**：
+
+**容器退出码（exit code）**
+- 退出码为0：表示容器正常退出，不会触发OnFailure重启
+- 退出码非0：表示容器异常退出，会触发OnFailure重启
+- 常见退出码：128+N（N为信号编号），如128+9表示被SIGKILL杀死
+
+**CrashLoopBackOff状态**
+- 当容器反复重启时，Pod会进入CrashLoopBackOff状态
+- kubelet使用指数退避算法延长重启间隔
+- 第1次立即重启，第2次等待10秒，第3次等待20秒，依此类推
+- 最大等待时间通常为5分钟
+
+**重启策略与优雅终止的关系**：
+
+**gracePeriodSeconds（优雅终止宽限期）**
+- 指定容器收到终止信号后等待的秒数
+- 默认值为30秒
+- 容器在此期间可以完成正在处理的请求
+- 超过宽限期后，容器会被强制终止
+
+**preStop钩子**
+- 在容器收到终止信号前执行
+- 用于执行清理操作，如关闭连接、保存状态
+- preStop执行完成后才发送SIGTERM信号
+
+**重启策略的最佳实践**：
+
+**1. 根据应用类型选择合适的重启策略**
+- 长期运行的服务：使用Always
+- 批处理任务：使用OnFailure或Never
+- 定时任务：根据需求选择OnFailure或Never
+
+**2. 配合健康检查使用**
+- 配置Liveness Probe检测应用是否存活
+- 配置Readiness Probe检测应用是否就绪
+- 健康检查失败会影响Pod的可用性
+
+**3. 设置合理的重启延迟**
+- 通过initialDelaySeconds避免应用未就绪时被杀掉
+- 通过periodSeconds调整健康检查频率
+- 通过failureThreshold设置失败阈值
+
+**4. 考虑资源限制和请求**
+- 设置合理的CPU和内存限制
+- 避免因资源不足导致容器被杀掉
+- 使用Guaranteed QoS提高资源保障
+
+**5. 配置优雅终止**
+- 设置合理的gracePeriodSeconds
+- 使用preStop钩子执行清理操作
+- 确保应用能够处理SIGTERM信号
+
+**重启策略的常见问题与解决方案**：
+
+**问题1：容器频繁重启进入CrashLoopBackOff**
+- 原因：应用配置错误、资源不足、健康检查设置不当
+- 解决方案：检查应用日志、调整资源限制、优化健康检查配置
+
+**问题2：Job任务完成后Pod一直处于Running状态**
+- 原因：使用了restartPolicy: Always，而不是OnFailure或Never
+- 解决方案：根据任务类型选择合适的重启策略
+
+**问题3：容器被意外终止**
+- 原因：OOM（内存不足）、资源限制过严、节点问题
+- 解决方案：增加资源限制、使用QoS保障、检查节点状态
+
+**问题4：优雅终止失败**
+- 原因：gracePeriodSeconds设置过短、应用无法处理SIGTERM
+- 解决方案：增加gracePeriodSeconds、优化应用信号处理
+
+**重启策略配置示例**：
+
+**Web服务配置**：
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  restartPolicy: Always
+  containers:
+  - name: web-server
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+      initialDelaySeconds: 15
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    resources:
+      limits:
+        memory: "256Mi"
+        cpu: "250m"
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+```
+
+**批处理任务配置**：
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  restartPolicy: OnFailure
+  containers:
+  - name: batch-task
+    image: batch-processor:latest
+    command: ["/app/process"]
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+```
+
+**注意事项**：
+
+- restartPolicy必须与对应的控制器配合使用
+- Always是Deployment的默认策略，不需要显式设置
+- Job和CronJob不支持Always策略
+- 合理配置健康检查可以避免过早或过晚检测到应用问题
+- 定期监控Pod的重启次数和原因，及时发现潜在问题
+- 优雅终止配置对于有连接状态的应用尤为重要
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
