@@ -2113,7 +2113,7 @@
     ```
 
 3. 在目标服务器导入镜像：
- 
+
     ```bash
        # 解压（如果压缩过）
        gunzip images.tar.gz
@@ -2162,7 +2162,7 @@
       # 推送镜像到私有仓库
       docker tag image_name:tag registry.example.com/image_name:tag
       docker push registry.example.com/image_name:tag
-
+  
       # 在目标服务器拉取
       docker pull registry.example.com/image_name:tag
     ```
@@ -2192,10 +2192,10 @@
     ```bash
       # 查看所有进程，包括僵尸进程
       ps aux | grep Z
-
+  
       # 查看状态为Z的进程（僵尸进程）
       ps -eo pid,ppid,state,cmd | grep ^[[:space:]]*[0-9]*[[:space:]]*[0-9]*[[:space:]]*Z
-
+  
       # 查看僵尸进程的详细信息
       ps -eo pid,ppid,stat,comm,etime --sort=-stat | grep Z
     ```
@@ -2218,7 +2218,7 @@
           echo "$(dirname $i): $(cat $i)" 
         fi 
       done
-
+  
       # 查看进程状态
       cat /proc/<pid>/stat | awk '{print $3}'
     ```
@@ -2251,7 +2251,7 @@
     ```bash
       # 找到僵尸进程的父进程
       ps -eo pid,ppid,stat,cmd | grep Z
-
+  
       # 重启父进程（谨慎操作）
       kill -9 <父进程PID>
       systemctl restart <服务名>
@@ -2262,10 +2262,10 @@
     ```bash
       # 找到父进程
       ps -eo pid,ppid,stat,cmd | grep Z
-
+  
       # 向父进程发送SIGCHLD信号，迫使其回收子进程
       kill -SIGCHLD <父进程PID>
-
+  
       # 如果无效，杀死父进程
       kill -9 <父进程PID>
     ```
@@ -2275,7 +2275,7 @@
     ```bash
       # 备份重要数据
       sync
-
+    
       # 重启系统
       reboot
     ```
@@ -2318,7 +2318,7 @@
     ```bash
       # 重启nginx
       systemctl restart nginx
-
+  
       # 重启php-fpm
       systemctl restart php-fpm
     ```
@@ -2337,7 +2337,7 @@
     ```bash
       # 进入容器查看
       docker exec -it <container_id> ps aux | grep Z
-
+    
       # 重启容器
       docker restart <container_id>
     ```
