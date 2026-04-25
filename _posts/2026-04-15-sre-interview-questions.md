@@ -14,6 +14,7 @@
 
 - **使用 `pstree -p` 命令**：查看进程树结构，括号中的数字为线程ID，子进程前带有 `{}` 表示线程
   
+
 ```bash
   pstree -p | grep zabbix
   # 输出示例：
@@ -27,6 +28,7 @@
 
 - **使用 `ps aux` 命令**：查看进程状态，状态列中的 `l` 表示多线程
   
+
 ```bash
   ps aux | grep zabbix
   # 输出示例：
@@ -36,6 +38,7 @@
 
 - **查看 `/proc` 文件系统**：通过 `/proc/[pid]/status` 文件查看线程数
   
+
 ```bash
   # 查看进程状态文件中的线程数
   cat /proc/5352/status | grep Thread
@@ -45,6 +48,7 @@
 
   **完整操作示例**：
   
+
 ```bash
   # 查看进程树
   pstree -p | grep zabbix
@@ -166,30 +170,35 @@
 
 - **Java**：Maven
   
+
 ```bash
   mvn clean package -Dmaven.test.skip=true
   ```
 
 - **Go**：
   
+
 ```bash
   go build
   ```
 
 - **Python**：
   
+
 ```bash
   python3 xxx.py
   ```
 
 - **C/C++**：
   
+
 ```bash
   ./configure && make && make install
   ```
 
 - **容器化**：Docker
   
+
 ```bash
   docker build -t image-name .
   ```
@@ -378,6 +387,7 @@
 
 - **通过 `nginx -t` 命令查找**：
   
+
 ```bash
   # 查找nginx配置文件（同时测试配置语法）
   nginx -t
@@ -388,6 +398,7 @@
 
 - **通过 `nginx -V` 查看编译配置**：
   
+
 ```bash
   # 查看nginx编译时的配置参数
   nginx -V
@@ -398,6 +409,7 @@
 
 - **通过 `nginx -T` 查看完整配置**：
   
+
 ```bash
   # 打印完整的nginx配置（包括所有include文件）
   nginx -T
@@ -406,6 +418,7 @@
 
 - **通过ps命令查看进程信息**：
   
+
 ```bash
   # 查找nginx进程
   ps aux | grep nginx
@@ -416,6 +429,7 @@
 
 - **通过 `/proc` 文件系统查找**：
   
+
 ```bash
   # 1. 找到nginx master进程的PID
   ps aux | grep "nginx: master process"
@@ -435,6 +449,7 @@
 
 - **通过配置文件查找（最可靠）**：
   
+
 ```bash
   # 先找到配置文件，然后查找日志路径
   cat /etc/nginx/nginx.conf | grep access_log
@@ -446,6 +461,7 @@
 
 - **通过lsof命令查找已打开的日志文件**：
   
+
 ```bash
   # 查找nginx进程打开的日志文件
   lsof -p $(cat /var/run/nginx.pid) | grep log
@@ -455,6 +471,7 @@
 
 - **通过find命令查找已修改的日志文件**：
   
+
 ```bash
   # 查找最近修改过的日志文件
   find /var/log -name "*nginx*" -type f -mtime -1 2>/dev/null
@@ -489,6 +506,7 @@
 
 - **使用 `netstat` 命令**：
   
+
 ```bash
   # 查看所有TCP连接状态
   netstat -nta
@@ -502,6 +520,7 @@
 
 - **使用 `ss` 命令**（更高效，推荐）：
   
+
 ```bash
   # 查看所有TCP连接状态
   ss -nta
@@ -515,6 +534,7 @@
 
 - **使用 `ss` 命令的内置功能**：
   
+
 ```bash
   # 直接统计各种状态的连接数
   ss -s
@@ -545,6 +565,7 @@
 
 - **查看特定状态的连接**：
   
+
 ```bash
   # 查看ESTABLISHED状态的连接
   netstat -nta | grep ESTABLISHED
@@ -555,6 +576,7 @@
 
 - **按状态统计连接数**：
   
+
 ```bash
   # 使用netstat
   netstat -nta | awk '{print $6}' | sort | uniq -c | sort -nr
@@ -565,6 +587,7 @@
 
 - **查看特定端口的连接**：
   
+
 ```bash
   # 查看80端口的连接
   netstat -nta | grep :80
@@ -638,6 +661,7 @@
 
 - **按数字1显示所有CPU核心**：
   
+
 ```bash
   top
   # 在top界面中按数字1键
@@ -646,6 +670,7 @@
 
 - **在top启动时直接显示所有CPU**：
   
+
 ```bash
   top -1
   # 或者
@@ -654,6 +679,7 @@
 
 - **使用htop查看单个CPU**（更直观）：
   
+
 ```bash
   htop
   # 默认显示每个CPU核心的使用情况
@@ -662,6 +688,7 @@
 
 - **查看特定CPU核心的进程**：
   
+
 ```bash
   # 查看CPU0上运行的进程
   ps -eo pid,ppid,cmd,psr | grep -v PID | awk '$4==0 {print}'
@@ -695,6 +722,7 @@
 
 - **查看CPU核心数**：
   
+
 ```bash
   # 总核心数
   nproc
@@ -708,6 +736,7 @@
 
 - **查看CPU频率**：
   
+
 ```bash
   # 查看每个核心的频率
   cat /proc/cpuinfo | grep MHz
@@ -718,6 +747,7 @@
 
 - **分析CPU负载**：
   
+
 ```bash
   # 查看系统负载
   uptime
@@ -823,6 +853,7 @@
   - 配置自动分组和标签
   - 示例配置：
     
+
 ```bash
     # zabbix_agent2.conf
     HostnameItem=system.hostname
@@ -836,6 +867,7 @@
   - 示例playbook：
   
     
+
 ```yaml
     - name: 部署Zabbix Agent
       hosts: all
@@ -1143,6 +1175,7 @@
   - 接口缓存：缓存高频访问的API响应结果
   - 示例：
     
+
 ```bash
     # 设置缓存，30分钟过期
     SET product:detail:1001 '{"id":1001,"name":"商品名称","price":99.9}' EX 1800
@@ -1157,6 +1190,7 @@
   - 购物车数据存储
   - 示例：
     
+
 ```bash
     # 存储用户登录信息
     HSET user:session:12345 username "admin" email "admin@example.com" login_time "2024-01-01 10:00:00"
@@ -1169,6 +1203,7 @@
   - 限流控制
   - 示例：
     
+
 ```bash
     # 生产者：添加任务到队列
     LPUSH task:async '{"task_id":"001","type":"send_email","data":"..."}'
@@ -1184,6 +1219,7 @@
   - 接口调用计数
   - 示例：
     
+
 ```bash
     # 增加用户积分
     ZINCRBY game:rankings 100 "player_001"
@@ -1198,6 +1234,7 @@
   - 防止重复提交
   - 示例：
     
+
 ```bash
     # 获取锁
     SET lock:order:10001 "lock_holder_123" NX EX 30
@@ -1218,6 +1255,7 @@
   - 数据类型标记
   - 示例：
     
+
 ```bash
     # 用户签到
     SETBIT user:sign:2024:01 12345 1
@@ -1232,6 +1270,7 @@
   - 系统事件通知
   - 示例：
     
+
 ```bash
     # 订阅频道
     SUBSCRIBE system:notifications
@@ -1459,6 +1498,7 @@
 - 系统内存设置：
   - 设置vm.overcommit_memory=1，允许内核分配超过物理内存的内存
   
+
 ```bash
   #临时设置
   echo 1 > /proc/sys/vm/overcommit_memory
@@ -1481,6 +1521,7 @@
   - 设置慢查询日志长度：slowlog-max-len 1000
   - 定期分析慢查询日志，优化慢命令
   
+
 ```bash
   #查看慢查询日志
   redis-cli slowlog get
@@ -1503,6 +1544,7 @@
     - 提高全连接队列大小：/proc/sys/net/core/somaxconn
     - 提高半连接队列大小：/proc/sys/net/ipv4/tcp_max_syn_backlog
   
+
 ```bash
   #临时设置
   echo 65535 > /proc/sys/net/core/somaxconn
@@ -1516,6 +1558,7 @@
 - 系统资源限制：
   - 增加文件描述符限制（ulimit -n）超过10000
   
+
 ```bash
   #临时设置
   ulimit -n 65535
@@ -1535,6 +1578,7 @@
     - 示例：master每秒最大写入64mb，最大允许60秒，那么就要设置为64mb*60秒=3840MB(3.8G)
     - 建议此值设置足够大，默认值为1M
     
+
 ```bash
     # redis.conf
     repl-backlog-size 3840mb
@@ -1570,6 +1614,7 @@
   - 绑定IP：bind 127.0.0.1 192.168.1.100
   - 禁用危险命令：
     
+
 ```bash
     # 在redis.conf中添加
     rename-command KEYS ""
@@ -1645,6 +1690,7 @@
 
 - 在redis.conf中配置自动备份策略：
   
+
 ```bash
   save 3600 1 300 100 60 10000
   ```
@@ -1662,6 +1708,7 @@
 
 - 生产环境推荐使用混合持久化（AOF + RDB）
   
+
 ```bash
   # redis.conf
   save 3600 1 300 100 60 10000
@@ -1675,12 +1722,14 @@
 
 - **本地备份**：
   
+
 ```bash
   # 保留多个RDB文件版本
   cp dump.rdb dump.rdb.backup.$(date +%Y%m%d%H%M%S)
   ```
 - **异地备份**：
   
+
 ```bash
   # 定期上传到远程存储
   rsync -avz dump.rdb backup-server:/redis-backup/
@@ -1760,6 +1809,7 @@
 **混合持久化（推荐）**：
 
 
+
 ```bash
 # redis.conf
 appendonly yes
@@ -1801,6 +1851,7 @@ aof-use-rdb-preamble yes
   - 适用场景：读多写少的应用，需要提高读性能
   - 配置示例：
     
+
 ```bash
     # 从节点配置
     replicaof master_ip master_port
@@ -1814,6 +1865,7 @@ aof-use-rdb-preamble yes
   - 适用场景：生产环境，需要高可用性的应用
   - 配置示例：
     
+
 ```bash
     # sentinel.conf
     sentinel monitor mymaster 127.0.0.1 6379 2
@@ -1829,6 +1881,7 @@ aof-use-rdb-preamble yes
   - 适用场景：大规模应用，需要水平扩展的场景
   - 配置示例：
     
+
 ```bash
     # redis.conf
     cluster-enabled yes
@@ -1875,6 +1928,7 @@ aof-use-rdb-preamble yes
 
 - **重新加载systemd配置**：
   
+
 ```bash
   systemctl daemon-reload
   ```
@@ -1883,6 +1937,7 @@ aof-use-rdb-preamble yes
 
 - **重启Docker服务**：
   
+
 ```bash
   systemctl restart docker
   ```
@@ -1891,6 +1946,7 @@ aof-use-rdb-preamble yes
 
 - **验证配置是否生效**：
   
+
 ```bash
   # 查看Docker服务状态
   systemctl status docker
@@ -1906,30 +1962,35 @@ aof-use-rdb-preamble yes
 
 1. 备份原配置文件（可选但推荐）：
    
+
 ```bash
    cp /usr/lib/systemd/system/docker.service /usr/lib/systemd/system/docker.service.backup
    ```
 
 2. 编辑docker.service文件：
    
+
 ```bash
    vim /usr/lib/systemd/system/docker.service
    ```
 
 3. 重新加载systemd配置：
    
+
 ```bash
    systemctl daemon-reload
    ```
 
 4. 重启Docker服务：
    
+
 ```bash
    systemctl restart docker
    ```
 
 5. 验证配置：
    
+
 ```bash
    systemctl status docker
    docker ps
@@ -1939,24 +2000,28 @@ aof-use-rdb-preamble yes
 
 - **修改数据目录**：
   
+
 ```bash
   ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --data-root=/data/docker
   ```
 
 - **修改日志配置**：
   
+
 ```bash
   ExecStart=/usr/bin/dockerd --log-driver=json-file --log-opt max-size=100m --log-opt max-file=3
   ```
 
 - **修改镜像加速**：
   
+
 ```bash
   ExecStart=/usr/bin/dockerd --registry-mirror=https://mirror.ccs.tencentyun.com
   ```
 
 - **修改资源限制**：
   
+
 ```bash
   LimitNPROC=infinity
   LimitCORE=infinity
@@ -1993,6 +2058,7 @@ aof-use-rdb-preamble yes
 - **导出单个镜像**：
 
   
+
 ```bash
   docker save -o backup.tar image_name:tag
   # 示例
@@ -2002,6 +2068,7 @@ aof-use-rdb-preamble yes
 - **导出多个镜像**：
 
   
+
 ```bash
   # 方法1：使用命令替换
   docker save -o backup.tar $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>")
@@ -2016,6 +2083,7 @@ aof-use-rdb-preamble yes
 - **导出所有镜像（推荐）**：
 
   
+
 ```bash
   #导出所有镜像为tar文件
   docker save $(docker images -q) -o /tmp/all-images.tar
@@ -2029,6 +2097,7 @@ aof-use-rdb-preamble yes
 
 - **导入镜像**：
   
+
 ```bash
   docker load -i backup.tar
   # 或者
@@ -2037,6 +2106,7 @@ aof-use-rdb-preamble yes
 
 - **验证导入结果**：
   
+
 ```bash
   docker images
   ```
@@ -2046,6 +2116,7 @@ aof-use-rdb-preamble yes
 1. 在源服务器导出镜像：
 
    
+
 ```bash
    # 导出所有镜像
    docker save -o images.tar $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>")
@@ -2057,6 +2128,7 @@ aof-use-rdb-preamble yes
 2. 传输镜像文件到目标服务器：
 
    
+
 ```bash
    # 使用scp传输
    scp images.tar.gz user@target-server:/tmp/
@@ -2067,6 +2139,7 @@ aof-use-rdb-preamble yes
 
 3. 在目标服务器导入镜像：
    
+
 ```bash
    # 解压（如果压缩过）
    gunzip images.tar.gz
@@ -2077,6 +2150,7 @@ aof-use-rdb-preamble yes
 
 4. 验证导入结果：
    
+
 ```bash
    docker images
    ```
@@ -2111,6 +2185,7 @@ aof-use-rdb-preamble yes
 
 - **使用镜像仓库**：
   
+
 ```bash
   # 推送镜像到私有仓库
   docker tag image_name:tag registry.example.com/image_name:tag
@@ -2122,6 +2197,7 @@ aof-use-rdb-preamble yes
 
 - **使用docker commit**（不推荐，仅容器场景）：
   
+
 ```bash
   # 将容器保存为镜像
   docker commit container_id image_name:tag
@@ -2142,6 +2218,7 @@ aof-use-rdb-preamble yes
 
 - **使用ps命令**：
   
+
 ```bash
   # 查看所有进程，包括僵尸进程
   ps aux | grep Z
@@ -2155,6 +2232,7 @@ aof-use-rdb-preamble yes
 
 - **使用top命令**：
   
+
 ```bash
   # top默认会显示僵尸进程数量
   top
@@ -2163,6 +2241,7 @@ aof-use-rdb-preamble yes
 
 - **使用proc文件系统**：
   
+
 ```bash
   # 查找所有僵尸进程的父进程
   for i in /proc/[0-9]*/stat; do 
@@ -2177,6 +2256,7 @@ aof-use-rdb-preamble yes
 
 - **使用pstree命令**：
   
+
 ```bash
   # 以树状结构显示进程，包括僵尸进程
   pstree -ap | grep -E 'Z|defunct'
@@ -2200,6 +2280,7 @@ aof-use-rdb-preamble yes
 
 - **方法1：重启父进程**：
   
+
 ```bash
   # 找到僵尸进程的父进程
   ps -eo pid,ppid,stat,cmd | grep Z
@@ -2211,6 +2292,7 @@ aof-use-rdb-preamble yes
 
 - **方法2：杀死父进程**：
   
+
 ```bash
   # 找到父进程
   ps -eo pid,ppid,stat,cmd | grep Z
@@ -2224,6 +2306,7 @@ aof-use-rdb-preamble yes
 
 - **方法3：重启系统**（最后手段）：
   
+
 ```bash
   # 备份重要数据
   sync
@@ -2247,6 +2330,7 @@ aof-use-rdb-preamble yes
 
 - **使用 supervisord 管理进程**：
   
+
 ```bash
   # supervisord.conf配置
   [program:myapp]
@@ -2255,6 +2339,7 @@ aof-use-rdb-preamble yes
 
 - **使用 systemd 管理服务**：
   
+
 ```bash
   # 服务配置中添加
   KillMode=process
@@ -2264,6 +2349,7 @@ aof-use-rdb-preamble yes
 
 - **场景1：nginx/php-fpm产生僵尸进程**：
   
+
 ```bash
   # 重启nginx
   systemctl restart nginx
@@ -2274,6 +2360,7 @@ aof-use-rdb-preamble yes
 
 - **场景2：Java应用产生僵尸进程**：
   
+
 ```bash
   # JVM参数添加 -XX:+ExitOnOutOfMemoryError
   # 检查Java代码中的ProcessBuilder管理
@@ -2281,6 +2368,7 @@ aof-use-rdb-preamble yes
 
 - **场景3：Docker容器内产生僵尸进程**：
   
+
 ```bash
   # 进入容器查看
   docker exec -it <container_id> ps aux | grep Z
@@ -2290,6 +2378,7 @@ aof-use-rdb-preamble yes
   ```
 
 **监控僵尸进程的脚本**：
+
 
 
 ```bash
@@ -2335,6 +2424,7 @@ fi
 
 - **查看慢查询日志**：
   
+
 ```bash
   # 查看日志内容
   cat /var/log/mysql/slow.log
@@ -2544,6 +2634,7 @@ fi
 **常用MySQL监控命令**：
 
 
+
 ```bash
 # 查看当前连接
 SHOW FULL PROCESSLIST;
@@ -2567,6 +2658,7 @@ RESET QUERY CACHE;
 
 - **查找命令路径**：
   
+
 ```bash
   # 使用which查找命令路径
   which ip
@@ -2582,6 +2674,7 @@ RESET QUERY CACHE;
 
 - **Debian/Ubuntu系统（dpkg）**：
   
+
 ```bash
   # 查找命令所属包
   dpkg -S /bin/ip
@@ -2597,6 +2690,7 @@ RESET QUERY CACHE;
 
 - **RedHat/CentOS系统（rpm）**：
   
+
 ```bash
   # 查找命令所属包
   rpm -qf /bin/ip
@@ -2608,6 +2702,7 @@ RESET QUERY CACHE;
 
 - **通用方法（适用所有Linux）**：
   
+
 ```bash
   # 方法1：使用package.ibistory查找（需要网络）
   # https://command-not-found.com/ip
@@ -2623,6 +2718,7 @@ RESET QUERY CACHE;
   ```
 
 **完整操作示例**：
+
 
 
 ```bash
@@ -2683,6 +2779,7 @@ Section: net
 
 - **Debian/Ubuntu**：
   
+
 ```bash
   apt-get update          # 更新包列表
   apt-get install <包名>  # 安装包
@@ -2692,6 +2789,7 @@ Section: net
 
 - **RedHat/CentOS**：
   
+
 ```bash
   yum update              # 更新包
   yum install <包名>     # 安装包
@@ -2707,6 +2805,7 @@ Section: net
 
 - **使用docker inspect命令**：
   
+
 ```bash
   # 方法1：使用格式化输出（推荐）
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
@@ -2720,6 +2819,7 @@ Section: net
 
 - **使用docker exec进入容器查看**：
   
+
 ```bash
   # 进入容器内部
   docker exec -it nginx01 bash
@@ -2732,6 +2832,7 @@ Section: net
 
 - **使用docker network inspect**：
   
+
 ```bash
   # 查看网络信息
   docker network inspect bridge
@@ -2742,6 +2843,7 @@ Section: net
 
 - **使用docker ps和grep**：
   
+
 ```bash
   # 查看容器ID
   docker ps | grep nginx01
@@ -2754,12 +2856,14 @@ Section: net
 
 - **bridge网络**（默认）：
   
+
 ```bash
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
   ```
 
 - **host网络**：
   
+
 ```bash
   # 容器使用主机网络，IP与主机相同
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.host.IPAddress}}' nginx01
@@ -2767,12 +2871,14 @@ Section: net
 
 - **自定义网络**：
   
+
 ```bash
   # 查看自定义网络的IP
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.my-network.IPAddress}}' nginx01
   ```
 
 **完整操作示例**：
+
 
 
 ```bash
@@ -2822,6 +2928,7 @@ $ docker network inspect bridge | grep -A 10 -B 2 172.17.0.2
 **其他有用的Docker网络命令**：
 
 
+
 ```bash
 # 查看所有网络
 docker network ls
@@ -2848,6 +2955,7 @@ docker exec -it nginx01 ping 172.17.0.1
 **查看容器日志**：
 - 使用`docker logs`命令查看容器的启动日志
   
+
 ```bash
   # 查看容器日志（实时跟踪）
   docker logs -f nginx01
@@ -2862,6 +2970,7 @@ docker exec -it nginx01 ping 172.17.0.1
 **检查容器状态**：
 - 使用`docker ps`命令查看容器的状态
   
+
 ```bash
   # 查看所有容器（包括已停止的）
   docker ps -a
@@ -2873,6 +2982,7 @@ docker exec -it nginx01 ping 172.17.0.1
 **检查容器配置**：
 - 查看容器的详细配置信息
   
+
 ```bash
   # 查看容器的详细配置
   docker inspect nginx01
@@ -2887,6 +2997,7 @@ docker exec -it nginx01 ping 172.17.0.1
 **检查端口映射**：
 - 确认端口映射是否正确
   
+
 ```bash
   # 查看容器的端口映射
   docker port nginx01
@@ -2895,6 +3006,7 @@ docker exec -it nginx01 ping 172.17.0.1
 **检查网络配置**：
 - 检查容器的网络配置
   
+
 ```bash
   # 查看容器的网络信息
   docker inspect --format='{{ "{{" }}.NetworkSettings}}' nginx01
@@ -2906,6 +3018,7 @@ docker exec -it nginx01 ping 172.17.0.1
 **检查资源限制**：
 - 检查容器的资源限制是否合理
   
+
 ```bash
   # 查看容器的资源限制
   docker inspect --format='{{ "{{" }}.HostConfig}}' nginx01
@@ -2914,6 +3027,7 @@ docker exec -it nginx01 ping 172.17.0.1
 **检查镜像问题**：
 - 确认镜像是否存在问题
   
+
 ```bash
   # 查看镜像信息
   docker images | grep nginx
@@ -2975,6 +3089,7 @@ docker exec -it nginx01 ping 172.17.0.1
 - 检查网络连接是否正常
 
 **完整排查示例**：
+
 
 
 ```bash
@@ -3130,6 +3245,7 @@ $ docker run -d -p 8080:80 --name nginx01 nginx
 **完整示例**：
 
 
+
 ```bash
 # 创建一个使用所有隔离空间的容器
 $ docker run -d \
@@ -3186,6 +3302,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **作用**：清理所有未使用的容器、网络、镜像和卷
 - **命令**：
   
+
 ```bash
   # 清理所有未使用的资源
   docker system prune
@@ -3202,6 +3319,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **作用**：清理所有已停止的容器
 - **命令**：
   
+
 ```bash
   # 清理已停止的容器
   docker container prune
@@ -3215,6 +3333,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **作用**：清理所有未被使用的镜像
 - **命令**：
   
+
 ```bash
   # 清理未使用的镜像
   docker image prune
@@ -3231,6 +3350,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **作用**：清理所有未被使用的网络
 - **命令**：
   
+
 ```bash
   # 清理未使用的网络
   docker network prune
@@ -3244,6 +3364,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **作用**：清理所有未被使用的卷
 - **命令**：
   
+
 ```bash
   # 清理未使用的卷
   docker volume prune
@@ -3288,6 +3409,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - 检查网络和卷的使用情况
 
 **完整清理示例**：
+
 
 
 ```bash
@@ -3408,6 +3530,7 @@ Build Cache     0         0         0B        0B
 
 **docker export**：
 
+
 ```bash
 # 导出容器为tar包
 docker export <容器ID或名称> > container.tar
@@ -3417,6 +3540,7 @@ docker export -o container.tar <容器ID或名称>
 ```
 
 **docker save**：
+
 
 ```bash
 # 导出镜像为tar包
@@ -3433,6 +3557,7 @@ docker save -o images.tar image1 image2 image3
 
 **docker import**：
 
+
 ```bash
 # 导入tar包为镜像
 docker import container.tar <新镜像名称:标签>
@@ -3442,6 +3567,7 @@ docker import http://example.com/container.tar <新镜像名称:标签>
 ```
 
 **docker load**：
+
 
 ```bash
 # 导入tar包为镜像
@@ -3454,6 +3580,7 @@ docker load -i image.tar
 **完整示例**：
 
 **使用docker export和docker import**：
+
 
 ```bash
 # 1. 运行一个容器
@@ -3474,6 +3601,7 @@ my-nginx   exported   abc123def456   1 minute ago   133MB
 ```
 
 **使用docker save和docker load**：
+
 
 ```bash
 # 1. 查看现有镜像
@@ -3570,6 +3698,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
 - **作用**：查看容器的详细配置信息，包括启动命令
 - **命令**：
   
+
 ```bash
   # 查看容器的完整配置
   docker inspect <容器ID或名称>
@@ -3594,6 +3723,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
 - **作用**：根据容器的配置信息生成可执行的docker run命令
 - **安装**：
   
+
 ```bash
   # 使用pip安装
   pip3 install runlike
@@ -3603,6 +3733,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
   ```
 - **使用**：
   
+
 ```bash
   # 生成容器的启动命令
   runlike <容器ID或名称>
@@ -3617,6 +3748,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
 - **作用**：将容器提交为镜像，保留容器的文件系统
 - **命令**：
   
+
 ```bash
   # 将容器提交为镜像
   docker commit <容器ID或名称> <新镜像名称:标签>
@@ -3635,6 +3767,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
 
 **方法1：定期备份容器配置**：
 
+
 ```bash
 # 备份容器的配置为JSON文件
 docker inspect <容器ID或名称> > container-config.json
@@ -3650,6 +3783,7 @@ done
 - **优点**：配置代码化，易于版本管理和恢复
 - **示例**：
   
+
 ```yaml
   version: '3'
   services:
@@ -3671,6 +3805,7 @@ done
 **找回启动命令的完整示例**：
 
 **示例1：使用docker inspect**：
+
 
 ```bash
 # 1. 查找容器的启动命令
@@ -3703,6 +3838,7 @@ $ docker run -d --name mysql01 \
 ```
 
 **示例2：使用runlike工具**：
+
 
 ```bash
 # 1. 安装runlike
@@ -3777,6 +3913,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **作用**：附加到正在运行的容器的主进程
 - **命令**：
   
+
 ```bash
   # 进入容器
   docker attach <容器ID或名称>
@@ -3798,6 +3935,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **作用**：在运行的容器中执行新的命令
 - **命令**：
   
+
 ```bash
   # 进入容器并打开交互式终端
   docker exec -it <容器ID或名称> /bin/bash
@@ -3823,6 +3961,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **作用**：进入容器的命名空间执行命令
 - **安装**：
   
+
 ```bash
   # 在Ubuntu/Debian上
   apt-get install util-linux
@@ -3832,6 +3971,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
   ```
 - **使用**：
   
+
 ```bash
   # 获取容器的PID
   PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' <容器ID或名称>)
@@ -3852,6 +3992,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **作用**：创建并进入新的容器
 - **命令**：
   
+
 ```bash
   # 创建并进入新容器
   docker run -it --name <新容器名称> <镜像名称> /bin/bash
@@ -3905,6 +4046,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 
 **示例1：使用docker attach**：
 
+
 ```bash
 # 1. 启动一个容器
 $ docker run -d --name web-server nginx
@@ -3923,6 +4065,7 @@ $ docker attach web-server
 
 **示例2：使用docker exec**：
 
+
 ```bash
 # 1. 启动一个容器
 $ docker run -d --name web-server nginx
@@ -3938,6 +4081,7 @@ $ docker exec web-server ls -la /etc/nginx
 ```
 
 **示例3：使用nsenter**：
+
 
 ```bash
 # 1. 启动一个容器
@@ -4380,6 +4524,7 @@ FROM scratch
 - **作用**：将多个镜像层压缩为一个层，减小镜像体积
 - **示例**：
   
+
 ```bash
   # 安装docker-squash
   pip install docker-squash
@@ -4753,6 +4898,7 @@ CMD ["./app"]
 - **覆盖方式**：可以被`docker run`命令的参数覆盖
 - **示例**：
   
+
 ```bash
   # 覆盖CMD
   docker run myimage echo "Override CMD"
@@ -4765,6 +4911,7 @@ CMD ["./app"]
 - **覆盖方式**：需要使用`--entrypoint`参数才能覆盖
 - **示例**：
   
+
 ```bash
   # 覆盖ENTRYPOINT
   docker run --entrypoint echo myimage "Override ENTRYPOINT"
@@ -4784,6 +4931,7 @@ CMD ["./app"]
 **修改参数**：
 - **示例**：
   
+
 ```bash
   # 修改CMD参数
   docker run myimage -g "daemon off;" -c /etc/nginx/nginx.conf
@@ -4811,6 +4959,7 @@ CMD ["./app"]
   - 确保信号能够正确传递给应用进程
 - **示例**：
   
+
 ```bash
   #!/bin/sh
   # 环境初始化
@@ -5321,6 +5470,7 @@ CMD ["node", "index.js"]
 **文件描述符限制**：
 - **配置**：
   
+
 ```bash
   # 临时设置
   ulimit -n 65536
@@ -5334,6 +5484,7 @@ CMD ["node", "index.js"]
 **内核参数优化**：
 - **配置**：
   
+
 ```bash
   # /etc/sysctl.conf
   net.core.somaxconn = 65535
@@ -5363,6 +5514,7 @@ CMD ["node", "index.js"]
 **日志轮转**：
 - **配置**：
   
+
 ```bash
   # /etc/logrotate.d/nginx
   /var/log/nginx/*.log {
@@ -5528,6 +5680,7 @@ http {
 - **特点**：Docker自动创建，没有指定名称，使用随机生成的ID作为卷名
 - **使用方法**：
   
+
 ```bash
   # 运行容器时创建匿名卷
   docker run -d -v /var/lib/mysql --name mysql mysql:8.0
@@ -5541,6 +5694,7 @@ http {
 - **特点**：直接将宿主机目录挂载到容器中，由用户完全控制
 - **使用方法**：
   
+
 ```bash
   # 将宿主机目录挂载到容器
   docker run -d -v /host/path:/container/path --name nginx nginx
@@ -5557,6 +5711,7 @@ http {
 - **特点**：用户显式创建，有明确的名称，便于管理和引用
 - **使用方法**：
   
+
 ```bash
   # 创建命名卷
   docker volume create mydata
@@ -5586,6 +5741,7 @@ http {
 **数据备份与恢复**：
 - **备份卷**：
   
+
 ```bash
   docker run --rm 
     -v nginx_data:/data 
@@ -5594,6 +5750,7 @@ http {
   ```
 - **恢复卷**：
   
+
 ```bash
   docker run --rm 
     -v nginx_data:/data 
@@ -5604,21 +5761,25 @@ http {
 **卷管理**：
 - **查看所有卷**：
   
+
 ```bash
   docker volume ls
   ```
 - **查看卷详情**：
   
+
 ```bash
   docker volume inspect <卷名>
   ```
 - **删除卷**：
   
+
 ```bash
   docker volume rm <卷名>
   ```
 - **清理未使用的卷**：
   
+
 ```bash
   docker volume prune
   ```
@@ -5626,6 +5787,7 @@ http {
 **Docker Compose中的数据卷**：
 - **配置示例**：
   
+
 ```yaml
   version: "3"
   services:
@@ -5813,6 +5975,7 @@ http {
 - **工作原理**：Docker创建虚拟网桥docker0，为每个容器分配私有IP地址（如172.17.0.x）
 - **使用方法**：
   
+
 ```bash
   # 默认就是Bridge模式
   docker run -d --name myapp nginx
@@ -5826,6 +5989,7 @@ http {
   ```
 - **端口映射**：
   
+
 ```bash
   # -p 宿主机端口:容器端口
   docker run -d -p 8080:80 --name nginx nginx
@@ -5839,6 +6003,7 @@ http {
 - **工作原理**：容器直接使用宿主机的IP和端口，无需NAT转换
 - **使用方法**：
   
+
 ```bash
   docker run -d --name myapp --network host nginx
   ```
@@ -5851,6 +6016,7 @@ http {
 - **工作原理**：容器仅有loopback接口（lo），不分配IP，不连接网桥，不配置路由
 - **使用方法**：
   
+
 ```bash
   docker run -d --name myapp --network none nginx
   ```
@@ -5863,6 +6029,7 @@ http {
 - **工作原理**：共享IP、端口、网络接口，但PID、文件系统、用户等仍相互隔离
 - **使用方法**：
   
+
 ```bash
   # 先运行主容器
   docker run -d --name main-container busybox sleep 3600
@@ -5879,6 +6046,7 @@ http {
 - **工作原理**：通过docker network create创建，可设置子网、网关等参数
 - **使用方法**：
   
+
 ```bash
   # 创建自定义网络
   docker network create --driver bridge --subnet 172.30.0.0/16 mynet
@@ -5909,24 +6077,28 @@ http {
 **Docker网络常用命令**：
 - **查看网络**：
   
+
 ```bash
   docker network ls
   docker network inspect bridge
   ```
 - **创建网络**：
   
+
 ```bash
   docker network create mynet
   docker network create --driver bridge --subnet 172.30.0.0/16 mynet
   ```
 - **连接容器到网络**：
   
+
 ```bash
   docker network connect mynet container_name
   docker network disconnect mynet container_name
   ```
 - **删除网络**：
   
+
 ```bash
   docker network rm mynet
   docker network prune  # 清理未使用的网络
@@ -5965,6 +6137,7 @@ http {
 **内核参数调优**：
 - **TCP网络参数优化**：
   
+
 ```bash
   # /etc/sysctl.conf 配置
   # TCP连接队列长度
@@ -5995,6 +6168,7 @@ http {
   ```
 - **虚拟内存参数优化**：
   
+
 ```bash
   # /etc/sysctl.conf 配置
   # 降低swap使用倾向
@@ -6014,6 +6188,7 @@ http {
   ```
 - **文件系统参数优化**：
   
+
 ```bash
   # /etc/sysctl.conf 配置
   # 文件描述符限制
@@ -6031,12 +6206,14 @@ http {
 **文件描述符限制优化**：
 - **临时设置**：
   
+
 ```bash
   ulimit -n 65535
   ```
 - **永久设置**：
 
   
+
 ```bash
   # /etc/security/limits.conf
   * soft nofile 65535
@@ -6050,6 +6227,7 @@ http {
 **文件系统优化**：
 - **挂载参数优化**：
   
+
 ```bash
   # /etc/fstab 配置
   # noatime：禁止记录文件最后访问时间，减少磁盘I/O
@@ -6058,6 +6236,7 @@ http {
   ```
 - **I/O调度器优化**：
   
+
 ```bash
   # SSD使用mq-deadline或noop
   echo mq-deadline > /sys/block/sda/queue/scheduler
@@ -6069,6 +6248,7 @@ http {
 **系统服务优化**：
 - **关闭无用服务**：
   
+
 ```bash
   # 查看当前运行的服务
   systemctl list-units --type=service --state=running
@@ -6083,6 +6263,7 @@ http {
 **网络优化**：
 - **网卡队列优化**：
   
+
 ```bash
   # 调整网卡队列长度
   ethtool -G eth0 rx 4096 tx 4096
@@ -6092,6 +6273,7 @@ http {
   ```
 - **中断亲和性配置**：
   
+
 ```bash
   # 将网卡中断绑定到特定CPU核心
   echo 2 > /proc/irq/24/smp_affinity
@@ -6143,6 +6325,7 @@ http {
   - **五链**：PREROUTING（路由前）、INPUT（目标为本机）、FORWARD（转发）、OUTPUT（本机发出）、POSTROUTING（路由后）
 - **常用命令**：
   
+
 ```bash
   # 查看规则
   iptables -vnL
@@ -6169,6 +6352,7 @@ http {
   - **规则**：由表达式和语句组成，语法更简洁
 - **常用命令**：
   
+
 ```bash
   # 查看规则集
   nft list ruleset
@@ -6193,6 +6377,7 @@ http {
 - **核心特性**：命令友好、预设策略、动态生效
 - **常用命令**：
   
+
 ```bash
   # 查看状态
   ufw status
@@ -6309,6 +6494,7 @@ http {
 - **实现原理**：通过添加仅主机的网卡并桥接到自定义网关，实现容器间的二层通信
 - **配置步骤**：
   
+
 ```bash
   # 在主机A上
   brctl addbr br0
@@ -6328,6 +6514,7 @@ http {
 - **实现原理**：通过在两个主机上分别添加路由规则，打通两个主机的网络
 - **配置步骤**：
   
+
 ```bash
   # 在主机A上（假设主机A的容器网段是172.17.0.0/16，主机B的IP是10.0.0.102）
   route add -net 172.27.0.0/16 gw 10.0.0.102
@@ -6343,6 +6530,7 @@ http {
 - **实现原理**：基于VXLAN隧道技术，在Swarm集群中实现跨主机容器通信
 - **配置步骤**：
   
+
 ```bash
   # 初始化Swarm集群
   docker swarm init
@@ -6367,6 +6555,7 @@ http {
 - **核心组件**：flanneld守护进程，etcd存储网络配置
 - **部署示例**：
   
+
 ```bash
   # 每台主机启动Flanneld
   flanneld --etcd-endpoints=http://<ETCD_IP>:2379
@@ -6380,6 +6569,7 @@ http {
 - **核心组件**：calico-node，BGP路由反射器
 - **部署示例**：
   
+
 ```bash
   # 创建Calico网络
   docker network create --driver calico --ipam-driver calico-ipam calico-net
@@ -6393,6 +6583,7 @@ http {
 - **核心特性**：eBPF加速，服务网格集成，网络策略
 - **部署示例**：
   
+
 ```bash
   # 部署Cilium
   cilium install
@@ -6469,6 +6660,7 @@ http {
 - **多行文本**：使用`|`或`>`符号
 
 **配置文件结构**：
+
 
 ```yaml
 version: '3.8'  # 版本声明（可选但推荐）
@@ -7091,6 +7283,7 @@ server {
 
 **2. 资源配额设置**：
 
+
 ```yaml
 apiVersion: v1
 kind: ResourceQuota
@@ -7107,6 +7300,7 @@ spec:
 ```
 
 **3. 权限控制**：
+
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7175,6 +7369,7 @@ roleRef:
 - **用途**：日常运维中最常用的配置格式，适合人工编写和维护
 - **示例**：
   
+
 ```yaml
   apiVersion: v1
   kind: Pod
@@ -7359,6 +7554,7 @@ roleRef:
 
 **1. 进入容器交互式调试**：
 
+
 ```bash
 # 进入容器内部进行调试
 kubectl exec -it <pod-name> -- /bin/bash
@@ -7368,6 +7564,7 @@ kubectl exec -it <pod-name> -c <container-name> -- /bin/bash
 ```
 
 **2. 使用临时调试容器**：
+
 
 ```bash
 # 创建临时调试容器
@@ -7379,6 +7576,7 @@ kubectl debug -it <pod-name> --image=busybox --copy-to=<debug-pod>
 
 **3. 端口转发进行本地调试**：
 
+
 ```bash
 # 转发Pod端口到本地
 kubectl port-forward <pod-name> <local-port>:<container-port>
@@ -7389,6 +7587,7 @@ kubectl port-forward nginx-pod 8080:80
 
 **4. 查看集群级别事件**：
 
+
 ```bash
 # 查看所有命名空间的事件
 kubectl get events --all-namespaces --sort-by='.metadata.creationTimestamp'
@@ -7398,6 +7597,7 @@ kubectl get events -n <namespace>
 ```
 
 **5. 检查节点级日志**：
+
 
 ```bash
 # 查看kubelet日志
@@ -7431,6 +7631,7 @@ journalctl -u containerd.service -n
 
 **查看特定时间范围的日志**：
 
+
 ```bash
 # 查看最近1小时的日志
 kubectl logs <pod-name> --since=1h
@@ -7441,6 +7642,7 @@ kubectl logs <pod-name> --since-time="2024-01-01T00:00:00Z"
 
 **限制日志行数**：
 
+
 ```bash
 # 只显示最后50行日志
 kubectl logs <pod-name> --tail=50
@@ -7448,12 +7650,14 @@ kubectl logs <pod-name> --tail=50
 
 **实时跟踪日志**：
 
+
 ```bash
 # 实时查看日志输出
 kubectl logs -f <pod-name>
 ```
 
 **多容器Pod的日志查看**：
+
 
 ```bash
 # 查看特定容器的日志
@@ -7472,6 +7676,7 @@ kubectl logs <pod-name> --all-containers=true
 - 根据问题类型选择相应的解决方案
 
 **2. 常用命令组合**：
+
 
 ```bash
 # 快速诊断组合
@@ -8132,17 +8337,20 @@ kubectl logs <problematic-pod> -f
 
 **1. 查看Pod状态**
 
+
 ```bash
 kubectl get pods
 ```
 
 **2. 获取详细信息**
 
+
 ```bash
 kubectl describe pod <pod-name>
 ```
 
 **3. 查看容器日志**
+
 
 ```bash
 kubectl logs <pod-name>
@@ -8154,12 +8362,14 @@ kubectl logs <pod-name> --previous
 
 **4. 检查节点状态**
 
+
 ```bash
 kubectl get nodes
 kubectl describe node <node-name>
 ```
 
 **5. 检查事件**
+
 
 ```bash
 kubectl get events
@@ -8296,6 +8506,7 @@ kubectl get events
 - 适用于需要复杂逻辑校验的场景
 - 示例：检查文件是否存在、验证配置文件
 
+
 ```yaml
 livenessProbe:
   exec:
@@ -8310,6 +8521,7 @@ livenessProbe:
 - 向容器的HTTP端点发送请求进行检测
 - 适用于Web服务和API接口
 - 示例：检查健康检查端点
+
 
 ```yaml
 livenessProbe:
@@ -8327,6 +8539,7 @@ livenessProbe:
 - 检测容器端口的TCP连接
 - 适用于非HTTP服务（如数据库、Redis）
 - 示例：检测MySQL端口
+
 
 ```yaml
 readinessProbe:
@@ -8363,6 +8576,7 @@ readinessProbe:
 
 **Java Spring Boot应用配置**：
 
+
 ```yaml
 livenessProbe:
   httpGet:
@@ -8395,6 +8609,7 @@ startupProbe:
 ```
 
 **Nginx应用配置**：
+
 
 ```yaml
 livenessProbe:
@@ -8464,6 +8679,7 @@ readinessProbe:
 - **技术原理**：Guaranteed级别的Pod拥有最高的资源保障，其oom_score_adj评分会降至-997，在资源紧张时最不容易被系统OOM killer杀死
 - **配置示例**：
   
+
 ```yaml
   resources:
     requests:
@@ -8585,6 +8801,7 @@ readinessProbe:
 - **典型用途**：Deployment、DaemonSet、StatefulSet管理的Pod
 - **配置示例**：
   
+
 ```yaml
   apiVersion: v1
   kind: Pod
@@ -8598,6 +8815,7 @@ readinessProbe:
 - **典型用途**：Job管理的Pod
 - **配置示例**：
   
+
 ```yaml
   apiVersion: v1
   kind: Pod
@@ -8714,6 +8932,7 @@ readinessProbe:
 **Web服务配置**：
 
 
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -8746,6 +8965,7 @@ spec:
 ```
 
 **批处理任务配置**：
+
 
 
 ```yaml
@@ -8786,6 +9006,7 @@ spec:
 - **配置示例**：
 
   
+
 ```yaml
   spec:
     containers:
@@ -8802,6 +9023,7 @@ spec:
 - **配置示例**：
 
   
+
 ```yaml
   spec:
     containers:
@@ -8818,6 +9040,7 @@ spec:
 - **配置示例**：
 
   
+
 ```yaml
   spec:
     containers:
@@ -8879,6 +9102,7 @@ spec:
 **Docker Config Secret**
 
 
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -8892,6 +9116,7 @@ data:
 **ServiceAccount 关联**
 
 
+
 ```yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -8902,6 +9127,7 @@ secrets:
 ```
 
 **Pod 使用私有镜像**
+
 
 
 ```yaml
@@ -8944,6 +9170,7 @@ spec:
 **生产环境配置示例**
 
 
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -8959,6 +9186,7 @@ spec:
 **开发环境配置示例**
 
 
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -8972,6 +9200,7 @@ spec:
 **离线环境配置示例**
 
 
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -8983,6 +9212,7 @@ spec:
 ```
 
 **多容器Pod的镜像拉取策略**
+
 
 
 ```yaml
@@ -9068,6 +9298,7 @@ spec:
 **Deployment与ReplicaSet的配置关系**：
 
 **Deployment配置示例**
+
 
 ```yaml
 apiVersion: apps/v1
@@ -9238,7 +9469,8 @@ spec:
 - **劣势**：更新过程中服务完全中断，不适合需要高可用的应用
 - **配置示例**：
 
-  ```yaml
+  
+```yaml
   spec:
     strategy:
       type: Recreate
@@ -9259,7 +9491,8 @@ spec:
   - `maxUnavailable`：滚动更新时最大不可用Pod数，可以是具体数值或百分比
 - **配置示例**：
 
-  ```yaml
+  
+```yaml
   spec:
     strategy:
       type: RollingUpdate
@@ -9295,7 +9528,8 @@ spec:
 - **优势**：避免所有主机同时更新导致的的服务中断
 - **配置示例**
 ：
-  ```yaml
+  
+```yaml
   - name: Rolling update playbook
     hosts: webservers
     serial: 1  # 或者 serial: "30%"
@@ -9362,6 +9596,7 @@ spec:
 
 **示例1：逐台更新（最高可用性）**
 
+
 ```yaml
 - name: Rolling update with serial 1
   hosts: webservers
@@ -9391,6 +9626,7 @@ spec:
 
 **示例2：批量更新（平衡速度和可用性）**
 
+
 ```yaml
 - name: Rolling update with percentage
   hosts: webservers
@@ -9410,6 +9646,7 @@ spec:
 ```
 
 **示例3：渐进式分批更新**
+
 
 ```yaml
 - name: Rolling update with gradual batches
@@ -9533,7 +9770,8 @@ spec:
   4. 确认无问题后，删除旧版本
 - **配置示例**：
 
-  ```bash
+  
+```bash
   # 创建金丝雀版本（1个副本）
   kubectl set image deployment/myapp myapp=new-image:v2
   kubectl scale deployment/myapp --replicas=1
@@ -9547,18 +9785,21 @@ spec:
 - **实现步骤**：
   1. 执行镜像更新并记录：
 
-     ```bash
+     
+```bash
      kubectl set image deployment deployment-rolling-update pod-rolling-update='registry.cn-beijing.aliyuncs.com/soveranzhong/pod-test:v0.3' --record=true
      ```
   2. 立即暂停更新：
 
-     ```bash
+     
+```bash
      kubectl rollout pause deployment deployment-rolling-update
      ```
   3. 验证少量金丝雀Pod的运行状态
   4. 确认无问题后继续更新：
 
-     ```bash
+     
+```bash
      kubectl rollout resume deployment deployment-rolling-update
      ```
 - **适用场景**：需要手动控制发布节奏、逐步观察效果的场景
@@ -9568,7 +9809,8 @@ spec:
 - **实现步骤**：
   1. 创建旧版本Deployment（blue）：
 
-     ```yaml
+     
+```yaml
      apiVersion: apps/v1
      kind: Deployment
      metadata:
@@ -9591,7 +9833,8 @@ spec:
      ```
   2. 创建新版本Deployment（green）：
 
-     ```yaml
+     
+```yaml
      apiVersion: apps/v1
      kind: Deployment
      metadata:
@@ -9614,7 +9857,8 @@ spec:
      ```
   3. Service选择blue版本：
 
-     ```yaml
+     
+```yaml
      apiVersion: v1
      kind: Service
      metadata:
@@ -9635,7 +9879,8 @@ spec:
 - **核心原理**：通过Deployment的滚动更新策略自动管理
 - **配置示例**：
 
-  ```yaml
+  
+```yaml
   spec:
     strategy:
       type: RollingUpdate
@@ -9647,27 +9892,32 @@ spec:
 **手动控制滚动更新**
 - **暂停更新**：
 
-  ```bash
+  
+```bash
   kubectl rollout pause deployment/myapp
   ```
 - **查看状态**：
 
-  ```bash
+  
+```bash
   kubectl rollout status deployment/myapp
   ```
 - **继续更新**：
 
-  ```bash
+  
+```bash
   kubectl rollout resume deployment/myapp
   ```
 - **回滚到上一版本**：
 
-  ```bash
+  
+```bash
   kubectl rollout undo deployment/myapp
   ```
 - **回滚到指定版本**：
 
-  ```bash
+  
+```bash
   kubectl rollout undo deployment/myapp --to-revision=2
   ```
 
@@ -9683,6 +9933,7 @@ spec:
   5. 保留蓝色环境用于快速回滚
 
 **配置示例**：
+
 
 ```yaml
 # 蓝色环境
@@ -9747,7 +9998,8 @@ spec:
 - **核心原理**：通过Ingress规则根据请求特征分配流量到不同版本
 - **配置示例**：
 
-  ```yaml
+  
+```yaml
   apiVersion: networking.k8s.io/v1
   kind: Ingress
   metadata:
@@ -10046,12 +10298,14 @@ spec:
 **代理模式的配置方法**：
 
 **查看当前代理模式**
+
 ```bash
 # 查看kube-proxy的启动参数或配置
 kubectl get configmap kube-proxy -n kube-system -o yaml
 ```
 
 **切换到ipvs模式**
+
 ```bash
 # 修改kube-proxy配置
 kubectl edit configmap kube-proxy -n kube-system
@@ -10059,6 +10313,7 @@ kubectl edit configmap kube-proxy -n kube-system
 ```
 
 **切换到eBPF模式**
+
 ```bash
 # 修改kube-proxy配置
 kubectl edit configmap kube-proxy -n kube-system
@@ -10066,6 +10321,7 @@ kubectl edit configmap kube-proxy -n kube-system
 ```
 
 **ipvs模式配置示例**
+
 ```yaml
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
@@ -10077,6 +10333,7 @@ ipvs:
 ```
 
 **iptables模式配置示例**
+
 ```yaml
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
@@ -10089,6 +10346,7 @@ iptables:
 ```
 
 **eBPF模式配置示例**
+
 ```yaml
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
@@ -10102,6 +10360,7 @@ ebpf:
 ```
 
 **Envoy/Istio模式配置示例**
+
 ```yaml
 # 安装Istio
 istioctl install --set profile=default -y
@@ -10249,7 +10508,8 @@ spec:
 
 **2. 确保内核支持相应模式**
 - **IPVS**：检查内核模块是否加载
-  ```bash
+  
+```bash
   modprobe ip_vs
   modprobe ip_vs_rr
   modprobe ip_vs_wrr
@@ -10258,7 +10518,8 @@ spec:
   内核版本 >= 4.9（最低要求）
 
 - **eBPF**：检查内核版本和模块
-  ```bash
+  
+```bash
   uname -r
   # 推荐 >= 4.18
   lsmod | grep bpf
@@ -10267,7 +10528,8 @@ spec:
 
 **3. 优化网络配置**
 - **通用优化**：
-  ```bash
+  
+```bash
   # /etc/sysctl.conf
   net.netfilter.nf_conntrack_max = 1000000
   net.netfilter.nf_conntrack_tcp_timeout_established = 86400
@@ -10276,7 +10538,8 @@ spec:
   ```
 
 - **eBPF优化**：
-  ```bash
+  
+```bash
   # 增加eBPF内存限制
   sysctl -w kernel.bpf_jit_limit=268435456
   ```
@@ -10390,6 +10653,321 @@ spec:
 - **资源规划**：Envoy/Istio模式会增加额外的资源消耗，需要合理规划
 - **版本兼容性**：不同Kubernetes版本对代理模式的支持有所不同，注意版本兼容性
 - **持续优化**：根据实际运行情况持续优化代理模式配置，定期进行性能测试
+
+### 73. k8s中Service的四种类型是啥？
+
+**问题分析**：Kubernetes Service是实现服务发现和负载均衡的核心资源，通过不同的Service类型，可以将应用以不同的方式暴露给集群内部或外部访问。理解四种Service类型（ClusterIP、NodePort、LoadBalancer、ExternalName）的特点和适用场景，对于SRE工程师设计合理的服务暴露方案至关重要。
+
+**Kubernetes Service的四种类型**：
+
+**ClusterIP（集群内部IP）**
+- **核心原理**：为Service分配一个集群内部的虚拟IP地址，仅在集群内部可访问
+- **核心特点**：
+  - 默认的Service类型
+  - 分配的IP是虚拟IP，不会被路由
+  - 集群内部的Pod可以通过Service IP访问服务
+- **适用场景**：
+  - 集群内部服务间通信
+  - 微服务架构中服务间的相互调用
+  - 不需要对外暴露的后端服务
+- **配置示例**：
+  
+```yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-service
+  spec:
+    type: ClusterIP
+    selector:
+      app: my-app
+    ports:
+    - port: 80
+      targetPort: 8080
+  ```
+- **访问方式**：
+  - 集群内部Pod：`http://my-service.default.svc.cluster.local` 或 `http://my-service`
+  - 集群内部其他命名空间：`http://my-service.namespace.svc.cluster.local`
+
+**NodePort（节点端口）**
+- **核心原理**：在集群每个节点的IP上开放一个静态端口，通过节点IP和端口访问服务
+- **核心特点**：
+  - 在每个节点上开放30000-32767范围内的端口
+  - 通过`NodeIP:NodePort`访问服务
+  - 流量会转发到Service，再由kube-proxy分发到后端Pod
+- **适用场景**：
+  - 开发测试环境
+  - 需要简单暴露服务的场景
+  - 不方便使用LoadBalancer的本地集群
+- **配置示例**：
+  
+```yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-service
+  spec:
+    type: NodePort
+    selector:
+      app: my-app
+    ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30080
+  ```
+- **访问方式**：
+  - `http://<节点IP>:30080`
+  - 集群内有多个节点时，任意节点IP均可访问
+- **注意事项**：
+  - 端口范围有限（30000-32767）
+  - 需要考虑防火墙规则
+  - 不适合生产环境暴露HTTPS服务
+
+**LoadBalancer（负载均衡器）**
+- **核心原理**：调用云厂商的负载均衡器，将外部流量引入集群
+- **核心特点**：
+  - 需要云厂商支持（如AWS、Azure、GCP、阿里云等）
+  - 自动创建云厂商负载均衡器
+  - 提供外部可访问的公网或私网IP地址
+- **适用场景**：
+  - 生产环境需要公网访问的服务
+  - 需要SSL/TLS终止的服务
+  - 需要与传统基础设施集成的场景
+- **配置示例**：
+  
+```yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-service
+  spec:
+    type: LoadBalancer
+    selector:
+      app: my-app
+    ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+    loadBalancerIP: 1.2.3.4
+  ```
+- **云厂商集成**：
+  - AWS：创建Classic Load Balancer或Network Load Balancer
+  - Azure：创建Azure Load Balancer
+  - GCP：创建Google Cloud Load Balancer
+  - 阿里云：创建Server Load Balancer
+- **常见配置**：
+  - `loadBalancerIP`：指定负载均衡器IP（需要云厂商支持）
+  - `loadBalancerSourceRanges`：限制访问来源IP范围
+  - `externalTrafficPolicy`：保留客户端源IP或负载均衡
+
+**ExternalName（外部名称）**
+- **核心原理**：将Service映射到外部DNS名称，通过CNAME记录实现
+- **核心特点**：
+  - 不创建任何端点（Endpoints）
+  - 返回外部域名CNAME记录
+  - 用于访问集群外部的服务
+- **适用场景**：
+  - 访问外部数据库服务
+  - 访问外部第三方API
+  - 迁移过程中临时访问外部服务
+  - 将外部服务纳入集群内部DNS
+- **配置示例**：
+  
+```yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-external-service
+  spec:
+    type: ExternalName
+    externalName: api.example.com
+  ```
+- **访问方式**：
+  - `http://my-external-service.default.svc.cluster.local` 解析到 `api.example.com`
+  - 返回CNAME记录，客户端直接访问外部服务
+- **注意事项**：
+  - 不支持端口映射，外部服务必须使用标准端口
+  - 不支持健康检查
+  - 可能会增加DNS解析延迟
+
+**四种Service类型的对比**：
+
+**访问范围对比**
+- **ClusterIP**：仅集群内部访问
+- **NodePort**：集群内部和节点可访问
+- **LoadBalancer**：集群外部（公网/私网）可访问
+- **ExternalName**：集群内部可访问，指向外部服务
+
+**复杂度和成本对比**
+- **ClusterIP**：最简单，无额外成本
+- **NodePort**：简单，可能需要配置防火墙
+- **LoadBalancer**：复杂，需要云厂商支持和额外成本
+- **ExternalName**：简单，无额外成本
+
+**适用场景对比**
+- **ClusterIP**：微服务间内部调用
+- **NodePort**：开发测试、简单暴露
+- **LoadBalancer**：生产环境、公网访问
+- **ExternalName**：访问外部服务
+
+**功能特性对比**
+
+| 特性 | ClusterIP | NodePort | LoadBalancer | ExternalName |
+|------|-----------|----------|--------------|--------------|
+| 集群内部访问 | ✓ | ✓ | ✓ | ✓ |
+| 集群外部访问 | ✗ | ✓ | ✓ | ✗ |
+| 保留客户端IP | ✓ | 部分 | 部分 | ✓ |
+| 健康检查 | ✓ | ✓ | ✓ | ✗ |
+| 负载均衡 | ✓ | ✓ | ✓ | ✗ |
+| SSL终止 | ✗ | ✗ | ✓ | ✗ |
+| 云厂商依赖 | ✗ | ✗ | ✓ | ✗ |
+
+**Headless Service**：
+
+**概念和原理**
+- **核心原理**：当不需要负载均衡和单一服务IP时，可以设置`clusterIP: None`，创建Headless Service
+- **DNS行为**：集群DNS返回所有后端Pod的IP地址，而不是单一的Service IP
+- **适用场景**：
+  - 有状态应用需要直接访问Pod
+  - 自定义服务发现和负载均衡逻辑
+  - 数据库主从部署需要直接连接
+
+**配置示例**：
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-headless-service
+spec:
+  clusterIP: None
+  selector:
+    app: my-app
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+**访问方式**：
+- DNS查询返回所有Pod IP列表
+- 客户端直接选择目标Pod进行连接
+
+**ExternalName vs Headless Service**：
+- **ExternalName**：返回外部域名CNAME，用于访问集群外部服务
+- **Headless Service**：返回后端Pod IP列表，用于直接访问Pod
+
+**Service与Ingress的配合**：
+
+**Ingress的作用**
+- 提供HTTP/HTTPS路由
+- 基于域名和路径的路由规则
+- SSL/TLS终止
+- 名称虚拟托管
+
+**配合使用场景**：
+
+```yaml
+# Ingress配置示例
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+spec:
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - myapp.example.com
+    secretName: my-tls-secret
+```
+
+**Service选择的最佳实践**：
+
+**1. 优先使用ClusterIP**
+- 集群内部服务间通信使用ClusterIP
+- 避免直接暴露不必要的服务
+- 通过Ingress或Gateway API暴露HTTP/HTTPS服务
+
+**2. 谨慎使用NodePort**
+- 仅用于开发测试环境
+- 如果必须使用，指定非标准端口
+- 配置适当的防火墙规则
+
+**3. 生产环境使用LoadBalancer**
+- 需要公网访问时使用
+- 配合Ingress实现HTTPS路由
+- 考虑使用云厂商的内部负载均衡器
+
+**4. 善用ExternalName**
+- 访问外部服务时使用
+- 方便服务迁移和集成
+- 注意DNS解析延迟
+
+**5. 考虑使用Headless Service**
+- 有状态应用需要直接访问Pod
+- 自定义负载均衡逻辑
+- 数据库主从等场景
+
+**常见问题与解决方案**：
+
+**问题1：Service无法访问**
+- 原因：Selector不匹配、端口配置错误、Pod未就绪
+- 解决方案：
+  - 检查Service的Selector配置
+  - 验证端口映射是否正确
+  - 确保后端Pod运行正常
+
+**问题2：NodePort无法访问**
+- 原因：防火墙规则未开放、安全组限制、节点网络问题
+- 解决方案：
+  - 检查防火墙规则，开放对应端口
+  - 检查云厂商安全组配置
+  - 验证节点网络连通性
+
+**问题3：LoadBalancer创建失败**
+- 原因：云厂商配额不足、权限不足、配置错误
+- 解决方案：
+  - 检查云厂商资源配额
+  - 验证ServiceAccount权限
+  - 查看云厂商负载均衡控制台
+
+**问题4：ExternalName解析失败**
+- 原因：DNS配置错误、外部域名不可达
+- 解决方案：
+  - 验证外部域名有效性
+  - 检查集群DNS配置
+  - 使用`nslookup`测试解析
+
+**问题5：无法保留客户端源IP**
+- 原因：使用了NAT、代理模式不支持
+- 解决方案：
+  - 设置`externalTrafficPolicy: Local`
+  - 配合LoadBalancer的健康检查
+  - 使用代理模式支持源IP保留
+
+**注意事项**：
+
+- 生产环境优先使用ClusterIP配合Ingress暴露服务
+- NodePort仅用于开发测试，避免在生产环境使用
+- LoadBalancer根据云厂商支持情况选择合适的类型
+- ExternalName不适用于需要端口映射的场景
+- 合理规划Service和端口，避免端口冲突
+- 使用Headless Service实现有状态应用的服务发现
+- 监控Service状态和后端Pod健康情况
+- 定期清理不再使用的Service资源
+- 使用标签选择器管理Service，方便维护和更新
+- 考虑使用NetworkPolicy限制Service访问范围
+- 生产环境建议启用Service的会话亲和性配置
+- 使用健康检查确保后端Pod可用性
 
 ## 总结与建议
 
