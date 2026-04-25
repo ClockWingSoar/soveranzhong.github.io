@@ -13,56 +13,52 @@
 **判断方法**：
 
 - **使用 `pstree -p` 命令**：查看进程树结构，括号中的数字为线程ID，子进程前带有 `{}` 表示线程
-  
-
-```bash
-  pstree -p | grep zabbix
-  # 输出示例：
-  # `-zabbix_agent2(5352)-+-{zabbix_agent2}(5361)
-  #                      |-{zabbix_agent2}(5362)
-  #                      |-{zabbix_agent2}(5363)
-  #                      |-{zabbix_agent2}(5364)
-  #                      |-{zabbix_agent2}(5376)
-  #                      `-{zabbix_agent2}(5390)
-```
+   
+    ```bash
+      pstree -p | grep zabbix
+      # 输出示例：
+      # `-zabbix_agent2(5352)-+-{zabbix_agent2}(5361)
+      #                      |-{zabbix_agent2}(5362)
+      #                      |-{zabbix_agent2}(5363)
+      #                      |-{zabbix_agent2}(5364)
+      #                      |-{zabbix_agent2}(5376)
+      #                      `-{zabbix_agent2}(5390)
+    ```
 
 - **使用 `ps aux` 命令**：查看进程状态，状态列中的 `l` 表示多线程
-  
-
-```bash
-  ps aux | grep zabbix
-  # 输出示例：
-  # zabbix      5352  0.0  0.5 1695696 21944 ?       Ssl  13:42   0:00 /usr/sbin/zabbix_agent2 -c /etc/zabbix/zabbix_agent2.conf
-```
-  注：状态列中的 `Ssl` 表示该进程是多线程的（`l` 标志）
+   
+    ```bash
+      ps aux | grep zabbix
+      # 输出示例：
+      # zabbix      5352  0.0  0.5 1695696 21944 ?       Ssl  13:42   0:00 /usr/sbin/zabbix_agent2 -c /etc/zabbix/zabbix_agent2.conf
+    ```
+    注：状态列中的 `Ssl` 表示该进程是多线程的（`l` 标志）
 
 - **查看 `/proc` 文件系统**：通过 `/proc/[pid]/status` 文件查看线程数
-  
-
-```bash
-  # 查看进程状态文件中的线程数
-  cat /proc/5352/status | grep Thread
-  # 输出示例：
-  # Threads:        7
-```
+   
+    ```bash
+      # 查看进程状态文件中的线程数
+      cat /proc/5352/status | grep Thread
+      # 输出示例：
+      # Threads:        7
+    ```
 
   **完整操作示例**：
 
+    ```bash
+      # 查看进程树
+      pstree -p | grep zabbix
+      # `-zabbix_agent2(5352)-+-{zabbix_agent2}(5361)
+      #                      |-{zabbix_agent2}(5362)
+      #                      |-{zabbix_agent2}(5363)
+      #                      |-{zabbix_agent2}(5364)
+      #                      |-{zabbix_agent2}(5376)
+      #                      `-{zabbix_agent2}(5390)
 
-```bash
-  # 查看进程树
-  pstree -p | grep zabbix
-  # `-zabbix_agent2(5352)-+-{zabbix_agent2}(5361)
-  #                      |-{zabbix_agent2}(5362)
-  #                      |-{zabbix_agent2}(5363)
-  #                      |-{zabbix_agent2}(5364)
-  #                      |-{zabbix_agent2}(5376)
-  #                      `-{zabbix_agent2}(5390)
-
-  # 查看进程状态文件
-  cat /proc/5352/status | grep Thread
-  # Threads:        7
-```
+      # 查看进程状态文件
+      cat /proc/5352/status | grep Thread
+      # Threads:        7
+    ```
 
 ### 2. 你写过哪些类型的Shell脚本？
 
@@ -169,39 +165,34 @@
 **构建工具**：
 
 - **Java**：Maven
-  
-
-```bash
-  mvn clean package -Dmaven.test.skip=true
-```
+   
+    ```bash
+      mvn clean package -Dmaven.test.skip=true
+    ```
 
 - **Go**：
-  
-
-```bash
-  go build
-```
+   
+    ```bash
+      go build
+    ```
 
 - **Python**：
-  
-
-```bash
-  python3 xxx.py
-```
+   
+    ```bash
+      python3 xxx.py
+    ```
 
 - **C/C++**：
-  
-
-```bash
-  ./configure && make && make install
-```
+   
+    ```bash
+      ./configure && make && make install
+    ```
 
 - **容器化**：Docker
-  
-
-```bash
-  docker build -t image-name .
-```
+   
+    ```bash
+      docker build -t image-name .
+    ```
 
 ### 9. SRE工程师岗位职责
 
@@ -386,59 +377,54 @@
 **查找Nginx配置文件的方法**：
 
 - **通过 `nginx -t` 命令查找**：
-  
-
-```bash
-  # 查找nginx配置文件（同时测试配置语法）
-  nginx -t
-  # 输出示例：
-  # nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-  # nginx: configuration file /etc/nginx/nginx.conf test is successful
-```
+   
+    ```bash
+      # 查找nginx配置文件（同时测试配置语法）
+      nginx -t
+      # 输出示例：
+      # nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+      # nginx: configuration file /etc/nginx/nginx.conf test is successful
+    ```
 
 - **通过 `nginx -V` 查看编译配置**：
-  
-
-```bash
-  # 查看nginx编译时的配置参数
-  nginx -V
-  # 输出示例：
-  # configure arguments: --prefix=/etc/nginx --conf-path=/etc/nginx/nginx.conf ...
-  # 可以看到 --conf-path 指定了配置文件路径
-```
+   
+    ```bash
+      # 查看nginx编译时的配置参数
+      nginx -V
+      # 输出示例：
+      # configure arguments: --prefix=/etc/nginx --conf-path=/etc/nginx/nginx.conf ...
+      # 可以看到 --conf-path 指定了配置文件路径
+    ```
 
 - **通过 `nginx -T` 查看完整配置**：
-  
-
-```bash
-  # 打印完整的nginx配置（包括所有include文件）
-  nginx -T
-  # 此命令会输出所有配置文件内容，可以从中找到access_log和error_log的路径
-```
+   
+    ```bash
+      # 打印完整的nginx配置（包括所有include文件）
+      nginx -T
+      # 此命令会输出所有配置文件内容，可以从中找到access_log和error_log的路径
+    ```
 
 - **通过ps命令查看进程信息**：
-  
-
-```bash
-  # 查找nginx进程
-  ps aux | grep nginx
-  # 输出示例：
-  # root       1234  0.0  0.1  12345  6789 ?        Ss   10:00   0:00 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
+   
+    ```bash
+      # 查找nginx进程
+      ps aux | grep nginx
+      # 输出示例：
+      # root       1234  0.0  0.1  12345  6789 ?        Ss   10:00   0:00 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
   # 从-c参数找到配置文件路径
 ```
 
 - **通过 `/proc` 文件系统查找**：
-  
-
-```bash
-  # 1. 找到nginx master进程的PID
-  ps aux | grep "nginx: master process"
-  # 2. 查看进程的可执行文件路径
-  ls -l /proc/[PID]/exe
-  # 3. 使用找到的nginx执行文件查看配置
-  /path/to/nginx -t
-  /path/to/nginx -V
-```
+   
+    ```bash
+      # 1. 找到nginx master进程的PID
+      ps aux | grep "nginx: master process"
+      # 2. 查看进程的可执行文件路径
+      ls -l /proc/[PID]/exe
+      # 3. 使用找到的nginx执行文件查看配置
+      /path/to/nginx -t
+      /path/to/nginx -V
+    ```
 
 - **常见的Nginx配置文件默认路径**：
   - CentOS/RHEL: `/etc/nginx/nginx.conf`
@@ -448,33 +434,30 @@
 **查找Nginx日志文件的方法**：
 
 - **通过配置文件查找（最可靠）**：
-  
-
-```bash
-  # 先找到配置文件，然后查找日志路径
-  cat /etc/nginx/nginx.conf | grep access_log
-  cat /etc/nginx/nginx.conf | grep error_log
-  # 查看子配置文件
-  cat /etc/nginx/conf.d/*.conf | grep access_log
-  cat /etc/nginx/sites-enabled/* | grep access_log
-```
+   
+    ```bash
+      # 先找到配置文件，然后查找日志路径
+      cat /etc/nginx/nginx.conf | grep access_log
+      cat /etc/nginx/nginx.conf | grep error_log
+      # 查看子配置文件
+      cat /etc/nginx/conf.d/*.conf | grep access_log
+      cat /etc/nginx/sites-enabled/* | grep access_log
+    ```
 
 - **通过lsof命令查找已打开的日志文件**：
-  
-
-```bash
-  # 查找nginx进程打开的日志文件
-  lsof -p $(cat /var/run/nginx.pid) | grep log
-  # 或者查找所有nginx进程的文件描述符
-  lsof | grep nginx | grep log
-```
+   
+    ```bash
+      # 查找nginx进程打开的日志文件
+      lsof -p $(cat /var/run/nginx.pid) | grep log
+      # 或者查找所有nginx进程的文件描述符
+      lsof | grep nginx | grep log
+    ```
 
 - **通过find命令查找已修改的日志文件**：
-  
-
-```bash
-  # 查找最近修改过的日志文件
-  find /var/log -name "*nginx*" -type f -mtime -1 2>/dev/null
+   
+    ```bash
+      # 查找最近修改过的日志文件
+      find /var/log -name "*nginx*" -type f -mtime -1 2>/dev/null
   find /var/log -name "*access*" -o -name "*error*" -type f -mtime -1 2>/dev/null
 ```
 
@@ -505,40 +488,37 @@
 **查询TCP连接状态的方法**：
 
 - **使用 `netstat` 命令**：
-  
-
-```bash
-  # 查看所有TCP连接状态
-  netstat -nta
-  
-  # 统计ESTABLISHED状态的连接数
-  netstat -nta | grep -c ESTABLISHED
-  
-  # 统计所有状态的连接数
-  netstat -nta | awk '{print $6}' | sort | uniq -c
-```
+   
+    ```bash
+      # 查看所有TCP连接状态
+      netstat -nta
+      
+      # 统计ESTABLISHED状态的连接数
+      netstat -nta | grep -c ESTABLISHED
+      
+      # 统计所有状态的连接数
+      netstat -nta | awk '{print $6}' | sort | uniq -c
+    ```
 
 - **使用 `ss` 命令**（更高效，推荐）：
-  
-
-```bash
-  # 查看所有TCP连接状态
-  ss -nta
-  
-  # 统计ESTABLISHED状态的连接数
-  ss -nta | grep -c ESTABLISHED
-  
-  # 统计所有状态的连接数
-  ss -nta | awk '{print $1}' | sort | uniq -c
-```
+   
+    ```bash
+      # 查看所有TCP连接状态
+      ss -nta
+      
+      # 统计ESTABLISHED状态的连接数
+      ss -nta | grep -c ESTABLISHED
+      
+      # 统计所有状态的连接数
+      ss -nta | awk '{print $1}' | sort | uniq -c
+    ```
 
 - **使用 `ss` 命令的内置功能**：
-  
-
-```bash
-  # 直接统计各种状态的连接数
-  ss -s
-```
+   
+    ```bash
+      # 直接统计各种状态的连接数
+      ss -s
+    ```
 
 **TCP连接状态种类**：
 
@@ -564,35 +544,32 @@
 **实用命令示例**：
 
 - **查看特定状态的连接**：
-  
-
-```bash
-  # 查看ESTABLISHED状态的连接
-  netstat -nta | grep ESTABLISHED
-  
-  # 查看TIME_WAIT状态的连接
-  netstat -nta | grep TIME_WAIT
-```
+   
+    ```bash
+      # 查看ESTABLISHED状态的连接
+      netstat -nta | grep ESTABLISHED
+      
+      # 查看TIME_WAIT状态的连接
+      netstat -nta | grep TIME_WAIT
+    ```
 
 - **按状态统计连接数**：
-  
-
-```bash
-  # 使用netstat
-  netstat -nta | awk '{print $6}' | sort | uniq -c | sort -nr
-  
-  # 使用ss
-  ss -nta | awk '{print $1}' | sort | uniq -c | sort -nr
-```
+   
+    ```bash
+      # 使用netstat
+      netstat -nta | awk '{print $6}' | sort | uniq -c | sort -nr
+      
+      # 使用ss
+      ss -nta | awk '{print $1}' | sort | uniq -c | sort -nr
+    ```
 
 - **查看特定端口的连接**：
-  
-
-```bash
-  # 查看80端口的连接
-  netstat -nta | grep :80
-  ss -nta | grep :80
-```
+   
+    ```bash
+      # 查看80端口的连接
+      netstat -nta | grep :80
+      ss -nta | grep :80
+    ```
 
 **注意事项**：
 - `ss` 命令比 `netstat` 更高效，在高并发场景下推荐使用
@@ -660,40 +637,37 @@
 **查看单独CPU数据的方法**：
 
 - **按数字1显示所有CPU核心**：
-  
-
-```bash
-  top
-  # 在top界面中按数字1键
-  # 会显示每个CPU核心的详细使用率
-```
+   
+    ```bash
+      top
+      # 在top界面中按数字1键
+      # 会显示每个CPU核心的详细使用率
+    ```
 
 - **在top启动时直接显示所有CPU**：
-  
-
-```bash
-  top -1
-  # 或者
-  top -n 1 -b | head -20
-```
+   
+    ```bash
+      top -1
+      # 或者
+      top -n 1 -b | head -20
+    ```
 
 - **使用htop查看单个CPU**（更直观）：
   
 
-```bash
-  htop
-  # 默认显示每个CPU核心的使用情况
-  # 可以通过F5切换树状视图，F4过滤
-```
+    ```bash
+      htop
+      # 默认显示每个CPU核心的使用情况
+      # 可以通过F5切换树状视图，F4过滤
+    ```
 
 - **查看特定CPU核心的进程**：
-  
-
-```bash
-  # 查看CPU0上运行的进程
-  ps -eo pid,ppid,cmd,psr | grep -v PID | awk '$4==0 {print}'
-  # psr列表示进程所在的CPU核心
-```
+   
+    ```bash
+      # 查看CPU0上运行的进程
+      ps -eo pid,ppid,cmd,psr | grep -v PID | awk '$4==0 {print}'
+      # psr列表示进程所在的CPU核心
+    ```
 
 **top命令常用快捷键**：
 
@@ -723,41 +697,39 @@
 - **查看CPU核心数**：
   
 
-```bash
-  # 总核心数
-  nproc
-  
-  # 详细信息
-  cat /proc/cpuinfo | grep "processor" | wc -l
-  
-  # 每个核心的详细信息
-  lscpu
-```
+    ```bash
+      # 总核心数
+      nproc
+      
+      # 详细信息
+      cat /proc/cpuinfo | grep "processor" | wc -l
+      
+      # 每个核心的详细信息
+      lscpu
+    ```
 
 - **查看CPU频率**：
-  
-
-```bash
-  # 查看每个核心的频率
-  cat /proc/cpuinfo | grep MHz
-  
-  # 实时查看（需要sysstat包）
-  mpstat -P ALL 1
-```
+   
+    ```bash
+      # 查看每个核心的频率
+      cat /proc/cpuinfo | grep MHz
+      
+      # 实时查看（需要sysstat包）
+      mpstat -P ALL 1
+    ```
 
 - **分析CPU负载**：
-  
-
-```bash
-  # 查看系统负载
-  uptime
-  
-  # 查看CPU和内存详细信息
-  vmstat 1 5
-  
-  # 查看每个核心的详细使用
-  mpstat -P ALL 1
-```
+   
+    ```bash
+      # 查看系统负载
+      uptime
+      
+      # 查看CPU和内存详细信息
+      vmstat 1 5
+      
+      # 查看每个核心的详细使用
+      mpstat -P ALL 1
+    ```
 
 **注意事项**：
 - 在虚拟化环境中，CPU使用率可能受宿主机和其他虚拟机影响
@@ -1806,8 +1778,6 @@
 
 **混合持久化（推荐）**：
 
-
-
     ```bash
     # redis.conf
     appendonly yes
@@ -2162,7 +2132,7 @@
       # 推送镜像到私有仓库
       docker tag image_name:tag registry.example.com/image_name:tag
       docker push registry.example.com/image_name:tag
-  
+    
       # 在目标服务器拉取
       docker pull registry.example.com/image_name:tag
     ```
@@ -2192,10 +2162,10 @@
     ```bash
       # 查看所有进程，包括僵尸进程
       ps aux | grep Z
-  
+    
       # 查看状态为Z的进程（僵尸进程）
       ps -eo pid,ppid,state,cmd | grep ^[[:space:]]*[0-9]*[[:space:]]*[0-9]*[[:space:]]*Z
-  
+    
       # 查看僵尸进程的详细信息
       ps -eo pid,ppid,stat,comm,etime --sort=-stat | grep Z
     ```
@@ -2218,7 +2188,7 @@
           echo "$(dirname $i): $(cat $i)" 
         fi 
       done
-  
+    
       # 查看进程状态
       cat /proc/<pid>/stat | awk '{print $3}'
     ```
@@ -2251,7 +2221,7 @@
     ```bash
       # 找到僵尸进程的父进程
       ps -eo pid,ppid,stat,cmd | grep Z
-  
+    
       # 重启父进程（谨慎操作）
       kill -9 <父进程PID>
       systemctl restart <服务名>
@@ -2262,10 +2232,10 @@
     ```bash
       # 找到父进程
       ps -eo pid,ppid,stat,cmd | grep Z
-  
+    
       # 向父进程发送SIGCHLD信号，迫使其回收子进程
       kill -SIGCHLD <父进程PID>
-  
+    
       # 如果无效，杀死父进程
       kill -9 <父进程PID>
     ```
@@ -2318,7 +2288,7 @@
     ```bash
       # 重启nginx
       systemctl restart nginx
-  
+    
       # 重启php-fpm
       systemctl restart php-fpm
     ```
@@ -2345,19 +2315,18 @@
 **监控僵尸进程的脚本**：
 
 
-
-```bash
-#!/bin/bash
-# 检查僵尸进程数量
-ZOMBIE_COUNT=$(ps aux | grep -c ' Z ')
-
-if [ "$ZOMBIE_COUNT" -gt 10 ]; then
-    echo "Warning: $ZOMBIE_COUNT zombie processes found"
-    ps aux | grep -E ' Z |defunct' | head -20
-    # 发送告警
-    # curl -X POST "http://alert.example.com/webhook" -d "msg=Too many zombie processes"
-fi
-```
+    ```bash
+    #!/bin/bash
+    # 检查僵尸进程数量
+    ZOMBIE_COUNT=$(ps aux | grep -c ' Z ')
+    
+    if [ "$ZOMBIE_COUNT" -gt 10 ]; then
+        echo "Warning: $ZOMBIE_COUNT zombie processes found"
+        ps aux | grep -E ' Z |defunct' | head -20
+        # 发送告警
+        # curl -X POST "http://alert.example.com/webhook" -d "msg=Too many zombie processes"
+    fi
+    ```
 
 **注意事项**：
 
@@ -2376,45 +2345,44 @@ fi
 - **慢查询定义**：执行时间超过指定阈值（默认10秒）的SQL查询
 - **开启慢查询日志**：
   
-```sql
-  -- 临时开启（重启后失效）
-  SET GLOBAL slow_query_log = 'ON';
-  SET GLOBAL long_query_time = 2;  -- 设置阈值为2秒
-  
-  -- 配置文件永久开启（my.cnf）
-  slow_query_log = 1
-  slow_query_log_file = /var/log/mysql/slow.log
-  long_query_time = 2
-```
+    ```sql
+      -- 临时开启（重启后失效）
+      SET GLOBAL slow_query_log = 'ON';
+      SET GLOBAL long_query_time = 2;  -- 设置阈值为2秒
+      
+      -- 配置文件永久开启（my.cnf）
+      slow_query_log = 1
+      slow_query_log_file = /var/log/mysql/slow.log
+      long_query_time = 2
+    ```
 
 - **查看慢查询日志**：
-  
-
-```bash
-  # 查看日志内容
-  cat /var/log/mysql/slow.log
-  
-  # 使用mysqldumpslow工具分析
-  mysqldumpslow -s t -t 10 /var/log/mysql/slow.log
-  
-  # 使用pt-query-digest分析（percona工具）
-  pt-query-digest /var/log/mysql/slow.log
-```
+   
+    ```bash
+      # 查看日志内容
+      cat /var/log/mysql/slow.log
+      
+      # 使用mysqldumpslow工具分析
+      mysqldumpslow -s t -t 10 /var/log/mysql/slow.log
+      
+      # 使用pt-query-digest分析（percona工具）
+      pt-query-digest /var/log/mysql/slow.log
+    ```
 
 - **慢查询分析**：
   
-```sql
-  -- 查看慢查询数量
-  SHOW GLOBAL STATUS LIKE 'Slow_queries';
-  
-  -- 查看当前慢查询配置
-  SHOW VARIABLES LIKE 'slow_query%';
-  SHOW VARIABLES LIKE 'long_query_time';
-  
-  -- 使用EXPLAIN分析查询
-  EXPLAIN SELECT * FROM users WHERE name = 'test';
-  EXPLAIN ANALYZE SELECT * FROM users WHERE name = 'test';
-```
+    ```sql
+      -- 查看慢查询数量
+      SHOW GLOBAL STATUS LIKE 'Slow_queries';
+      
+      -- 查看当前慢查询配置
+      SHOW VARIABLES LIKE 'slow_query%';
+      SHOW VARIABLES LIKE 'long_query_time';
+      
+      -- 使用EXPLAIN分析查询
+      EXPLAIN SELECT * FROM users WHERE name = 'test';
+      EXPLAIN ANALYZE SELECT * FROM users WHERE name = 'test';
+    ```
 
 - **慢查询优化方法**：
   - 优化索引：为WHERE、JOIN、ORDER BY字段添加索引
@@ -2435,41 +2403,41 @@ fi
 
 - **示例**：
   
-```sql
-  -- UNION：自动去重
-  SELECT name FROM users WHERE status = 1
-  UNION
-  SELECT name FROM admins WHERE status = 1;
-  
-  -- UNION ALL：保留所有记录（包括重复）
-  SELECT name FROM users WHERE status = 1
-  UNION ALL
-  SELECT name FROM admins WHERE status = 1;
-  
-  -- UNION配合ORDER BY
-  SELECT name, id FROM users WHERE status = 1
-  UNION
-  SELECT name, id FROM admins WHERE status = 1
-  ORDER BY id DESC;
-```
+    ```sql
+      -- UNION：自动去重
+      SELECT name FROM users WHERE status = 1
+      UNION
+      SELECT name FROM admins WHERE status = 1;
+      
+      -- UNION ALL：保留所有记录（包括重复）
+      SELECT name FROM users WHERE status = 1
+      UNION ALL
+      SELECT name FROM admins WHERE status = 1;
+      
+      -- UNION配合ORDER BY
+      SELECT name, id FROM users WHERE status = 1
+      UNION
+      SELECT name, id FROM admins WHERE status = 1
+      ORDER BY id DESC;
+    ```
 
 **MySQL排序**：
 
 - **ORDER BY基础语法**：
   
-```sql
-  -- 单字段排序
-  SELECT * FROM users ORDER BY created_at DESC;
-  
-  -- 多字段排序
-  SELECT * FROM users ORDER BY status ASC, created_at DESC;
-  
-  -- 按表达式排序
-  SELECT *, (score1 + score2) AS total FROM users ORDER BY total DESC;
-  
-  -- 按字段位置排序（不推荐）
-  SELECT * FROM users ORDER BY 1, 2;
-```
+    ```sql
+      -- 单字段排序
+      SELECT * FROM users ORDER BY created_at DESC;
+      
+      -- 多字段排序
+      SELECT * FROM users ORDER BY status ASC, created_at DESC;
+      
+      -- 按表达式排序
+      SELECT *, (score1 + score2) AS total FROM users ORDER BY total DESC;
+      
+      -- 按字段位置排序（不推荐）
+      SELECT * FROM users ORDER BY 1, 2;
+    ```
 
 - **ASC与DESC**：
   - ASC：升序（从小到大，默认）
@@ -2477,26 +2445,26 @@ fi
 
 - **NULL值排序**：
   
-```sql
-  -- NULL值排在最前面（MySQL默认）
-  SELECT * FROM users ORDER BY name ASC NULLS FIRST;
-  
-  -- NULL值排在最后面
-  SELECT * FROM users ORDER BY name ASC NULLS LAST;
-  
-  -- 使用IFNULL处理NULL值
-  SELECT * FROM users ORDER BY IFNULL(name, 'zzz') ASC;
-```
+    ```sql
+      -- NULL值排在最前面（MySQL默认）
+      SELECT * FROM users ORDER BY name ASC NULLS FIRST;
+      
+      -- NULL值排在最后面
+      SELECT * FROM users ORDER BY name ASC NULLS LAST;
+      
+      -- 使用IFNULL处理NULL值
+      SELECT * FROM users ORDER BY IFNULL(name, 'zzz') ASC;
+    ```
 
 - **使用索引优化排序**：
   
-```sql
-  -- 创建合适的索引支持排序
-  CREATE INDEX idx_status_created ON users(status, created_at);
-  
-  -- EXPLAIN检查是否使用索引排序
-  EXPLAIN SELECT * FROM users WHERE status = 1 ORDER BY created_at DESC;
-```
+    ```sql
+      -- 创建合适的索引支持排序
+      CREATE INDEX idx_status_created ON users(status, created_at);
+      
+      -- EXPLAIN检查是否使用索引排序
+      EXPLAIN SELECT * FROM users WHERE status = 1 ORDER BY created_at DESC;
+    ```
 
 - **文件排序（Using filesort）**：
   - 当无法使用索引排序时，MySQL使用文件排序
@@ -2517,77 +2485,77 @@ fi
 
 - **INNER JOIN（内连接）**：
   
-```sql
-  -- 只返回两个表中匹配的记录
-  SELECT u.name, o.order_id
-  FROM users u
-  INNER JOIN orders o ON u.id = o.user_id;
-  
-  -- 等效于
-  SELECT u.name, o.order_id
-  FROM users u, orders o
-  WHERE u.id = o.user_id;
-```
+    ```sql
+      -- 只返回两个表中匹配的记录
+      SELECT u.name, o.order_id
+      FROM users u
+      INNER JOIN orders o ON u.id = o.user_id;
+      
+      -- 等效于
+      SELECT u.name, o.order_id
+      FROM users u, orders o
+      WHERE u.id = o.user_id;
+    ```
 
 - **LEFT JOIN（左连接）**：
   
-```sql
-  -- 返回左表所有记录，右表无匹配则返回NULL
-  SELECT u.name, o.order_id
-  FROM users u
-  LEFT JOIN orders o ON u.id = o.user_id;
-  
-  -- 应用场景：查询所有用户及其订单（包括没有订单的用户）
-  SELECT u.*, COUNT(o.id) AS order_count
-  FROM users u
-  LEFT JOIN orders o ON u.id = o.user_id
-  GROUP BY u.id;
-```
+    ```sql
+      -- 返回左表所有记录，右表无匹配则返回NULL
+      SELECT u.name, o.order_id
+      FROM users u
+      LEFT JOIN orders o ON u.id = o.user_id;
+      
+      -- 应用场景：查询所有用户及其订单（包括没有订单的用户）
+      SELECT u.*, COUNT(o.id) AS order_count
+      FROM users u
+      LEFT JOIN orders o ON u.id = o.user_id
+      GROUP BY u.id;
+    ```
 
 - **RIGHT JOIN（右连接）**：
   
-```sql
-  -- 返回右表所有记录，左表无匹配则返回NULL
-  SELECT u.name, o.order_id
-  FROM users u
-  RIGHT JOIN orders o ON u.id = o.user_id;
-  
-  -- 应用场景：查询所有订单及其用户（包括没有用户的订单）
-```
+    ```sql
+      -- 返回右表所有记录，左表无匹配则返回NULL
+      SELECT u.name, o.order_id
+      FROM users u
+      RIGHT JOIN orders o ON u.id = o.user_id;
+      
+      -- 应用场景：查询所有订单及其用户（包括没有用户的订单）
+    ```
 
 - **FULL OUTER JOIN（全外连接）**：
   
-```sql
-  -- MySQL不直接支持，可以使用UNION实现
-  SELECT u.name, o.order_id
-  FROM users u
-  LEFT JOIN orders o ON u.id = o.user_id
-  UNION
-  SELECT u.name, o.order_id
-  FROM users u
-  RIGHT JOIN orders o ON u.id = o.user_id;
-```
+    ```sql
+      -- MySQL不直接支持，可以使用UNION实现
+      SELECT u.name, o.order_id
+      FROM users u
+      LEFT JOIN orders o ON u.id = o.user_id
+      UNION
+      SELECT u.name, o.order_id
+      FROM users u
+      RIGHT JOIN orders o ON u.id = o.user_id;
+    ```
 
 - **CROSS JOIN（交叉连接）**：
   
-```sql
-  -- 返回笛卡尔积（所有组合）
-  SELECT u.name, o.order_id
-  FROM users u
-  CROSS JOIN orders o;
-  
-  -- 应用场景：生成测试数据、枚举组合
-```
+    ```sql
+      -- 返回笛卡尔积（所有组合）
+      SELECT u.name, o.order_id
+      FROM users u
+      CROSS JOIN orders o;
+      
+      -- 应用场景：生成测试数据、枚举组合
+    ```
 
 - **多表JOIN**：
   
-```sql
-  SELECT u.name, o.order_id, p.product_name
-  FROM users u
-  INNER JOIN orders o ON u.id = o.user_id
-  INNER JOIN products p ON o.product_id = p.id
-  WHERE u.status = 1;
-```
+    ```sql
+      SELECT u.name, o.order_id, p.product_name
+      FROM users u
+      INNER JOIN orders o ON u.id = o.user_id
+      INNER JOIN products p ON o.product_id = p.id
+      WHERE u.status = 1;
+    ```
 
 - **JOIN优化建议**：
   - 确保ON条件字段有索引
@@ -2600,20 +2568,20 @@ fi
 
 
 
-```bash
-# 查看当前连接
-SHOW FULL PROCESSLIST;
-
-# 查看状态
-SHOW STATUS LIKE 'Threads%';
-
-# 查看变量
-SHOW VARIABLES LIKE 'slow_query%';
-SHOW VARIABLES LIKE 'long_query_time';
-
-# 重建查询缓存（MySQL 8.0已移除）
-RESET QUERY CACHE;
-```
+    ```bash
+    # 查看当前连接
+    SHOW FULL PROCESSLIST;
+    
+    # 查看状态
+    SHOW STATUS LIKE 'Threads%';
+    
+    # 查看变量
+    SHOW VARIABLES LIKE 'slow_query%';
+    SHOW VARIABLES LIKE 'long_query_time';
+    
+    # 重建查询缓存（MySQL 8.0已移除）
+    RESET QUERY CACHE;
+    ```
 
 ### 35. 如何查看某个命令属于哪个包？
 
@@ -2624,95 +2592,95 @@ RESET QUERY CACHE;
 - **查找命令路径**：
   
 
-```bash
-  # 使用which查找命令路径
-  which ip
-  # 输出：/usr/sbin/ip
-  
-  # 如果是符号链接，解析真实路径
-  ls -la /usr/sbin/ip
-  # 输出：lrwxrwxrwx 1 root root 7  7月 10  2025 /usr/sbin/ip -> /bin/ip*
-  
-  # 使用readlink解析符号链接
-  readlink -f /usr/sbin/ip
-```
+    ```bash
+      # 使用which查找命令路径
+      which ip
+      # 输出：/usr/sbin/ip
+      
+      # 如果是符号链接，解析真实路径
+      ls -la /usr/sbin/ip
+      # 输出：lrwxrwxrwx 1 root root 7  7月 10  2025 /usr/sbin/ip -> /bin/ip*
+      
+      # 使用readlink解析符号链接
+      readlink -f /usr/sbin/ip
+    ```
 
 - **Debian/Ubuntu系统（dpkg）**：
   
 
-```bash
-  # 查找命令所属包
-  dpkg -S /bin/ip
-  # 输出：iproute2: /bin/ip
-  
-  # 搜索包含指定文件的包
-  dpkg -S /usr/sbin/ifconfig
-  
-  # 查看包信息
-  dpkg -l iproute2
-  dpkg -s iproute2
-```
+    ```bash
+      # 查找命令所属包
+      dpkg -S /bin/ip
+      # 输出：iproute2: /bin/ip
+      
+      # 搜索包含指定文件的包
+      dpkg -S /usr/sbin/ifconfig
+      
+      # 查看包信息
+      dpkg -l iproute2
+      dpkg -s iproute2
+    ```
 
 - **RedHat/CentOS系统（rpm）**：
   
 
-```bash
-  # 查找命令所属包
-  rpm -qf /bin/ip
-  # 输出：iproute2-5.10.0-xxx.x86_64
-  
-  # 搜索包含指定文件的包
-  rpm -qf /usr/sbin/ifconfig
-```
+    ```bash
+      # 查找命令所属包
+      rpm -qf /bin/ip
+      # 输出：iproute2-5.10.0-xxx.x86_64
+      
+      # 搜索包含指定文件的包
+      rpm -qf /usr/sbin/ifconfig
+    ```
 
 - **通用方法（适用所有Linux）**：
   
 
-```bash
-  # 方法1：使用package.ibistory查找（需要网络）
-  # https://command-not-found.com/ip
-  
-  # 方法2：使用yum/dnf provides
-  yum provides /bin/ip
-  dnf provides /bin/ip
-  
-  # 方法3：使用apt-file（需要安装）
-  apt-get install apt-file
-  apt-file update
-  apt-file search /bin/ip
-```
+    ```bash
+      # 方法1：使用package.ibistory查找（需要网络）
+      # https://command-not-found.com/ip
+      
+      # 方法2：使用yum/dnf provides
+      yum provides /bin/ip
+      dnf provides /bin/ip
+      
+      # 方法3：使用apt-file（需要安装）
+      apt-get install apt-file
+      apt-file update
+      apt-file search /bin/ip
+    ```
 
 **完整操作示例**：
 
 
 
-```bash
-# 1. 查找命令路径
-$ which ip
-/usr/sbin/ip
-
-# 2. 检查是否为符号链接
-$ ls -la /usr/sbin/ip
-lrwxrwxrwx 1 root root 7  7月 10  2025 /usr/sbin/ip -> /bin/ip*
-
-# 3. 解析真实路径（符号链接指向/bin/ip）
-$ which ip
-/usr/sbin/ip
-$ readlink /usr/sbin/ip
-/bin/ip
-
-# 4. 使用真实路径查找所属包（Debian/Ubuntu）
-$ dpkg -S /bin/ip
-iproute2: /bin/ip
-
-# 5. 查看包详情
-$ dpkg -s iproute2
-Package: iproute2
-Status: install ok installed
-Priority: important
-Section: net
-...
-```
+    ```bash
+    # 1. 查找命令路径
+    $ which ip
+    /usr/sbin/ip
+    
+    # 2. 检查是否为符号链接
+    $ ls -la /usr/sbin/ip
+    lrwxrwxrwx 1 root root 7  7月 10  2025 /usr/sbin/ip -> /bin/ip*
+    
+    # 3. 解析真实路径（符号链接指向/bin/ip）
+    $ which ip
+    /usr/sbin/ip
+    $ readlink /usr/sbin/ip
+    /bin/ip
+    
+    # 4. 使用真实路径查找所属包（Debian/Ubuntu）
+    $ dpkg -S /bin/ip
+    iproute2: /bin/ip
+    
+    # 5. 查看包详情
+    $ dpkg -s iproute2
+    Package: iproute2
+    Status: install ok installed
+    Priority: important
+    Section: net
+    ...
+    ```
 
 **常见命令与所属包对照表**：
 
@@ -2745,22 +2713,22 @@ Section: net
 - **Debian/Ubuntu**：
   
 
-```bash
-  apt-get update          # 更新包列表
-  apt-get install <包名>  # 安装包
-  apt-get remove <包名>   # 卸载包
-  dpkg -l                 # 列出已安装包
-```
+    ```bash
+      apt-get update          # 更新包列表
+      apt-get install <包名>  # 安装包
+      apt-get remove <包名>   # 卸载包
+      dpkg -l                 # 列出已安装包
+    ```
 
 - **RedHat/CentOS**：
   
 
-```bash
-  yum update              # 更新包
-  yum install <包名>     # 安装包
-  yum remove <包名>      # 卸载包
-  rpm -qa                 # 列出已安装包
-```
+    ```bash
+      yum update              # 更新包
+      yum install <包名>     # 安装包
+      yum remove <包名>      # 卸载包
+      rpm -qa                 # 列出已安装包
+    ```
 
 ### 36. 怎么查看一个容器的ip地址？
 
@@ -2771,102 +2739,102 @@ Section: net
 - **使用docker inspect命令**：
   
 
-```bash
-  # 方法1：使用格式化输出（推荐）
-  docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
-  
-  # 方法2：直接查看完整信息
-  docker inspect nginx01
-  
-  # 方法3：查看所有网络信息
-  docker inspect --format='{{ "{{" }}json .NetworkSettings.Networks}}' nginx01 | python -m json.tool
-```
+    ```bash
+      # 方法1：使用格式化输出（推荐）
+      docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+      
+      # 方法2：直接查看完整信息
+      docker inspect nginx01
+      
+      # 方法3：查看所有网络信息
+      docker inspect --format='{{ "{{" }}json .NetworkSettings.Networks}}' nginx01 | python -m json.tool
+    ```
 
 - **使用docker exec进入容器查看**：
   
 
-```bash
-  # 进入容器内部
-  docker exec -it nginx01 bash
-  
-  # 查看IP地址
-  ifconfig
-  ip addr
-  hostname -I
-```
+    ```bash
+      # 进入容器内部
+      docker exec -it nginx01 bash
+      
+      # 查看IP地址
+      ifconfig
+      ip addr
+      hostname -I
+    ```
 
 - **使用docker network inspect**：
   
 
-```bash
-  # 查看网络信息
-  docker network inspect bridge
-  
-  # 查找特定容器的IP
-  docker network inspect bridge | grep -A 5 -B 5 nginx01
-```
+    ```bash
+      # 查看网络信息
+      docker network inspect bridge
+      
+      # 查找特定容器的IP
+      docker network inspect bridge | grep -A 5 -B 5 nginx01
+    ```
 
 - **使用docker ps和grep**：
   
 
-```bash
-  # 查看容器ID
-  docker ps | grep nginx01
-  
-  # 根据ID查看IP
-  docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' <容器ID>
-```
+    ```bash
+      # 查看容器ID
+      docker ps | grep nginx01
+      
+      # 根据ID查看IP
+      docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' <容器ID>
+    ```
 
 **不同网络模式的IP查看**：
 
 - **bridge网络**（默认）：
   
 
-```bash
-  docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
-```
+    ```bash
+      docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+    ```
 
 - **host网络**：
   
 
-```bash
-  # 容器使用主机网络，IP与主机相同
-  docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.host.IPAddress}}' nginx01
-```
+    ```bash
+      # 容器使用主机网络，IP与主机相同
+      docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.host.IPAddress}}' nginx01
+    ```
 
 - **自定义网络**：
   
 
-```bash
-  # 查看自定义网络的IP
-  docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.my-network.IPAddress}}' nginx01
-```
+    ```bash
+      # 查看自定义网络的IP
+      docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.my-network.IPAddress}}' nginx01
+    ```
 
 **完整操作示例**：
 
 
 
-```bash
-# 1. 运行一个容器
-$ docker run -d --name nginx01 nginx
-
-# 2. 查看容器IP（方法1）
-$ docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
-172.17.0.2
-
-# 3. 查看容器IP（方法2）
-$ docker exec -it nginx01 ip addr
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-21: eth0@if22: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
-    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
-       valid_lft forever preferred_lft forever
-
-# 4. 查看网络信息
-$ docker network inspect bridge | grep -A 10 -B 2 172.17.0.2
+    ```bash
+    # 1. 运行一个容器
+    $ docker run -d --name nginx01 nginx
+    
+    # 2. 查看容器IP（方法1）
+    $ docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
+    172.17.0.2
+    
+    # 3. 查看容器IP（方法2）
+    $ docker exec -it nginx01 ip addr
+    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+        link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+        inet 127.0.0.1/8 scope host lo
+           valid_lft forever preferred_lft forever
+    21: eth0@if22: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+        link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+        inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
+           valid_lft forever preferred_lft forever
+    
+    # 4. 查看网络信息
+    $ docker network inspect bridge | grep -A 10 -B 2 172.17.0.2
         {
             "Name": "nginx01",
             "EndpointID": "...",
@@ -2874,7 +2842,7 @@ $ docker network inspect bridge | grep -A 10 -B 2 172.17.0.2
             "IPv4Address": "172.17.0.2/16",
             "IPv6Address": ""
         }
-```
+    ```
 
 **注意事项**：
 
@@ -2894,22 +2862,22 @@ $ docker network inspect bridge | grep -A 10 -B 2 172.17.0.2
 
 
 
-```bash
-# 查看所有网络
-docker network ls
-
-# 创建自定义网络
-docker network create my-network
-
-# 将容器加入网络
-docker network connect my-network nginx01
-
-# 查看容器网络信息
-docker inspect --format='{{ "{{" }}.NetworkSettings}}' nginx01
-
-# 测试网络连通性
-docker exec -it nginx01 ping 172.17.0.1
-```
+    ```bash
+    # 查看所有网络
+    docker network ls
+    
+    # 创建自定义网络
+    docker network create my-network
+    
+    # 将容器加入网络
+    docker network connect my-network nginx01
+    
+    # 查看容器网络信息
+    docker inspect --format='{{ "{{" }}.NetworkSettings}}' nginx01
+    
+    # 测试网络连通性
+    docker exec -it nginx01 ping 172.17.0.1
+    ```
 
 ### 37. 如果一个容器起不来，如何排查出错原因？
 
@@ -2921,85 +2889,85 @@ docker exec -it nginx01 ping 172.17.0.1
 - 使用`docker logs`命令查看容器的启动日志
   
 
-```bash
-  # 查看容器日志（实时跟踪）
-  docker logs -f nginx01
-  
-  # 查看容器日志的最后N行
-  docker logs --tail 100 nginx01
-  
-  # 查看容器的详细日志
-  docker logs --details nginx01
-```
+    ```bash
+      # 查看容器日志（实时跟踪）
+      docker logs -f nginx01
+      
+      # 查看容器日志的最后N行
+      docker logs --tail 100 nginx01
+      
+      # 查看容器的详细日志
+      docker logs --details nginx01
+    ```
 
 **检查容器状态**：
 - 使用`docker ps`命令查看容器的状态
   
 
-```bash
-  # 查看所有容器（包括已停止的）
-  docker ps -a
-  
-  # 查看特定容器的状态
-  docker ps -a | grep nginx01
-```
+    ```bash
+      # 查看所有容器（包括已停止的）
+      docker ps -a
+      
+      # 查看特定容器的状态
+      docker ps -a | grep nginx01
+    ```
 
 **检查容器配置**：
 - 查看容器的详细配置信息
   
 
-```bash
-  # 查看容器的详细配置
-  docker inspect nginx01
-  
-  # 查看容器的启动命令
-  docker inspect --format='{{ "{{" }}.Config.Cmd}}' nginx01
-  
-  # 查看容器的环境变量
-  docker inspect --format='{{ "{{" }}.Config.Env}}' nginx01
-```
+    ```bash
+      # 查看容器的详细配置
+      docker inspect nginx01
+      
+      # 查看容器的启动命令
+      docker inspect --format='{{ "{{" }}.Config.Cmd}}' nginx01
+      
+      # 查看容器的环境变量
+      docker inspect --format='{{ "{{" }}.Config.Env}}' nginx01
+    ```
 
 **检查端口映射**：
 - 确认端口映射是否正确
   
 
-```bash
-  # 查看容器的端口映射
-  docker port nginx01
-```
+    ```bash
+      # 查看容器的端口映射
+      docker port nginx01
+    ```
 
 **检查网络配置**：
 - 检查容器的网络配置
   
 
-```bash
-  # 查看容器的网络信息
-  docker inspect --format='{{ "{{" }}.NetworkSettings}}' nginx01
-  
-  # 测试网络连通性
-  docker run --rm busybox ping -c 2 nginx01
-```
+    ```bash
+      # 查看容器的网络信息
+      docker inspect --format='{{ "{{" }}.NetworkSettings}}' nginx01
+      
+      # 测试网络连通性
+      docker run --rm busybox ping -c 2 nginx01
+    ```
 
 **检查资源限制**：
 - 检查容器的资源限制是否合理
   
 
-```bash
-  # 查看容器的资源限制
-  docker inspect --format='{{ "{{" }}.HostConfig}}' nginx01
-```
+    ```bash
+      # 查看容器的资源限制
+      docker inspect --format='{{ "{{" }}.HostConfig}}' nginx01
+    ```
 
 **检查镜像问题**：
 - 确认镜像是否存在问题
   
 
-```bash
-  # 查看镜像信息
-  docker images | grep nginx
-  
-  # 尝试运行镜像的测试命令
-  docker run --rm nginx echo "Test"
-```
+    ```bash
+      # 查看镜像信息
+      docker images | grep nginx
+      
+      # 尝试运行镜像的测试命令
+      docker run --rm nginx echo "Test"
+    ```
 
 **常见容器启动失败原因**：
 
@@ -3057,24 +3025,24 @@ docker exec -it nginx01 ping 172.17.0.1
 
 
 
-```bash
-# 1. 检查容器状态
-$ docker ps -a | grep nginx01
-CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS                     PORTS     NAMES
-abc123         nginx     "/docker-entrypoint.…"   5 minutes ago    Exited (1) 3 minutes ago             nginx01
-
-# 2. 查看容器日志
-$ docker logs nginx01
-2023/07/21 08:00:00 [emerg] 1#1: bind() to 0.0.0.0:80 failed (98: Address already in use)
-nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
-
-# 3. 检查端口占用
-$ netstat -tulpn | grep 80
-tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      1234/nginx: master
-
-# 4. 停止占用端口的进程或修改容器端口
-$ docker run -d -p 8080:80 --name nginx01 nginx
-```
+    ```bash
+    # 1. 检查容器状态
+    $ docker ps -a | grep nginx01
+    CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS                     PORTS     NAMES
+    abc123         nginx     "/docker-entrypoint.…"   5 minutes ago    Exited (1) 3 minutes ago             nginx01
+    
+    # 2. 查看容器日志
+    $ docker logs nginx01
+    2023/07/21 08:00:00 [emerg] 1#1: bind() to 0.0.0.0:80 failed (98: Address already in use)
+    nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+    
+    # 3. 检查端口占用
+    $ netstat -tulpn | grep 80
+    tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      1234/nginx: master
+    
+    # 4. 停止占用端口的进程或修改容器端口
+    $ docker run -d -p 8080:80 --name nginx01 nginx
+    ```
 
 **预防措施**：
 
@@ -3211,29 +3179,29 @@ $ docker run -d -p 8080:80 --name nginx01 nginx
 
 
 
-```bash
-# 创建一个使用所有隔离空间的容器
-$ docker run -d \
-  --name isolated-container \
-  --hostname my-container \
-  --network bridge \
-  --user 1000:1000 \
-  nginx
-
-# 查看容器的PID命名空间
-$ docker inspect --format '{{ "{{" }}.State.Pid}}' isolated-container
-12345
-
-# 进入容器查看进程
-$ docker exec -it isolated-container ps aux
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root         1  0.0  0.0  78000  6720 ?        Ss   08:00   0:00 nginx: master process nginx -g daemon off;
-nginx        2  0.0  0.0  78440  9800 ?        S    08:00   0:00 nginx: worker process
-
-# 查看容器的网络配置
-$ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' isolated-container
-172.17.0.2
-```
+    ```bash
+    # 创建一个使用所有隔离空间的容器
+    $ docker run -d \
+      --name isolated-container \
+      --hostname my-container \
+      --network bridge \
+      --user 1000:1000 \
+      nginx
+    
+    # 查看容器的PID命名空间
+    $ docker inspect --format '{{ "{{" }}.State.Pid}}' isolated-container
+    12345
+    
+    # 进入容器查看进程
+    $ docker exec -it isolated-container ps aux
+    USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+    root         1  0.0  0.0  78000  6720 ?        Ss   08:00   0:00 nginx: master process nginx -g daemon off;
+    nginx        2  0.0  0.0  78440  9800 ?        S    08:00   0:00 nginx: worker process
+    
+    # 查看容器的网络配置
+    $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' isolated-container
+    172.17.0.2
+    ```
 
 **常见问题与解决方案**：
 
@@ -3268,16 +3236,16 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **命令**：
   
 
-```bash
-  # 清理所有未使用的资源
-  docker system prune
-  
-  # 强制清理（不提示确认）
-  docker system prune -f
-  
-  # 清理包括已停止的容器和未使用的镜像
-  docker system prune -a
-```
+    ```bash
+      # 清理所有未使用的资源
+      docker system prune
+      
+      # 强制清理（不提示确认）
+      docker system prune -f
+      
+      # 清理包括已停止的容器和未使用的镜像
+      docker system prune -a
+    ```
 - **适用场景**：快速清理所有类型的Docker垃圾
 
 **清理停止的容器**：
@@ -3285,13 +3253,13 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **命令**：
   
 
-```bash
-  # 清理已停止的容器
-  docker container prune
-  
-  # 强制清理
-  docker container prune -f
-```
+    ```bash
+      # 清理已停止的容器
+      docker container prune
+      
+      # 强制清理
+      docker container prune -f
+    ```
 - **适用场景**：专门清理停止的容器，保留其他资源
 
 **清理未使用的镜像**：
@@ -3299,16 +3267,16 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **命令**：
   
 
-```bash
-  # 清理未使用的镜像
-  docker image prune
-  
-  # 清理所有未使用的镜像（包括中间层镜像）
-  docker image prune -a
-  
-  # 强制清理
-  docker image prune -f
-```
+    ```bash
+      # 清理未使用的镜像
+      docker image prune
+      
+      # 清理所有未使用的镜像（包括中间层镜像）
+      docker image prune -a
+      
+      # 强制清理
+      docker image prune -f
+    ```
 - **适用场景**：专门清理未使用的镜像，释放磁盘空间
 
 **清理未使用的网络**：
@@ -3316,13 +3284,13 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **命令**：
   
 
-```bash
-  # 清理未使用的网络
-  docker network prune
-  
-  # 强制清理
-  docker network prune -f
-```
+    ```bash
+      # 清理未使用的网络
+      docker network prune
+      
+      # 强制清理
+      docker network prune -f
+    ```
 - **适用场景**：清理不再使用的网络配置
 
 **清理未使用的卷**：
@@ -3330,13 +3298,13 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 - **命令**：
   
 
-```bash
-  # 清理未使用的卷
-  docker volume prune
-  
-  # 强制清理
-  docker volume prune -f
-```
+    ```bash
+      # 清理未使用的卷
+      docker volume prune
+      
+      # 强制清理
+      docker volume prune -f
+    ```
 - **适用场景**：清理不再使用的卷，释放存储空间
 
 **Docker垃圾清理的最佳实践**：
@@ -3377,52 +3345,52 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
 
 
 
-```bash
-# 1. 查看当前Docker资源使用情况
-$ docker system df
-TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
-Images          10        3         5.2GB     3.8GB (73%)
-Containers      5         2         1.1GB     800MB (72%)
-Local Volumes   8         3         2.5GB     1.8GB (72%)
-Build Cache     0         0         0B        0B
-
-# 2. 清理停止的容器
-$ docker container prune -f
-Deleted Containers:
-abc123def456
-789ghi012jkl
-
-# 3. 清理未使用的镜像
-$ docker image prune -a -f
-Deleted Images:
-untagged: nginx:latest
-untagged: ubuntu:18.04
-deleted: sha256:1234567890abcdef
-
-# 4. 清理未使用的网络
-$ docker network prune -f
-Deleted Networks:
-docker_default
-my-network
-
-# 5. 清理未使用的卷
-$ docker volume prune -f
-Deleted Volumes:
-my-volume
-data-volume
-
-# 6. 执行全面清理
-$ docker system prune -a -f
-Total reclaimed space: 6.5GB
-
-# 7. 再次查看资源使用情况
-$ docker system df
-TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
-Images          3         3         1.4GB     0B (0%)
-Containers      2         2         300MB     0B (0%)
-Local Volumes   3         3         700MB     0B (0%)
-Build Cache     0         0         0B        0B
-```
+    ```bash
+    # 1. 查看当前Docker资源使用情况
+    $ docker system df
+    TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+    Images          10        3         5.2GB     3.8GB (73%)
+    Containers      5         2         1.1GB     800MB (72%)
+    Local Volumes   8         3         2.5GB     1.8GB (72%)
+    Build Cache     0         0         0B        0B
+    
+    # 2. 清理停止的容器
+    $ docker container prune -f
+    Deleted Containers:
+    abc123def456
+    789ghi012jkl
+    
+    # 3. 清理未使用的镜像
+    $ docker image prune -a -f
+    Deleted Images:
+    untagged: nginx:latest
+    untagged: ubuntu:18.04
+    deleted: sha256:1234567890abcdef
+    
+    # 4. 清理未使用的网络
+    $ docker network prune -f
+    Deleted Networks:
+    docker_default
+    my-network
+    
+    # 5. 清理未使用的卷
+    $ docker volume prune -f
+    Deleted Volumes:
+    my-volume
+    data-volume
+    
+    # 6. 执行全面清理
+    $ docker system prune -a -f
+    Total reclaimed space: 6.5GB
+    
+    # 7. 再次查看资源使用情况
+    $ docker system df
+    TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+    Images          3         3         1.4GB     0B (0%)
+    Containers      2         2         300MB     0B (0%)
+    Local Volumes   3         3         700MB     0B (0%)
+    Build Cache     0         0         0B        0B
+    ```
 
 **常见问题与解决方案**：
 
@@ -3496,96 +3464,96 @@ Build Cache     0         0         0B        0B
 **docker export**：
 
 
-```bash
-# 导出容器为tar包
-docker export <容器ID或名称> > container.tar
-
-# 或使用-o选项
-docker export -o container.tar <容器ID或名称>
-```
+    ```bash
+    # 导出容器为tar包
+    docker export <容器ID或名称> > container.tar
+    
+    # 或使用-o选项
+    docker export -o container.tar <容器ID或名称>
+    ```
 
 **docker save**：
 
 
-```bash
-# 导出镜像为tar包
-docker save <镜像名称:标签> > image.tar
-
-# 或使用-o选项
-docker save -o image.tar <镜像名称:标签>
-
-# 导出多个镜像
-docker save -o images.tar image1 image2 image3
-```
+    ```bash
+    # 导出镜像为tar包
+    docker save <镜像名称:标签> > image.tar
+    
+    # 或使用-o选项
+    docker save -o image.tar <镜像名称:标签>
+    
+    # 导出多个镜像
+    docker save -o images.tar image1 image2 image3
+    ```
 
 **导入命令**：
 
 **docker import**：
 
 
-```bash
-# 导入tar包为镜像
-docker import container.tar <新镜像名称:标签>
-
-# 从URL导入
-docker import http://example.com/container.tar <新镜像名称:标签>
-```
+    ```bash
+    # 导入tar包为镜像
+    docker import container.tar <新镜像名称:标签>
+    
+    # 从URL导入
+    docker import http://example.com/container.tar <新镜像名称:标签>
+    ```
 
 **docker load**：
 
 
-```bash
-# 导入tar包为镜像
-docker load < image.tar
-
-# 或使用-i选项
-docker load -i image.tar
-```
+    ```bash
+    # 导入tar包为镜像
+    docker load < image.tar
+    
+    # 或使用-i选项
+    docker load -i image.tar
+    ```
 
 **完整示例**：
 
 **使用docker export和docker import**：
 
 
-```bash
-# 1. 运行一个容器
-$ docker run -d --name my-container nginx
-
-# 2. 修改容器内容（例如创建一个文件）
-$ docker exec my-container touch /tmp/test.txt
-
-# 3. 导出容器
-$ docker export my-container > container.tar
-
-# 4. 导入为新镜像
-$ docker import container.tar my-nginx:exported
-
-# 5. 查看新镜像
-$ docker images | grep my-nginx
-my-nginx   exported   abc123def456   1 minute ago   133MB
-```
+    ```bash
+    # 1. 运行一个容器
+    $ docker run -d --name my-container nginx
+    
+    # 2. 修改容器内容（例如创建一个文件）
+    $ docker exec my-container touch /tmp/test.txt
+    
+    # 3. 导出容器
+    $ docker export my-container > container.tar
+    
+    # 4. 导入为新镜像
+    $ docker import container.tar my-nginx:exported
+    
+    # 5. 查看新镜像
+    $ docker images | grep my-nginx
+    my-nginx   exported   abc123def456   1 minute ago   133MB
+    ```
 
 **使用docker save和docker load**：
 
 
-```bash
-# 1. 查看现有镜像
-$ docker images | grep nginx
-nginx   latest   1234567890ab   2 weeks ago   133MB
-
-# 2. 保存镜像
-$ docker save -o nginx.tar nginx:latest
-
-# 3. 删除原有镜像
-$ docker rmi nginx:latest
-
-# 4. 加载镜像
-$ docker load -i nginx.tar
-
-# 5. 查看加载后的镜像
-$ docker images | grep nginx
-nginx   latest   1234567890ab   2 weeks ago   133MB
-```
+    ```bash
+    # 1. 查看现有镜像
+    $ docker images | grep nginx
+    nginx   latest   1234567890ab   2 weeks ago   133MB
+    
+    # 2. 保存镜像
+    $ docker save -o nginx.tar nginx:latest
+    
+    # 3. 删除原有镜像
+    $ docker rmi nginx:latest
+    
+    # 4. 加载镜像
+    $ docker load -i nginx.tar
+    
+    # 5. 查看加载后的镜像
+    $ docker images | grep nginx
+    nginx   latest   1234567890ab   2 weeks ago   133MB
+    ```
 
 **docker export 和docker save的优缺点**：
 
@@ -3664,49 +3632,49 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
 - **命令**：
   
 
-```bash
-  # 查看容器的完整配置
-  docker inspect <容器ID或名称>
-  
-  # 查看容器的启动命令
-  docker inspect --format='{{ "{{" }}.Config.Cmd}}' <容器ID或名称>
-  
-  # 查看容器的工作目录
-  docker inspect --format='{{ "{{" }}.Config.WorkingDir}}' <容器ID或名称>
-  
-  # 查看容器的环境变量
-  docker inspect --format='{{ "{{" }}.Config.Env}}' <容器ID或名称>
-  
-  # 查看容器的端口映射
-  docker inspect --format='{{ "{{" }}.NetworkSettings.Ports}}' <容器ID或名称>
-  
-  # 查看容器的挂载卷
-  docker inspect --format='{{ "{{" }}.Mounts}}' <容器ID或名称>
-```
+    ```bash
+      # 查看容器的完整配置
+      docker inspect <容器ID或名称>
+      
+      # 查看容器的启动命令
+      docker inspect --format='{{ "{{" }}.Config.Cmd}}' <容器ID或名称>
+      
+      # 查看容器的工作目录
+      docker inspect --format='{{ "{{" }}.Config.WorkingDir}}' <容器ID或名称>
+      
+      # 查看容器的环境变量
+      docker inspect --format='{{ "{{" }}.Config.Env}}' <容器ID或名称>
+      
+      # 查看容器的端口映射
+      docker inspect --format='{{ "{{" }}.NetworkSettings.Ports}}' <容器ID或名称>
+      
+      # 查看容器的挂载卷
+      docker inspect --format='{{ "{{" }}.Mounts}}' <容器ID或名称>
+    ```
 
 **方法2：使用runlike工具**：
 - **作用**：根据容器的配置信息生成可执行的docker run命令
 - **安装**：
   
 
-```bash
-  # 使用pip安装
-  pip3 install runlike
-  
-  # 或使用pip安装到指定用户
-  pip3 install --user runlike
-```
+    ```bash
+      # 使用pip安装
+      pip3 install runlike
+      
+      # 或使用pip安装到指定用户
+      pip3 install --user runlike
+    ```
 - **使用**：
   
 
-```bash
-  # 生成容器的启动命令
-  runlike <容器ID或名称>
-  
-  # 示例
-  runlike mysql01
-  # 输出：docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 -p 3306:3306 mysql:latest
-```
+    ```bash
+      # 生成容器的启动命令
+      runlike <容器ID或名称>
+      
+      # 示例
+      runlike mysql01
+      # 输出：docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 -p 3306:3306 mysql:latest
+    ```
 - **特点**：自动化程度高，直接生成完整的docker run命令
 
 **方法3：使用docker commit**：
@@ -3714,13 +3682,13 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
 - **命令**：
   
 
-```bash
-  # 将容器提交为镜像
-  docker commit <容器ID或名称> <新镜像名称:标签>
-  
-  # 然后使用docker history查看镜像的历史
-  docker history <新镜像名称:标签>
-```
+    ```bash
+      # 将容器提交为镜像
+      docker commit <容器ID或名称> <新镜像名称:标签>
+      
+      # 然后使用docker history查看镜像的历史
+      docker history <新镜像名称:标签>
+    ```
 
 **情况二：容器已删除**：
 
@@ -3733,15 +3701,15 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
 **方法1：定期备份容器配置**：
 
 
-```bash
-# 备份容器的配置为JSON文件
-docker inspect <容器ID或名称> > container-config.json
-
-# 备份所有容器的配置
-docker ps -aq | while read container_id; do
-  docker inspect $container_id > "container-${container_id}.json"
-done
-```
+    ```bash
+    # 备份容器的配置为JSON文件
+    docker inspect <容器ID或名称> > container-config.json
+    
+    # 备份所有容器的配置
+    docker ps -aq | while read container_id; do
+      docker inspect $container_id > "container-${container_id}.json"
+    done
+    ```
 
 **方法2：使用docker-compose**：
 - **作用**：使用docker-compose.yml文件管理容器配置
@@ -3749,19 +3717,19 @@ done
 - **示例**：
   
 
-```yaml
-  version: '3'
-  services:
-    mysql:
-      image: mysql:latest
-      container_name: mysql01
-      environment:
-        MYSQL_ROOT_PASSWORD: 123456
-      ports:
-        - "3306:3306"
-      volumes:
-        - /data/mysql:/var/lib/mysql
-```
+    ```yaml
+      version: '3'
+      services:
+        mysql:
+          image: mysql:latest
+          container_name: mysql01
+          environment:
+            MYSQL_ROOT_PASSWORD: 123456
+          ports:
+            - "3306:3306"
+          volumes:
+            - /data/mysql:/var/lib/mysql
+    ```
 
 **方法3：使用容器编排工具**：
 - Kubernetes、Swarm等容器编排工具可以保存容器配置
@@ -3772,59 +3740,59 @@ done
 **示例1：使用docker inspect**：
 
 
-```bash
-# 1. 查找容器的启动命令
-$ docker inspect --format='{{ "{{" }}.Config.Cmd}}' mysql01
-[mysqld]
-
-# 2. 查看完整配置
-$ docker inspect mysql01 | jq '.[0]'
-{
-  "Id": "abc123def456...",
-  "Name": "/mysql01",
-  "Config": {
-    "Cmd": ["mysqld"],
-    "Entrypoint": null,
-    "Env": [
-      "MYSQL_ROOT_PASSWORD=123456"
-    ],
-    "WorkingDir": "",
-    "ExposedPorts": {
-      "3306/tcp": {}
+    ```bash
+    # 1. 查找容器的启动命令
+    $ docker inspect --format='{{ "{{" }}.Config.Cmd}}' mysql01
+    [mysqld]
+    
+    # 2. 查看完整配置
+    $ docker inspect mysql01 | jq '.[0]'
+    {
+      "Id": "abc123def456...",
+      "Name": "/mysql01",
+      "Config": {
+        "Cmd": ["mysqld"],
+        "Entrypoint": null,
+        "Env": [
+          "MYSQL_ROOT_PASSWORD=123456"
+        ],
+        "WorkingDir": "",
+        "ExposedPorts": {
+          "3306/tcp": {}
+        }
+      }
     }
-  }
-}
-
-# 3. 重启容器
-$ docker run -d --name mysql01 \
-  -e MYSQL_ROOT_PASSWORD=123456 \
-  -p 3306:3306 \
-  mysql:latest
-```
+    
+    # 3. 重启容器
+    $ docker run -d --name mysql01 \
+      -e MYSQL_ROOT_PASSWORD=123456 \
+      -p 3306:3306 \
+      mysql:latest
+    ```
 
 **示例2：使用runlike工具**：
 
 
-```bash
-# 1. 安装runlike
-$ pip3 install runlike
-Collecting runlike
-  Installing collected packages: runlike
-  Successfully installed runlike
-
-# 2. 查找并恢复容器启动命令
-$ runlike -p mysql01
-docker run \
-  --name=mysql01 \
-  --hostname=mysql-server \
-  -e MYSQL_ROOT_PASSWORD=123456 \
-  -p 3306:3306 \
-  -v /data/mysql:/var/lib/mysql \
-  mysql:latest
-
-# 3. 直接执行生成的命令
-docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 -p 3306:3306 -v /data/mysql:/var/lib/mysql mysql:latest
-```
+    ```bash
+    # 1. 安装runlike
+    $ pip3 install runlike
+    Collecting runlike
+      Installing collected packages: runlike
+      Successfully installed runlike
+    
+    # 2. 查找并恢复容器启动命令
+    $ runlike -p mysql01
+    docker run \
+      --name=mysql01 \
+      --hostname=mysql-server \
+      -e MYSQL_ROOT_PASSWORD=123456 \
+      -p 3306:3306 \
+      -v /data/mysql:/var/lib/mysql \
+      mysql:latest
+    
+    # 3. 直接执行生成的命令
+    docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 -p 3306:3306 -v /data/mysql:/var/lib/mysql mysql:latest
+    ```
 
 **最佳实践**：
 
@@ -3879,13 +3847,13 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **命令**：
   
 
-```bash
-  # 进入容器
-  docker attach <容器ID或名称>
-  
-  # 示例
-  docker attach nginx01
-```
+    ```bash
+      # 进入容器
+      docker attach <容器ID或名称>
+      
+      # 示例
+      docker attach nginx01
+    ```
 - **特点**：
   - 多个用户可以同时附加到同一个容器
   - 所有用户共享同一个终端会话，命令输入和输出会同步
@@ -3901,16 +3869,16 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **命令**：
   
 
-```bash
-  # 进入容器并打开交互式终端
-  docker exec -it <容器ID或名称> /bin/bash
-  
-  # 或使用其他shell
-  docker exec -it <容器ID或名称> /bin/sh
-  
-  # 示例
-  docker exec -it nginx01 /bin/bash
-```
+    ```bash
+      # 进入容器并打开交互式终端
+      docker exec -it <容器ID或名称> /bin/bash
+      
+      # 或使用其他shell
+      docker exec -it <容器ID或名称> /bin/sh
+      
+      # 示例
+      docker exec -it nginx01 /bin/bash
+    ```
 - **特点**：
   - 每个用户拥有独立的终端会话
   - 不同用户之间的操作互不影响
@@ -3927,23 +3895,23 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **安装**：
   
 
-```bash
-  # 在Ubuntu/Debian上
-  apt-get install util-linux
-  
-  # 在CentOS/RHEL上
-  yum install util-linux
-```
+    ```bash
+      # 在Ubuntu/Debian上
+      apt-get install util-linux
+      
+      # 在CentOS/RHEL上
+      yum install util-linux
+    ```
 - **使用**：
   
 
-```bash
-  # 获取容器的PID
-  PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' <容器ID或名称>)
-  
-  # 进入容器的命名空间
-  nsenter --target $PID --mount --uts --ipc --net --pid
-```
+    ```bash
+      # 获取容器的PID
+      PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' <容器ID或名称>)
+      
+      # 进入容器的命名空间
+      nsenter --target $PID --mount --uts --ipc --net --pid
+    ```
 - **特点**：
   - 直接进入容器的命名空间
   - 提供更底层的访问方式
@@ -3958,13 +3926,13 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 - **命令**：
   
 
-```bash
-  # 创建并进入新容器
-  docker run -it --name <新容器名称> <镜像名称> /bin/bash
-  
-  # 示例
-  docker run -it --name test-container ubuntu:latest /bin/bash
-```
+    ```bash
+      # 创建并进入新容器
+      docker run -it --name <新容器名称> <镜像名称> /bin/bash
+      
+      # 示例
+      docker run -it --name test-container ubuntu:latest /bin/bash
+    ```
 - **特点**：
   - 创建新的容器而非进入现有容器
   - 可以指定镜像和启动命令
@@ -4012,53 +3980,53 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
 **示例1：使用docker attach**：
 
 
-```bash
-# 1. 启动一个容器
-$ docker run -d --name web-server nginx
-
-# 2. 查看容器ID
-$ docker ps | grep web-server
-abc123def456   nginx   "nginx -g 'daemon of..."   2 minutes ago   Up 2 minutes   80/tcp   web-server
-
-# 3. 附加到容器
-$ docker attach web-server
-# 此时可以看到nginx的启动日志
-
-# 4. 退出容器（会导致容器停止）
-^C # 按Ctrl+C
-```
+    ```bash
+    # 1. 启动一个容器
+    $ docker run -d --name web-server nginx
+    
+    # 2. 查看容器ID
+    $ docker ps | grep web-server
+    abc123def456   nginx   "nginx -g 'daemon of..."   2 minutes ago   Up 2 minutes   80/tcp   web-server
+    
+    # 3. 附加到容器
+    $ docker attach web-server
+    # 此时可以看到nginx的启动日志
+    
+    # 4. 退出容器（会导致容器停止）
+    ^C # 按Ctrl+C
+    ```
 
 **示例2：使用docker exec**：
 
 
-```bash
-# 1. 启动一个容器
-$ docker run -d --name web-server nginx
-
-# 2. 进入容器执行命令
-$ docker exec -it web-server /bin/bash
-root@web-server:/# ls -la
-root@web-server:/# cat /etc/nginx/nginx.conf
-root@web-server:/# exit
-
-# 3. 在容器中执行单条命令
-$ docker exec web-server ls -la /etc/nginx
-```
+    ```bash
+    # 1. 启动一个容器
+    $ docker run -d --name web-server nginx
+    
+    # 2. 进入容器执行命令
+    $ docker exec -it web-server /bin/bash
+    root@web-server:/# ls -la
+    root@web-server:/# cat /etc/nginx/nginx.conf
+    root@web-server:/# exit
+    
+    # 3. 在容器中执行单条命令
+    $ docker exec web-server ls -la /etc/nginx
+    ```
 
 **示例3：使用nsenter**：
 
 
-```bash
-# 1. 启动一个容器
-$ docker run -d --name web-server nginx
-
-# 2. 获取容器PID
-$ PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' web-server)
-
-# 3. 进入容器命名空间
-$ nsenter --target $PID --mount --uts --ipc --net --pid
-# 现在你已经进入了容器的命名空间
-```
+    ```bash
+    # 1. 启动一个容器
+    $ docker run -d --name web-server nginx
+    
+    # 2. 获取容器PID
+    $ PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' web-server)
+    
+    # 3. 进入容器命名空间
+    $ nsenter --target $PID --mount --uts --ipc --net --pid
+    # 现在你已经进入了容器的命名空间
+    ```
 
 **常见问题与解决方案**：
 
@@ -4253,61 +4221,61 @@ $ nsenter --target $PID --mount --uts --ipc --net --pid
 **完整示例**：
 
 **示例1：构建Nginx镜像**：
-```dockerfile
-# 使用官方Alpine镜像作为基础
-FROM alpine:3.14
-
-# 设置维护者信息（使用LABEL替代MAINTAINER）
-LABEL maintainer="example@example.com"
-
-# 安装Nginx
-RUN apk update && \
-    apk add --no-cache nginx && \
-    rm -rf /var/cache/apk/*
-
-# 创建Nginx配置目录
-RUN mkdir -p /etc/nginx/conf.d
-
-# 复制配置文件
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY default.conf /etc/nginx/conf.d/
-
-# 暴露端口
-EXPOSE 80
-
-# 设置工作目录
-WORKDIR /usr/share/nginx/html
-
-# 复制静态文件
-COPY index.html .
-
-# 启动Nginx
-CMD ["nginx", "-g", "daemon off;"]
-```
+    ```dockerfile
+    # 使用官方Alpine镜像作为基础
+    FROM alpine:3.14
+    
+    # 设置维护者信息（使用LABEL替代MAINTAINER）
+    LABEL maintainer="example@example.com"
+    
+    # 安装Nginx
+    RUN apk update && \
+        apk add --no-cache nginx && \
+        rm -rf /var/cache/apk/*
+    
+    # 创建Nginx配置目录
+    RUN mkdir -p /etc/nginx/conf.d
+    
+    # 复制配置文件
+    COPY nginx.conf /etc/nginx/nginx.conf
+    COPY default.conf /etc/nginx/conf.d/
+    
+    # 暴露端口
+    EXPOSE 80
+    
+    # 设置工作目录
+    WORKDIR /usr/share/nginx/html
+    
+    # 复制静态文件
+    COPY index.html .
+    
+    # 启动Nginx
+    CMD ["nginx", "-g", "daemon off;"]
+    ```
 
 **示例2：构建Node.js应用镜像**：
-```dockerfile
-# 使用官方Node.js镜像作为基础
-FROM node:14-alpine
-
-# 设置工作目录
-WORKDIR /app
-
-# 复制package.json和package-lock.json
-COPY package*.json ./
-
-# 安装依赖
-RUN npm install --production
-
-# 复制应用代码
-COPY . .
-
-# 暴露端口
-EXPOSE 3000
-
-# 启动应用
-CMD ["npm", "start"]
-```
+    ```dockerfile
+    # 使用官方Node.js镜像作为基础
+    FROM node:14-alpine
+    
+    # 设置工作目录
+    WORKDIR /app
+    
+    # 复制package.json和package-lock.json
+    COPY package*.json ./
+    
+    # 安装依赖
+    RUN npm install --production
+    
+    # 复制应用代码
+    COPY . .
+    
+    # 暴露端口
+    EXPOSE 3000
+    
+    # 启动应用
+    CMD ["npm", "start"]
+    ```
 
 **常见问题与解决方案**：
 
@@ -4358,19 +4326,19 @@ CMD ["npm", "start"]
 - **Scratch**：完全空的镜像，适合静态编译的应用
 
 **示例**：
-```dockerfile
-# 使用Alpine镜像
-FROM alpine:3.14
-
-# 使用BusyBox镜像
-FROM busybox:latest
-
-# 使用Distroless镜像
-FROM gcr.io/distroless/base-debian10
-
-# 使用Scratch镜像
-FROM scratch
-```
+    ```dockerfile
+    # 使用Alpine镜像
+    FROM alpine:3.14
+    
+    # 使用BusyBox镜像
+    FROM busybox:latest
+    
+    # 使用Distroless镜像
+    FROM gcr.io/distroless/base-debian10
+    
+    # 使用Scratch镜像
+    FROM scratch
+    ```
 
 **优化Dockerfile**：
 
@@ -4490,45 +4458,45 @@ FROM scratch
 - **示例**：
   
 
-```bash
-  # 安装docker-squash
-  pip install docker-squash
-  
-  # 构建镜像
-  docker build -t myapp:latest .
-  
-  # 压缩镜像
-  docker-squash -t myapp:squashed myapp:latest
-```
+    ```bash
+      # 安装docker-squash
+      pip install docker-squash
+      
+      # 构建镜像
+      docker build -t myapp:latest .
+      
+      # 压缩镜像
+      docker-squash -t myapp:squashed myapp:latest
+    ```
 
 **完整示例**：
 
 **示例1：优化Nginx镜像**：
-```dockerfile
-# 使用Alpine作为基础镜像
-FROM alpine:3.14
-
-# 设置维护者信息
-LABEL maintainer="example@example.com"
-
-# 安装Nginx并清理缓存
-RUN apk update && \
-    apk add --no-cache nginx && \
-    rm -rf /var/cache/apk/*
-
-# 创建Nginx配置目录
-RUN mkdir -p /etc/nginx/conf.d
-
-# 复制配置文件
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY default.conf /etc/nginx/conf.d/
-
-# 暴露端口
-EXPOSE 80
-
-# 设置工作目录
-WORKDIR /usr/share/nginx/html
-
+    ```dockerfile
+    # 使用Alpine作为基础镜像
+    FROM alpine:3.14
+    
+    # 设置维护者信息
+    LABEL maintainer="example@example.com"
+    
+    # 安装Nginx并清理缓存
+    RUN apk update && \
+        apk add --no-cache nginx && \
+        rm -rf /var/cache/apk/*
+    
+    # 创建Nginx配置目录
+    RUN mkdir -p /etc/nginx/conf.d
+    
+    # 复制配置文件
+    COPY nginx.conf /etc/nginx/nginx.conf
+    COPY default.conf /etc/nginx/conf.d/
+    
+    # 暴露端口
+    EXPOSE 80
+    
+    # 启动Nginx
+    CMD ["nginx", "-g", "daemon off;"]
+    ```
 # 复制静态文件
 COPY index.html .
 
@@ -4537,35 +4505,35 @@ CMD ["nginx", "-g", "daemon off;"]
 ```
 
 **示例2：多阶段构建Node.js应用**：
-```dockerfile
-# 构建阶段
-FROM node:14-alpine AS builder
-WORKDIR /app
-
-# 复制依赖文件
-COPY package*.json ./
-
-# 安装依赖
-RUN npm install --production
-
-# 复制应用代码
-COPY . .
-
-# 构建应用
-RUN npm run build
-
-# 运行阶段
-FROM nginx:alpine
-
-# 复制构建产物
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# 暴露端口
-EXPOSE 80
-
-# 启动Nginx
-CMD ["nginx", "-g", "daemon off;"]
-```
+    ```dockerfile
+    # 构建阶段
+    FROM node:14-alpine AS builder
+    WORKDIR /app
+    
+    # 复制依赖文件
+    COPY package*.json ./
+    
+    # 安装依赖
+    RUN npm install --production
+    
+    # 复制应用代码
+    COPY . .
+    
+    # 构建应用
+    RUN npm run build
+    
+    # 运行阶段
+    FROM nginx:alpine
+    
+    # 复制构建产物
+    COPY --from=builder /app/build /usr/share/nginx/html
+    
+    # 暴露端口
+    EXPOSE 80
+    
+    # 启动Nginx
+    CMD ["nginx", "-g", "daemon off;"]
+    ```
 
 **最佳实践**：
 
@@ -4723,40 +4691,40 @@ CMD ["nginx", "-g", "daemon off;"]
 **完整示例**：
 
 **示例1：使用COPY复制文件**：
-```dockerfile
-# 使用Alpine作为基础镜像
-FROM alpine:3.14
-
-# 设置工作目录
-WORKDIR /app
-
-# 复制本地文件，保留属性
-COPY app.jar .
-
-# 复制配置文件
-COPY config/ /app/config/
-
-# 运行应用
-CMD ["java", "-jar", "app.jar"]
-```
+    ```dockerfile
+    # 使用Alpine作为基础镜像
+    FROM alpine:3.14
+    
+    # 设置工作目录
+    WORKDIR /app
+    
+    # 复制本地文件，保留属性
+    COPY app.jar .
+    
+    # 复制配置文件
+    COPY config/ /app/config/
+    
+    # 运行应用
+    CMD ["java", "-jar", "app.jar"]
+    ```
 
 **示例2：使用ADD复制并解压文件**：
-```dockerfile
-# 使用Alpine作为基础镜像
-FROM alpine:3.14
-
-# 设置工作目录
-WORKDIR /app
-
-# 复制并自动解压压缩文件
-ADD app.tar.gz .
-
-# 从URL下载文件
-ADD https://example.com/config.json .
-
-# 运行应用
-CMD ["./app"]
-```
+    ```dockerfile
+    # 使用Alpine作为基础镜像
+    FROM alpine:3.14
+    
+    # 设置工作目录
+    WORKDIR /app
+    
+    # 复制并自动解压压缩文件
+    ADD app.tar.gz .
+    
+    # 从URL下载文件
+    ADD https://example.com/config.tar.gz /app/
+    
+    # 运行应用
+    CMD ["java", "-jar", "app.jar"]
+    ```
 
 **最佳实践**：
 
@@ -4864,10 +4832,10 @@ CMD ["./app"]
 - **示例**：
   
 
-```bash
-  # 覆盖CMD
-  docker run myimage echo "Override CMD"
-```
+    ```bash
+      # 覆盖CMD
+      docker run myimage echo "Override CMD"
+    ```
 
 **ENTRYPOINT指令**：
 - **执行方式**：
@@ -4877,10 +4845,10 @@ CMD ["./app"]
 - **示例**：
   
 
-```bash
-  # 覆盖ENTRYPOINT
-  docker run --entrypoint echo myimage "Override ENTRYPOINT"
-```
+    ```bash
+      # 覆盖ENTRYPOINT
+      docker run --entrypoint echo myimage "Override ENTRYPOINT"
+    ```
 
 **组合使用**：
 
@@ -4897,10 +4865,10 @@ CMD ["./app"]
 - **示例**：
   
 
-```bash
-  # 修改CMD参数
-  docker run myimage -g "daemon off;" -c /etc/nginx/nginx.conf
-```
+    ```bash
+      # 修改CMD参数
+      docker run myimage -g "daemon off;" -c /etc/nginx/nginx.conf
+    ```
 - **执行结果**：`nginx -g "daemon off;" -c /etc/nginx/nginx.conf`
 
 **使用场景**：
@@ -4925,14 +4893,14 @@ CMD ["./app"]
 - **示例**：
   
 
-```bash
-  #!/bin/sh
-  # 环境初始化
-  echo "Initializing environment..."
-  
-  # 执行CMD传递的命令
-  exec "$@"
-```
+    ```bash
+      #!/bin/sh
+      # 环境初始化
+      echo "Initializing environment..."
+      
+      # 执行CMD传递的命令
+      exec "$@"
+    ```
 - **好处**：
   - 避免进程嵌套，简化进程管理
   - 确保信号（如SIGTERM）能够正确传递
@@ -4941,49 +4909,49 @@ CMD ["./app"]
 **完整示例**：
 
 **示例1：单独使用CMD**：
-```dockerfile
-# 使用Alpine作为基础镜像
-FROM alpine:3.14
-
-# 设置CMD
-CMD ["echo", "Hello World"]
-```
+    ```dockerfile
+    # 使用Alpine作为基础镜像
+    FROM alpine:3.14
+    
+    # 设置CMD
+    CMD ["echo", "Hello World"]
+    ```
 
 **示例2：单独使用ENTRYPOINT**：
-```dockerfile
-# 使用Alpine作为基础镜像
-FROM alpine:3.14
-
-# 设置ENTRYPOINT
-ENTRYPOINT ["echo", "Hello World"]
-```
+    ```dockerfile
+    # 使用Alpine作为基础镜像
+    FROM alpine:3.14
+    
+    # 设置ENTRYPOINT
+    ENTRYPOINT ["echo", "Hello World"]
+    ```
 
 **示例3：组合使用ENTRYPOINT和CMD**：
-```dockerfile
-# 使用Alpine作为基础镜像
-FROM alpine:3.14
-
-# 设置ENTRYPOINT
-ENTRYPOINT ["echo"]
-
-# 设置CMD作为默认参数
-CMD ["Hello World"]
-```
+    ```dockerfile
+    # 使用Alpine作为基础镜像
+    FROM alpine:3.14
+    
+    # 设置ENTRYPOINT
+    ENTRYPOINT ["echo"]
+    
+    # 设置CMD作为默认参数
+    CMD ["Hello World"]
+    ```
 
 **示例4：使用启动脚本**：
-```dockerfile
-# 使用Alpine作为基础镜像
-FROM alpine:3.14
-
-# 创建启动脚本
-RUN echo '#!/bin/sh\necho "Initializing..."\nexec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
-
-# 设置ENTRYPOINT
-ENTRYPOINT ["/entrypoint.sh"]
-
-# 设置CMD
-CMD ["echo", "Hello World"]
-```
+    ```dockerfile
+    # 使用Alpine作为基础镜像
+    FROM alpine:3.14
+    
+    # 创建启动脚本
+    RUN echo '#!/bin/sh\necho "Initializing..."\nexec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
+    
+    # 设置ENTRYPOINT
+    ENTRYPOINT ["/entrypoint.sh"]
+    
+    # 设置CMD
+    CMD ["echo", "Hello World"]
+    ```
 
 **最佳实践**：
 
@@ -5228,39 +5196,35 @@ CMD ["echo", "Hello World"]
 **完整示例**：
 
 **优化后的Dockerfile**：
-```dockerfile
-# 使用轻量级基础镜像
-FROM alpine:3.14
-
-# 设置元数据
-LABEL maintainer="example@example.com"
-LABEL version="1.0"
-
-# 设置工作目录
-WORKDIR /app
-
-# 复制依赖文件（使用缓存）
-COPY package*.json ./
-
-# 安装依赖（合并RUN指令，清理缓存）
-RUN apk add --no-cache nodejs npm && \
-    npm install --production && \
-    npm cache clean --force && \
-    rm -rf /var/cache/apk/*
-
-# 复制应用代码（放在后面）
-COPY . .
-
-# 暴露端口
-EXPOSE 3000
-
-# 使用非root用户
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
-
-# 启动应用
-CMD ["node", "index.js"]
-```
+    ```dockerfile
+    # 使用轻量级基础镜像
+    FROM alpine:3.14
+    
+    # 设置元数据
+    LABEL maintainer="example@example.com"
+    LABEL version="1.0"
+    
+    # 设置工作目录
+    WORKDIR /app
+    
+    # 复制依赖文件（使用缓存）
+    COPY package*.json ./
+    
+    # 安装依赖（合并RUN指令，清理缓存）
+    RUN apk add --no-cache nodejs npm && \
+        npm install --production && \
+        npm cache clean --force && \
+        rm -rf /var/cache/apk/*
+    
+    # 复制应用代码（放在后面）
+    COPY . .
+    
+    # 暴露端口
+    EXPOSE 3000
+    
+    # 启动应用
+    CMD ["npm", "start"]
+    ```
 
 **最佳实践**：
 
@@ -5436,30 +5400,30 @@ CMD ["node", "index.js"]
 - **配置**：
   
 
-```bash
-  # 临时设置
-  ulimit -n 65536
-  
-  # 永久设置（/etc/security/limits.conf）
-  * soft nofile 65536
-  * hard nofile 65536
-```
+    ```bash
+      # 临时设置
+      ulimit -n 65536
+      
+      # 永久设置（/etc/security/limits.conf）
+      * soft nofile 65536
+      * hard nofile 65536
+    ```
 - **说明**：增加系统允许打开的文件描述符数量
 
 **内核参数优化**：
 - **配置**：
   
 
-```bash
-  # /etc/sysctl.conf
-  net.core.somaxconn = 65535
-  net.ipv4.tcp_max_syn_backlog = 65535
-  net.ipv4.tcp_tw_reuse = 1
-  net.ipv4.tcp_fin_timeout = 30
-  net.ipv4.tcp_keepalive_time = 600
-  net.ipv4.ip_local_port_range = 1024 65535
-  net.ipv4.tcp_max_tw_buckets = 5000
-```
+    ```bash
+      # /etc/sysctl.conf
+      net.core.somaxconn = 65535
+      net.ipv4.tcp_max_syn_backlog = 65535
+      net.ipv4.tcp_tw_reuse = 1
+      net.ipv4.tcp_fin_timeout = 30
+      net.ipv4.tcp_keepalive_time = 600
+      net.ipv4.ip_local_port_range = 1024 65535
+      net.ipv4.tcp_max_tw_buckets = 5000
+    ```
 - **说明**：优化TCP参数，提高网络性能
 
 **日志优化**：
@@ -5480,21 +5444,21 @@ CMD ["node", "index.js"]
 - **配置**：
   
 
-```bash
-  # /etc/logrotate.d/nginx
-  /var/log/nginx/*.log {
-      daily
-      rotate 14
-      compress
-      delaycompress
-      notifempty
-      create 0640 www-data adm
-      sharedscripts
-      postrotate
-          [ -f /var/run/nginx.pid ] && kill -USR1 `cat /var/run/nginx.pid`
-      endscript
-  }
-```
+    ```bash
+      # /etc/logrotate.d/nginx
+      /var/log/nginx/*.log {
+          daily
+          rotate 14
+          compress
+          delaycompress
+          notifempty
+          create 0640 www-data adm
+          sharedscripts
+          postrotate
+              [ -f /var/run/nginx.pid ] && kill -USR1 `cat /var/run/nginx.pid`
+          endscript
+      }
+    ```
 - **说明**：自动轮转和压缩日志文件，避免日志文件过大
 
 **安全优化**：
@@ -5526,39 +5490,39 @@ CMD ["node", "index.js"]
 **完整示例**：
 
 **优化后的nginx.conf**：
-```nginx
-user nginx;
-worker_processes auto;
-worker_rlimit_nofile 65535;
-
-events {
-    use epoll;
-    worker_connections 65536;
-    multi_accept on;
-}
-
-http {
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
+    ```nginx
+    user nginx;
+    worker_processes auto;
+    worker_rlimit_nofile 65535;
     
-    # 日志格式
-    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-                    '$status $body_bytes_sent "$http_referer" '
-                    '"$http_user_agent" "$http_x_forwarded_for" '
-                    '$request_time $upstream_response_time';
+    events {
+        use epoll;
+        worker_connections 65536;
+        multi_accept on;
+    }
     
-    access_log /var/log/nginx/access.log main;
-    error_log /var/log/nginx/error.log warn;
-    
-    # 高效传输
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    
-    # 保持连接
-    keepalive_timeout 65;
-    keepalive_requests 100;
-    
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        
+        # 日志格式
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for" '
+                        '$request_time $upstream_response_time';
+        
+        access_log /var/log/nginx/access.log main;
+        error_log /var/log/nginx/error.log warn;
+        
+        # 高效传输
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        
+        # 保持连接
+        keepalive_timeout 65;
+        keepalive_requests 100;
+    ```    
     # Gzip压缩
     gzip on;
     gzip_vary on;
@@ -5646,10 +5610,10 @@ http {
 - **使用方法**：
   
 
-```bash
-  # 运行容器时创建匿名卷
-  docker run -d -v /var/lib/mysql --name mysql mysql:8.0
-```
+    ```bash
+      # 运行容器时创建匿名卷
+      docker run -d -v /var/lib/mysql --name mysql mysql:8.0
+    ```
 - **存储位置**：Docker会将数据存储在`/var/lib/docker/volumes/<随机ID>/_data`目录
 - **适用场景**：临时测试、日志缓存等不需要长期保存的数据
 - **优点**：创建简单，无需手动管理
@@ -5660,13 +5624,13 @@ http {
 - **使用方法**：
   
 
-```bash
-  # 将宿主机目录挂载到容器
-  docker run -d -v /host/path:/container/path --name nginx nginx
-  
-  # 只读挂载
-  docker run -d -v /host/path:/container/path:ro --name nginx nginx
-```
+    ```bash
+      # 将宿主机目录挂载到容器
+      docker run -d -v /host/path:/container/path --name nginx nginx
+      
+      # 只读挂载
+      docker run -d -v /host/path:/container/path:ro --name nginx nginx
+    ```
 - **存储位置**：用户指定的宿主机任意目录
 - **适用场景**：开发调试、配置文件挂载、需要宿主机直接访问数据的场景
 - **优点**：数据完全由宿主机管理，方便直接操作
@@ -5677,16 +5641,16 @@ http {
 - **使用方法**：
   
 
-```bash
-  # 创建命名卷
-  docker volume create mydata
-  
-  # 挂载命名卷到容器
-  docker run -d -v mydata:/app/data --name myapp nginx
-  
-  # 也可以直接运行，Docker会自动创建不存在的卷
-  docker run -d -v named-volume:/path/in/container nginx
-```
+    ```bash
+      # 创建命名卷
+      docker volume create mydata
+      
+      # 挂载命名卷到容器
+      docker run -d -v mydata:/app/data --name myapp nginx
+      
+      # 也可以直接运行，Docker会自动创建不存在的卷
+      docker run -d -v named-volume:/path/in/container nginx
+    ```
 - **存储位置**：Docker会将数据存储在`/var/lib/docker/volumes/<卷名>/_data`目录
 - **适用场景**：生产环境、数据库、多容器共享数据等需要长期保存的数据
 - **优点**：Docker自动管理权限，数据独立于容器，适合生产环境
@@ -5707,65 +5671,65 @@ http {
 - **备份卷**：
   
 
-```bash
-  docker run --rm 
-    -v nginx_data:/data 
-    -v $(pwd):/backup 
-    busybox tar cvf /backup/backup.tar /data
-```
+    ```bash
+      docker run --rm \
+        -v nginx_data:/data \
+        -v $(pwd):/backup \
+        busybox tar cvf /backup/backup.tar /data
+    ```
 - **恢复卷**：
   
 
-```bash
-  docker run --rm 
-    -v nginx_data:/data 
-    -v $(pwd):/backup 
-    busybox tar xvf /backup/backup.tar -C /
-```
+    ```bash
+      docker run --rm \
+        -v nginx_data:/data \
+        -v $(pwd):/backup \
+        busybox tar xvf /backup/backup.tar -C /
+    ```
 
 **卷管理**：
 - **查看所有卷**：
   
 
-```bash
-  docker volume ls
-```
+    ```bash
+      docker volume ls
+    ```
 - **查看卷详情**：
   
 
-```bash
-  docker volume inspect <卷名>
-```
+    ```bash
+      docker volume inspect <卷名>
+    ```
 - **删除卷**：
   
 
-```bash
-  docker volume rm <卷名>
-```
+    ```bash
+      docker volume rm <卷名>
+    ```
 - **清理未使用的卷**：
   
 
-```bash
-  docker volume prune
-```
+    ```bash
+      docker volume prune
+    ```
 
 **Docker Compose中的数据卷**：
 - **配置示例**：
   
 
-```yaml
-  version: "3"
-  services:
-    nginx:
-      image: nginx
-      ports:
-        - "8080:80"
+    ```yaml
+      version: "3"
+      services:
+        nginx:
+          image: nginx
+          ports:
+            - "8080:80"
+          volumes:
+            - ./www:/usr/share/nginx/html  # 绑定挂载
+            - nginx_conf:/etc/nginx/conf.d  # 命名卷
       volumes:
-        - ./www:/usr/share/nginx/html  # 绑定挂载
-        - nginx_conf:/etc/nginx/conf.d  # 命名卷
-  volumes:
-    nginx_conf:  # 自动创建命名卷
-```
+        nginx_conf:  # 自动创建命名卷
+    ```
 
 **注意事项**：
 - 容器删除时，默认不会删除关联的卷，需要手动清理
@@ -5784,22 +5748,24 @@ http {
 **SQL语句优化**：
 - **开启慢查询日志**：
   
-```sql
-  -- 临时开启
-  SET GLOBAL slow_query_log = 'ON';
-  SET GLOBAL long_query_time = 1;  -- 超过1秒记录
-  SET GLOBAL slow_query_log_file = '/var/lib/mysql/mysql-slow.log';
-  
-  -- 永久配置（my.cnf）
-  # slow_query_log = ON
-  # long_query_time = 1
-  # slow_query_log_file = /var/lib/mysql/mysql-slow.log
-```
+
+    ```sql
+      -- 临时开启
+      SET GLOBAL slow_query_log = 'ON';
+      SET GLOBAL long_query_time = 1;  -- 超过1秒记录
+      SET GLOBAL slow_query_log_file = '/var/lib/mysql/mysql-slow.log';
+      
+      -- 永久配置（my.cnf）
+      # slow_query_log = ON
+      # long_query_time = 1
+      # slow_query_log_file = /var/lib/mysql/mysql-slow.log
+    ```
 - **使用EXPLAIN分析执行计划**：
   
-```sql
-  EXPLAIN SELECT * FROM users WHERE status = 1 AND created_time > '2024-01-01';
-```
+
+    ```sql
+      EXPLAIN SELECT * FROM users WHERE status = 1 AND created_time > '2024-01-01';
+    ```
 - **常见SQL优化规则**：
   - 避免SELECT *，只查询需要的字段
   - 避免在索引列上使用函数或运算
@@ -5895,11 +5861,12 @@ http {
 **日常监控与维护**：
 - **必看状态**：
   
-```sql
-  SHOW GLOBAL STATUS;
-  SHOW ENGINE INNODB STATUS;
-  SHOW VARIABLES;
-```
+
+    ```sql
+      SHOW GLOBAL STATUS;
+      SHOW ENGINE INNODB STATUS;
+      SHOW VARIABLES;
+    ```
 - **定期维护**：
   - 优化表：`OPTIMIZE TABLE table_name`
   - 重建索引：`ALTER TABLE table_name ENGINE=InnoDB`
@@ -5941,24 +5908,24 @@ http {
 - **使用方法**：
   
 
-```bash
-  # 默认就是Bridge模式
-  docker run -d --name myapp nginx
-  
-  # 显式指定Bridge模式
-  docker run -d --name myapp --network bridge nginx
-  
-  # 自定义Bridge网络
-  docker network create mynet --driver bridge
-  docker run -d --name myapp --network mynet nginx
-```
+    ```bash
+      # 默认就是Bridge模式
+      docker run -d --name myapp nginx
+      
+      # 显式指定Bridge模式
+      docker run -d --name myapp --network bridge nginx
+      
+      # 自定义Bridge网络
+      docker network create mynet --driver bridge
+      docker run -d --name myapp --network mynet nginx
+    ```
 - **端口映射**：
   
 
-```bash
-  # -p 宿主机端口:容器端口
-  docker run -d -p 8080:80 --name nginx nginx
-```
+    ```bash
+      # -p 宿主机端口:容器端口
+      docker run -d -p 8080:80 --name nginx nginx
+    ```
 - **适用场景**：大多数单机应用部署、Web服务、数据库、多容器应用
 - **优点**：隔离性好，易于扩展，可创建多个自定义网络
 - **缺点**：NAT导致性能损失，需要手动管理端口映射
@@ -5969,9 +5936,9 @@ http {
 - **使用方法**：
   
 
-```bash
-  docker run -d --name myapp --network host nginx
-```
+    ```bash
+      docker run -d --name myapp --network host nginx
+    ```
 - **适用场景**：高性能网络需求、监控代理、低延迟服务、需要固定端口的服务
 - **优点**：网络性能最高，无需端口映射
 - **缺点**：端口冲突风险高，隔离性差，不支持Windows/macOS
@@ -5982,9 +5949,9 @@ http {
 - **使用方法**：
   
 
-```bash
-  docker run -d --name myapp --network none nginx
-```
+    ```bash
+      docker run -d --name myapp --network none nginx
+    ```
 - **适用场景**：完全隔离的离线任务、数据处理、批处理作业、安全要求高的沙箱
 - **优点**：最高级别的网络隔离，安全性极佳
 - **缺点**：容器内无法访问外网，外部也无法访问容器
@@ -5995,13 +5962,13 @@ http {
 - **使用方法**：
   
 
-```bash
-  # 先运行主容器
-  docker run -d --name main-container busybox sleep 3600
-  
-  # 新容器共享主容器的网络
-  docker run -d --name sidecar --network container:main-container busybox
-```
+    ```bash
+      # 先运行主容器
+      docker run -d --name main-container busybox sleep 3600
+      
+      # 新容器共享主容器的网络
+      docker run -d --name sidecar --network container:main-container busybox
+    ```
 - **适用场景**：Sidecar模式（主应用+日志收集器共享网络）、调试工具容器与目标容器网络一致
 - **优点**：容器间网络通信效率高，适合协同工作
 - **缺点**：依赖目标容器生命周期，端口易冲突
@@ -6012,19 +5979,19 @@ http {
 - **使用方法**：
   
 
-```bash
-  # 创建自定义网络
-  docker network create --driver bridge --subnet 172.30.0.0/16 mynet
-  
-  # 创建带网关的网络
-  docker network create --driver bridge --gateway 172.30.0.1 --subnet 172.30.0.0/16 mynet
-  
-  # 容器连接自定义网络
-  docker run -d --name myapp --network mynet nginx
-  
-  # 查看网络详情
-  docker network inspect mynet
-```
+    ```bash
+      # 创建自定义网络
+      docker network create --driver bridge --subnet 172.30.0.0/16 mynet
+      
+      # 创建带网关的网络
+      docker network create --driver bridge --gateway 172.30.0.1 --subnet 172.30.0.0/16 mynet
+      
+      # 容器连接自定义网络
+      docker run -d --name myapp --network mynet nginx
+      
+      # 查看网络详情
+      docker network inspect mynet
+    ```
 - **适用场景**：多容器应用隔离、环境隔离（开发/测试/生产）、跨宿主机容器通信
 - **优点**：灵活的网络配置，支持网络隔离和通信控制
 - **缺点**：需要额外的网络规划和管理
@@ -6043,31 +6010,31 @@ http {
 - **查看网络**：
   
 
-```bash
-  docker network ls
-  docker network inspect bridge
-```
+    ```bash
+      docker network ls
+      docker network inspect bridge
+    ```
 - **创建网络**：
   
 
-```bash
-  docker network create mynet
-  docker network create --driver bridge --subnet 172.30.0.0/16 mynet
-```
+    ```bash
+      docker network create mynet
+      docker network create --driver bridge --subnet 172.30.0.0/16 mynet
+    ```
 - **连接容器到网络**：
   
 
-```bash
-  docker network connect mynet container_name
-  docker network disconnect mynet container_name
-```
+    ```bash
+      docker network connect mynet container_name
+      docker network disconnect mynet container_name
+    ```
 - **删除网络**：
   
 
-```bash
-  docker network rm mynet
-  docker network prune  # 清理未使用的网络
-```
+    ```bash
+      docker network rm mynet
+      docker network prune  # 清理未使用的网络
+    ```
 
 **Docker网络模式最佳实践**：
 - **开发环境**：使用自定义Bridge网络，便于容器间通信和调试
@@ -6103,146 +6070,146 @@ http {
 - **TCP网络参数优化**：
   
 
-```bash
-  # /etc/sysctl.conf 配置
-  # TCP连接队列长度
-  net.core.somaxconn = 65535
-  net.core.netdev_max_backlog = 5000
-  net.ipv4.tcp_max_syn_backlog = 65535
-  
-  # TCP连接复用和超时
-  net.ipv4.tcp_tw_reuse = 1
-  net.ipv4.tcp_fin_timeout = 30
-  net.ipv4.tcp_keepalive_time = 600
-  net.ipv4.tcp_keepalive_intvl = 30
-  net.ipv4.tcp_keepalive_probes = 3
-  
-  # TCP窗口和缓冲区
-  net.core.rmem_default = 262144
-  net.core.rmem_max = 16777216
-  net.core.wmem_default = 262144
-  net.core.wmem_max = 16777216
-  net.ipv4.tcp_rmem = 4096 87380 6291456
-  net.ipv4.tcp_wmem = 4096 16384 4194304
-  
-  # 端口范围
-  net.ipv4.ip_local_port_range = 1024 65535
-  
-  # 应用配置
-  sysctl -p
-```
+    ```bash
+      # /etc/sysctl.conf 配置
+      # TCP连接队列长度
+      net.core.somaxconn = 65535
+      net.core.netdev_max_backlog = 5000
+      net.ipv4.tcp_max_syn_backlog = 65535
+      
+      # TCP连接复用和超时
+      net.ipv4.tcp_tw_reuse = 1
+      net.ipv4.tcp_fin_timeout = 30
+      net.ipv4.tcp_keepalive_time = 600
+      net.ipv4.tcp_keepalive_intvl = 30
+      net.ipv4.tcp_keepalive_probes = 3
+      
+      # TCP窗口和缓冲区
+      net.core.rmem_default = 262144
+      net.core.rmem_max = 16777216
+      net.core.wmem_default = 262144
+      net.core.wmem_max = 16777216
+      net.ipv4.tcp_rmem = 4096 87380 6291456
+      net.ipv4.tcp_wmem = 4096 16384 4194304
+      
+      # 端口范围
+      net.ipv4.ip_local_port_range = 1024 65535
+      
+      # 应用配置
+      sysctl -p
+    ```
 - **虚拟内存参数优化**：
   
 
-```bash
-  # /etc/sysctl.conf 配置
-  # 降低swap使用倾向
-  vm.swappiness = 10
-  
-  # 脏页回写控制
-  vm.dirty_ratio = 15
-  vm.dirty_background_ratio = 5
-  vm.dirty_writeback_centisecs = 500
-  
-  # 内存过载保护
-  vm.overcommit_memory = 1
-  vm.overcommit_ratio = 80
-  
-  # 应用配置
-  sysctl -p
-```
+    ```bash
+      # /etc/sysctl.conf 配置
+      # 降低swap使用倾向
+      vm.swappiness = 10
+      
+      # 脏页回写控制
+      vm.dirty_ratio = 15
+      vm.dirty_background_ratio = 5
+      vm.dirty_writeback_centisecs = 500
+      
+      # 内存过载保护
+      vm.overcommit_memory = 1
+      vm.overcommit_ratio = 80
+      
+      # 应用配置
+      sysctl -p
+    ```
 - **文件系统参数优化**：
   
 
-```bash
-  # /etc/sysctl.conf 配置
-  # 文件描述符限制
-  fs.file-max = 2097152
-  fs.nr_open = 1048576
-  
-  # inotify限制
-  fs.inotify.max_user_watches = 524288
-  fs.inotify.max_user_instances = 8192
-  
-  # 应用配置
-  sysctl -p
-```
+    ```bash
+      # /etc/sysctl.conf 配置
+      # 文件描述符限制
+      fs.file-max = 2097152
+      fs.nr_open = 1048576
+      
+      # inotify限制
+      fs.inotify.max_user_watches = 524288
+      fs.inotify.max_user_instances = 8192
+      
+      # 应用配置
+      sysctl -p
+    ```
 
 **文件描述符限制优化**：
 - **临时设置**：
   
 
-```bash
-  ulimit -n 65535
-```
+    ```bash
+      ulimit -n 65535
+    ```
 - **永久设置**：
-
+  
   
 
-```bash
-  # /etc/security/limits.conf
-  * soft nofile 65535
-  * hard nofile 65535
-  * soft nproc 32768
-  * hard nproc 32768
-  root soft nofile 65535
-  root hard nofile 65535
-```
+    ```bash
+      # /etc/security/limits.conf
+      * soft nofile 65535
+      * hard nofile 65535
+      * soft nproc 32768
+      * hard nproc 32768
+      root soft nofile 65535
+      root hard nofile 65535
+    ```
 
 **文件系统优化**：
 - **挂载参数优化**：
   
 
-```bash
-  # /etc/fstab 配置
-  # noatime：禁止记录文件最后访问时间，减少磁盘I/O
-  # discard：启用TRIM功能（SSD适用）
-  UUID=xxx / ext4 defaults,noatime,discard 0 1
-```
+    ```bash
+      # /etc/fstab 配置
+      # noatime：禁止记录文件最后访问时间，减少磁盘I/O
+      # discard：启用TRIM功能（SSD适用）
+      UUID=xxx / ext4 defaults,noatime,discard 0 1
+    ```
 - **I/O调度器优化**：
   
 
-```bash
-  # SSD使用mq-deadline或noop
-  echo mq-deadline > /sys/block/sda/queue/scheduler
-  
-  # HDD使用cfq或deadline
-  echo deadline > /sys/block/sda/queue/scheduler
-```
+    ```bash
+      # SSD使用mq-deadline或noop
+      echo mq-deadline > /sys/block/sda/queue/scheduler
+      
+      # HDD使用cfq或deadline
+      echo deadline > /sys/block/sda/queue/scheduler
+    ```
 
 **系统服务优化**：
 - **关闭无用服务**：
   
 
-```bash
-  # 查看当前运行的服务
-  systemctl list-units --type=service --state=running
-  
-  # 关闭无用服务
-  systemctl stop bluetooth && systemctl disable bluetooth
-  systemctl stop cups && systemctl disable cups
-  systemctl stop postfix && systemctl disable postfix
-  systemctl stop avahi-daemon && systemctl disable avahi-daemon
-```
+    ```bash
+      # 查看当前运行的服务
+      systemctl list-units --type=service --state=running
+      
+      # 关闭无用服务
+      systemctl stop bluetooth && systemctl disable bluetooth
+      systemctl stop cups && systemctl disable cups
+      systemctl stop postfix && systemctl disable postfix
+      systemctl stop avahi-daemon && systemctl disable avahi-daemon
+    ```
 
 **网络优化**：
 - **网卡队列优化**：
   
 
-```bash
-  # 调整网卡队列长度
-  ethtool -G eth0 rx 4096 tx 4096
-  
-  # 查看网卡信息
-  ethtool eth0
-```
+    ```bash
+      # 调整网卡队列长度
+      ethtool -G eth0 rx 4096 tx 4096
+      
+      # 查看网卡信息
+      ethtool eth0
+    ```
 - **中断亲和性配置**：
   
 
-```bash
-  # 将网卡中断绑定到特定CPU核心
-  echo 2 > /proc/irq/24/smp_affinity
-```
+    ```bash
+      # 将网卡中断绑定到特定CPU核心
+      echo 2 > /proc/irq/24/smp_affinity
+    ```
 
 **Linux系统优化最佳实践**：
 - **优化顺序**：先定位瓶颈，再针对性优化，避免盲目调整
@@ -6291,22 +6258,22 @@ http {
 - **常用命令**：
   
 
-```bash
-  # 查看规则
-  iptables -vnL
-  
-  # 允许SSH连接
-  iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-  
-  # 允许已建立的连接
-  iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-  
-  # 设置默认策略
-  iptables -P INPUT DROP
-  
-  # 保存规则
-  iptables-save > /etc/iptables/rules.v4
-```
+    ```bash
+      # 查看规则
+      iptables -vnL
+      
+      # 允许SSH连接
+      iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+      
+      # 允许已建立的连接
+      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      
+      # 设置默认策略
+      iptables -P INPUT DROP
+      
+      # 保存规则
+      iptables-save > /etc/iptables/rules.v4
+    ```
 - **特点**：功能强大，配置灵活，但语法复杂，性能随规则数量增加而下降
 
 **nftables**：
@@ -6318,23 +6285,23 @@ http {
 - **常用命令**：
   
 
-```bash
-  # 查看规则集
-  nft list ruleset
-  
-  # 创建表和链
-  nft add table inet filter
-  nft add chain inet filter input { type filter hook input priority 0; policy drop; }
-  
-  # 允许SSH连接
-  nft add rule inet filter input tcp dport 22 accept
-  
-  # 允许已建立的连接
-  nft add rule inet filter input ct state established,related accept
-  
-  # 保存规则
-  nft list ruleset > /etc/nftables.conf
-```
+    ```bash
+      # 查看规则集
+      nft list ruleset
+      
+      # 创建表和链
+      nft add table inet filter
+      nft add chain inet filter input { type filter hook input priority 0; policy drop; }
+      
+      # 允许SSH连接
+      nft add rule inet filter input tcp dport 22 accept
+      
+      # 允许已建立的连接
+      nft add rule inet filter input ct state established,related accept
+      
+      # 保存规则
+      nft list ruleset > /etc/nftables.conf
+    ```
 - **特点**：统一语法（支持IPv4/IPv6）、性能更高（哈希表存储）、动态更新（无需重启）
 
 **ufw**：
@@ -6343,23 +6310,23 @@ http {
 - **常用命令**：
   
 
-```bash
-  # 查看状态
-  ufw status
-  ufw status verbose
-  
-  # 允许SSH
-  ufw allow 22/tcp
-  
-  # 拒绝HTTP
-  ufw deny 80/tcp
-  
-  # 启用防火墙
-  ufw enable
-  
-  # 禁用防火墙
-  ufw disable
-```
+    ```bash
+      # 查看状态
+      ufw status
+      ufw status verbose
+      
+      # 允许SSH
+      ufw allow 22/tcp
+      
+      # 拒绝HTTP
+      ufw deny 80/tcp
+      
+      # 启用防火墙
+      ufw enable
+      
+      # 禁用防火墙
+      ufw disable
+    ```
 - **特点**：操作简单，适合新手和小型服务器，功能相对有限
 
 **iptables -vnL 结果阅读**：
@@ -6460,17 +6427,17 @@ http {
 - **配置步骤**：
   
 
-```bash
-  # 在主机A上
-  brctl addbr br0
-  brctl addif br0 eth1  # 假设eth1是用于容器通信的网卡
-  ifconfig br0 10.0.0.101 netmask 255.255.255.0 up
-  
-  # 在主机B上
-  brctl addbr br0
-  brctl addif br0 eth1
-  ifconfig br0 10.0.0.102 netmask 255.255.255.0 up
-```
+    ```bash
+      # 在主机A上
+      brctl addbr br0
+      brctl addif br0 eth1  # 假设eth1是用于容器通信的网卡
+      ifconfig br0 10.0.0.101 netmask 255.255.255.0 up
+      
+      # 在主机B上
+      brctl addbr br0
+      brctl addif br0 eth1
+      ifconfig br0 10.0.0.102 netmask 255.255.255.0 up
+    ```
 - **优缺点**：
   - 优点：性能高，接近物理网络
   - 缺点：需要配置VLAN，网络拓扑复杂，扩展性差
@@ -6480,13 +6447,13 @@ http {
 - **配置步骤**：
   
 
-```bash
-  # 在主机A上（假设主机A的容器网段是172.17.0.0/16，主机B的IP是10.0.0.102）
-  route add -net 172.27.0.0/16 gw 10.0.0.102
-  
-  # 在主机B上（假设主机B的容器网段是172.27.0.0/16，主机A的IP是10.0.0.101）
-  route add -net 172.17.0.0/16 gw 10.0.0.101
-```
+    ```bash
+      # 在主机A上（假设主机A的容器网段是172.17.0.0/16，主机B的IP是10.0.0.102）
+      route add -net 172.27.0.0/16 gw 10.0.0.102
+      
+      # 在主机B上（假设主机B的容器网段是172.27.0.0/16，主机A的IP是10.0.0.101）
+      route add -net 172.17.0.0/16 gw 10.0.0.101
+    ```
 - **优缺点**：
   - 优点：配置相对简单，性能较高
   - 缺点：需要手动维护路由表，扩展性差，不适合大规模集群
@@ -6496,19 +6463,19 @@ http {
 - **配置步骤**：
   
 
-```bash
-  # 初始化Swarm集群
-  docker swarm init
-  
-  # 其他节点加入集群
-  docker swarm join --token <token> <manager-ip>:2377
-  
-  # 创建Overlay网络
-  docker network create -d overlay my_overlay
-  
-  # 在Overlay网络中启动服务
-  docker service create --name web --network my_overlay -p 80:80 nginx
-```
+    ```bash
+      # 初始化Swarm集群
+      docker swarm init
+      
+      # 其他节点加入集群
+      docker swarm join --token <token> <manager-ip>:2377
+      
+      # 创建Overlay网络
+      docker network create -d overlay my_overlay
+      
+      # 在Overlay网络中启动服务
+      docker service create --name web --network my_overlay -p 80:80 nginx
+    ```
 - **优缺点**：
   - 优点：自动处理跨主机路由，支持服务发现，适合集群环境
   - 缺点：性能有一定损耗（VXLAN封装开销）
@@ -6521,10 +6488,10 @@ http {
 - **部署示例**：
   
 
-```bash
-  # 每台主机启动Flanneld
-  flanneld --etcd-endpoints=http://<ETCD_IP>:2379
-```
+    ```bash
+      # 每台主机启动Flanneld
+      flanneld --etcd-endpoints=http://<ETCD_IP>:2379
+    ```
 - **优缺点**：
   - 优点：配置简单，易于部署，适合小型集群
   - 缺点：性能一般，功能相对简单
@@ -6535,10 +6502,10 @@ http {
 - **部署示例**：
   
 
-```bash
-  # 创建Calico网络
-  docker network create --driver calico --ipam-driver calico-ipam calico-net
-```
+    ```bash
+      # 创建Calico网络
+      docker network create --driver calico --ipam-driver calico-ipam calico-net
+    ```
 - **优缺点**：
   - 优点：性能接近物理网络，支持细粒度网络策略
   - 缺点：部署复杂度较高，需要网络设备支持BGP
@@ -6549,10 +6516,10 @@ http {
 - **部署示例**：
   
 
-```bash
-  # 部署Cilium
-  cilium install
-```
+    ```bash
+      # 部署Cilium
+      cilium install
+    ```
 - **优缺点**：
   - 优点：性能最优，功能丰富，支持服务网格
   - 缺点：对内核版本要求较高，学习曲线较陡
@@ -6625,28 +6592,26 @@ http {
 - **多行文本**：使用`|`或`>`符号
 
 **配置文件结构**：
-
-
-```yaml
-version: '3.8'  # 版本声明（可选但推荐）
-name: "my-project"  # 项目名称（覆盖默认目录名）
-services:  # 服务定义（核心）
-  web:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-networks:  # 网络配置
-  custom-net: {}
-volumes:  # 数据卷定义
-  app-data: {}
-configs:  # 配置文件（Swarm模式）
-  app-config: {}
-secrets:  # 敏感信息（Swarm模式）
-  db-password: {}
-profiles:  # 配置文件分组（v3.8+）
-  - debug
-  - production
-```
+    ```yaml
+    version: '3.8'  # 版本声明（可选但推荐）
+    name: "my-project"  # 项目名称（覆盖默认目录名）
+    services:  # 服务定义（核心）
+      web:
+        image: nginx:alpine
+        ports:
+          - "80:80"
+    networks:  # 网络配置
+      custom-net: {}
+    volumes:  # 数据卷定义
+      app-data: {}
+    configs:  # 配置文件（Swarm模式）
+      app-config: {}
+    secrets:  # 敏感信息（Swarm模式）
+      db-password: {}
+    profiles:  # 配置文件分组（v3.8+）
+      - debug
+      - production
+    ```
 
 **最佳实践**：
 
@@ -6899,27 +6864,27 @@ profiles:  # 配置文件分组（v3.8+）
 **harbor服务器负载均衡最佳实践**：
 
 **nginx配置示例**：
-```nginx
-upstream harbor {
-    # 使用hash算法实现会话保持，避免轮询导致的登录问题
-    hash $remote_addr consistent; # 启用一致性哈希，减少服务器变更时的请求重分配
-    server 10.0.0.101:80;
-    server 10.0.0.102:80;
-}
-
-server {
-    listen 80;
-    server_name harbor.zhong.org;
-    client_max_body_size 10g; # 避免413错误
-    
-    location / {
-        proxy_pass http://harbor;
-        proxy_set_header Host $http_host; # 避免404错误
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    ```nginx
+    upstream harbor {
+        # 使用hash算法实现会话保持，避免轮询导致的登录问题
+        hash $remote_addr consistent; # 启用一致性哈希，减少服务器变更时的请求重分配
+        server 10.0.0.101:80;
+        server 10.0.0.102:80;
     }
-}
-```
+    
+    server {
+        listen 80;
+        server_name harbor.zhong.org;
+        client_max_body_size 10g; # 避免413错误
+        
+        location / {
+            proxy_pass http://harbor;
+            proxy_set_header Host $http_host; # 避免404错误
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+    ```
 
 **hash指令的使用**：
 - **基本用法**：`hash $remote_addr;` - 根据客户端IP哈希
@@ -6988,21 +6953,21 @@ server {
 - 可用于流量过滤和访问控制
 
 **nginx正向代理配置示例**：
-```nginx
-server {
-    listen 1080;
-    resolver 8.8.8.8 114.114.114.114;
-    
-    location / {
-        proxy_pass $scheme://$http_host$request_uri;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_buffers 256 4k;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "";
+    ```nginx
+    server {
+        listen 1080;
+        resolver 8.8.8.8 114.114.114.114;
+        
+        location / {
+            proxy_pass $scheme://$http_host$request_uri;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_buffers 256 4k;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+        }
     }
-}
-```
+    ```
 
 **反向代理（Reverse Proxy）详解**：
 
@@ -7028,31 +6993,31 @@ server {
 - 主要用于服务端优化和安全保障
 
 **nginx反向代理配置示例**：
-```nginx
-upstream backend {
-    server 10.0.0.101:80 weight=5;
-    server 10.0.0.102:80 weight=3;
-    server 10.0.0.103:80 backup;
-}
-
-server {
-    listen 80;
-    server_name www.example.com;
-    
-    location / {
-        proxy_pass http://backend;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+    ```nginx
+    upstream backend {
+        server 10.0.0.101:80 weight=5;
+        server 10.0.0.102:80 weight=3;
+        server 10.0.0.103:80 backup;
     }
     
-    location /api/ {
-        proxy_pass http://backend:8000;
-        proxy_set_header Host $host;
+    server {
+        listen 80;
+        server_name www.example.com;
+        
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /api/ {
+            proxy_pass http://backend:8000;
+            proxy_set_header Host $host;
+        }
     }
-}
-```
+    ```
 
 **正向代理vs反向代理核心对比**：
 
@@ -7247,33 +7212,29 @@ server {
 - 根据应用划分：frontend、backend、database
 
 **2. 资源配额设置**：
-
-
-```yaml
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: dev-quota
-  namespace: dev
-spec:
-  hard:
-    pods: "10"
-    requests.cpu: "4"
-    requests.memory: "4Gi"
-    limits.cpu: "8"
-    limits.memory: "8Gi"
-```
+    ```yaml
+    apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: dev-quota
+      namespace: dev
+    spec:
+      hard:
+        pods: "10"
+        requests.cpu: "4"
+        requests.memory: "4Gi"
+        limits.cpu: "8"
+        limits.memory: "8Gi"
+    ```
 
 **3. 权限控制**：
-
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: dev-reader
-  namespace: dev
-rules:
+    ```yaml
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: dev-reader
+      namespace: dev
+    rules:
 - apiGroups: [""]
   resources: ["pods", "services"]
   verbs: ["get", "list", "watch"]
@@ -7335,32 +7296,32 @@ roleRef:
 - **示例**：
   
 
-```yaml
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    name: nginx
-  spec:
-    containers:
-    - name: nginx
-      image: nginx:1.15.4
-```
+    ```yaml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.15.4
+    ```
 
 **2. JSON格式**：
 - **特点**：结构严谨、机器易解析、无歧义
 - **用途**：API开发、自动化脚本、组件间通信
 - **示例**：
   
-```json
-  {
-    "apiVersion": "v1",
-    "kind": "Pod",
-    "metadata": {
-      "name": "nginx"
-    },
-    "spec": {
-      "containers": [
-        {
+    ```json
+      {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {
+          "name": "nginx"
+        },
+        "spec": {
+          "containers": [
+            {
           "name": "nginx",
           "image": "nginx:1.15.4"
         }
@@ -7518,59 +7479,49 @@ roleRef:
 **高级调试技巧**：
 
 **1. 进入容器交互式调试**：
-
-
-```bash
-# 进入容器内部进行调试
-kubectl exec -it <pod-name> -- /bin/bash
-
-# 对于多容器Pod，指定容器名称
-kubectl exec -it <pod-name> -c <container-name> -- /bin/bash
-```
+    ```bash
+    # 进入容器内部进行调试
+    kubectl exec -it <pod-name> -- /bin/bash
+    
+    # 对于多容器Pod，指定容器名称
+    kubectl exec -it <pod-name> -c <container-name> -- /bin/bash
+    ```
 
 **2. 使用临时调试容器**：
-
-
-```bash
-# 创建临时调试容器
-kubectl debug -it <pod-name> --image=busybox --target=<container-name>
-
-# 使用调试容器检查网络和文件系统
-kubectl debug -it <pod-name> --image=busybox --copy-to=<debug-pod>
-```
+    ```bash
+    # 创建临时调试容器
+    kubectl debug -it <pod-name> --image=busybox --target=<container-name>
+    
+    # 使用调试容器检查网络和文件系统
+    kubectl debug -it <pod-name> --image=busybox --copy-to=<debug-pod>
+    ```
 
 **3. 端口转发进行本地调试**：
-
-
-```bash
-# 转发Pod端口到本地
-kubectl port-forward <pod-name> <local-port>:<container-port>
+    ```bash
+    # 转发Pod端口到本地
+    kubectl port-forward <pod-name> <local-port>:<container-port>
 
 # 示例：转发Pod的80端口到本地8080
 kubectl port-forward nginx-pod 8080:80
 ```
 
 **4. 查看集群级别事件**：
-
-
-```bash
-# 查看所有命名空间的事件
-kubectl get events --all-namespaces --sort-by='.metadata.creationTimestamp'
-
-# 查看特定命名空间的事件
-kubectl get events -n <namespace>
-```
+    ```bash
+    # 查看所有命名空间的事件
+    kubectl get events --all-namespaces --sort-by='.metadata.creationTimestamp'
+    
+    # 查看特定命名空间的事件
+    kubectl get events -n <namespace>
+    ```
 
 **5. 检查节点级日志**：
-
-
-```bash
-# 查看kubelet日志
-journalctl -u kubelet.service -n
-
-# 查看容器运行时日志
-journalctl -u containerd.service -n
-```
+    ```bash
+    # 查看kubelet日志
+    journalctl -u kubelet.service -n
+    
+    # 查看容器运行时日志
+    journalctl -u containerd.service -n
+    ```
 
 **kubectl describe命令的关键信息**：
 
@@ -7595,42 +7546,34 @@ journalctl -u containerd.service -n
 **kubectl logs命令的高级用法**：
 
 **查看特定时间范围的日志**：
-
-
-```bash
-# 查看最近1小时的日志
-kubectl logs <pod-name> --since=1h
-
-# 查看特定时间之后的日志
-kubectl logs <pod-name> --since-time="2024-01-01T00:00:00Z"
-```
+    ```bash
+    # 查看最近1小时的日志
+    kubectl logs <pod-name> --since=1h
+    
+    # 查看特定时间之后的日志
+    kubectl logs <pod-name> --since-time="2024-01-01T00:00:00Z"
+    ```
 
 **限制日志行数**：
-
-
-```bash
-# 只显示最后50行日志
-kubectl logs <pod-name> --tail=50
-```
+    ```bash
+    # 只显示最后50行日志
+    kubectl logs <pod-name> --tail=50
+    ```
 
 **实时跟踪日志**：
-
-
-```bash
-# 实时查看日志输出
-kubectl logs -f <pod-name>
-```
+    ```bash
+    # 实时查看日志输出
+    kubectl logs -f <pod-name>
+    ```
 
 **多容器Pod的日志查看**：
-
-
-```bash
-# 查看特定容器的日志
-kubectl logs <pod-name> -c <container-name>
-
-# 查看所有容器的日志
-kubectl logs <pod-name> --all-containers=true
-```
+    ```bash
+    # 查看特定容器的日志
+    kubectl logs <pod-name> -c <container-name>
+    
+    # 查看所有容器的日志
+    kubectl logs <pod-name> --all-containers=true
+    ```
 
 **Pod故障排查最佳实践**：
 
@@ -7641,15 +7584,13 @@ kubectl logs <pod-name> --all-containers=true
 - 根据问题类型选择相应的解决方案
 
 **2. 常用命令组合**：
-
-
-```bash
-# 快速诊断组合
-kubectl get pods
-kubectl describe pod <problematic-pod>
-kubectl logs <problematic-pod> --previous
-kubectl logs <problematic-pod> -f
-```
+    ```bash
+    # 快速诊断组合
+    kubectl get pods
+    kubectl describe pod <problematic-pod>
+    kubectl logs <problematic-pod> --previous
+    kubectl logs <problematic-pod> -f
+    ```
 
 **3. 标签和选择器的使用**：
 - 使用标签过滤相关Pod：`kubectl get pods -l app=nginx`
@@ -8301,44 +8242,34 @@ kubectl logs <problematic-pod> -f
 **Pod状态的排查流程**：
 
 **1. 查看Pod状态**
-
-
-```bash
-kubectl get pods
-```
+    ```bash
+    kubectl get pods
+    ```
 
 **2. 获取详细信息**
-
-
-```bash
-kubectl describe pod <pod-name>
-```
+    ```bash
+    kubectl describe pod <pod-name>
+    ```
 
 **3. 查看容器日志**
-
-
-```bash
-kubectl logs <pod-name>
-# 查看特定容器的日志
-kubectl logs <pod-name> -c <container-name>
-# 查看上一次运行的日志
-kubectl logs <pod-name> --previous
-```
+    ```bash
+    kubectl logs <pod-name>
+    # 查看特定容器的日志
+    kubectl logs <pod-name> -c <container-name>
+    # 查看上一次运行的日志
+    kubectl logs <pod-name> --previous
+    ```
 
 **4. 检查节点状态**
-
-
-```bash
-kubectl get nodes
-kubectl describe node <node-name>
-```
+    ```bash
+    kubectl get nodes
+    kubectl describe node <node-name>
+    ```
 
 **5. 检查事件**
-
-
-```bash
-kubectl get events
-```
+    ```bash
+    kubectl get events
+    ```
 
 **Pod状态的最佳实践**：
 
@@ -8470,49 +8401,43 @@ kubectl get events
 - 执行容器内的命令进行检测
 - 适用于需要复杂逻辑校验的场景
 - 示例：检查文件是否存在、验证配置文件
-
-
-```yaml
-livenessProbe:
-  exec:
-    command:
-    - cat
-    - /tmp/healthy
-  initialDelaySeconds: 5
-  periodSeconds: 5
-```
+    ```yaml
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    ```
 
 **2. httpGet方式**
 - 向容器的HTTP端点发送请求进行检测
 - 适用于Web服务和API接口
 - 示例：检查健康检查端点
-
-
-```yaml
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
-    scheme: HTTP
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 3
-  failureThreshold: 3
-```
+    ```yaml
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    ```
 
 **3. tcpSocket方式**
 - 检测容器端口的TCP连接
 - 适用于非HTTP服务（如数据库、Redis）
 - 示例：检测MySQL端口
-
-
-```yaml
-readinessProbe:
-  tcpSocket:
-    port: 3306
-  initialDelaySeconds: 10
-  periodSeconds: 5
-```
+    ```yaml
+    readinessProbe:
+      tcpSocket:
+        port: 3306
+      initialDelaySeconds: 10
+      periodSeconds: 5
+    ```
 
 **探针的最佳实践**：
 
@@ -8540,61 +8465,57 @@ readinessProbe:
 **探针配置示例**：
 
 **Java Spring Boot应用配置**：
-
-
-```yaml
-livenessProbe:
-  httpGet:
-    path: /actuator/health/liveness
-    port: 8080
-    scheme: HTTP
-  initialDelaySeconds: 60
-  periodSeconds: 10
-  timeoutSeconds: 3
-  failureThreshold: 3
-
-readinessProbe:
-  httpGet:
-    path: /actuator/health/readiness
-    port: 8080
-    scheme: HTTP
-  initialDelaySeconds: 30
-  periodSeconds: 5
-  timeoutSeconds: 3
-  failureThreshold: 3
-
-startupProbe:
-  httpGet:
-    path: /actuator/health/startup
-    port: 8080
-    scheme: HTTP
-  failureThreshold: 30
-  periodSeconds: 10
-  timeoutSeconds: 3
-```
+    ```yaml
+    livenessProbe:
+      httpGet:
+        path: /actuator/health/liveness
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    
+    readinessProbe:
+      httpGet:
+        path: /actuator/health/readiness
+        port: 8080
+        scheme: HTTP
+      initialDelaySeconds: 30
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+    
+    startupProbe:
+      httpGet:
+        path: /actuator/health/startup
+        port: 8080
+        scheme: HTTP
+      failureThreshold: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+    ```
 
 **Nginx应用配置**：
-
-
-```yaml
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: 80
-  initialDelaySeconds: 5
-  periodSeconds: 10
-  timeoutSeconds: 1
-  failureThreshold: 3
-
-readinessProbe:
-  httpGet:
-    path: /healthz
-    port: 80
-  initialDelaySeconds: 5
-  periodSeconds: 5
-  timeoutSeconds: 1
-  failureThreshold: 1
-```
+    ```yaml
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 1
+      failureThreshold: 3
+    
+    readinessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 1
+      failureThreshold: 1
+    ```
 
 **常见问题与解决方案**：
 
@@ -8643,17 +8564,15 @@ readinessProbe:
 - **核心策略**：将CPU和内存的request与limit设置为相同值，使Pod的QoS级别变为Guaranteed
 - **技术原理**：Guaranteed级别的Pod拥有最高的资源保障，其oom_score_adj评分会降至-997，在资源紧张时最不容易被系统OOM killer杀死
 - **配置示例**：
-  
-
-```yaml
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "250m"
-    limits:
-      memory: "256Mi"
-      cpu: "250m"
-```
+    ```yaml
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "250m"
+        limits:
+          memory: "256Mi"
+          cpu: "250m"
+    ```
 
 **2. 资源管理优化**
 - **合理设置资源请求和限制**：根据应用实际需求设置resources.requests和resources.limits
@@ -8765,28 +8684,24 @@ readinessProbe:
 - **适用场景**：长期运行的服务，如Web应用、API服务、数据库等
 - **典型用途**：Deployment、DaemonSet、StatefulSet管理的Pod
 - **配置示例**：
-  
-
-```yaml
-  apiVersion: v1
-  kind: Pod
-  spec:
-    restartPolicy: Always
-```
+    ```yaml
+      apiVersion: v1
+      kind: Pod
+      spec:
+        restartPolicy: Always
+    ```
 
 **OnFailure**
 - **核心特点**：仅当容器异常退出（退出码非0）时才会重启
 - **适用场景**：需要执行一次性任务或批处理作业的容器
 - **典型用途**：Job管理的Pod
 - **配置示例**：
-  
-
-```yaml
-  apiVersion: v1
-  kind: Pod
-  spec:
-    restartPolicy: OnFailure
-```
+    ```yaml
+      apiVersion: v1
+      kind: Pod
+      spec:
+        restartPolicy: OnFailure
+    ```
 
 **Never**
 - **核心特点**：容器退出后不会自动重启，需要人工介入或外部控制器处理
@@ -8895,58 +8810,52 @@ readinessProbe:
 **重启策略配置示例**：
 
 **Web服务配置**：
-
-
-
-```yaml
-apiVersion: v1
-kind: Pod
-spec:
-  restartPolicy: Always
-  containers:
-  - name: web-server
-    image: nginx:latest
-    ports:
-    - containerPort: 80
-    livenessProbe:
-      httpGet:
-        path: /healthz
-        port: 80
-      initialDelaySeconds: 15
-      periodSeconds: 10
-    readinessProbe:
-      httpGet:
-        path: /ready
-        port: 80
-      initialDelaySeconds: 5
-      periodSeconds: 5
-    resources:
-      limits:
-        memory: "256Mi"
-        cpu: "250m"
-      requests:
-        memory: "128Mi"
-        cpu: "100m"
-```
+    ```yaml
+    apiVersion: v1
+    kind: Pod
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: web-server
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+    ```
 
 **批处理任务配置**：
-
-
-
-```yaml
-apiVersion: v1
-kind: Pod
-spec:
-  restartPolicy: OnFailure
-  containers:
-  - name: batch-task
-    image: batch-processor:latest
-    command: ["/app/process"]
-    resources:
-      limits:
-        memory: "512Mi"
-        cpu: "500m"
-```
+    ```yaml
+    apiVersion: v1
+    kind: Pod
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: batch-task
+        image: batch-processor:latest
+        command: ["/app/process"]
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+    ```
 
 **注意事项**：
 
@@ -8969,16 +8878,13 @@ spec:
 - **适用场景**：需要始终使用最新版本的镜像、镜像标签为 `latest` 或不稳定版本
 - **典型用途**：开发环境、快速迭代的业务应用
 - **配置示例**：
-
-  
-
-```yaml
-  spec:
-    containers:
-    - name: my-container
-      image: my-image:latest
-      imagePullPolicy: Always
-```
+    ```yaml
+      spec:
+        containers:
+        - name: my-container
+          image: my-image:latest
+          imagePullPolicy: Always
+    ```
 
 **IfNotPresent**
 - **核心特点**：仅在本地不存在该镜像时才拉取
@@ -8986,16 +8892,13 @@ spec:
 - **适用场景**：生产环境、需要使用稳定版本的镜像
 - **典型用途**：有版本控制的生产应用、离线环境部署
 - **配置示例**：
-
-  
-
-```yaml
-  spec:
-    containers:
-    - name: my-container
-      image: my-image:v1.2.3
-      imagePullPolicy: IfNotPresent
-```
+    ```yaml
+      spec:
+        containers:
+        - name: my-container
+          image: my-image:v1.2.3
+          imagePullPolicy: IfNotPresent
+    ```
 
 **Never**
 - **核心特点**：完全不会从镜像仓库拉取镜像，只使用本地镜像
@@ -9003,16 +8906,13 @@ spec:
 - **适用场景**：已预先加载镜像到节点、使用本地镜像仓库
 - **典型用途**：离线环境、私有镜像中心、特殊安全要求的环境
 - **配置示例**：
-
-  
-
-```yaml
-  spec:
-    containers:
-    - name: my-container
-      image: my-image:v1.2.3
-      imagePullPolicy: Never
-```
+    ```yaml
+      spec:
+        containers:
+        - name: my-container
+          image: my-image:v1.2.3
+          imagePullPolicy: Never
+    ```
 
 **镜像拉取策略与镜像标签的关系**：
 
@@ -9065,44 +8965,35 @@ spec:
 **私有镜像仓库的认证配置**：
 
 **Docker Config Secret**
-
-
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: my-registry-secret
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: <base64编码的docker config.json>
-```
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: my-registry-secret
+    type: kubernetes.io/dockerconfigjson
+    data:
+      .dockerconfigjson: <base64编码的docker config.json>
+    ```
 
 **ServiceAccount 关联**
-
-
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: my-service-account
-secrets:
-- name: my-registry-secret
-```
+    ```yaml
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: my-service-account
+    secrets:
+    - name: my-registry-secret
+    ```
 
 **Pod 使用私有镜像**
-
-
-
-```yaml
-spec:
-  serviceAccountName: my-service-account
-  containers:
-  - name: my-container
-    image: private-registry.com/my-image:v1.0
-    imagePullPolicy: IfNotPresent
-```
+    ```yaml
+    spec:
+      serviceAccountName: my-service-account
+      containers:
+      - name: my-container
+        image: private-registry.com/my-image:v1.0
+        imagePullPolicy: IfNotPresent
+    ```
 
 **镜像拉取策略的最佳实践**：
 
