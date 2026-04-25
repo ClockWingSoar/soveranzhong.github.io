@@ -24,7 +24,7 @@
   #                      |-{zabbix_agent2}(5364)
   #                      |-{zabbix_agent2}(5376)
   #                      `-{zabbix_agent2}(5390)
-  ```
+```
 
 - **使用 `ps aux` 命令**：查看进程状态，状态列中的 `l` 表示多线程
   
@@ -33,7 +33,7 @@
   ps aux | grep zabbix
   # 输出示例：
   # zabbix      5352  0.0  0.5 1695696 21944 ?       Ssl  13:42   0:00 /usr/sbin/zabbix_agent2 -c /etc/zabbix/zabbix_agent2.conf
-  ```
+```
   注：状态列中的 `Ssl` 表示该进程是多线程的（`l` 标志）
 
 - **查看 `/proc` 文件系统**：通过 `/proc/[pid]/status` 文件查看线程数
@@ -44,10 +44,10 @@
   cat /proc/5352/status | grep Thread
   # 输出示例：
   # Threads:        7
-  ```
+```
 
   **完整操作示例**：
-  
+
 
 ```bash
   # 查看进程树
@@ -62,7 +62,7 @@
   # 查看进程状态文件
   cat /proc/5352/status | grep Thread
   # Threads:        7
-  ```
+```
 
 ### 2. 你写过哪些类型的Shell脚本？
 
@@ -173,35 +173,35 @@
 
 ```bash
   mvn clean package -Dmaven.test.skip=true
-  ```
+```
 
 - **Go**：
   
 
 ```bash
   go build
-  ```
+```
 
 - **Python**：
   
 
 ```bash
   python3 xxx.py
-  ```
+```
 
 - **C/C++**：
   
 
 ```bash
   ./configure && make && make install
-  ```
+```
 
 - **容器化**：Docker
   
 
 ```bash
   docker build -t image-name .
-  ```
+```
 
 ### 9. SRE工程师岗位职责
 
@@ -394,7 +394,7 @@
   # 输出示例：
   # nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
   # nginx: configuration file /etc/nginx/nginx.conf test is successful
-  ```
+```
 
 - **通过 `nginx -V` 查看编译配置**：
   
@@ -405,7 +405,7 @@
   # 输出示例：
   # configure arguments: --prefix=/etc/nginx --conf-path=/etc/nginx/nginx.conf ...
   # 可以看到 --conf-path 指定了配置文件路径
-  ```
+```
 
 - **通过 `nginx -T` 查看完整配置**：
   
@@ -414,7 +414,7 @@
   # 打印完整的nginx配置（包括所有include文件）
   nginx -T
   # 此命令会输出所有配置文件内容，可以从中找到access_log和error_log的路径
-  ```
+```
 
 - **通过ps命令查看进程信息**：
   
@@ -425,7 +425,7 @@
   # 输出示例：
   # root       1234  0.0  0.1  12345  6789 ?        Ss   10:00   0:00 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
   # 从-c参数找到配置文件路径
-  ```
+```
 
 - **通过 `/proc` 文件系统查找**：
   
@@ -438,7 +438,7 @@
   # 3. 使用找到的nginx执行文件查看配置
   /path/to/nginx -t
   /path/to/nginx -V
-  ```
+```
 
 - **常见的Nginx配置文件默认路径**：
   - CentOS/RHEL: `/etc/nginx/nginx.conf`
@@ -457,7 +457,7 @@
   # 查看子配置文件
   cat /etc/nginx/conf.d/*.conf | grep access_log
   cat /etc/nginx/sites-enabled/* | grep access_log
-  ```
+```
 
 - **通过lsof命令查找已打开的日志文件**：
   
@@ -467,7 +467,7 @@
   lsof -p $(cat /var/run/nginx.pid) | grep log
   # 或者查找所有nginx进程的文件描述符
   lsof | grep nginx | grep log
-  ```
+```
 
 - **通过find命令查找已修改的日志文件**：
   
@@ -476,7 +476,7 @@
   # 查找最近修改过的日志文件
   find /var/log -name "*nginx*" -type f -mtime -1 2>/dev/null
   find /var/log -name "*access*" -o -name "*error*" -type f -mtime -1 2>/dev/null
-  ```
+```
 
 - **常见的Nginx日志默认路径**：
   - CentOS/RHEL: `/var/log/nginx/access.log`、`/var/log/nginx/error.log`
@@ -516,7 +516,7 @@
   
   # 统计所有状态的连接数
   netstat -nta | awk '{print $6}' | sort | uniq -c
-  ```
+```
 
 - **使用 `ss` 命令**（更高效，推荐）：
   
@@ -530,7 +530,7 @@
   
   # 统计所有状态的连接数
   ss -nta | awk '{print $1}' | sort | uniq -c
-  ```
+```
 
 - **使用 `ss` 命令的内置功能**：
   
@@ -538,7 +538,7 @@
 ```bash
   # 直接统计各种状态的连接数
   ss -s
-  ```
+```
 
 **TCP连接状态种类**：
 
@@ -572,7 +572,7 @@
   
   # 查看TIME_WAIT状态的连接
   netstat -nta | grep TIME_WAIT
-  ```
+```
 
 - **按状态统计连接数**：
   
@@ -583,7 +583,7 @@
   
   # 使用ss
   ss -nta | awk '{print $1}' | sort | uniq -c | sort -nr
-  ```
+```
 
 - **查看特定端口的连接**：
   
@@ -592,7 +592,7 @@
   # 查看80端口的连接
   netstat -nta | grep :80
   ss -nta | grep :80
-  ```
+```
 
 **注意事项**：
 - `ss` 命令比 `netstat` 更高效，在高并发场景下推荐使用
@@ -666,7 +666,7 @@
   top
   # 在top界面中按数字1键
   # 会显示每个CPU核心的详细使用率
-  ```
+```
 
 - **在top启动时直接显示所有CPU**：
   
@@ -675,7 +675,7 @@
   top -1
   # 或者
   top -n 1 -b | head -20
-  ```
+```
 
 - **使用htop查看单个CPU**（更直观）：
   
@@ -684,7 +684,7 @@
   htop
   # 默认显示每个CPU核心的使用情况
   # 可以通过F5切换树状视图，F4过滤
-  ```
+```
 
 - **查看特定CPU核心的进程**：
   
@@ -693,7 +693,7 @@
   # 查看CPU0上运行的进程
   ps -eo pid,ppid,cmd,psr | grep -v PID | awk '$4==0 {print}'
   # psr列表示进程所在的CPU核心
-  ```
+```
 
 **top命令常用快捷键**：
 
@@ -732,7 +732,7 @@
   
   # 每个核心的详细信息
   lscpu
-  ```
+```
 
 - **查看CPU频率**：
   
@@ -743,7 +743,7 @@
   
   # 实时查看（需要sysstat包）
   mpstat -P ALL 1
-  ```
+```
 
 - **分析CPU负载**：
   
@@ -757,7 +757,7 @@
   
   # 查看每个核心的详细使用
   mpstat -P ALL 1
-  ```
+```
 
 **注意事项**：
 - 在虚拟化环境中，CPU使用率可能受宿主机和其他虚拟机影响
@@ -853,12 +853,11 @@
   - 配置自动分组和标签
   - 示例配置：
     
-
-```bash
-    # zabbix_agent2.conf
-    HostnameItem=system.hostname
-    ServerActive=zabbix-server:10051
-    HostMetadataItem=system.uname
+    ```bash
+        # zabbix_agent2.conf
+        HostnameItem=system.hostname
+        ServerActive=zabbix-server:10051
+        HostMetadataItem=system.uname
     ```
 
 - **Ansible自动化**：
@@ -867,30 +866,29 @@
   - 示例playbook：
   
     
-
-```yaml
-    - name: 部署Zabbix Agent
-      hosts: all
-      tasks:
-        - name: 安装Zabbix Agent
-          package:
-            name: zabbix-agent2
-            state: present
-        - name: 配置Zabbix Agent
-          template:
-            src: zabbix_agent2.conf.j2
-            dest: /etc/zabbix/zabbix_agent2.conf
-          notify: restart zabbix agent
-        - name: 启动Zabbix Agent
-          service:
-            name: zabbix-agent2
-            state: started
-            enabled: yes
-      handlers:
-        - name: restart zabbix agent
-          service:
-            name: zabbix-agent2
-            state: restarted
+    ```yaml
+        - name: 部署Zabbix Agent
+          hosts: all
+          tasks:
+            - name: 安装Zabbix Agent
+              package:
+                name: zabbix-agent2
+                state: present
+            - name: 配置Zabbix Agent
+              template:
+                src: zabbix_agent2.conf.j2
+                dest: /etc/zabbix/zabbix_agent2.conf
+              notify: restart zabbix agent
+            - name: 启动Zabbix Agent
+              service:
+                name: zabbix-agent2
+                state: started
+                enabled: yes
+          handlers:
+            - name: restart zabbix agent
+              service:
+                name: zabbix-agent2
+                state: restarted
     ```
 
 - **API调用脚本**：
@@ -898,48 +896,48 @@
   - 示例Python脚本：
 
     
-```python
-    import requests
-    import json
+    ```python
+        import requests
+        import json
     
-    def zabbix_api_call(method, params):
-        url = "http://zabbix-server/api_jsonrpc.php"
-        headers = {"Content-Type": "application/json-rpc"}
-        payload = {
-            "jsonrpc": "2.0",
-            "method": method,
-            "params": params,
-            "id": 1,
-            "auth": auth_token
-        }
-        response = requests.post(url, data=json.dumps(payload), headers=headers)
-        return response.json()
+        def zabbix_api_call(method, params):
+            url = "http://zabbix-server/api_jsonrpc.php"
+            headers = {"Content-Type": "application/json-rpc"}
+            payload = {
+                "jsonrpc": "2.0",
+                "method": method,
+                "params": params,
+                "id": 1,
+                "auth": auth_token
+            }
+            response = requests.post(url, data=json.dumps(payload), headers=headers)
+            return response.json()
     
-    # 登录获取auth token
-    login_response = zabbix_api_call("user.login", {
-        "user": "Admin",
-        "password": "zabbix"
-    })
-    auth_token = login_response["result"]
+        # 登录获取auth token
+        login_response = zabbix_api_call("user.login", {
+            "user": "Admin",
+            "password": "zabbix"
+        })
+        auth_token = login_response["result"]
     
-    # 创建主机
-    create_host = zabbix_api_call("host.create", {
-        "host": "new-server",
-        "interfaces": [{
-            "type": 1,
-            "main": 1,
-            "useip": 1,
-            "ip": "192.168.1.100",
-            "dns": "",
-            "port": "10050"
-        }],
-        "groups": [{
-            "groupid": "2"
-        }],
-        "templates": [{
-            "templateid": "10001"
-        }]
-    })
+        # 创建主机
+        create_host = zabbix_api_call("host.create", {
+            "host": "new-server",
+            "interfaces": [{
+                "type": 1,
+                "main": 1,
+                "useip": 1,
+                "ip": "192.168.1.100",
+                "dns": "",
+                "port": "10050"
+            }],
+            "groups": [{
+                "groupid": "2"
+            }],
+            "templates": [{
+                "templateid": "10001"
+            }]
+        })
     ```
 
 - **配置管理**：
@@ -1176,12 +1174,12 @@
   - 示例：
     
 
-```bash
-    # 设置缓存，30分钟过期
-    SET product:detail:1001 '{"id":1001,"name":"商品名称","price":99.9}' EX 1800
+    ```bash
+        # 设置缓存，30分钟过期
+        SET product:detail:1001 '{"id":1001,"name":"商品名称","price":99.9}' EX 1800
     
-    # 获取缓存
-    GET product:detail:1001
+        # 获取缓存
+        GET product:detail:1001
     ```
 
 - **会话存储**：
@@ -1191,10 +1189,10 @@
   - 示例：
     
 
-```bash
-    # 存储用户登录信息
-    HSET user:session:12345 username "admin" email "admin@example.com" login_time "2024-01-01 10:00:00"
-    EXPIRE user:session:12345 3600
+    ```bash
+        # 存储用户登录信息
+        HSET user:session:12345 username "admin" email "admin@example.com" login_time "2024-01-01 10:00:00"
+        EXPIRE user:session:12345 3600
     ```
 
 - **消息队列**：
@@ -1204,12 +1202,12 @@
   - 示例：
     
 
-```bash
-    # 生产者：添加任务到队列
-    LPUSH task:async '{"task_id":"001","type":"send_email","data":"..."}'
+    ```bash
+        # 生产者：添加任务到队列
+        LPUSH task:async '{"task_id":"001","type":"send_email","data":"..."}'
     
-    # 消费者：获取任务执行
-    BRPOP task:async 0
+        # 消费者：获取任务执行
+        BRPOP task:async 0
     ```
 
 - **排行榜/计数器**：
@@ -1220,12 +1218,12 @@
   - 示例：
     
 
-```bash
-    # 增加用户积分
-    ZINCRBY game:rankings 100 "player_001"
+    ```bash
+        # 增加用户积分
+        ZINCRBY game:rankings 100 "player_001"
     
-    # 获取Top10玩家
-    ZREVRANGE game:rankings 0 9 WITHSCORES
+        # 获取Top10玩家
+        ZREVRANGE game:rankings 0 9 WITHSCORES
     ```
 
 - **分布式锁**：
@@ -1235,12 +1233,12 @@
   - 示例：
     
 
-```bash
-    # 获取锁
-    SET lock:order:10001 "lock_holder_123" NX EX 30
+    ```bash
+        # 获取锁
+        SET lock:order:10001 "lock_holder_123" NX EX 30
     
-    # 释放锁
-    EVAL "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end" 1 lock:order:10001 "lock_holder_123"
+        # 释放锁
+        EVAL "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end" 1 lock:order:10001 "lock_holder_123"
     ```
 
 - **实时分析**：
@@ -1256,12 +1254,12 @@
   - 示例：
     
 
-```bash
-    # 用户签到
-    SETBIT user:sign:2024:01 12345 1
+    ```bash
+        # 用户签到
+        SETBIT user:sign:2024:01 12345 1
     
-    # 统计当月签到天数
-    BITCOUNT user:sign:2024:01
+        # 统计当月签到天数
+        BITCOUNT user:sign:2024:01
     ```
 
 - **发布/订阅**：
@@ -1271,12 +1269,12 @@
   - 示例：
     
 
-```bash
-    # 订阅频道
-    SUBSCRIBE system:notifications
+    ```bash
+        # 订阅频道
+        SUBSCRIBE system:notifications
     
-    # 发布消息
-    PUBLISH system:notifications '{"type":"alert","msg":"系统负载过高"}'
+        # 发布消息
+        PUBLISH system:notifications '{"type":"alert","msg":"系统负载过高"}'
     ```
 
 **Redis不适合的场景**：
@@ -1324,25 +1322,25 @@
     - 逻辑过期：缓存不设置过期时间，逻辑过期后异步更新
 
     
-```python
-    # 互斥锁实现示例
-    def get_data(key):
-        cache = redis.get(key)
-        if cache:
-            return cache
-        
-        # 尝试获取锁
-        lock = redis.set(f"lock:{key}", "1", nx=True, ex=10)
-        if lock:
-            # 获取到锁，从数据库查询
-            data = db.query(key)
-            redis.setex(key, 3600, data)
-            redis.delete(f"lock:{key}")
-            return data
-        else:
-            # 未获取到锁，短暂等待后重试
-            time.sleep(0.1)
-            return get_data(key)
+    ```python
+        # 互斥锁实现示例
+        def get_data(key):
+            cache = redis.get(key)
+            if cache:
+                return cache
+    
+            # 尝试获取锁
+            lock = redis.set(f"lock:{key}", "1", nx=True, ex=10)
+            if lock:
+                # 获取到锁，从数据库查询
+                data = db.query(key)
+                redis.setex(key, 3600, data)
+                redis.delete(f"lock:{key}")
+                return data
+            else:
+                # 未获取到锁，短暂等待后重试
+                time.sleep(0.1)
+                return get_data(key)
     ```
 
 - **缓存穿透（Cache Penetration）**：
@@ -1355,30 +1353,30 @@
     - 参数校验：加强请求参数校验，过滤非法请求
 
     
-```python
-    # 布隆过滤器示例
-    from bloom_filter import BloomFilter
+    ```python
+        # 布隆过滤器示例
+        from bloom_filter import BloomFilter
     
-    bloom = BloomFilter(max_elements=1000000, error_rate=0.01)
+        bloom = BloomFilter(max_elements=1000000, error_rate=0.01)
     
-    def get_data(key):
-        # 先检查布隆过滤器
-        if key not in bloom:
-            return None  # 一定不存在，直接返回
-        
-        # 布隆过滤器存在，可能存在，再查缓存和数据库
-        cache = redis.get(key)
-        if cache:
-            return cache
-        
-        data = db.query(key)
-        if data:
-            redis.setex(key, 3600, data)
-        else:
-            # 空值也缓存，防止穿透
-            redis.setex(key, 60, "NULL")
-        
-        return data
+        def get_data(key):
+            # 先检查布隆过滤器
+            if key not in bloom:
+                return None  # 一定不存在，直接返回
+    
+            # 布隆过滤器存在，可能存在，再查缓存和数据库
+            cache = redis.get(key)
+            if cache:
+                return cache
+    
+            data = db.query(key)
+            if data:
+                redis.setex(key, 3600, data)
+            else:
+                # 空值也缓存，防止穿透
+                redis.setex(key, 60, "NULL")
+    
+            return data
     ```
 
 - **缓存雪崩（Cache Avalanche）**：
@@ -1392,12 +1390,12 @@
     - 高可用架构：使用Redis Sentinel或Redis Cluster保证缓存高可用
 
     
-```python
-    # 过期时间随机化
-    def set_cache(key, value, base_expire=3600):
-        # 过期时间 = 基础时间 + 随机时间（0-600秒）
-        expire = base_expire + random.randint(0, 600)
-        redis.setex(key, expire, value)
+    ```python
+        # 过期时间随机化
+        def set_cache(key, value, base_expire=3600):
+            # 过期时间 = 基础时间 + 随机时间（0-600秒）
+            expire = base_expire + random.randint(0, 600)
+            redis.setex(key, expire, value)
     ```
 
 - **缓存宕机（Cache Downtime）**：
@@ -1411,29 +1409,29 @@
     - 异步修复：缓存恢复后，异步预热数据
     
     
-```python
-    # 熔断机制示例
-    class CircuitBreaker:
-        def __init__(self, failure_threshold=5, timeout=60):
-            self.failure_count = 0
-            self.failure_threshold = failure_threshold
-            self.timeout = timeout
-            self.state = "CLOSED"
-        
-        def call(self, func):
-            if self.state == "OPEN":
-                # 熔断开启，直接查数据库
-                return db_query_direct()
-            
-            try:
-                result = func()
+    ```python
+        # 熔断机制示例
+        class CircuitBreaker:
+            def __init__(self, failure_threshold=5, timeout=60):
                 self.failure_count = 0
-                return result
-            except:
-                self.failure_count += 1
-                if self.failure_count >= self.failure_threshold:
-                    self.state = "OPEN"
-                return db_query_direct()
+                self.failure_threshold = failure_threshold
+                self.timeout = timeout
+                self.state = "CLOSED"
+    
+            def call(self, func):
+                if self.state == "OPEN":
+                    # 熔断开启，直接查数据库
+                    return db_query_direct()
+    
+                try:
+                    result = func()
+                    self.failure_count = 0
+                    return result
+                except:
+                    self.failure_count += 1
+                    if self.failure_count >= self.failure_threshold:
+                        self.state = "OPEN"
+                    return db_query_direct()
     ```
 
 **缓存问题处理流程**：
@@ -1499,14 +1497,14 @@
   - 设置vm.overcommit_memory=1，允许内核分配超过物理内存的内存
   
 
-```bash
-  #临时设置
-  echo 1 > /proc/sys/vm/overcommit_memory
+    ```bash
+      #临时设置
+      echo 1 > /proc/sys/vm/overcommit_memory
   
-  #永久设置
-  echo "vm.overcommit_memory=1" >> /etc/sysctl.conf
-  sysctl -p
-  ```
+      #永久设置
+      echo "vm.overcommit_memory=1" >> /etc/sysctl.conf
+      sysctl -p
+    ```
   - 合理设置vm.swappiness，避免频繁交换
   - 关闭透明大页（Transparent Huge Pages）
 
@@ -1522,16 +1520,16 @@
   - 定期分析慢查询日志，优化慢命令
   
 
-```bash
-  #查看慢查询日志
-  redis-cli slowlog get
+    ```bash
+      #查看慢查询日志
+      redis-cli slowlog get
   
-  #查看慢查询日志数量
-  redis-cli slowlog len
+      #查看慢查询日志数量
+      redis-cli slowlog len
   
-  #重置慢查询日志
-  redis-cli slowlog reset
-  ```
+      #重置慢查询日志
+      redis-cli slowlog reset
+    ```
 - IO优化：
   - 配置合理的持久化策略
   - Redis 6.0+开启多线程I/O：io-threads 4
@@ -1545,28 +1543,28 @@
     - 提高半连接队列大小：/proc/sys/net/ipv4/tcp_max_syn_backlog
   
 
-```bash
-  #临时设置
-  echo 65535 > /proc/sys/net/core/somaxconn
-  echo 65535 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+    ```bash
+      #临时设置
+      echo 65535 > /proc/sys/net/core/somaxconn
+      echo 65535 > /proc/sys/net/ipv4/tcp_max_syn_backlog
   
-  #永久设置
-  echo "net.core.somaxconn = 65535" >> /etc/sysctl.conf
-  echo "net.ipv4.tcp_max_syn_backlog = 65535" >> /etc/sysctl.conf
-  sysctl -p
-  ```
+      #永久设置
+      echo "net.core.somaxconn = 65535" >> /etc/sysctl.conf
+      echo "net.ipv4.tcp_max_syn_backlog = 65535" >> /etc/sysctl.conf
+      sysctl -p
+    ```
 - 系统资源限制：
   - 增加文件描述符限制（ulimit -n）超过10000
   
 
-```bash
-  #临时设置
-  ulimit -n 65535
+    ```bash
+      #临时设置
+      ulimit -n 65535
   
-  #永久设置
-  echo "* soft nofile 65535" >> /etc/security/limits.conf
-  echo "* hard nofile 65535" >> /etc/security/limits.conf
-  ```
+      #永久设置
+      echo "* soft nofile 65535" >> /etc/security/limits.conf
+      echo "* hard nofile 65535" >> /etc/security/limits.conf
+    ```
 
 **高可用优化**：
 - 主从复制：配置从节点，实现读写分离
@@ -1579,12 +1577,12 @@
     - 建议此值设置足够大，默认值为1M
     
 
-```bash
-    # redis.conf
-    repl-backlog-size 3840mb
-    # 如果一段时间后没有slave连接到master，则backlog size的内存将会被释放
-    # 如果值为0则表示永远不释放这部份内存
-    repl-backlog-ttl 3600
+    ```bash
+        # redis.conf
+        repl-backlog-size 3840mb
+        # 如果一段时间后没有slave连接到master，则backlog size的内存将会被释放
+        # 如果值为0则表示永远不释放这部份内存
+        repl-backlog-ttl 3600
     ```
 - 哨兵模式（Sentinel）：实现自动故障转移
   - 配置至少3个哨兵节点
@@ -1600,7 +1598,7 @@
 **持久化优化**：
 - RDB优化：
   - 合理设置快照频率，平衡性能和数据安全
-  - 配置save 900 1 save 300 10 save 60 10000
+  - 配置`save 900 1 save 300 10 save 60 10000`
 - AOF优化：
   - 使用appendfsync everysec平衡性能和安全性
   - 开启AOF重写：auto-aof-rewrite-percentage 100
@@ -1615,12 +1613,12 @@
   - 禁用危险命令：
     
 
-```bash
-    # 在redis.conf中添加
-    rename-command KEYS ""
-    rename-command FLUSHALL ""
-    rename-command FLUSHDB ""
-    rename-command SHUTDOWN ""
+    ```bash
+        # 在redis.conf中添加
+        rename-command KEYS ""
+        rename-command FLUSHALL ""
+        rename-command FLUSHDB ""
+        rename-command SHUTDOWN ""
     ```
 - 网络安全：
   - 使用TLS加密传输
@@ -1691,9 +1689,9 @@
 - 在redis.conf中配置自动备份策略：
   
 
-```bash
-  save 3600 1 300 100 60 10000
-  ```
+    ```bash
+      save 3600 1 300 100 60 10000
+    ```
   - 含义：3600秒（1小时）内有1次写入 → 触发RDB
   - 含义：300秒（5分钟）内有100次写入 → 触发RDB
   - 含义：60秒内有10000次写入 → 触发RDB
@@ -1709,31 +1707,31 @@
 - 生产环境推荐使用混合持久化（AOF + RDB）
   
 
-```bash
-  # redis.conf
-  save 3600 1 300 100 60 10000
-  appendonly yes
-  appendfsync everysec
-  rdbcompression yes
-  rdbchecksum yes
-  ```
+    ```bash
+      # redis.conf
+      save 3600 1 300 100 60 10000
+      appendonly yes
+      appendfsync everysec
+      rdbcompression yes
+      rdbchecksum yes
+    ```
 
 **RDB备份方案**：
 
 - **本地备份**：
   
 
-```bash
-  # 保留多个RDB文件版本
-  cp dump.rdb dump.rdb.backup.$(date +%Y%m%d%H%M%S)
-  ```
+    ```bash
+      # 保留多个RDB文件版本
+      cp dump.rdb dump.rdb.backup.$(date +%Y%m%d%H%M%S)
+    ```
 - **异地备份**：
   
 
-```bash
-  # 定期上传到远程存储
-  rsync -avz dump.rdb backup-server:/redis-backup/
-  ```
+    ```bash
+      # 定期上传到远程存储
+      rsync -avz dump.rdb backup-server:/redis-backup/
+    ```
 - **定期演练**：
   - 每月进行一次备份恢复演练
   - 验证备份文件的完整性和可用性
@@ -1810,13 +1808,13 @@
 
 
 
-```bash
-# redis.conf
-appendonly yes
-appendfilename "appendonly.aof"
-# 开启混合持久化
-aof-use-rdb-preamble yes
-```
+    ```bash
+    # redis.conf
+    appendonly yes
+    appendfilename "appendonly.aof"
+    # 开启混合持久化
+    aof-use-rdb-preamble yes
+    ```
 
 - 结合RDB快速恢复和AOF数据安全的优点
 - AOF重写时使用RDB格式开头，之后追加AOF命令
@@ -1852,10 +1850,10 @@ aof-use-rdb-preamble yes
   - 配置示例：
     
 
-```bash
-    # 从节点配置
-    replicaof master_ip master_port
-    replica-read-only yes
+    ```bash
+        # 从节点配置
+        replicaof master_ip master_port
+        replica-read-only yes
     ```
 
 - **主从复制 + Sentinel模式**：
@@ -1866,12 +1864,12 @@ aof-use-rdb-preamble yes
   - 配置示例：
     
 
-```bash
-    # sentinel.conf
-    sentinel monitor mymaster 127.0.0.1 6379 2
-    sentinel down-after-milliseconds mymaster 30000
-    sentinel failover-timeout mymaster 180000
-    sentinel parallel-syncs mymaster 1
+    ```bash
+        # sentinel.conf
+        sentinel monitor mymaster 127.0.0.1 6379 2
+        sentinel down-after-milliseconds mymaster 30000
+        sentinel failover-timeout mymaster 180000
+        sentinel parallel-syncs mymaster 1
     ```
 
 - **Redis Cluster模式**：
@@ -1882,11 +1880,11 @@ aof-use-rdb-preamble yes
   - 配置示例：
     
 
-```bash
-    # redis.conf
-    cluster-enabled yes
-    cluster-config-file nodes.conf
-    cluster-node-timeout 15000
+    ```bash
+        # redis.conf
+        cluster-enabled yes
+        cluster-config-file nodes.conf
+        cluster-node-timeout 15000
     ```
 
 - **代理模式**：
@@ -1927,106 +1925,96 @@ aof-use-rdb-preamble yes
 **修改docker.service文件后的操作步骤**：
 
 - **重新加载systemd配置**：
-  
 
-```bash
-  systemctl daemon-reload
-  ```
+    ```bash
+      systemctl daemon-reload
+    ```
   - 作用：重新加载systemd管理器配置，读取新的或修改过的单元文件
   - 必须在重启服务之前执行，否则修改不会生效
 
 - **重启Docker服务**：
   
-
-```bash
-  systemctl restart docker
-  ```
+    ```bash
+      systemctl restart docker
+    ```
   - 作用：重启Docker服务，使新的配置生效
   - 重启期间会停止所有运行中的容器
 
 - **验证配置是否生效**：
   
 
-```bash
-  # 查看Docker服务状态
-  systemctl status docker
-  
-  # 查看Docker服务配置
-  systemctl show docker
-  
-  # 查看docker.service文件内容
-  cat /usr/lib/systemd/system/docker.service
-  ```
+    ```bash
+      # 查看Docker服务状态
+      systemctl status docker
+    
+      # 查看Docker服务配置
+      systemctl show docker
+    
+      # 查看docker.service文件内容
+      cat /usr/lib/systemd/system/docker.service
+    ```
 
 **完整操作流程**：
 
 1. 备份原配置文件（可选但推荐）：
    
-
-```bash
-   cp /usr/lib/systemd/system/docker.service /usr/lib/systemd/system/docker.service.backup
-   ```
+    ```bash
+       cp /usr/lib/systemd/system/docker.service /usr/lib/systemd/system/docker.service.backup
+    ```
 
 2. 编辑docker.service文件：
    
-
-```bash
-   vim /usr/lib/systemd/system/docker.service
-   ```
+    ```bash
+       vim /usr/lib/systemd/system/docker.service
+    ```
 
 3. 重新加载systemd配置：
-   
 
-```bash
-   systemctl daemon-reload
-   ```
+    ```bash
+       systemctl daemon-reload
+    ```
 
 4. 重启Docker服务：
-   
 
-```bash
-   systemctl restart docker
-   ```
+    ```bash
+       systemctl restart docker
+    ```
 
 5. 验证配置：
-   
 
-```bash
-   systemctl status docker
-   docker ps
-   ```
+    ```bash
+       systemctl status docker
+       docker ps
+    ```
 
 **常用docker.service配置修改**：
 
 - **修改数据目录**：
-  
 
-```bash
-  ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --data-root=/data/docker
-  ```
+    ```bash
+      ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --data-root=/data/docker
+    ```
 
 - **修改日志配置**：
   
 
-```bash
-  ExecStart=/usr/bin/dockerd --log-driver=json-file --log-opt max-size=100m --log-opt max-file=3
-  ```
+    ```bash
+      ExecStart=/usr/bin/dockerd --log-driver=json-file --log-opt max-size=100m --log-opt max-file=3
+    ```
 
 - **修改镜像加速**：
-  
 
-```bash
-  ExecStart=/usr/bin/dockerd --registry-mirror=https://mirror.ccs.tencentyun.com
-  ```
+    ```bash
+      ExecStart=/usr/bin/dockerd --registry-mirror=https://mirror.ccs.tencentyun.com
+    ```
 
 - **修改资源限制**：
-  
 
-```bash
-  LimitNPROC=infinity
-  LimitCORE=infinity
-  TasksMax=infinity
-  ```
+    ```bash
+      LimitNPROC=infinity
+      LimitCORE=infinity
+      TasksMax=infinity
+    ```
 
 **注意事项**：
 
@@ -2057,103 +2045,88 @@ aof-use-rdb-preamble yes
 
 - **导出单个镜像**：
 
-  
-
-```bash
-  docker save -o backup.tar image_name:tag
-  # 示例
-  docker save -o nginx.tar nginx:latest
-  ```
+    ```bash
+      docker save -o backup.tar image_name:tag
+      # 示例
+      docker save -o nginx.tar nginx:latest
+    ```
 
 - **导出多个镜像**：
 
-  
+    ```bash
+      # 方法1：使用命令替换
+      docker save -o backup.tar $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>")
 
-```bash
-  # 方法1：使用命令替换
-  docker save -o backup.tar $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>")
-  
-  # 方法2：使用awk获取镜像列表（跳过标题行）
-  docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>" | awk 'NR>1{print $1}' | xargs docker save -o backup.tar
-  
-  # 方法3：导出所有镜像
-  docker save -o all-images.tar $(docker images -q)
-  ```
+      # 方法2：使用awk获取镜像列表（跳过标题行）
+      docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>" | awk 'NR>1{print $1}' | xargs docker save -o backup.tar
+
+      # 方法3：导出所有镜像
+      docker save -o all-images.tar $(docker images -q)
+    ```
 
 - **导出所有镜像（推荐）**：
 
-  
-
-```bash
-  #导出所有镜像为tar文件
-  docker save $(docker images -q) -o /tmp/all-images.tar
-  
-  # 或者分页导出避免参数过长
-  docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>" > /tmp/images.txt
-  while read img; do docker save -o /tmp/images.tar "$img"; done < /tmp/images.txt
-  ```
+    ```bash
+      #导出所有镜像为tar文件
+      docker save $(docker images -q) -o /tmp/all-images.tar
+    
+      # 或者分页导出避免参数过长
+      docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>" > /tmp/images.txt
+      while read img; do docker save -o /tmp/images.tar "$img"; done < /tmp/images.txt
+    ```
 
 **Docker镜像导入方法**：
 
 - **导入镜像**：
-  
 
-```bash
-  docker load -i backup.tar
-  # 或者
-  docker load < backup.tar
-  ```
+    ```bash
+      docker load -i backup.tar
+      # 或者
+      docker load < backup.tar
+    ```
 
 - **验证导入结果**：
-  
-
-```bash
-  docker images
-  ```
+    ```bash
+      docker images
+    ```
 
 **完整迁移流程**：
 
 1. 在源服务器导出镜像：
 
-   
+    ```bash
+       # 导出所有镜像
+       docker save -o images.tar $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>")
 
-```bash
-   # 导出所有镜像
-   docker save -o images.tar $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>")
-   
-   # 压缩节省传输时间（可选）
-   gzip -c images.tar > images.tar.gz
-   ```
+       # 压缩节省传输时间（可选）
+       gzip -c images.tar > images.tar.gz
+    ```
 
 2. 传输镜像文件到目标服务器：
 
-   
+    ```bash
+       # 使用scp传输
+       scp images.tar.gz user@target-server:/tmp/
 
-```bash
-   # 使用scp传输
-   scp images.tar.gz user@target-server:/tmp/
-   
-   # 或者使用rsync传输
-   rsync -avz images.tar.gz user@target-server:/tmp/
-   ```
+       # 或者使用rsync传输
+       rsync -avz images.tar.gz user@target-server:/tmp/
+    ```
 
 3. 在目标服务器导入镜像：
-   
+ 
+    ```bash
+       # 解压（如果压缩过）
+       gunzip images.tar.gz
 
-```bash
-   # 解压（如果压缩过）
-   gunzip images.tar.gz
-   
-   # 导入镜像
-   docker load -i images.tar
-   ```
+       # 导入镜像
+       docker load -i images.tar
+    ```
 
 4. 验证导入结果：
    
-
-```bash
-   docker images
-   ```
+    ```bash
+       docker images
+    ```
 
 **docker save与docker export的区别**：
 
@@ -2185,24 +2158,22 @@ aof-use-rdb-preamble yes
 
 - **使用镜像仓库**：
   
+    ```bash
+      # 推送镜像到私有仓库
+      docker tag image_name:tag registry.example.com/image_name:tag
+      docker push registry.example.com/image_name:tag
 
-```bash
-  # 推送镜像到私有仓库
-  docker tag image_name:tag registry.example.com/image_name:tag
-  docker push registry.example.com/image_name:tag
-  
-  # 在目标服务器拉取
-  docker pull registry.example.com/image_name:tag
-  ```
+      # 在目标服务器拉取
+      docker pull registry.example.com/image_name:tag
+    ```
 
 - **使用docker commit**（不推荐，仅容器场景）：
   
-
-```bash
-  # 将容器保存为镜像
-  docker commit container_id image_name:tag
-  docker save -o backup.tar image_name:tag
-  ```
+    ```bash
+      # 将容器保存为镜像
+      docker commit container_id image_name:tag
+      docker save -o backup.tar image_name:tag
+    ```
 
 ### 33. 怎么查看僵尸态的进程？
 
@@ -2218,49 +2189,46 @@ aof-use-rdb-preamble yes
 
 - **使用ps命令**：
   
+    ```bash
+      # 查看所有进程，包括僵尸进程
+      ps aux | grep Z
 
-```bash
-  # 查看所有进程，包括僵尸进程
-  ps aux | grep Z
-  
-  # 查看状态为Z的进程（僵尸进程）
-  ps -eo pid,ppid,state,cmd | grep ^[[:space:]]*[0-9]*[[:space:]]*[0-9]*[[:space:]]*Z
-  
-  # 查看僵尸进程的详细信息
-  ps -eo pid,ppid,stat,comm,etime --sort=-stat | grep Z
-  ```
+      # 查看状态为Z的进程（僵尸进程）
+      ps -eo pid,ppid,state,cmd | grep ^[[:space:]]*[0-9]*[[:space:]]*[0-9]*[[:space:]]*Z
+
+      # 查看僵尸进程的详细信息
+      ps -eo pid,ppid,stat,comm,etime --sort=-stat | grep Z
+    ```
 
 - **使用top命令**：
   
 
-```bash
-  # top默认会显示僵尸进程数量
-  top
-  # 在top界面按shift+z可以看到高亮显示的僵尸进程
-  ```
+    ```bash
+      # top默认会显示僵尸进程数量
+      top
+      # 在top界面按shift+z可以看到高亮显示的僵尸进程
+    ```
 
 - **使用proc文件系统**：
   
+    ```bash
+      # 查找所有僵尸进程的父进程
+      for i in /proc/[0-9]*/stat; do 
+        if grep -q ' Z ' "$i"; then 
+          echo "$(dirname $i): $(cat $i)" 
+        fi 
+      done
 
-```bash
-  # 查找所有僵尸进程的父进程
-  for i in /proc/[0-9]*/stat; do 
-    if grep -q ' Z ' "$i"; then 
-      echo "$(dirname $i): $(cat $i)" 
-    fi 
-  done
-  
-  # 查看进程状态
-  cat /proc/<pid>/stat | awk '{print $3}'
-  ```
+      # 查看进程状态
+      cat /proc/<pid>/stat | awk '{print $3}'
+    ```
 
 - **使用pstree命令**：
   
-
-```bash
-  # 以树状结构显示进程，包括僵尸进程
-  pstree -ap | grep -E 'Z|defunct'
-  ```
+    ```bash
+      # 以树状结构显示进程，包括僵尸进程
+      pstree -ap | grep -E 'Z|defunct'
+    ```
 
 **识别僵尸进程的特征**：
 
@@ -2280,102 +2248,99 @@ aof-use-rdb-preamble yes
 
 - **方法1：重启父进程**：
   
+    ```bash
+      # 找到僵尸进程的父进程
+      ps -eo pid,ppid,stat,cmd | grep Z
 
-```bash
-  # 找到僵尸进程的父进程
-  ps -eo pid,ppid,stat,cmd | grep Z
-  
-  # 重启父进程（谨慎操作）
-  kill -9 <父进程PID>
-  systemctl restart <服务名>
-  ```
+      # 重启父进程（谨慎操作）
+      kill -9 <父进程PID>
+      systemctl restart <服务名>
+    ```
 
 - **方法2：杀死父进程**：
   
+    ```bash
+      # 找到父进程
+      ps -eo pid,ppid,stat,cmd | grep Z
 
-```bash
-  # 找到父进程
-  ps -eo pid,ppid,stat,cmd | grep Z
-  
-  # 向父进程发送SIGCHLD信号，迫使其回收子进程
-  kill -SIGCHLD <父进程PID>
-  
-  # 如果无效，杀死父进程
-  kill -9 <父进程PID>
-  ```
+      # 向父进程发送SIGCHLD信号，迫使其回收子进程
+      kill -SIGCHLD <父进程PID>
+
+      # 如果无效，杀死父进程
+      kill -9 <父进程PID>
+    ```
 
 - **方法3：重启系统**（最后手段）：
   
+    ```bash
+      # 备份重要数据
+      sync
 
-```bash
-  # 备份重要数据
-  sync
-  
-  # 重启系统
-  reboot
-  ```
+      # 重启系统
+      reboot
+    ```
 
 **预防僵尸进程的措施**：
 
 - **正确处理子进程**：
   
-```c
-  // C语言中正确回收子进程
-  signal(SIGCHLD, SIG_IGN);  // 让内核回收
-  // 或
-  pid = wait(NULL);  // 阻塞等待
-  // 或
-  waitpid(pid, NULL, WNOHANG);  // 非阻塞等待
-  ```
+    ```c
+      // C语言中正确回收子进程
+      signal(SIGCHLD, SIG_IGN);  // 让内核回收
+      // 或
+      pid = wait(NULL);  // 阻塞等待
+      // 或
+      waitpid(pid, NULL, WNOHANG);  // 非阻塞等待
+    ```
 
 - **使用 supervisord 管理进程**：
   
 
-```bash
-  # supervisord.conf配置
-  [program:myapp]
-  stopsignal=TERM
-  ```
+    ```bash
+      # supervisord.conf配置
+      [program:myapp]
+      stopsignal=TERM
+    ```
 
 - **使用 systemd 管理服务**：
   
 
-```bash
-  # 服务配置中添加
-  KillMode=process
-  ```
+    ```bash
+      # 服务配置中添加
+      KillMode=process
+    ```
 
 **常见场景与解决方案**：
 
 - **场景1：nginx/php-fpm产生僵尸进程**：
   
 
-```bash
-  # 重启nginx
-  systemctl restart nginx
-  
-  # 重启php-fpm
-  systemctl restart php-fpm
-  ```
+    ```bash
+      # 重启nginx
+      systemctl restart nginx
+
+      # 重启php-fpm
+      systemctl restart php-fpm
+    ```
 
 - **场景2：Java应用产生僵尸进程**：
   
 
-```bash
-  # JVM参数添加 -XX:+ExitOnOutOfMemoryError
-  # 检查Java代码中的ProcessBuilder管理
-  ```
+    ```bash
+      # JVM参数添加 -XX:+ExitOnOutOfMemoryError
+      # 检查Java代码中的ProcessBuilder管理
+    ```
 
 - **场景3：Docker容器内产生僵尸进程**：
   
 
-```bash
-  # 进入容器查看
-  docker exec -it <container_id> ps aux | grep Z
-  
-  # 重启容器
-  docker restart <container_id>
-  ```
+    ```bash
+      # 进入容器查看
+      docker exec -it <container_id> ps aux | grep Z
+
+      # 重启容器
+      docker restart <container_id>
+    ```
 
 **监控僵尸进程的脚本**：
 
@@ -2420,7 +2385,7 @@ fi
   slow_query_log = 1
   slow_query_log_file = /var/log/mysql/slow.log
   long_query_time = 2
-  ```
+```
 
 - **查看慢查询日志**：
   
@@ -2434,7 +2399,7 @@ fi
   
   # 使用pt-query-digest分析（percona工具）
   pt-query-digest /var/log/mysql/slow.log
-  ```
+```
 
 - **慢查询分析**：
   
@@ -2449,7 +2414,7 @@ fi
   -- 使用EXPLAIN分析查询
   EXPLAIN SELECT * FROM users WHERE name = 'test';
   EXPLAIN ANALYZE SELECT * FROM users WHERE name = 'test';
-  ```
+```
 
 - **慢查询优化方法**：
   - 优化索引：为WHERE、JOIN、ORDER BY字段添加索引
@@ -2486,7 +2451,7 @@ fi
   UNION
   SELECT name, id FROM admins WHERE status = 1
   ORDER BY id DESC;
-  ```
+```
 
 **MySQL排序**：
 
@@ -2504,7 +2469,7 @@ fi
   
   -- 按字段位置排序（不推荐）
   SELECT * FROM users ORDER BY 1, 2;
-  ```
+```
 
 - **ASC与DESC**：
   - ASC：升序（从小到大，默认）
@@ -2521,7 +2486,7 @@ fi
   
   -- 使用IFNULL处理NULL值
   SELECT * FROM users ORDER BY IFNULL(name, 'zzz') ASC;
-  ```
+```
 
 - **使用索引优化排序**：
   
@@ -2531,7 +2496,7 @@ fi
   
   -- EXPLAIN检查是否使用索引排序
   EXPLAIN SELECT * FROM users WHERE status = 1 ORDER BY created_at DESC;
-  ```
+```
 
 - **文件排序（Using filesort）**：
   - 当无法使用索引排序时，MySQL使用文件排序
@@ -2562,7 +2527,7 @@ fi
   SELECT u.name, o.order_id
   FROM users u, orders o
   WHERE u.id = o.user_id;
-  ```
+```
 
 - **LEFT JOIN（左连接）**：
   
@@ -2577,7 +2542,7 @@ fi
   FROM users u
   LEFT JOIN orders o ON u.id = o.user_id
   GROUP BY u.id;
-  ```
+```
 
 - **RIGHT JOIN（右连接）**：
   
@@ -2588,7 +2553,7 @@ fi
   RIGHT JOIN orders o ON u.id = o.user_id;
   
   -- 应用场景：查询所有订单及其用户（包括没有用户的订单）
-  ```
+```
 
 - **FULL OUTER JOIN（全外连接）**：
   
@@ -2601,7 +2566,7 @@ fi
   SELECT u.name, o.order_id
   FROM users u
   RIGHT JOIN orders o ON u.id = o.user_id;
-  ```
+```
 
 - **CROSS JOIN（交叉连接）**：
   
@@ -2612,7 +2577,7 @@ fi
   CROSS JOIN orders o;
   
   -- 应用场景：生成测试数据、枚举组合
-  ```
+```
 
 - **多表JOIN**：
   
@@ -2622,7 +2587,7 @@ fi
   INNER JOIN orders o ON u.id = o.user_id
   INNER JOIN products p ON o.product_id = p.id
   WHERE u.status = 1;
-  ```
+```
 
 - **JOIN优化建议**：
   - 确保ON条件字段有索引
@@ -2670,7 +2635,7 @@ RESET QUERY CACHE;
   
   # 使用readlink解析符号链接
   readlink -f /usr/sbin/ip
-  ```
+```
 
 - **Debian/Ubuntu系统（dpkg）**：
   
@@ -2686,7 +2651,7 @@ RESET QUERY CACHE;
   # 查看包信息
   dpkg -l iproute2
   dpkg -s iproute2
-  ```
+```
 
 - **RedHat/CentOS系统（rpm）**：
   
@@ -2698,7 +2663,7 @@ RESET QUERY CACHE;
   
   # 搜索包含指定文件的包
   rpm -qf /usr/sbin/ifconfig
-  ```
+```
 
 - **通用方法（适用所有Linux）**：
   
@@ -2715,7 +2680,7 @@ RESET QUERY CACHE;
   apt-get install apt-file
   apt-file update
   apt-file search /bin/ip
-  ```
+```
 
 **完整操作示例**：
 
@@ -2785,7 +2750,7 @@ Section: net
   apt-get install <包名>  # 安装包
   apt-get remove <包名>   # 卸载包
   dpkg -l                 # 列出已安装包
-  ```
+```
 
 - **RedHat/CentOS**：
   
@@ -2795,7 +2760,7 @@ Section: net
   yum install <包名>     # 安装包
   yum remove <包名>      # 卸载包
   rpm -qa                 # 列出已安装包
-  ```
+```
 
 ### 36. 怎么查看一个容器的ip地址？
 
@@ -2815,7 +2780,7 @@ Section: net
   
   # 方法3：查看所有网络信息
   docker inspect --format='{{ "{{" }}json .NetworkSettings.Networks}}' nginx01 | python -m json.tool
-  ```
+```
 
 - **使用docker exec进入容器查看**：
   
@@ -2828,7 +2793,7 @@ Section: net
   ifconfig
   ip addr
   hostname -I
-  ```
+```
 
 - **使用docker network inspect**：
   
@@ -2839,7 +2804,7 @@ Section: net
   
   # 查找特定容器的IP
   docker network inspect bridge | grep -A 5 -B 5 nginx01
-  ```
+```
 
 - **使用docker ps和grep**：
   
@@ -2850,7 +2815,7 @@ Section: net
   
   # 根据ID查看IP
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' <容器ID>
-  ```
+```
 
 **不同网络模式的IP查看**：
 
@@ -2859,7 +2824,7 @@ Section: net
 
 ```bash
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' nginx01
-  ```
+```
 
 - **host网络**：
   
@@ -2867,7 +2832,7 @@ Section: net
 ```bash
   # 容器使用主机网络，IP与主机相同
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.host.IPAddress}}' nginx01
-  ```
+```
 
 - **自定义网络**：
   
@@ -2875,7 +2840,7 @@ Section: net
 ```bash
   # 查看自定义网络的IP
   docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.my-network.IPAddress}}' nginx01
-  ```
+```
 
 **完整操作示例**：
 
@@ -2965,7 +2930,7 @@ docker exec -it nginx01 ping 172.17.0.1
   
   # 查看容器的详细日志
   docker logs --details nginx01
-  ```
+```
 
 **检查容器状态**：
 - 使用`docker ps`命令查看容器的状态
@@ -2977,7 +2942,7 @@ docker exec -it nginx01 ping 172.17.0.1
   
   # 查看特定容器的状态
   docker ps -a | grep nginx01
-  ```
+```
 
 **检查容器配置**：
 - 查看容器的详细配置信息
@@ -2992,7 +2957,7 @@ docker exec -it nginx01 ping 172.17.0.1
   
   # 查看容器的环境变量
   docker inspect --format='{{ "{{" }}.Config.Env}}' nginx01
-  ```
+```
 
 **检查端口映射**：
 - 确认端口映射是否正确
@@ -3001,7 +2966,7 @@ docker exec -it nginx01 ping 172.17.0.1
 ```bash
   # 查看容器的端口映射
   docker port nginx01
-  ```
+```
 
 **检查网络配置**：
 - 检查容器的网络配置
@@ -3013,7 +2978,7 @@ docker exec -it nginx01 ping 172.17.0.1
   
   # 测试网络连通性
   docker run --rm busybox ping -c 2 nginx01
-  ```
+```
 
 **检查资源限制**：
 - 检查容器的资源限制是否合理
@@ -3022,7 +2987,7 @@ docker exec -it nginx01 ping 172.17.0.1
 ```bash
   # 查看容器的资源限制
   docker inspect --format='{{ "{{" }}.HostConfig}}' nginx01
-  ```
+```
 
 **检查镜像问题**：
 - 确认镜像是否存在问题
@@ -3034,7 +2999,7 @@ docker exec -it nginx01 ping 172.17.0.1
   
   # 尝试运行镜像的测试命令
   docker run --rm nginx echo "Test"
-  ```
+```
 
 **常见容器启动失败原因**：
 
@@ -3312,7 +3277,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
   
   # 清理包括已停止的容器和未使用的镜像
   docker system prune -a
-  ```
+```
 - **适用场景**：快速清理所有类型的Docker垃圾
 
 **清理停止的容器**：
@@ -3326,7 +3291,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
   
   # 强制清理
   docker container prune -f
-  ```
+```
 - **适用场景**：专门清理停止的容器，保留其他资源
 
 **清理未使用的镜像**：
@@ -3343,7 +3308,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
   
   # 强制清理
   docker image prune -f
-  ```
+```
 - **适用场景**：专门清理未使用的镜像，释放磁盘空间
 
 **清理未使用的网络**：
@@ -3357,7 +3322,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
   
   # 强制清理
   docker network prune -f
-  ```
+```
 - **适用场景**：清理不再使用的网络配置
 
 **清理未使用的卷**：
@@ -3371,7 +3336,7 @@ $ docker inspect --format '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}
   
   # 强制清理
   docker volume prune -f
-  ```
+```
 - **适用场景**：清理不再使用的卷，释放存储空间
 
 **Docker垃圾清理的最佳实践**：
@@ -3717,7 +3682,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
   
   # 查看容器的挂载卷
   docker inspect --format='{{ "{{" }}.Mounts}}' <容器ID或名称>
-  ```
+```
 
 **方法2：使用runlike工具**：
 - **作用**：根据容器的配置信息生成可执行的docker run命令
@@ -3730,7 +3695,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
   
   # 或使用pip安装到指定用户
   pip3 install --user runlike
-  ```
+```
 - **使用**：
   
 
@@ -3741,7 +3706,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
   # 示例
   runlike mysql01
   # 输出：docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 -p 3306:3306 mysql:latest
-  ```
+```
 - **特点**：自动化程度高，直接生成完整的docker run命令
 
 **方法3：使用docker commit**：
@@ -3755,7 +3720,7 @@ nginx   latest   1234567890ab   2 weeks ago   133MB
   
   # 然后使用docker history查看镜像的历史
   docker history <新镜像名称:标签>
-  ```
+```
 
 **情况二：容器已删除**：
 
@@ -3796,7 +3761,7 @@ done
         - "3306:3306"
       volumes:
         - /data/mysql:/var/lib/mysql
-  ```
+```
 
 **方法3：使用容器编排工具**：
 - Kubernetes、Swarm等容器编排工具可以保存容器配置
@@ -3920,7 +3885,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
   
   # 示例
   docker attach nginx01
-  ```
+```
 - **特点**：
   - 多个用户可以同时附加到同一个容器
   - 所有用户共享同一个终端会话，命令输入和输出会同步
@@ -3945,7 +3910,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
   
   # 示例
   docker exec -it nginx01 /bin/bash
-  ```
+```
 - **特点**：
   - 每个用户拥有独立的终端会话
   - 不同用户之间的操作互不影响
@@ -3968,7 +3933,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
   
   # 在CentOS/RHEL上
   yum install util-linux
-  ```
+```
 - **使用**：
   
 
@@ -3978,7 +3943,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
   
   # 进入容器的命名空间
   nsenter --target $PID --mount --uts --ipc --net --pid
-  ```
+```
 - **特点**：
   - 直接进入容器的命名空间
   - 提供更底层的访问方式
@@ -3999,7 +3964,7 @@ docker run --name=mysql01 --hostname=mysql-server -e MYSQL_ROOT_PASSWORD=123456 
   
   # 示例
   docker run -it --name test-container ubuntu:latest /bin/bash
-  ```
+```
 - **特点**：
   - 创建新的容器而非进入现有容器
   - 可以指定镜像和启动命令
@@ -4534,7 +4499,7 @@ FROM scratch
   
   # 压缩镜像
   docker-squash -t myapp:squashed myapp:latest
-  ```
+```
 
 **完整示例**：
 
@@ -4902,7 +4867,7 @@ CMD ["./app"]
 ```bash
   # 覆盖CMD
   docker run myimage echo "Override CMD"
-  ```
+```
 
 **ENTRYPOINT指令**：
 - **执行方式**：
@@ -4915,7 +4880,7 @@ CMD ["./app"]
 ```bash
   # 覆盖ENTRYPOINT
   docker run --entrypoint echo myimage "Override ENTRYPOINT"
-  ```
+```
 
 **组合使用**：
 
@@ -4935,7 +4900,7 @@ CMD ["./app"]
 ```bash
   # 修改CMD参数
   docker run myimage -g "daemon off;" -c /etc/nginx/nginx.conf
-  ```
+```
 - **执行结果**：`nginx -g "daemon off;" -c /etc/nginx/nginx.conf`
 
 **使用场景**：
@@ -4967,7 +4932,7 @@ CMD ["./app"]
   
   # 执行CMD传递的命令
   exec "$@"
-  ```
+```
 - **好处**：
   - 避免进程嵌套，简化进程管理
   - 确保信号（如SIGTERM）能够正确传递
@@ -5478,7 +5443,7 @@ CMD ["node", "index.js"]
   # 永久设置（/etc/security/limits.conf）
   * soft nofile 65536
   * hard nofile 65536
-  ```
+```
 - **说明**：增加系统允许打开的文件描述符数量
 
 **内核参数优化**：
@@ -5494,7 +5459,7 @@ CMD ["node", "index.js"]
   net.ipv4.tcp_keepalive_time = 600
   net.ipv4.ip_local_port_range = 1024 65535
   net.ipv4.tcp_max_tw_buckets = 5000
-  ```
+```
 - **说明**：优化TCP参数，提高网络性能
 
 **日志优化**：
@@ -5529,7 +5494,7 @@ CMD ["node", "index.js"]
           [ -f /var/run/nginx.pid ] && kill -USR1 `cat /var/run/nginx.pid`
       endscript
   }
-  ```
+```
 - **说明**：自动轮转和压缩日志文件，避免日志文件过大
 
 **安全优化**：
@@ -5684,7 +5649,7 @@ http {
 ```bash
   # 运行容器时创建匿名卷
   docker run -d -v /var/lib/mysql --name mysql mysql:8.0
-  ```
+```
 - **存储位置**：Docker会将数据存储在`/var/lib/docker/volumes/<随机ID>/_data`目录
 - **适用场景**：临时测试、日志缓存等不需要长期保存的数据
 - **优点**：创建简单，无需手动管理
@@ -5701,7 +5666,7 @@ http {
   
   # 只读挂载
   docker run -d -v /host/path:/container/path:ro --name nginx nginx
-  ```
+```
 - **存储位置**：用户指定的宿主机任意目录
 - **适用场景**：开发调试、配置文件挂载、需要宿主机直接访问数据的场景
 - **优点**：数据完全由宿主机管理，方便直接操作
@@ -5721,7 +5686,7 @@ http {
   
   # 也可以直接运行，Docker会自动创建不存在的卷
   docker run -d -v named-volume:/path/in/container nginx
-  ```
+```
 - **存储位置**：Docker会将数据存储在`/var/lib/docker/volumes/<卷名>/_data`目录
 - **适用场景**：生产环境、数据库、多容器共享数据等需要长期保存的数据
 - **优点**：Docker自动管理权限，数据独立于容器，适合生产环境
@@ -5747,7 +5712,7 @@ http {
     -v nginx_data:/data 
     -v $(pwd):/backup 
     busybox tar cvf /backup/backup.tar /data
-  ```
+```
 - **恢复卷**：
   
 
@@ -5756,7 +5721,7 @@ http {
     -v nginx_data:/data 
     -v $(pwd):/backup 
     busybox tar xvf /backup/backup.tar -C /
-  ```
+```
 
 **卷管理**：
 - **查看所有卷**：
@@ -5764,25 +5729,25 @@ http {
 
 ```bash
   docker volume ls
-  ```
+```
 - **查看卷详情**：
   
 
 ```bash
   docker volume inspect <卷名>
-  ```
+```
 - **删除卷**：
   
 
 ```bash
   docker volume rm <卷名>
-  ```
+```
 - **清理未使用的卷**：
   
 
 ```bash
   docker volume prune
-  ```
+```
 
 **Docker Compose中的数据卷**：
 - **配置示例**：
@@ -5800,7 +5765,7 @@ http {
         - nginx_conf:/etc/nginx/conf.d  # 命名卷
   volumes:
     nginx_conf:  # 自动创建命名卷
-  ```
+```
 
 **注意事项**：
 - 容器删除时，默认不会删除关联的卷，需要手动清理
@@ -5829,12 +5794,12 @@ http {
   # slow_query_log = ON
   # long_query_time = 1
   # slow_query_log_file = /var/lib/mysql/mysql-slow.log
-  ```
+```
 - **使用EXPLAIN分析执行计划**：
   
 ```sql
   EXPLAIN SELECT * FROM users WHERE status = 1 AND created_time > '2024-01-01';
-  ```
+```
 - **常见SQL优化规则**：
   - 避免SELECT *，只查询需要的字段
   - 避免在索引列上使用函数或运算
@@ -5934,7 +5899,7 @@ http {
   SHOW GLOBAL STATUS;
   SHOW ENGINE INNODB STATUS;
   SHOW VARIABLES;
-  ```
+```
 - **定期维护**：
   - 优化表：`OPTIMIZE TABLE table_name`
   - 重建索引：`ALTER TABLE table_name ENGINE=InnoDB`
@@ -5986,14 +5951,14 @@ http {
   # 自定义Bridge网络
   docker network create mynet --driver bridge
   docker run -d --name myapp --network mynet nginx
-  ```
+```
 - **端口映射**：
   
 
 ```bash
   # -p 宿主机端口:容器端口
   docker run -d -p 8080:80 --name nginx nginx
-  ```
+```
 - **适用场景**：大多数单机应用部署、Web服务、数据库、多容器应用
 - **优点**：隔离性好，易于扩展，可创建多个自定义网络
 - **缺点**：NAT导致性能损失，需要手动管理端口映射
@@ -6006,7 +5971,7 @@ http {
 
 ```bash
   docker run -d --name myapp --network host nginx
-  ```
+```
 - **适用场景**：高性能网络需求、监控代理、低延迟服务、需要固定端口的服务
 - **优点**：网络性能最高，无需端口映射
 - **缺点**：端口冲突风险高，隔离性差，不支持Windows/macOS
@@ -6019,7 +5984,7 @@ http {
 
 ```bash
   docker run -d --name myapp --network none nginx
-  ```
+```
 - **适用场景**：完全隔离的离线任务、数据处理、批处理作业、安全要求高的沙箱
 - **优点**：最高级别的网络隔离，安全性极佳
 - **缺点**：容器内无法访问外网，外部也无法访问容器
@@ -6036,7 +6001,7 @@ http {
   
   # 新容器共享主容器的网络
   docker run -d --name sidecar --network container:main-container busybox
-  ```
+```
 - **适用场景**：Sidecar模式（主应用+日志收集器共享网络）、调试工具容器与目标容器网络一致
 - **优点**：容器间网络通信效率高，适合协同工作
 - **缺点**：依赖目标容器生命周期，端口易冲突
@@ -6059,7 +6024,7 @@ http {
   
   # 查看网络详情
   docker network inspect mynet
-  ```
+```
 - **适用场景**：多容器应用隔离、环境隔离（开发/测试/生产）、跨宿主机容器通信
 - **优点**：灵活的网络配置，支持网络隔离和通信控制
 - **缺点**：需要额外的网络规划和管理
@@ -6081,28 +6046,28 @@ http {
 ```bash
   docker network ls
   docker network inspect bridge
-  ```
+```
 - **创建网络**：
   
 
 ```bash
   docker network create mynet
   docker network create --driver bridge --subnet 172.30.0.0/16 mynet
-  ```
+```
 - **连接容器到网络**：
   
 
 ```bash
   docker network connect mynet container_name
   docker network disconnect mynet container_name
-  ```
+```
 - **删除网络**：
   
 
 ```bash
   docker network rm mynet
   docker network prune  # 清理未使用的网络
-  ```
+```
 
 **Docker网络模式最佳实践**：
 - **开发环境**：使用自定义Bridge网络，便于容器间通信和调试
@@ -6165,7 +6130,7 @@ http {
   
   # 应用配置
   sysctl -p
-  ```
+```
 - **虚拟内存参数优化**：
   
 
@@ -6185,7 +6150,7 @@ http {
   
   # 应用配置
   sysctl -p
-  ```
+```
 - **文件系统参数优化**：
   
 
@@ -6201,7 +6166,7 @@ http {
   
   # 应用配置
   sysctl -p
-  ```
+```
 
 **文件描述符限制优化**：
 - **临时设置**：
@@ -6209,7 +6174,7 @@ http {
 
 ```bash
   ulimit -n 65535
-  ```
+```
 - **永久设置**：
 
   
@@ -6222,7 +6187,7 @@ http {
   * hard nproc 32768
   root soft nofile 65535
   root hard nofile 65535
-  ```
+```
 
 **文件系统优化**：
 - **挂载参数优化**：
@@ -6233,7 +6198,7 @@ http {
   # noatime：禁止记录文件最后访问时间，减少磁盘I/O
   # discard：启用TRIM功能（SSD适用）
   UUID=xxx / ext4 defaults,noatime,discard 0 1
-  ```
+```
 - **I/O调度器优化**：
   
 
@@ -6243,7 +6208,7 @@ http {
   
   # HDD使用cfq或deadline
   echo deadline > /sys/block/sda/queue/scheduler
-  ```
+```
 
 **系统服务优化**：
 - **关闭无用服务**：
@@ -6258,7 +6223,7 @@ http {
   systemctl stop cups && systemctl disable cups
   systemctl stop postfix && systemctl disable postfix
   systemctl stop avahi-daemon && systemctl disable avahi-daemon
-  ```
+```
 
 **网络优化**：
 - **网卡队列优化**：
@@ -6270,14 +6235,14 @@ http {
   
   # 查看网卡信息
   ethtool eth0
-  ```
+```
 - **中断亲和性配置**：
   
 
 ```bash
   # 将网卡中断绑定到特定CPU核心
   echo 2 > /proc/irq/24/smp_affinity
-  ```
+```
 
 **Linux系统优化最佳实践**：
 - **优化顺序**：先定位瓶颈，再针对性优化，避免盲目调整
@@ -6341,7 +6306,7 @@ http {
   
   # 保存规则
   iptables-save > /etc/iptables/rules.v4
-  ```
+```
 - **特点**：功能强大，配置灵活，但语法复杂，性能随规则数量增加而下降
 
 **nftables**：
@@ -6369,7 +6334,7 @@ http {
   
   # 保存规则
   nft list ruleset > /etc/nftables.conf
-  ```
+```
 - **特点**：统一语法（支持IPv4/IPv6）、性能更高（哈希表存储）、动态更新（无需重启）
 
 **ufw**：
@@ -6394,7 +6359,7 @@ http {
   
   # 禁用防火墙
   ufw disable
-  ```
+```
 - **特点**：操作简单，适合新手和小型服务器，功能相对有限
 
 **iptables -vnL 结果阅读**：
@@ -6505,7 +6470,7 @@ http {
   brctl addbr br0
   brctl addif br0 eth1
   ifconfig br0 10.0.0.102 netmask 255.255.255.0 up
-  ```
+```
 - **优缺点**：
   - 优点：性能高，接近物理网络
   - 缺点：需要配置VLAN，网络拓扑复杂，扩展性差
@@ -6521,7 +6486,7 @@ http {
   
   # 在主机B上（假设主机B的容器网段是172.27.0.0/16，主机A的IP是10.0.0.101）
   route add -net 172.17.0.0/16 gw 10.0.0.101
-  ```
+```
 - **优缺点**：
   - 优点：配置相对简单，性能较高
   - 缺点：需要手动维护路由表，扩展性差，不适合大规模集群
@@ -6543,7 +6508,7 @@ http {
   
   # 在Overlay网络中启动服务
   docker service create --name web --network my_overlay -p 80:80 nginx
-  ```
+```
 - **优缺点**：
   - 优点：自动处理跨主机路由，支持服务发现，适合集群环境
   - 缺点：性能有一定损耗（VXLAN封装开销）
@@ -6559,7 +6524,7 @@ http {
 ```bash
   # 每台主机启动Flanneld
   flanneld --etcd-endpoints=http://<ETCD_IP>:2379
-  ```
+```
 - **优缺点**：
   - 优点：配置简单，易于部署，适合小型集群
   - 缺点：性能一般，功能相对简单
@@ -6573,7 +6538,7 @@ http {
 ```bash
   # 创建Calico网络
   docker network create --driver calico --ipam-driver calico-ipam calico-net
-  ```
+```
 - **优缺点**：
   - 优点：性能接近物理网络，支持细粒度网络策略
   - 缺点：部署复杂度较高，需要网络设备支持BGP
@@ -6587,7 +6552,7 @@ http {
 ```bash
   # 部署Cilium
   cilium install
-  ```
+```
 - **优缺点**：
   - 优点：性能最优，功能丰富，支持服务网格
   - 缺点：对内核版本要求较高，学习曲线较陡
@@ -7379,7 +7344,7 @@ roleRef:
     containers:
     - name: nginx
       image: nginx:1.15.4
-  ```
+```
 
 **2. JSON格式**：
 - **特点**：结构严谨、机器易解析、无歧义
@@ -7402,7 +7367,7 @@ roleRef:
       ]
     }
   }
-  ```
+```
 
 **3. 其他格式**：
 - **Kubelet配置文件**：支持YAML和JSON格式
@@ -7951,7 +7916,7 @@ kubectl logs <problematic-pod> -f
 - **特点**：直接与容器运行时交互
 
 **2. Kube-proxy**
-- **功能**：为Service提供网络代理和负载均衡
+- **功能**：为Service提供网络代理和负载均衡，**未来可以被cilium替代**
 - **作用**：
   - 维护节点上的网络规则
   - 实现Service的负载均衡
@@ -8688,7 +8653,7 @@ readinessProbe:
     limits:
       memory: "256Mi"
       cpu: "250m"
-  ```
+```
 
 **2. 资源管理优化**
 - **合理设置资源请求和限制**：根据应用实际需求设置resources.requests和resources.limits
@@ -8807,7 +8772,7 @@ readinessProbe:
   kind: Pod
   spec:
     restartPolicy: Always
-  ```
+```
 
 **OnFailure**
 - **核心特点**：仅当容器异常退出（退出码非0）时才会重启
@@ -8821,7 +8786,7 @@ readinessProbe:
   kind: Pod
   spec:
     restartPolicy: OnFailure
-  ```
+```
 
 **Never**
 - **核心特点**：容器退出后不会自动重启，需要人工介入或外部控制器处理
@@ -9013,7 +8978,7 @@ spec:
     - name: my-container
       image: my-image:latest
       imagePullPolicy: Always
-  ```
+```
 
 **IfNotPresent**
 - **核心特点**：仅在本地不存在该镜像时才拉取
@@ -9030,7 +8995,7 @@ spec:
     - name: my-container
       image: my-image:v1.2.3
       imagePullPolicy: IfNotPresent
-  ```
+```
 
 **Never**
 - **核心特点**：完全不会从镜像仓库拉取镜像，只使用本地镜像
@@ -9047,7 +9012,7 @@ spec:
     - name: my-container
       image: my-image:v1.2.3
       imagePullPolicy: Never
-  ```
+```
 
 **镜像拉取策略与镜像标签的关系**：
 
@@ -9474,7 +9439,7 @@ spec:
   spec:
     strategy:
       type: Recreate
-  ```
+```
 
 **RollingUpdate（滚动式更新）**
 - **核心特点**：逐步替换旧版本Pod为新版本Pod，实现平滑更新
@@ -9499,7 +9464,7 @@ spec:
       rollingUpdate:
         maxSurge: 25%
         maxUnavailable: 25%
-  ```
+```
 
 **Ansible的更新策略**：
 
@@ -9527,7 +9492,7 @@ spec:
 - **适用场景**：需要保持服务高可用的场景、集群式部署的应用
 - **优势**：避免所有主机同时更新导致的的服务中断
 - **配置示例**
-：
+  ：
   
 ```yaml
   - name: Rolling update playbook
@@ -9538,7 +9503,7 @@ spec:
         yum:
           name: myapp
           state: latest
-  ```
+```
 
 **Kubernetes与Ansible更新策略的对比**：
 
@@ -9778,7 +9743,7 @@ spec:
   
   # 验证后增加副本数
   kubectl scale deployment/myapp --replicas=3
-  ```
+```
 
 **基于kubectl rollout的金丝雀发布**
 - **核心原理**：使用rollout pause暂停更新过程，分批验证后继续
@@ -9788,20 +9753,20 @@ spec:
      
 ```bash
      kubectl set image deployment deployment-rolling-update pod-rolling-update='registry.cn-beijing.aliyuncs.com/soveranzhong/pod-test:v0.3' --record=true
-     ```
+```
   2. 立即暂停更新：
 
      
 ```bash
      kubectl rollout pause deployment deployment-rolling-update
-     ```
+```
   3. 验证少量金丝雀Pod的运行状态
   4. 确认无问题后继续更新：
 
      
 ```bash
      kubectl rollout resume deployment deployment-rolling-update
-     ```
+```
 - **适用场景**：需要手动控制发布节奏、逐步观察效果的场景
 
 **基于Service切换的金丝雀发布**
@@ -9830,7 +9795,7 @@ spec:
            containers:
            - name: myapp
              image: myapp:v1
-     ```
+```
   2. 创建新版本Deployment（green）：
 
      
@@ -9854,7 +9819,7 @@ spec:
            containers:
            - name: myapp
              image: myapp:v2
-     ```
+```
   3. Service选择blue版本：
 
      
@@ -9870,7 +9835,7 @@ spec:
        ports:
        - port: 80
          targetPort: 8080
-     ```
+```
   4. 验证green版本后，修改Service选择器切换到green
 
 **滚动更新的实现方法**：
@@ -9887,7 +9852,7 @@ spec:
       rollingUpdate:
         maxSurge: 25%
         maxUnavailable: 25%
-  ```
+```
 
 **手动控制滚动更新**
 - **暂停更新**：
@@ -9895,31 +9860,31 @@ spec:
   
 ```bash
   kubectl rollout pause deployment/myapp
-  ```
+```
 - **查看状态**：
 
   
 ```bash
   kubectl rollout status deployment/myapp
-  ```
+```
 - **继续更新**：
 
   
 ```bash
   kubectl rollout resume deployment/myapp
-  ```
+```
 - **回滚到上一版本**：
 
   
 ```bash
   kubectl rollout undo deployment/myapp
-  ```
+```
 - **回滚到指定版本**：
 
   
 ```bash
   kubectl rollout undo deployment/myapp --to-revision=2
-  ```
+```
 
 **蓝绿部署的实现方法**：
 
@@ -10023,7 +9988,7 @@ spec:
               name: myapp-b
               port:
                 number: 80
-  ```
+```
 
 **基于Header的A/B测试**
 - **核心原理**：根据请求Header将流量分配到不同版本
@@ -10514,7 +10479,7 @@ spec:
   modprobe ip_vs_rr
   modprobe ip_vs_wrr
   modprobe ip_vs_lc
-  ```
+```
   内核版本 >= 4.9（最低要求）
 
 - **eBPF**：检查内核版本和模块
@@ -10523,7 +10488,7 @@ spec:
   uname -r
   # 推荐 >= 4.18
   lsmod | grep bpf
-  ```
+```
   确保内核支持eBPF和相关功能
 
 **3. 优化网络配置**
@@ -10535,14 +10500,14 @@ spec:
   net.netfilter.nf_conntrack_tcp_timeout_established = 86400
   net.core.somaxconn = 65535
   net.ipv4.tcp_max_syn_backlog = 65535
-  ```
+```
 
 - **eBPF优化**：
   
 ```bash
   # 增加eBPF内存限制
   sysctl -w kernel.bpf_jit_limit=268435456
-  ```
+```
 
 **4. 监控代理性能**
 - **kube-proxy指标**：
@@ -10684,7 +10649,7 @@ spec:
     ports:
     - port: 80
       targetPort: 8080
-  ```
+```
 - **访问方式**：
   - 集群内部Pod：`http://my-service.default.svc.cluster.local` 或 `http://my-service`
   - 集群内部其他命名空间：`http://my-service.namespace.svc.cluster.local`
@@ -10714,7 +10679,7 @@ spec:
     - port: 80
       targetPort: 8080
       nodePort: 30080
-  ```
+```
 - **访问方式**：
   - `http://<节点IP>:30080`
   - 集群内有多个节点时，任意节点IP均可访问
@@ -10749,7 +10714,7 @@ spec:
       targetPort: 8080
       protocol: TCP
     loadBalancerIP: 1.2.3.4
-  ```
+```
 - **云厂商集成**：
   - AWS：创建Classic Load Balancer或Network Load Balancer
   - Azure：创建Azure Load Balancer
@@ -10781,7 +10746,7 @@ spec:
   spec:
     type: ExternalName
     externalName: api.example.com
-  ```
+```
 - **访问方式**：
   - `http://my-external-service.default.svc.cluster.local` 解析到 `api.example.com`
   - 返回CNAME记录，客户端直接访问外部服务
