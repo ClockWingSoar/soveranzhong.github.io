@@ -10969,6 +10969,223 @@ spec:
 - 生产环境建议启用Service的会话亲和性配置
 - 使用健康检查确保后端Pod可用性
 
+### 74. k8s中Service中pending状态是因为啥？
+
+**问题分析**：在Kubernetes中，Service可能会处于Pending状态，这通常意味着Service无法正常创建或调度。理解Service Pending状态的常见原因及排查方法，对于SRE工程师快速定位和解决问题至关重要。
+
+**Service Pending状态的常见原因**：
+
+**核心原因：资源未准备好**
+- **后端Pod未就绪**：没有匹配的后端Pod运行，Service无法找到可用的Endpoints
+- **Selector不匹配**：Service的Selector与后端Pod的标签不匹配
+- **Pod处于Pending状态**：后端Pod无法调度到任何节点
+- **Pod处于Terminating状态**：后端Pod正在被删除，Endpoints未及时更新
+
+**1. 后端Pod未就绪**
+- **原因**：没有运行中的Pod匹配Service的Selector
+- **表现**：Service的Endpoints为空
+- **排查方法**：
+  ```bash
+  kubectl get endpoints <service-name>
+  kubectl get pods -l <selector-labels>
+  ```
+- **解决方案**：
+  - 检查Pod是否正在运行
+  - 验证Pod标签是否与Service Selector匹配
+  - 检查Pod调度状态
+
+**2. Selector配置错误**
+- **原因**：Service的Selector与实际Pod标签不一致
+- **表现**：Endpoints为空或部分为空
+- **排查方法**：
+  ```bash
+  kubectl describe service <service-name>
+  # 查看Events中的错误信息
+  kubectl get pods --show-labels
+  ```
+- **解决方案**：
+  - 修改Service的Selector配置
+  - 确保Pod标签与Selector完全匹配
+
+**3. Pod调度问题**
+- **原因**：Pod无法调度到任何节点（资源不足、节点不可用等）
+- **表现**：Pod处于Pending状态
+- **排查方法**：
+  ```bash
+  kubectl describe pod <pod-name>
+  # 查看Pod的Events
+  kubectl get nodes
+  ```
+- **解决方案**：
+  - 增加节点资源
+  - 调整Pod的资源请求和限制
+  - 修复节点问题
+
+**4. 网络插件问题**
+- **原因**：CNI插件未正常工作，无法分配Pod IP
+- **表现**：Pod一直处于Pending或ContainerCreating状态
+- **排查方法**：
+  ```bash
+  kubectl describe pod <pod-name>
+  # 查看网络相关错误
+  kubectl get nodes -o wide
+  ```
+- **解决方案**：
+  - 检查CNI插件状态
+  - 重启CNI插件或节点
+  - 检查节点网络配置
+
+**5. 存储挂载问题**
+- **原因**：PVC未正确绑定或挂载失败
+- **表现**：Pod一直处于Pending状态
+- **排查方法**：
+  ```bash
+  kubectl describe pvc <pvc-name>
+  kubectl describe pod <pod-name>
+  ```
+- **解决方案**：
+  - 检查存储类配置
+  - 验证PVC状态
+  - 检查存储插件
+
+**6. 镜像拉取问题**
+- **原因**：镜像无法拉取（认证失败、镜像不存在、网络问题）
+- **表现**：Pod一直处于ContainerCreating状态
+- **排查方法**：
+  ```bash
+  kubectl describe pod <pod-name>
+  # 查看镜像拉取错误
+  ```
+- **解决方案**：
+  - 配置正确的镜像拉取凭证
+  - 检查镜像是否存在
+  - 配置私有镜像仓库
+
+**7. 权限和安全问题**
+- **原因**：ServiceAccount权限不足，导致无法创建Endpoints
+- **表现**：Service创建成功但Endpoints为空
+- **排查方法**：
+  ```bash
+  kubectl describe serviceaccount <service-account-name>
+  kubectl auth can-i get pods --as=system:serviceaccount:<namespace>:<service-account>
+  ```
+- **解决方案**：
+  - 配置正确的RBAC权限
+  - 检查ServiceAccount配置
+
+**Service状态详解**：
+
+**kubectl get service输出状态解读**
+- **Pending**：Service正在创建或等待资源
+- **Active/Running**：Service正常运行
+- **Failed**：Service创建失败
+
+**Endpoints状态解读**
+- **空Endpoints**：没有匹配的后端Pod
+- **部分Endpoints**：部分后端Pod可用
+- **完整Endpoints**：所有后端Pod都可用
+
+**排查步骤**：
+
+**步骤1：检查Service状态**
+```bash
+kubectl get svc <service-name>
+kubectl describe svc <service-name>
+```
+
+**步骤2：检查Endpoints**
+```bash
+kubectl get endpoints <service-name>
+kubectl describe endpoints <service-name>
+```
+
+**步骤3：检查后端Pod**
+```bash
+kubectl get pods -l <selector>
+kubectl describe pod <pod-name>
+```
+
+**步骤4：检查Pod事件**
+```bash
+kubectl get events --sort-by='.lastTimestamp' | grep <service-name>
+```
+
+**步骤5：检查节点状态**
+```bash
+kubectl get nodes
+kubectl describe node <node-name>
+```
+
+**常见问题与解决方案**：
+
+**问题1：Service一直处于Pending状态**
+- 原因：后端资源未准备好、网络插件问题
+- 解决方案：
+  - 检查后端Pod是否运行
+  - 检查网络插件状态
+  - 查看Service和Pod的事件
+
+**问题2：Endpoints为空但Pod正在运行**
+- 原因：Selector不匹配、标签问题
+- 解决方案：
+  - 验证Service Selector配置
+  - 检查Pod标签
+  - 修改配置确保匹配
+
+**问题3：部分Endpoints可用**
+- 原因：部分Pod未就绪
+- 解决方案：
+  - 检查未就绪Pod的状态
+  - 等待Pod就绪或排查Pod问题
+  - 检查Pod健康检查配置
+
+**问题4：Service删除后Endpoints仍存在**
+- 原因：Endpoints控制器延迟、缓存问题
+- 解决方案：
+  - 等待几秒钟让控制器更新
+  - 删除Endpoints手动清理
+  - 检查kube-controller-manager状态
+
+**最佳实践**：
+
+**1. 创建Service前确保后端资源就绪**
+- 先创建Deployment或StatefulSet
+- 确保Pod正常运行后再创建Service
+- 使用readyColumns确保Pod就绪
+
+**2. 正确配置Selector**
+- 仔细检查标签键值对
+- 避免使用通用标签导致误匹配
+- 定期审计Service和Pod的对应关系
+
+**3. 使用健康检查**
+- 配置就绪探针确保Pod真正可用
+- 避免将未就绪Pod加入Endpoints
+- 设置合理的探针参数
+
+**4. 监控Service状态**
+- 设置告警监控Service和Endpoints状态
+- 监控后端Pod的可用性
+- 记录关键事件便于排查
+
+**5. 规范化命名和标签**
+- 使用统一的标签策略
+- 规范化资源命名
+- 便于快速定位问题
+
+**注意事项**：
+
+- Service Pending状态通常意味着后端资源问题，优先排查Pod状态
+- 仔细检查Selector配置，确保与Pod标签匹配
+- 使用`kubectl describe`和`kubectl get events`获取详细错误信息
+- 网络插件和存储插件问题也可能导致Service Pending
+- 定期检查集群资源使用情况，避免资源不足
+- ServiceAccount权限不足也会导致Service工作异常
+- 监控Endpoints状态，确保后端Pod可用
+- 创建Service前先验证后端Pod运行正常
+- 使用标签选择器而非标签名称，避免配置错误
+- 养成查看Events的习惯，快速定位问题根因
+
 ## 总结与建议
 
 SRE运维面试考察的不仅是技术知识，更是解决问题的能力和思维方式。通过本文的系统化解析，希望能帮助你构建完整的知识体系，在面试中脱颖而出。
