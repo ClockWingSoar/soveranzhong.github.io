@@ -210,8 +210,9 @@ def get_process_metrics():
                 
                 is_mt = '1' if 'l' in stat.group(1) else '0' if stat else '0'
                 
-                metrics.append(f'process_thread_count{{pid="{pid}",name="{name.group(1).strip()}"}} {threads.group(1)}')
-                metrics.append(f'process_is_multithread{{pid="{pid}",name="{name.group(1).strip()}"}} {is_mt}')
+                # 已转义大括号，避免 Jekyll 报错
+                metrics.append(f'process_thread_count{{"{"}}pid="{pid}",name="{name.group(1).strip()}"}} {threads.group(1)}')
+                metrics.append(f'process_is_multithread{{"{"}}pid="{pid}",name="{name.group(1).strip()}"}} {is_mt}')
         except (IOError, OSError):
             continue
     
