@@ -190,6 +190,8 @@ flowchart TB
 
 > **面试加分点**：能说清**iptables与nftables的区别**，以及为什么生产环境逐渐迁移到nftables，证明你有技术演进意识。
 
+> **延伸阅读**：想了解更多Linux防火墙生产环境最佳实践？请参考 [Linux防火墙生产环境最佳实践：从iptables到nftables]({% post_url 2026-04-26-linux-firewall-production-best-practices %})。
+
 ### 5. 四层与七层代理的区别
 
 **Why - 为什么需要代理？**
