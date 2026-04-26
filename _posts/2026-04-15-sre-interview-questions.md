@@ -294,6 +294,8 @@ flowchart TB
 
 > **面试加分点**：能说清**DAS/NAS/SAN的IO模型区别**（块vs文件vs对象），以及何时选择对象存储（如MinIO）替代传统存储，证明你有现代存储架构思维。
 
+> **延伸阅读**：想了解更多存储系统生产环境最佳实践？请参考 [存储系统生产环境最佳实践：从DAS到对象存储的架构设计]({% post_url 2026-04-27-storage-system-production-best-practices %})。
+
 ### 7. 网络设备基础
 
 **Why - 为什么SRE必须懂网络设备？**
