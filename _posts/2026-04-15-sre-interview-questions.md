@@ -130,6 +130,8 @@ Agent → (Proxy) → Server → Database → Web UI
 
 > **面试加分点**：能说明Zabbix **主动模式与被动模式的区别**，以及何时选择Proxy而非直接连Server，证明你有大规模生产环境的实战经验。
 
+> **延伸阅读**：想了解更多Zabbix生产环境最佳实践？请参考 [Zabbix生产环境最佳实践：从架构设计到运维优化]({% post_url 2026-04-26-zabbix-production-best-practices %})。
+
 ### 4. iptables表与链
 
 **Why - 为什么必须掌握iptables？**
