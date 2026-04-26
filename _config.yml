@@ -9,6 +9,7 @@ subtitle: "keep coding, keep growing."
 description: "钟翼翔的个人博客，记录编程、开源、生活等方面的点滴。"
 keywords: codezhong, zhongyixiang, soveranzhong, devops, sre
 timezone: Asia/Shanghai
+future: true
 encoding: "utf-8"
 # 页面左下角显示的年份
 since: 2008

@@ -46,7 +46,7 @@ cat /proc/5352/status | grep Thread
 
 > **面试加分点**：Linux中线程本质是轻量级进程(LWP)，与进程共享同一地址空间，了解这一点能让你在追问时更有底气。
 
-> **延伸阅读**：想了解更多生产环境实践？请参考 [生产环境多线程进程监控与排查最佳实践]({% post_url 2026-04-26-production-multi-thread-process-monitoring-best-practices.md %})。
+> **延伸阅读**：想了解更多生产环境实践？请参考 [生产环境多线程进程监控与排查最佳实践]({% post_url 2026-04-26-production-multi-thread-process-monitoring-best-practices %})。
 
 ### 2. 你写过哪些类型的Shell脚本？
 
@@ -85,7 +85,7 @@ Shell脚本是SRE工程师实现自动化运维的核心工具。面试官通过
 
 > **面试加分点**：能说出一个**最有成就感的脚本**，详细讲清背景、挑战和解决方案，远比罗列清单更有说服力。
 
-> **延伸阅读**：想了解更多Shell脚本生产环境最佳实践？请参考 [SRE工程师Shell脚本生产环境最佳实践]({% post_url 2026-04-26-sre-shell-script-production-best-practices.md %})。
+> **延伸阅读**：想了解更多Shell脚本生产环境最佳实践？请参考 [SRE工程师Shell脚本生产环境最佳实践]({% post_url 2026-04-26-sre-shell-script-production-best-practices %})。
 
 ### 3. Zabbix架构详解
 
