@@ -46,6 +46,8 @@ cat /proc/5352/status | grep Thread
 
 > **面试加分点**：Linux中线程本质是轻量级进程(LWP)，与进程共享同一地址空间，了解这一点能让你在追问时更有底气。
 
+> **延伸阅读**：想了解更多生产环境实践？请参考 [生产环境多线程进程监控与排查最佳实践]({% post_url 2026-04-26-production-multi-thread-process-monitoring-best-practices %})。
+
 ### 2. 你写过哪些类型的Shell脚本？
 
 **Why - 为什么这个问题重要？**
