@@ -674,6 +674,8 @@ sequenceDiagram
 
 > **面试加分点**：能说清**301 vs 302 vs 307 vs 308的区别**，以及HTTP缓存控制(Cache-Control/ETag/Last-Modified)的工作原理，证明你有深度Web开发经验。
 
+> **延伸阅读**：想了解更多HTTP协议生产环境最佳实践？请参考 [HTTP协议生产环境最佳实践：从响应码诊断到缓存优化]({% post_url 2026-04-27-http-protocol-production-best-practices %})。
+
 ### 13. 监控系统组成
 
 **Why - 为什么监控系统是SRE的生命线？**
