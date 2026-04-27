@@ -3272,6 +3272,8 @@ CROSS JOIN orders o;
 
 > "慢查询优化先开启慢查询日志，用EXPLAIN分析执行计划。UNION会自动去重但效率低，UNION ALL不去重但效率高。排序优先使用索引。JOIN类型选择看业务需求：只需要匹配记录用INNER，需要左表全量用LEFT JOIN。注意ON字段建索引，避免SELECT *。"
 
+> **延伸阅读**：想了解更多MySQL查询优化生产环境最佳实践？请参考 [MySQL查询优化生产环境最佳实践：从慢查询到JOIN性能调优]({% post_url 2026-04-27-mysql-query-optimization-production-best-practices %})。
+
 ### 35. 如何查看某个命令属于哪个包？
 
 > 🎯 **核心目标**：掌握Linux下查找命令所属软件包的方法
