@@ -413,6 +413,8 @@ docker build -t myapp:latest .
 
 > **面试加分点**：能说清**Docker多阶段构建的原理**，以及如何通过构建优化（如BuildKit）提升构建速度，证明你有工程化实战经验。
 
+> **延伸阅读**：想了解更多构建工具生产环境最佳实践？请参考 [构建工具生产环境最佳实践：从Maven到Docker的工程化实践]({% post_url 2026-04-27-build-tool-production-best-practices %})。
+
 ### 9. SRE工程师岗位职责
 
 **Why - SRE到底是什么？**
