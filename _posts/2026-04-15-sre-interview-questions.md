@@ -619,6 +619,8 @@ curl -v http://localhost    # 测试连通性
 
 > **面试加分点**：能说清**load average的三个数字含义**，以及CPU使用率100%但load很低/很高的常见原因，证明你有实战问题定位经验。
 
+> **延伸阅读**：想了解更多Linux命令生产环境最佳实践？请参考 [Linux命令生产环境最佳实践：故障排查与自动化运维实战]({% post_url 2026-04-27-linux-commands-production-best-practices %})。
+
 ### 12. HTTP协议与响应码
 
 **Why - 为什么HTTP是Web问题的钥匙？**
