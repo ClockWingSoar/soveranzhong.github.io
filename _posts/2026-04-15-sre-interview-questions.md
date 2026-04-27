@@ -6344,6 +6344,8 @@ upstream harbor {
 
 > "LVS和nginx的主要区别是工作层级不同。LVS工作在网络层（4层），基于IP和端口调度，性能高但功能相对基础。nginx工作在应用层（7层），基于HTTP协议调度，可以做7层内容过滤、缓存、SSL终结等。调度算法方面，LVS有轮询、加权轮询、源地址哈希、最少连接等。nginx除了基础算法，还支持ip_hash、fair、url_hash等。LVS适合高并发场景，nginx适合需要7层功能的场景。我的经验是：无状态服务用轮询，需要会话保持用hash，缓存服务用url_hash。"
 
+> **延伸阅读**：想了解更多负载均衡调度算法最佳实践？请参考 [负载均衡调度算法深度解析：从LVS到nginx]({% post_url 2026-05-05-load-balancing-algorithms %})。
+
 ### 58. 反向代理vs正向代理？
 
 > 🎯 **核心目标**：掌握正向代理和反向代理的区别和应用场景
@@ -6472,6 +6474,8 @@ flowchart TD
 
 > "正向代理和反向代理的区别在于服务对象不同。正向代理服务客户端，帮客户端突破访问限制或匿名访问，客户端需要配置代理地址，比如科学上网。反向代理服务服务器端，帮服务器接收请求并分发到后端集群，客户端无感知，比如Nginx做负载均衡。配置上，正向代理需要客户端配置代理服务器地址，反向代理在服务器端配置。实际应用中，正向代理常用Socks5代理，反向代理常用Nginx、HAProxy、F5等。我的经验是：正向代理注意安全控制，反向代理注意后端健康检查和头信息传递。"
 
+> **延伸阅读**：想了解更多正向代理和反向代理的最佳实践？请参考 [正向代理与反向代理深度解析：从原理到实践]({% post_url 2026-05-06-proxy-servers-best-practices %})。
+
 ### 59. k8s和docker的名称空间有啥区别？
 
 > 🎯 **核心目标**：理解Docker命名空间（内核级）和Kubernetes命名空间（用户级）的本质区别
@@ -6584,6 +6588,8 @@ rules:
 
 > "Docker和Kubernetes的命名空间是两个不同层次的概念。Docker命名空间是Linux内核提供的6种资源隔离机制：PID进程隔离、Network网络隔离、Mount文件系统隔离、UTS主机名隔离、IPC进程通信隔离、User用户隔离，这些确保了容器之间和容器与宿主机之间的隔离。Kubernetes命名空间是集群级别的资源管理机制，用于逻辑分组和权限控制，比如default、kube-system等。我的经验是：不要混淆两者，Docker命名空间是底层隔离，Kubernetes命名空间是上层管理。生产环境中用Kubernetes命名空间做多环境隔离和权限控制。"
 
+> **延伸阅读**：想了解更多Kubernetes和Docker命名空间的最佳实践？请参考 [Kubernetes与Docker命名空间深度解析：从内核到集群]({% post_url 2026-05-07-kubernetes-docker-namespaces %})。
+
 ### 60. k8s的配置文件除了yaml还支持什么格式？
 
 > 🎯 **核心目标**：掌握Kubernetes支持的配置文件格式及选择
@@ -6682,6 +6688,8 @@ kubectl apply -f pod.json --dry-run -o yaml
 **面试加分话术**：
 
 > "Kubernetes主要支持YAML和JSON两种配置文件格式。YAML语法简洁、可读性高、支持注释和多文档分离，适合日常运维人工编写。JSON结构严谨、解析速度快、适合机器处理，适合API开发和自动化脚本。实际工作中，日常运维配置用YAML，kubectl apply --dry-run验证；自动化工具用JSON；可以用kubectl convert互相转换。我的经验是：建立配置规范，统一用YAML，纳入Git版本控制。"
+
+> **延伸阅读**：想了解更多Kubernetes配置文件格式的最佳实践？请参考 [Kubernetes配置文件格式深度解析：从YAML到JSON]({% post_url 2026-05-08-kubernetes-config-formats %})。
 
 ### 61. pod出问题了，怎么排查原因？
 
