@@ -4249,6 +4249,8 @@ docker run -it --name <容器名> <镜像> /bin/bash
 
 > "进入容器最推荐的方法是docker exec，它会创建独立的会话，exit退出不影响容器和其他用户。docker attach用于附加到容器主进程，查看日志输出，但退出方式不当会停止容器。nsenter是更底层的方式，直接进入容器命名空间，适合高级调试场景。生产环境中，建议使用docker exec执行管理操作，避免随意进入容器修改配置。"
 
+> **延伸阅读**：想了解更多Docker容器进入方法生产环境最佳实践？请参考 [Docker容器进入方法生产环境最佳实践：从基础到高级]({% post_url 2026-04-28-docker-container-entry-methods-production-best-practices %})。
+
 ### 43. 你知道哪些dockerfile的指令？
 
 > 🎯 **核心目标**：掌握Dockerfile常用指令及其最佳实践
