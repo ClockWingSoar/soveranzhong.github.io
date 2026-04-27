@@ -3390,6 +3390,8 @@ apt-file search /bin/ip
 
 > "查找命令所属包分两步：先which找到路径，如果是符号链接用readlink -f解析真实路径，然后用dpkg -S（Debian）或rpm -qf（RedHat）查找所属包。生产环境遇到命令找不到时，常用which和readlink定位。"
 
+> **延伸阅读**：想了解更多Linux命令包查询生产环境最佳实践？请参考 [Linux命令包查询生产环境最佳实践：从定位到管理的完整指南]({% post_url 2026-04-27-linux-command-package-query-production-best-practices %})。
+
 ### 36. 怎么查看一个容器的ip地址？
 
 > 🎯 **核心目标**：掌握Docker容器IP地址的查看方法
