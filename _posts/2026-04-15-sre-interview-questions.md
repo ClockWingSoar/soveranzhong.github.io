@@ -5534,6 +5534,8 @@ docker network inspect mynet
 
 > "Docker有5种网络模式。Bridge是默认模式，容器有独立IP，通过docker0通信，需要-p端口映射，隔离性好。Host模式共享宿主机网络，无NAT转换性能最高，但端口易冲突且不支持Windows。None模式只有loopback，完全隔离用于离线任务。Container模式共享另一个容器的网络命名空间，适合Sidecar场景。自定义网络可以指定子网和网关，适合多容器应用隔离。生产环境Web服务推荐Bridge或自定义网络，高性能场景用Host，离线任务用None。"
 
+> **延伸阅读**：想了解更多Docker网络模式最佳实践？请参考 [Docker网络模式深度解析：从基础到企业级应用]({% post_url 2026-04-29-docker-networking-best-practices %})。
+
 ### 52. 你对Linux系统做了什么优化？
 
 > 🎯 **核心目标**：掌握Linux系统优化的层次和关键参数
