@@ -5827,8 +5827,6 @@ flowchart TD
 
 > "Linux防火墙分为4层。netfilter是内核框架，提供5个钩子点。iptables是传统工具，用四表五链结构，配置灵活但语法复杂。nftables是iptables的继任者，统一语法支持IPv4/IPv6，性能更高。ufw是Ubuntu下的简化工具，命令友好适合新手。我的经验是：新系统用nftables，Ubuntu新手用ufw，旧系统用iptables。配置时遵循最小权限原则，先放行SSH再设置默认DROP。"
 
-> **延伸阅读**：想了解更多Linux防火墙工具最佳实践？请参考 [Linux防火墙工具深度解析：从netfilter到nftables]({% post_url 2026-05-01-linux-firewall-best-practices %})。
-
 ### 54. docker容器之间跨主机的通讯怎么做的？
 
 > 🎯 **核心目标**：掌握Docker跨主机通信方案的特点和选择
@@ -5996,8 +5994,6 @@ cilium install
 
 > "Docker跨主机通信有多种方案。二层网络通过桥接实现，性能高但扩展性差。三层网络通过路由打通，简单但需手动维护。Overlay基于VXLAN，适合Swarm集群。第三方插件中，Flannel配置简单适合小集群，Calico用BGP协议性能高且支持网络策略，Cilium基于eBPF性能最优。我的经验是：小集群用Overlay或Flannel，中大型用Calico或Cilium，云环境用云厂商方案。"
 
-> **延伸阅读**：想了解更多Docker跨主机通信最佳实践？请参考 [Docker跨主机通信全攻略：从Overlay到eBPF]({% post_url 2026-05-02-docker-cross-host-communication %})。
-
 ### 55. docker compose支持哪种格式的配置文件？
 
 > 🎯 **核心目标**：掌握Docker Compose配置文件格式和最佳实践
@@ -6108,6 +6104,8 @@ REDIS_HOST=localhost
 **面试加分话术**：
 
 > "Docker Compose主要支持YAML格式，推荐使用compose.yaml文件名。YAML语法要注意2空格缩进，键值对冒号后要加空格。配置结构包括version、services、networks、volumes等顶级字段。多环境配置可以用override文件或-f参数指定多个文件。敏感信息建议使用Docker Secrets或环境变量，不要硬编码在配置文件中。我的经验是：生产环境要设置资源限制，使用非root用户运行容器，定期备份配置文件。"
+
+> **延伸阅读**：想了解更多Docker Compose最佳实践？请参考 [Docker Compose最佳实践：从开发到生产]({% post_url 2026-05-03-docker-compose-best-practices %})。
 
 ### 56. 常用的HTTP status code有哪些？
 
