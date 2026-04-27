@@ -2405,6 +2405,8 @@ aof-use-rdb-preamble yes
 - 定期进行Redis性能评估和容量规划
 - 制定Redis故障应急预案
 
+> **延伸阅读**：想了解更多Redis优化生产环境最佳实践？请参考 [Redis优化生产环境最佳实践：从内存到高可用的全面优化策略]({% post_url 2026-04-27-redis-optimization-production-best-practices %})。
+
 ### 28. 你们公司的RDB文件备份策略是什么？
 
 **Why - 为什么RDB备份策略如此重要？**
