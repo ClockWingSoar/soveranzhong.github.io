@@ -2948,6 +2948,8 @@ scp /tmp/images.tar.gz user@target-server:/tmp/
 
 > "生产环境推荐使用私有镜像仓库管理镜像，支持增量传输和版本控制。离线环境使用docker save/load，配合压缩和rsync断点续传。要注意docker save和docker export的区别：save保存完整镜像，export只保存容器文件系统。"
 
+> **延伸阅读**：想了解更多Docker镜像导出到另一台服务器生产环境最佳实践？请参考 [Docker镜像导出到另一台服务器生产环境最佳实践：从方法到自动化的完整指南]({% post_url 2026-04-27-docker-image-export-production-best-practices %})。
+
 ### 33. 怎么查看僵尸态的进程？
 
 > 🎯 **核心目标**：掌握Linux僵尸进程的识别和处理方法
