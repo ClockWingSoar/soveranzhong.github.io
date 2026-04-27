@@ -5827,6 +5827,8 @@ flowchart TD
 
 > "Linux防火墙分为4层。netfilter是内核框架，提供5个钩子点。iptables是传统工具，用四表五链结构，配置灵活但语法复杂。nftables是iptables的继任者，统一语法支持IPv4/IPv6，性能更高。ufw是Ubuntu下的简化工具，命令友好适合新手。我的经验是：新系统用nftables，Ubuntu新手用ufw，旧系统用iptables。配置时遵循最小权限原则，先放行SSH再设置默认DROP。"
 
+> **延伸阅读**：想了解更多Linux防火墙工具最佳实践？请参考 [Linux防火墙工具深度解析：从netfilter到nftables]({% post_url 2026-05-01-linux-firewall-best-practices %})。
+
 ### 54. docker容器之间跨主机的通讯怎么做的？
 
 > 🎯 **核心目标**：掌握Docker跨主机通信方案的特点和选择
@@ -5993,6 +5995,8 @@ cilium install
 **面试加分话术**：
 
 > "Docker跨主机通信有多种方案。二层网络通过桥接实现，性能高但扩展性差。三层网络通过路由打通，简单但需手动维护。Overlay基于VXLAN，适合Swarm集群。第三方插件中，Flannel配置简单适合小集群，Calico用BGP协议性能高且支持网络策略，Cilium基于eBPF性能最优。我的经验是：小集群用Overlay或Flannel，中大型用Calico或Cilium，云环境用云厂商方案。"
+
+> **延伸阅读**：想了解更多Docker跨主机通信最佳实践？请参考 [Docker跨主机通信全攻略：从Overlay到eBPF]({% post_url 2026-05-02-docker-cross-host-communication %})。
 
 ### 55. docker compose支持哪种格式的配置文件？
 
