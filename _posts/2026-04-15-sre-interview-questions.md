@@ -2825,6 +2825,8 @@ docker ps
 
 > "修改docker.service后，必须先执行systemctl daemon-reload重新加载配置，然后再restart服务。这是因为systemd采用惰性加载机制，只有通过daemon-reload才能读取新的配置文件。生产环境操作时要注意备份配置并选择合适的维护窗口。"
 
+> **延伸阅读**：想了解更多docker.service文件修改后处理生产环境最佳实践？请参考 [docker.service文件修改后处理生产环境最佳实践：从配置到验证的完整指南]({% post_url 2026-04-27-docker-service-modification-production-best-practices %})。
+
 ### 32. 如何把一个服务器的docker image导出到另外一台服务器？
 
 > 🎯 **核心目标**：掌握Docker镜像在不同服务器间的迁移方法
