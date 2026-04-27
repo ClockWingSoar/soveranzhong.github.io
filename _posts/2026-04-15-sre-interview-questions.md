@@ -3627,6 +3627,8 @@ docker run -d -p 8080:80 --name nginx01 nginx
 
 > "容器启动失败排查步骤：先docker ps -a看状态，docker logs查日志找到错误信息，然后docker inspect检查配置。重点关注退出码，常见问题有端口冲突、内存不足、配置文件错误。生产环境建议用Kubernetes管理容器生命周期。"
 
+> **延伸阅读**：想了解更多容器启动失败排查生产环境最佳实践？请参考 [容器启动失败排查生产环境最佳实践：从日志分析到解决方案]({% post_url 2026-04-27-container-failure-troubleshooting-production-best-practices %})。
+
 ### 38. docker的6大隔离空间是啥，有啥作用？
 
 > 🎯 **核心目标**：掌握Docker的6大隔离空间及其作用
