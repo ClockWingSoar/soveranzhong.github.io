@@ -2615,6 +2615,8 @@ aof-use-rdb-preamble yes  # 开启混合持久化
 
 > **面试加分点**：能详细说明**AOF重写机制**（避免日志膨胀）和**混合持久化的实现原理**（RDB开头+AOF追加），证明你对Redis持久化机制有深入理解。
 
+> **延伸阅读**：想了解更多RDB和AOF备份对比生产环境最佳实践？请参考 [RDB和AOF备份对比生产环境最佳实践：从原理到选择的完整指南]({% post_url 2026-04-27-redis-persistence-comparison-production-best-practices %})。
+
 ### 30. Redis的工作模式有哪些？
 
 > 🎯 **核心目标**：掌握Redis不同工作模式的特点和适用场景
