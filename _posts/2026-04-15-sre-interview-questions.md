@@ -1997,6 +1997,8 @@ GETBIT user:sign:2024:01 11
 
 > **面试加分点**：能解释**缓存穿透、缓存击穿、缓存雪崩**的区别及解决方案，以及如何通过**Redis Cluster**和**Sentinel**保证高可用，证明你有Redis生产实践经验。
 
+> **延伸阅读**：想了解更多Redis应用场景生产环境最佳实践？请参考 [Redis应用场景生产环境最佳实践：缓存、队列、锁与分析]({% post_url 2026-04-27-redis-application-scenarios-production-best-practices %})。
+
 - **发布/订阅**：
   - 实时消息推送
   - 直播间弹幕
