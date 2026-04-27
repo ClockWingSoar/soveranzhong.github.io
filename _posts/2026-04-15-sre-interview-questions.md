@@ -1846,6 +1846,8 @@ io-threads-do-reading yes  # 开启多线程读
 - 根据业务场景选择合适的数据结构和持久化策略
 - 定期监控Redis性能指标，及时发现和处理问题
 
+> **延伸阅读**：想了解更多Redis性能优化生产环境最佳实践？请参考 [Redis性能优化生产环境最佳实践：从线程模型到架构设计]({% post_url 2026-04-27-redis-performance-optimization-production-best-practices %})。
+
 ### 25. Redis在什么场景下使用？
 
 **Why - 为什么Redis成为互联网架构的标配？**
