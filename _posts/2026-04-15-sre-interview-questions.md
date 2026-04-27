@@ -3509,6 +3509,8 @@ docker network inspect bridge | grep -A 5 nginx01
 
 > "查看容器IP最常用的方法是docker inspect，可以指定网络类型如bridge或自定义网络。host网络模式下容器没有独立IP，与宿主机共用。生产环境推荐使用自定义网络管理容器，便于网络隔离和管理。"
 
+> **延伸阅读**：想了解更多容器网络管理生产环境最佳实践？请参考 [容器网络管理生产环境最佳实践：从IP查看到网络架构设计]({% post_url 2026-04-27-container-network-management-production-best-practices %})。
+
 ### 37. 如果一个容器起不来，如何排查出错原因？
 
 > 🎯 **核心目标**：掌握容器启动失败的排查流程
