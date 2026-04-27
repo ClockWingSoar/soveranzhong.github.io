@@ -3756,6 +3756,8 @@ docker exec -it isolated-container ps aux
 
 > "Docker的6大隔离空间基于Linux命名空间技术，实现了进程、网络、文件系统等全方位隔离。User隔离是安全性的关键，它将容器内的root用户映射为宿主机的普通用户，即使容器被攻破也不会影响宿主机。生产环境建议结合Cgroups资源限制和网络策略，构建更安全的容器环境。"
 
+> **延伸阅读**：想了解更多Docker隔离机制生产环境最佳实践？请参考 [Docker隔离机制生产环境最佳实践：从原理到应用]({% post_url 2026-04-28-docker-isolation-mechanism-production-best-practices %})。
+
 ### 39. 你如何清理没用的容器垃圾？
 
 > 🎯 **核心目标**：掌握Docker垃圾清理的方法和最佳实践
