@@ -5687,6 +5687,8 @@ systemctl disable bluetooth cups postfix avahi-daemon
 
 > "Linux系统优化要从多个层次入手。内核参数层重点调TCP连接参数（somaxconn、tcp_max_syn_backlog、tcp_tw_reuse）和内存参数（swappiness、dirty_ratio）。资源限制层要调大文件描述符（nofile）和进程数（nproc）。文件系统层对SSD开启noatime和discard，选择合适的IO调度器。服务层关闭无用的蓝牙、CUPS等服务。网络层可以用ethtool调整网卡队列。我的经验是：先监控定位瓶颈，再针对性优化，不要盲目调参。"
 
+> **延伸阅读**：想了解更多Linux系统优化最佳实践？请参考 [Linux系统优化全攻略：从内核到应用]({% post_url 2026-04-30-linux-system-optimization-guide %})。
+
 ### 53. netfilter,nftables, iptables，ufw用法和区别？
 
 > 🎯 **核心目标**：掌握Linux防火墙工具的层次和选择
