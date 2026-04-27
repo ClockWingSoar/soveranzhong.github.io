@@ -4759,6 +4759,8 @@ exec "$@"  # 替换当前进程，执行传入的命令
 
 > "CMD和ENTRYPOINT的核心区别在于覆盖特性。CMD定义默认命令，可被docker run参数覆盖；ENTRYPOINT定义固定入口，需要--entrypoint才能覆盖。最佳实践是组合使用ENTRYPOINT+CMD，用ENTRYPOINT定义不可变的命令，CMD提供默认参数。对于需要环境初始化的场景，使用启动脚本并在末尾加exec "$@"，确保应用成为PID 1，信号能正确传递。"
 
+> **延伸阅读**：想了解更多Dockerfile中CMD和ENTRYPOINT指令的区别及最佳实践？请参考 [Dockerfile中CMD和ENTRYPOINT指令的区别：生产环境最佳实践]({% post_url 2026-04-28-dockerfile-cmd-vs-entrypoint-best-practices %})。
+
 ### 47. Dockerfile中做了哪些优化？
 
 > 🎯 **核心目标**：掌握Dockerfile优化的关键策略，构建高效、安全、小体积的镜像
@@ -4896,6 +4898,8 @@ CMD ["nginx", "-g", "daemon off;"]
 **面试加分话术**：
 
 > "Dockerfile优化需要从多个维度入手。首先选择Alpine等轻量级基础镜像，然后合理安排指令顺序，将稳定的指令放在前面以利用缓存。合并RUN指令减少镜像层数，清理临时文件和缓存。使用多阶段构建分离构建和运行环境，只保留必要的文件。安全性方面，使用非root用户运行容器，避免硬编码敏感信息，定期更新基础镜像。可维护性上，使用具体版本标签，添加元数据，使用.dockerignore文件。通过这些优化策略，可以构建出体积小、构建快、安全性高的镜像。"
+
+> **延伸阅读**：想了解更多Dockerfile优化生产环境最佳实践？请参考 [Dockerfile优化生产环境最佳实践：构建高效、安全、小体积的镜像]({% post_url 2026-04-28-dockerfile-optimization-production-best-practices %})。
 
 ### 48. nginx做了哪些优化？
 
@@ -5076,6 +5080,8 @@ log_format main '$remote_addr - $remote_user [$time_local] "$request" '
 **面试加分话术**：
 
 > "Nginx优化主要从四个维度入手。配置层面，设置worker_processes为auto自动检测CPU核心数，使用epoll事件模型处理高并发，worker_connections设置65536。性能层面，开启sendfile、tcp_nopush、tcp_nodelay高效传输，开启gzip压缩减少传输量，配置静态文件和代理缓存。系统层面，调整文件描述符限制和内核TCP参数。安全层面，隐藏版本号server_tokens off，限制请求方法和访问频率。通过这些优化，Nginx可以轻松应对高并发场景。"
+
+> **延伸阅读**：想了解更多Nginx优化生产环境最佳实践？请参考 [Nginx优化生产环境最佳实践：从配置到系统调优]({% post_url 2026-04-28-nginx-optimization-production-best-practices %})。
 
 ### 49. 容器里面怎么做持久化？
 
