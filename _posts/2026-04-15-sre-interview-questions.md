@@ -3056,6 +3056,8 @@ systemctl restart <服务名>
 
 > "僵尸进程是子进程终止后父进程未调用wait回收的状态。查看用`ps aux | grep Z`，处理先用`kill -SIGCHLD`促使父进程回收子进程资源，如果无效就kill父进程并重启服务。生产环境要做好监控，进程表使用率超过80%就要告警。"
 
+> **延伸阅读**：想了解更多Linux僵尸进程识别与处理生产环境最佳实践？请参考 [Linux僵尸进程识别与处理生产环境最佳实践：从原理到解决方案]({% post_url 2026-04-27-linux-zombie-processes-production-best-practices %})。
+
 ### 34. 什么是MySQL慢查询，union all和union的区别，排序以及各种join的用法区别？
 
 > 🎯 **核心目标**：掌握MySQL慢查询排查、UNION语法、排序优化和JOIN用法
