@@ -1143,6 +1143,8 @@ ss -nta | grep :443
 
 > **面试加分点**：能说清**TIME_WAIT的2MSL原理**，以及如何通过调整 `net.ipv4.tcp_max_tw_buckets`、`net.ipv4.tcp_tw_reuse` 等内核参数优化高并发场景，证明你有系统调优经验。
 
+> **延伸阅读**：想了解更多TCP连接管理生产环境最佳实践？请参考 [TCP连接管理生产环境最佳实践：从状态分析到性能优化]({% post_url 2026-04-27-tcp-connection-management-production-best-practices %})。
+
 ### 19. 你们公司如何报警的？
 
 **Why - 为什么告警机制是SRE的生命线？**
