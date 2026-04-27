@@ -5368,6 +5368,8 @@ EXPLAIN SELECT * FROM users WHERE status=1;
 
 > "MySQL优化遵循'先监控、再优化'的原则。优先从SQL层和索引层入手，这两层成本低、效果好。SQL层要避免SELECT *、索引列函数、OR无索引等写法；索引层要遵循最左前缀原则，区分度高的字段放前面。表结构层推荐使用自增BIGINT主键，所有字段NOT NULL。配置层重点是innodb_buffer_pool_size设为物理内存的50%~70%。架构层可以采用读写分离、引入Redis缓存、防止数据库雪崩。通过系统化的优化，可以显著提升MySQL性能。"
 
+> **延伸阅读**：想了解更多MySQL优化最佳实践？请参考 [MySQL生产环境优化指南：从SQL到架构]({% post_url 2026-04-28-mysql-optimization-production-guide %})。
+
 ### 51. Docker的5种网络模式？
 
 > 🎯 **核心目标**：掌握Docker 5种网络模式的特点、适用场景及选择
