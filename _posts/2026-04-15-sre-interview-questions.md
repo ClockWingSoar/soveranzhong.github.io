@@ -468,6 +468,8 @@ flowchart LR
 
 > **面试加分点**：能说出**SLO/SLI/SLA的三者关系**，以及如何根据业务制定合理的SLO阈值，证明你有真正的SRE实践经验。
 
+> **延伸阅读**：想了解更多SRE工程师生产环境最佳实践？请参考 [SRE工程师生产环境最佳实践：从SLO制定到自动化运维的完整指南]({% post_url 2026-04-27-sre-production-best-practices %})。
+
 ### 10. MySQL日志与主从复制
 
 **Why - 为什么MySQL日志是面试重点？**
