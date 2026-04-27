@@ -892,6 +892,8 @@ UserParameter=app.active.users,/opt/scripts/get_active_users.sh
 
 > **面试加分点**：能说清**Zabbix主动模式与被动模式的区别**，以及如何通过Zabbix Proxy实现分布式监控，证明你有大规模集群管理经验。
 
+> **延伸阅读**：想了解更多Zabbix监控生产环境最佳实践？请参考 [Zabbix监控生产环境最佳实践：从安装部署到分布式监控]({% post_url 2026-04-27-zabbix-monitoring-production-best-practices %})。
+
 ### 16. 常用应用程序端口列表
 
 **Why - 为什么端口知识是SRE的基本功？**
