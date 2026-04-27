@@ -4368,6 +4368,8 @@ CMD ["nginx", "-g", "daemon off;"]
 
 > "Dockerfile指令是构建镜像的核心，我熟悉常用指令的功能和最佳实践。例如，使用官方Alpine镜像作为基础，按变化频率排序指令以利用缓存，合并RUN指令减少镜像层数，使用多阶段构建减小镜像体积。对于文件操作，优先使用COPY，只有需要自动解压时才用ADD。生产环境中，我会指定具体的镜像版本，使用非root用户运行容器，确保镜像的安全性和可维护性。"
 
+> **延伸阅读**：想了解更多Dockerfile指令生产环境最佳实践？请参考 [Dockerfile指令生产环境最佳实践：从基础到高级]({% post_url 2026-04-28-dockerfile-best-practices-production-guide %})。
+
 ### 44. 如何让docker容器变得更小？
 
 > 🎯 **核心目标**：掌握Docker容器优化的关键方法，减小镜像体积
@@ -4535,6 +4537,8 @@ RUN apt-get purge -y --auto-remove gcc make
 
 > "优化Docker容器大小需要从多个维度入手。首先选择Alpine等轻量级基础镜像，然后使用多阶段构建分离构建和运行环境，只保留必要的文件。同时，合并RUN指令减少镜像层数，清理临时文件和缓存，使用.dockerignore排除不必要的文件。生产环境中，我会使用非root用户运行容器，确保安全性的同时进一步减小容器体积。通过这些优化策略，可以显著提高部署效率，减少攻击面。"
 
+> **延伸阅读**：想了解更多Docker容器优化生产环境最佳实践？请参考 [Docker容器优化生产环境最佳实践：如何让容器变得更小]({% post_url 2026-04-28-docker-container-optimization-production-best-practices %})。
+
 ### 45. Dockerfile中Add和Copy指令的区别？
 
 > 🎯 **核心目标**：掌握ADD和COPY指令的区别及适用场景
@@ -4635,6 +4639,8 @@ flowchart TD
 **面试加分话术**：
 
 > "ADD和COPY的核心区别在于功能范围。COPY只负责复制本地文件，行为明确、可预测、安全性高；ADD除此之外还能从URL下载和自动解压压缩文件，但这些功能可能带来安全风险和不可预测性。生产环境中，我优先使用COPY指令，只有在需要自动解压本地压缩包时才考虑ADD。对于URL下载，更推荐使用RUN指令配合curl/wget，这样可以更好地控制下载过程和验证文件完整性。"
+
+> **延伸阅读**：想了解更多Dockerfile中ADD和COPY指令的区别及最佳实践？请参考 [Dockerfile中ADD和COPY指令的区别：生产环境最佳实践]({% post_url 2026-04-28-dockerfile-add-vs-copy-best-practices %})。
 
 ### 46. Dockerfile中CMD和ENTRYPOINT指令的区别？
 
