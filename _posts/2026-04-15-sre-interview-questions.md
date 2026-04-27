@@ -1039,6 +1039,8 @@ lsof -p $(pgrep nginx) | grep -i log
 
 > **面试加分点**：能说清**nginx信号控制机制**（nginx -s reload/stop/reopen），以及如何实现**零宕机配置更新**，证明你有生产级Nginx管理经验。
 
+> **延伸阅读**：想了解更多Nginx运维生产环境最佳实践？请参考 [Nginx运维生产环境最佳实践：从配置定位到性能优化]({% post_url 2026-04-27-nginx-operations-production-best-practices %})。
+
 ### 18. 如何查询当前Linux主机上各种TCP连接状态的个数？TCP连接状态有多少种？
 
 **Why - 为什么TCP状态查询是SRE的必修课？**
