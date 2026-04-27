@@ -1466,6 +1466,8 @@ HostnameItem=system.hostname
 
 > **面试加分点**：能说清**Zabbix Proxy的工作原理**（数据缓存和转发），以及如何通过**分区表**和**主动模式**解决大规模部署的性能问题，证明你有Zabbix大规模运维经验。
 
+> **延伸阅读**：想了解更多Zabbix优化生产环境最佳实践？请参考 [Zabbix优化生产环境最佳实践：从瓶颈到解决方案]({% post_url 2026-04-27-zabbix-optimization-production-best-practices %})。
+
 ### 22. 如何做Zabbix的自动化运维？
 
 **Why - 为什么Zabbix需要自动化运维？**
