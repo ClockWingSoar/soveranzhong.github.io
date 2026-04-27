@@ -1619,6 +1619,8 @@ for host in hosts:
 
 > **面试加分点**：能讲清**Zabbix API的认证机制**（JSON-RPC认证令牌），以及如何通过**LLD+模板**实现动态监控，证明你有Zabbix自动化实战经验。
 
+> **延伸阅读**：想了解更多Zabbix自动化运维生产环境最佳实践？请参考 [Zabbix自动化运维生产环境最佳实践：从手动到智能]({% post_url 2026-04-27-zabbix-automation-production-best-practices %})。
+
 ### 23. 网桥，网关，路由器，集线器，交换器等网络设备有啥区别？
 
 **Why - 为什么需要了解网络设备的区别？**
