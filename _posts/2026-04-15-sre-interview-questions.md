@@ -4137,6 +4137,8 @@ done
 
 > "找回容器启动命令的关键是根据容器状态选择合适的方法。如果容器还存在，可以使用docker inspect查看详细配置或runlike工具自动生成命令；如果容器已删除，则需要依赖之前的配置备份或docker-compose文件。生产环境中，建议使用docker-compose或Kubernetes管理容器配置，将配置纳入版本控制，并定期备份，这样可以有效避免启动命令丢失的问题。"
 
+> **延伸阅读**：想了解更多Docker容器启动命令找回生产环境最佳实践？请参考 [Docker容器启动命令找回生产环境最佳实践：从应急到预防]({% post_url 2026-04-28-docker-container-recovery-production-best-practices %})。
+
 ### 42. 如何进入一个容器执行命令？
 
 > 🎯 **核心目标**：掌握四种进入容器的方法及适用场景
