@@ -48,19 +48,19 @@ tags: [Docker, 容器管理, 启动命令, 生产环境, 灾难恢复]
 
 ```bash
 # 查看容器的启动命令
-docker inspect --format='{{.Config.Cmd}}' <容器ID或名称>
+docker inspect --format='{{ "{{" }}.Config.Cmd}}' <容器ID或名称>
 
 # 查看容器的完整配置
 docker inspect <容器ID或名称>
 
 # 查看容器的环境变量
-docker inspect --format='{{.Config.Env}}' <容器ID或名称>
+docker inspect --format='{{ "{{" }}.Config.Env}}' <容器ID或名称>
 
 # 查看容器的端口映射
-docker inspect --format='{{.HostConfig.PortBindings}}' <容器ID或名称>
+docker inspect --format='{{ "{{" }}.HostConfig.PortBindings}}' <容器ID或名称>
 
 # 查看容器的卷挂载
-docker inspect --format='{{.Mounts}}' <容器ID或名称>
+docker inspect --format='{{ "{{" }}.Mounts}}' <容器ID或名称>
 ```
 
 **优点**：
@@ -324,7 +324,7 @@ if [ -z "$CONTAINERS" ]; then
 fi
 
 for CONTAINER in $CONTAINERS; do
-    NAME=$(docker inspect --format '{{.Name}}' $CONTAINER | sed 's/^\///')
+    NAME=$(docker inspect --format '{{ "{{" }}.Name}}' $CONTAINER | sed 's/^\///')
     echo "备份容器: $NAME"
     
     # 备份完整配置
@@ -381,16 +381,16 @@ echo "# 容器: $CONTAINER"
 echo "# 生成时间: $(date)"
 echo ""
 echo "docker run \
---name=$(docker inspect --format '{{.Name}}' $CONTAINER | sed 's/^\///') \
---hostname=$(docker inspect --format '{{.Config.Hostname}}' $CONTAINER) \
-$(docker inspect --format '{{range .Config.Env}}-e "{{.}}" \
-{{end}}' $CONTAINER)\
-$(docker inspect --format '{{range $p, $conf := .HostConfig.PortBindings}}{{range $conf}}-p {{.HostPort}}:{{$p}} \
-{{end}}{{end}}' $CONTAINER)\
-$(docker inspect --format '{{range .Mounts}}-v {{.Source}}:{{.Destination}} \
-{{end}}' $CONTAINER)\
---restart=$(docker inspect --format '{{.HostConfig.RestartPolicy.Name}}' $CONTAINER) \
-$(docker inspect --format '{{.Config.Image}}' $CONTAINER)"
+--name=$(docker inspect --format '{{ "{{" }}.Name}}' $CONTAINER | sed 's/^\///') \
+--hostname=$(docker inspect --format '{{ "{{" }}.Config.Hostname}}' $CONTAINER) \
+$(docker inspect --format '{{ "{{" }}range .Config.Env}}-e "{{ "{{" }}.}}" \
+{{ "{{" }}end}}' $CONTAINER)\
+$(docker inspect --format '{{ "{{" }}range $p, $conf := .HostConfig.PortBindings}}{{ "{{" }}range $conf}}-p {{ "{{" }}.HostPort}}:{{ "{{" }}$p}} \
+{{ "{{" }}end}}{{ "{{" }}end}}' $CONTAINER)\
+$(docker inspect --format '{{ "{{" }}range .Mounts}}-v {{ "{{" }}.Source}}:{{ "{{" }}.Destination}} \
+{{ "{{" }}end}}' $CONTAINER)\
+--restart=$(docker inspect --format '{{ "{{" }}.HostConfig.RestartPolicy.Name}}' $CONTAINER) \
+$(docker inspect --format '{{ "{{" }}.Config.Image}}' $CONTAINER)"
 ```
 
 ---
@@ -595,7 +595,7 @@ $(docker inspect --format '{{.Config.Image}}' $CONTAINER)"
 1. **检查用户权限**：
    ```bash
    # 查看容器用户
-   docker inspect --format '{{.Config.User}}' <容器名>
+   docker inspect --format '{{ "{{" }}.Config.User}}' <容器名>
    
    # 重新创建时指定用户
    docker run --user <用户> <镜像名>

@@ -644,7 +644,7 @@ spec:
         severity: critical
       annotations:
         summary: "Service endpoints down"
-        description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has no available endpoints."
+        description: "Service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} has no available endpoints."
 
     - alert: KubeProxyHighSyncLatency
       expr: histogram_quantile(0.99, sum(rate(kubeproxy_sync_proxy_rules_duration_seconds_bucket[5m])) by (job, le)) > 0.1

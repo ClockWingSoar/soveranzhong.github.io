@@ -430,7 +430,7 @@ groups:
       severity: warning
     annotations:
       summary: "High 4xx error rate"
-      description: "4xx error rate is {{ $value | printf '%.2f' }}% for the last 5 minutes"
+      description: "4xx error rate is {{ "{{" }} $value | printf '%.2f' }}% for the last 5 minutes"
 
   - alert: High5xxErrorRate
     expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.01
@@ -439,7 +439,7 @@ groups:
       severity: critical
     annotations:
       summary: "High 5xx error rate"
-      description: "5xx error rate is {{ $value | printf '%.2f' }}% for the last 5 minutes"
+      description: "5xx error rate is {{ "{{" }} $value | printf '%.2f' }}% for the last 5 minutes"
 ```
 
 ---

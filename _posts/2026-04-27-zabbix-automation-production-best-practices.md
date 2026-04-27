@@ -247,7 +247,7 @@ flowchart TD
       yum_repository:
         name: zabbix
         description: Zabbix Official Repository
-        baseurl: https://repo.zabbix.com/zabbix/{{ zabbix_version }}/rhel8/x86_64/
+        baseurl: https://repo.zabbix.com/zabbix/{{ "{{" }} zabbix_version }}/rhel8/x86_64/
         gpgkey: https://repo.zabbix.com/zabbix.key
         gpgcheck: yes
         enabled: yes
@@ -297,9 +297,9 @@ PidFile=/run/zabbix/zabbix_agent2.pid
 LogFile=/var/log/zabbix/zabbix_agent2.log
 LogFileSize=10
 
-Server={{ zabbix_server }}
-ServerActive={{ zabbix_server }}
-Hostname={{ ansible_hostname }}
+Server={{ "{{" }} zabbix_server }}
+ServerActive={{ "{{" }} zabbix_server }}
+Hostname={{ "{{" }} ansible_hostname }}
 HostMetadataItem=system.uname
 
 RefreshActiveChecks=120
@@ -375,29 +375,29 @@ Include=/etc/zabbix/zabbix_agent2.d/*.conf
   tasks:
     - name: 获取认证令牌
       uri:
-        url: "{{ zabbix_url }}"
+        url: "{{ "{{" }} zabbix_url }}"
         method: POST
         body_format: json
         body:
           jsonrpc: "2.0"
           method: "user.login"
           params:
-            user: "{{ zabbix_user }}"
-            password: "{{ zabbix_password }}"
+            user: "{{ "{{" }} zabbix_user }}"
+            password: "{{ "{{" }} zabbix_password }}"
           id: 1
         register: login_result
     
     - name: 创建主机组
       uri:
-        url: "{{ zabbix_url }}"
+        url: "{{ "{{" }} zabbix_url }}"
         method: POST
         body_format: json
         body:
           jsonrpc: "2.0"
           method: "hostgroup.create"
           params:
-            name: "{{ item.name }}"
-          auth: "{{ login_result.json.result }}"
+            name: "{{ "{{" }} item.name }}"
+          auth: "{{ "{{" }} login_result.json.result }}"
           id: 2
       loop:
         - { name: "Linux Servers" }
@@ -428,39 +428,39 @@ Include=/etc/zabbix/zabbix_agent2.d/*.conf
   tasks:
     - name: 获取认证令牌
       uri:
-        url: "{{ zabbix_url }}"
+        url: "{{ "{{" }} zabbix_url }}"
         method: POST
         body_format: json
         body:
           jsonrpc: "2.0"
           method: "user.login"
           params:
-            user: "{{ zabbix_user }}"
-            password: "{{ zabbix_password }}"
+            user: "{{ "{{" }} zabbix_user }}"
+            password: "{{ "{{" }} zabbix_password }}"
           id: 1
         register: login_result
     
     - name: 批量创建主机
       uri:
-        url: "{{ zabbix_url }}"
+        url: "{{ "{{" }} zabbix_url }}"
         method: POST
         body_format: json
         body:
           jsonrpc: "2.0"
           method: "host.create"
           params:
-            host: "{{ item.name }}"
+            host: "{{ "{{" }} item.name }}"
             interfaces:
               - type: 1
                 main: 1
                 useip: 1
-                ip: "{{ item.ip }}"
+                ip: "{{ "{{" }} item.ip }}"
                 port: "10050"
             groups:
-              - groupid: "{{ item.groupid }}"
+              - groupid: "{{ "{{" }} item.groupid }}"
             templates:
-              - templateid: "{{ item.templateid }}"
-          auth: "{{ login_result.json.result }}"
+              - templateid: "{{ "{{" }} item.templateid }}"
+          auth: "{{ "{{" }} login_result.json.result }}"
           id: 2
       loop:
         - { name: "web-01", ip: "192.168.1.101", groupid: "5", templateid: "10001" }

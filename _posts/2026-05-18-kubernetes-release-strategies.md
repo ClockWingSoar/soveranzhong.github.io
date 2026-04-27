@@ -705,8 +705,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Deployment {{ $labels.deployment }} rollout stuck"
-        description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has been stuck in rollout for more than 10 minutes."
+        summary: "Deployment {{ "{{" }} $labels.deployment }} rollout stuck"
+        description: "Deployment {{ "{{" }} $labels.deployment }} in namespace {{ "{{" }} $labels.namespace }} has been stuck in rollout for more than 10 minutes."
 
     - alert: DeploymentReplicasMismatch
       expr: kube_deployment_status_replicas_available{job="kube-state-metrics"} != kube_deployment_spec_replicas{job="kube-state-metrics"}
@@ -714,8 +714,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Deployment {{ $labels.deployment }} replicas mismatch"
-        description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has {{ $value }} available replicas, expected {{ $labels.replicas }}."
+        summary: "Deployment {{ "{{" }} $labels.deployment }} replicas mismatch"
+        description: "Deployment {{ "{{" }} $labels.deployment }} in namespace {{ "{{" }} $labels.namespace }} has {{ "{{" }} $value }} available replicas, expected {{ "{{" }} $labels.replicas }}."
 
     - alert: PodCrashLooping
       expr: rate(kube_pod_container_status_restarts_total{job="kube-state-metrics"}[5m]) > 0
@@ -723,8 +723,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Pod {{ $labels.pod }} crash looping"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is crash looping."
+        summary: "Pod {{ "{{" }} $labels.pod }} crash looping"
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} is crash looping."
 ```
 
 ### 8.3 发布Dashboard

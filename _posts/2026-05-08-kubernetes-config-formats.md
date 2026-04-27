@@ -422,22 +422,22 @@ ls -la myapp/
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ "{{" }} .Release.Name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ "{{" }} .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ "{{" }} .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ "{{" }} .Release.Name }}
     spec:
       containers:
-      - name: {{ .Release.Name }}
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+      - name: {{ "{{" }} .Release.Name }}
+        image: {{ "{{" }} .Values.image.repository }}:{{ "{{" }} .Values.image.tag }}
         ports:
-        - containerPort: {{ .Values.service.port }}
+        - containerPort: {{ "{{" }} .Values.service.port }}
 ```
 
 3. **配置values.yaml**：

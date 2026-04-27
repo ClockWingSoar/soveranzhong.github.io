@@ -355,8 +355,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Liveness probe failed for {{ $labels.pod }}"
-        description: "Liveness probe has failed for pod {{ $labels.pod }} in namespace {{ $labels.namespace }}."
+        summary: "Liveness probe failed for {{ "{{" }} $labels.pod }}"
+        description: "Liveness probe has failed for pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }}."
 
     - alert: ReadinessProbeFailed
       expr: kube_pod_container_status_probe_failed_total{probe="readiness"} > 0
@@ -364,8 +364,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Readiness probe failed for {{ $labels.pod }}"
-        description: "Readiness probe has failed for pod {{ $labels.pod }} in namespace {{ $labels.namespace }}."
+        summary: "Readiness probe failed for {{ "{{" }} $labels.pod }}"
+        description: "Readiness probe has failed for pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }}."
 
     - alert: StartupProbeFailed
       expr: kube_pod_container_status_probe_failed_total{probe="startup"} > 0
@@ -373,8 +373,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Startup probe failed for {{ $labels.pod }}"
-        description: "Startup probe has failed for pod {{ $labels.pod }} in namespace {{ $labels.namespace }}."
+        summary: "Startup probe failed for {{ "{{" }} $labels.pod }}"
+        description: "Startup probe has failed for pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }}."
 ```
 
 ---

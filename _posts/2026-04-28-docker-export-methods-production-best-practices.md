@@ -517,7 +517,7 @@ docker buildx build --platform linux/amd64,linux/arm64 -t my-image:latest .
 2. **检查架构**：
    ```bash
    # 查看镜像架构
-docker image inspect --format '{{.Architecture}}' my-image
+docker image inspect --format '{{ "{{" }}.Architecture}}' my-image
    ```
 
 3. **使用兼容的基础镜像**：

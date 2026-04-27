@@ -509,8 +509,8 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "端口 {{ $labels.instance }} 不可达"
-        description: "端口 {{ $labels.instance }} 已持续不可达超过5分钟"
+        summary: "端口 {{ "{{" }} $labels.instance }} 不可达"
+        description: "端口 {{ "{{" }} $labels.instance }} 已持续不可达超过5分钟"
 
 # 端口监控配置
 - job_name: 'port_monitor'

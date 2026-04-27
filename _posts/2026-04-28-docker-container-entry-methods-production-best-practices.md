@@ -166,7 +166,7 @@ yum install util-linux
 
 ```bash
 # 获取容器PID
-PID=$(docker inspect --format '{{.State.Pid}}' <容器ID或名称>)
+PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' <容器ID或名称>)
 
 # 进入所有命名空间
 nsenter --target $PID --mount --uts --ipc --net --pid
@@ -371,7 +371,7 @@ COMMAND="$1"
 PATTERN=${2:-.*}
 
 # 获取匹配的容器
-CONTAINERS=$(docker ps --format '{{.Names}}' | grep "$PATTERN")
+CONTAINERS=$(docker ps --format '{{ "{{" }}.Names}}' | grep "$PATTERN")
 
 if [ -z "$CONTAINERS" ]; then
     echo "没有找到匹配的容器"
@@ -455,7 +455,7 @@ docker exec -it <容器> /bin/zsh
 
 ```bash
 # 获取容器PID
-PID=$(docker inspect --format '{{.State.Pid}}' <容器>)
+PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' <容器>)
 
 # 进入网络命名空间
 nsenter --target $PID --net ip addr
@@ -529,7 +529,7 @@ kubectl exec -it <pod名> -c <容器名> -- /bin/bash
 
 ```bash
 # 批量执行命令
-docker ps --format '{{.Names}}' | xargs -I {} docker exec {} <命令>
+docker ps --format '{{ "{{" }}.Names}}' | xargs -I {} docker exec {} <命令>
 
 # 后台执行命令
 docker exec -d <容器> <命令>

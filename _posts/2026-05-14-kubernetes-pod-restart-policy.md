@@ -445,8 +445,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Pod {{ $labels.pod }} is restarting too much"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been restarting {{ $value }} times per minute for 5 minutes."
+        summary: "Pod {{ "{{" }} $labels.pod }} is restarting too much"
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} has been restarting {{ "{{" }} $value }} times per minute for 5 minutes."
 ```
 
 ### 4.4 故障排查

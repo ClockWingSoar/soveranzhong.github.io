@@ -578,7 +578,7 @@ spec:
         severity: critical
       annotations:
         summary: "Service unavailable"
-        description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has no available endpoints."
+        description: "Service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} has no available endpoints."
 
     - alert: LoadBalancerPending
       expr: kube_service_status_load_balancer_ingress{namespace=~"default|production"} == 0
@@ -587,7 +587,7 @@ spec:
         severity: warning
       annotations:
         summary: "LoadBalancer pending"
-        description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has no LoadBalancer ingress."
+        description: "Service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} has no LoadBalancer ingress."
 
     - alert: NodePortUnavailable
       expr: kube_service_info{type="NodePort", namespace=~"default|production"} and absent(kube_endpoint_address_available{namespace=~"default|production"})
@@ -596,7 +596,7 @@ spec:
         severity: critical
       annotations:
         summary: "NodePort service unavailable"
-        description: "NodePort service {{ $labels.service }} in namespace {{ $labels.namespace }} has no available endpoints."
+        description: "NodePort service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} has no available endpoints."
 ```
 
 ### 9.3 监控Dashboard

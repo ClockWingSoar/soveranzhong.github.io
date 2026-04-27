@@ -84,7 +84,7 @@ docker save -o apps.tar nginx:latest redis:6.0 mysql:8.0
 docker save -o all.tar $(docker images -q)
 
 # 导出指定仓库的镜像
-docker save -o myapp.tar $(docker images --format "{{.Repository}}:{{.Tag}}" | grep myapp)
+docker save -o myapp.tar $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep myapp)
 ```
 
 **步骤2：压缩文件**
@@ -236,7 +236,7 @@ docker tag nginx:latest registry.example.com:5000/nginx:latest
 docker push registry.example.com:5000/nginx:latest
 
 # 推送多个镜像
-for img in $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>"); do
+for img in $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>"); do
   docker tag $img registry.example.com:5000/$(echo $img | cut -d/ -f2-)
   docker push registry.example.com:5000/$(echo $img | cut -d/ -f2-)
 done
@@ -281,7 +281,7 @@ docker system prune -a
 rsync -avz /data/harbor/ /backup/harbor/
 
 # 备份仓库中的镜像
-docker save $(docker images --format "{{.Repository}}:{{.Tag}}" | grep registry.example.com) -o harbor-images.tar
+docker save $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep registry.example.com) -o harbor-images.tar
 ```
 
 ---
@@ -423,7 +423,7 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 ssh "$USER@$SOURCE_HOST" << EOF
   mkdir -p $OUTPUT_DIR
   # 导出所有非none镜像
-  docker save -o "$OUTPUT_DIR/all_images_${TIMESTAMP}.tar" (docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>")
+  docker save -o "$OUTPUT_DIR/all_images_${TIMESTAMP}.tar" (docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>")
   # 压缩
   gzip "$OUTPUT_DIR/all_images_${TIMESTAMP}.tar"
 EOF
@@ -717,7 +717,7 @@ split -b 100M nginx.tar.gz nginx.tar.gz.part
 2. **执行步骤**：
    ```bash
    # 在A数据中心
-   for img in $(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>"); do
+   for img in $(docker images --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}}" | grep -v "<none>"); do
      docker tag $img harbor-a:5000/$img
      docker push harbor-a:5000/$img
    done

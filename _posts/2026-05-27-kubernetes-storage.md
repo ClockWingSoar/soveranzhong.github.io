@@ -588,7 +588,7 @@ spec:
         severity: critical
       annotations:
         summary: "PVC pending"
-        description: "PVC {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} is pending for more than 5 minutes."
+        description: "PVC {{ "{{" }} $labels.persistentvolumeclaim }} in namespace {{ "{{" }} $labels.namespace }} is pending for more than 5 minutes."
 
     - alert: PVCStorageLow
       expr: (kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes) < 0.1
@@ -597,7 +597,7 @@ spec:
         severity: warning
       annotations:
         summary: "PVC storage low"
-        description: "PVC {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} has less than 10% storage available."
+        description: "PVC {{ "{{" }} $labels.persistentvolumeclaim }} in namespace {{ "{{" }} $labels.namespace }} has less than 10% storage available."
 
     - alert: PVFailed
       expr: kube_persistentvolume_status_phase{phase="Failed"} == 1
@@ -606,7 +606,7 @@ spec:
         severity: critical
       annotations:
         summary: "PV failed"
-        description: "PV {{ $labels.persistentvolume }} is in failed state."
+        description: "PV {{ "{{" }} $labels.persistentvolume }} is in failed state."
 
     - alert: VolumeExpansionFailed
       expr: kube_persistentvolumeclaim_status_phase{phase="FileSystemResizePending"} == 1
@@ -615,7 +615,7 @@ spec:
         severity: warning
       annotations:
         summary: "Volume expansion failed"
-        description: "PVC {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} has filesystem resize pending."
+        description: "PVC {{ "{{" }} $labels.persistentvolumeclaim }} in namespace {{ "{{" }} $labels.namespace }} has filesystem resize pending."
 ```
 
 ### 11.3 监控Dashboard

@@ -702,7 +702,7 @@ groups:
       severity: critical
     annotations:
       summary: "LVS backend down"
-      description: "Backend server {{ $labels.backend }} is down"
+      description: "Backend server {{ "{{" }} $labels.backend }} is down"
 
   - alert: LVSConnectionHigh
     expr: ipvs_backend_connections > 10000
@@ -711,7 +711,7 @@ groups:
       severity: warning
     annotations:
       summary: "LVS connection high"
-      description: "Backend server {{ $labels.backend }} has {{ $value }} connections"
+      description: "Backend server {{ "{{" }} $labels.backend }} has {{ "{{" }} $value }} connections"
 
 # nginx告警规则
 groups:
@@ -724,7 +724,7 @@ groups:
       severity: critical
     annotations:
       summary: "Nginx high error rate"
-      description: "Error rate is {{ $value | printf '%.2f' }}%"
+      description: "Error rate is {{ "{{" }} $value | printf '%.2f' }}%"
 
   - alert: NginxBackendDown
     expr: nginx_upstream_server_state{state="down"} == 1
@@ -733,7 +733,7 @@ groups:
       severity: critical
     annotations:
       summary: "Nginx backend down"
-      description: "Backend server {{ $labels.server }} is down"
+      description: "Backend server {{ "{{" }} $labels.server }} is down"
 ```
 
 ---

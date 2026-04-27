@@ -739,8 +739,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Node {{ $labels.instance }} high CPU usage"
-        description: "Node {{ $labels.instance }} CPU usage is above 80% for 5 minutes."
+        summary: "Node {{ "{{" }} $labels.instance }} high CPU usage"
+        description: "Node {{ "{{" }} $labels.instance }} CPU usage is above 80% for 5 minutes."
 
     - alert: NodeHighMemory
       expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.8
@@ -748,8 +748,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Node {{ $labels.instance }} high memory usage"
-        description: "Node {{ $labels.instance }} memory usage is above 80% for 5 minutes."
+        summary: "Node {{ "{{" }} $labels.instance }} high memory usage"
+        description: "Node {{ "{{" }} $labels.instance }} memory usage is above 80% for 5 minutes."
 
     - alert: PodCrashLooping
       expr: rate(kube_pod_container_status_restarts_total[5m]) > 0
@@ -757,8 +757,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Pod {{ $labels.pod }} is crash looping"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been restarting {{ $value }} times in the last 5 minutes."
+        summary: "Pod {{ "{{" }} $labels.pod }} is crash looping"
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} has been restarting {{ "{{" }} $value }} times in the last 5 minutes."
 ```
 
 ### 7.3 日志管理

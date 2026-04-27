@@ -180,7 +180,7 @@ sequenceDiagram
 
     - name: 健康检查
       wait_for:
-        host: "{{ inventory_hostname }}"
+        host: "{{ "{{" }} inventory_hostname }}"
         port: 80
         timeout: 30
 ```
@@ -212,7 +212,7 @@ sequenceDiagram
 
     - name: 健康检查
       uri:
-        url: "http://{{ inventory_hostname }}/health"
+        url: "http://{{ "{{" }} inventory_hostname }}/health"
         status_code: 200
 ```
 
@@ -240,7 +240,7 @@ sequenceDiagram
 
     - name: 健康检查
       wait_for:
-        host: "{{ inventory_hostname }}"
+        host: "{{ "{{" }} inventory_hostname }}"
         port: 80
         timeout: 30
 ```
@@ -272,7 +272,7 @@ sequenceDiagram
 
     - name: 健康检查
       uri:
-        url: "http://{{ inventory_hostname }}/health"
+        url: "http://{{ "{{" }} inventory_hostname }}/health"
         status_code: 200
       register: health_check
       retries: 3
@@ -424,16 +424,16 @@ spec:
     - name: 备份当前代码
       archive:
         path: /opt/app/
-        dest: /backup/app-{{ ansible_date_time.date }}.tar.gz
+        dest: /backup/app-{{ "{{" }} ansible_date_time.date }}.tar.gz
 
     - name: 部署新代码
       copy:
-        src: app-{{ version }}.tar.gz
+        src: app-{{ "{{" }} version }}.tar.gz
         dest: /opt/app/
 
     - name: 解压代码
       unarchive:
-        src: /opt/app/app-{{ version }}.tar.gz
+        src: /opt/app/app-{{ "{{" }} version }}.tar.gz
         dest: /opt/app/
         remote_src: yes
 
@@ -444,7 +444,7 @@ spec:
 
     - name: 健康检查
       uri:
-        url: "http://{{ inventory_hostname }}/health"
+        url: "http://{{ "{{" }} inventory_hostname }}/health"
         status_code: 200
       register: health_check
       retries: 5
@@ -454,7 +454,7 @@ spec:
   handlers:
     - name: 回滚代码
       unarchive:
-        src: /backup/app-{{ ansible_date_time.date }}.tar.gz
+        src: /backup/app-{{ "{{" }} ansible_date_time.date }}.tar.gz
         dest: /opt/app/
         remote_src: yes
       when: health_check.failed
@@ -625,8 +625,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Deployment {{ $labels.deployment }} rollout stuck"
-        description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has been stuck in rollout for more than 10 minutes."
+        summary: "Deployment {{ "{{" }} $labels.deployment }} rollout stuck"
+        description: "Deployment {{ "{{" }} $labels.deployment }} in namespace {{ "{{" }} $labels.namespace }} has been stuck in rollout for more than 10 minutes."
 
     - alert: DeploymentReplicasMismatch
       expr: kube_deployment_status_replicas_available{job="kube-state-metrics"} != kube_deployment_spec_replicas{job="kube-state-metrics"}
@@ -634,8 +634,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Deployment {{ $labels.deployment }} replicas mismatch"
-        description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has {{ $value }} available replicas, expected {{ $labels.replicas }}."
+        summary: "Deployment {{ "{{" }} $labels.deployment }} replicas mismatch"
+        description: "Deployment {{ "{{" }} $labels.deployment }} in namespace {{ "{{" }} $labels.namespace }} has {{ "{{" }} $value }} available replicas, expected {{ "{{" }} $labels.replicas }}."
 ```
 
 ### 6.2 Ansible监控
@@ -655,7 +655,7 @@ spec:
   tasks:
     - name: 检查执行状态
       uri:
-        url: "https://tower.example.com/api/v2/jobs/{{ job_id }}/"
+        url: "https://tower.example.com/api/v2/jobs/{{ "{{" }} job_id }}/"
         user: admin
         password: password
         force_basic_auth: yes
@@ -664,9 +664,9 @@ spec:
 
     - name: 发送通知
       slack:
-        token: "{{ slack_token }}"
+        token: "{{ "{{" }} slack_token }}"
         channel: "#ansible-monitoring"
-        msg: "Job {{ job_id }} status: {{ job_status.json.status }}"
+        msg: "Job {{ "{{" }} job_id }} status: {{ "{{" }} job_status.json.status }}"
       when: job_status.json.status != "running"
 ```
 
@@ -764,7 +764,7 @@ spec:
 
     - name: 健康检查
       uri:
-        url: "http://{{ inventory_hostname }}"
+        url: "http://{{ "{{" }} inventory_hostname }}"
         status_code: 200
       register: health_check
       retries: 3
@@ -823,7 +823,7 @@ spec:
         post_reboot_delay: 60
 
     - name: 验证Kubernetes节点状态
-      shell: kubectl get node {{ inventory_hostname }}
+      shell: kubectl get node {{ "{{" }} inventory_hostname }}
       delegate_to: localhost
 
 # Kubernetes Deployment

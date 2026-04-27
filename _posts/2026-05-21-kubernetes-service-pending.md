@@ -540,7 +540,7 @@ spec:
         severity: critical
       annotations:
         summary: "Service endpoints down"
-        description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has no available endpoints."
+        description: "Service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} has no available endpoints."
 
     - alert: PodNotReady
       expr: kube_pod_status_phase{phase="Running"} == 0
@@ -549,7 +549,7 @@ spec:
         severity: warning
       annotations:
         summary: "Pod not ready"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is not ready."
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} is not ready."
 
     - alert: ServicePending
       expr: kube_service_info{status="Pending"} == 1
@@ -558,7 +558,7 @@ spec:
         severity: critical
       annotations:
         summary: "Service pending"
-        description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} is in pending state."
+        description: "Service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} is in pending state."
 ```
 
 ### 5.3 自动化工具

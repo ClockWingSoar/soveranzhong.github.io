@@ -535,7 +535,7 @@ spec:
         severity: critical
       annotations:
         summary: "Service LoadBalancer unhealthy"
-        description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has no healthy LoadBalancer ingress."
+        description: "Service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} has no healthy LoadBalancer ingress."
 
     - alert: PodDistributionUneven
       expr: max(kube_pod_status_ready{namespace="default"}) by (node) / avg(kube_pod_status_ready{namespace="default"}) by (node) > 2
@@ -553,7 +553,7 @@ spec:
         severity: warning
       annotations:
         summary: "High node traffic"
-        description: "Node {{ $labels.instance }} is receiving more than 100MB/s of traffic."
+        description: "Node {{ "{{" }} $labels.instance }} is receiving more than 100MB/s of traffic."
 ```
 
 ### 7.3 监控Dashboard

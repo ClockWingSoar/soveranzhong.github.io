@@ -204,7 +204,7 @@ rm -rf /var/lib/docker/tmp/*
    docker image ls
    
    # 查看镜像被哪些容器使用
-   docker ps -a --format '{{.Image}}'
+   docker ps -a --format '{{ "{{" }}.Image}}'
    ```
 
 4. **查看资源使用**：
@@ -434,10 +434,10 @@ docker run -d \
 1. **清理前检查**：
    ```bash
    # 检查容器依赖的镜像
-   docker inspect --format '{{.Image}}' <容器名>
+   docker inspect --format '{{ "{{" }}.Image}}' <容器名>
    
    # 检查容器使用的卷
-   docker inspect --format '{{.Mounts}}' <容器名>
+   docker inspect --format '{{ "{{" }}.Mounts}}' <容器名>
    ```
 
 2. **恢复方法**：

@@ -524,7 +524,7 @@ groups:
       severity: warning
     annotations:
       summary: "Volume usage high"
-      description: "Volume usage on {{ $labels.instance }} is {{ $value }}%"
+      description: "Volume usage on {{ "{{" }} $labels.instance }} is {{ "{{" }} $value }}%"
 
   - alert: StorageIOLatencyHigh
     expr: node_disk_io_time_seconds_total{device=~"sd.*|nvme.*"} / node_disk_io_ops_total{device=~"sd.*|nvme.*"} > 0.1
@@ -533,7 +533,7 @@ groups:
       severity: warning
     annotations:
       summary: "Storage IO latency high"
-      description: "IO latency on {{ $labels.instance }}/{{ $labels.device }} is {{ $value }}s"
+      description: "IO latency on {{ "{{" }} $labels.instance }}/{{ "{{" }} $labels.device }} is {{ "{{" }} $value }}s"
 ```
 
 ### 8.3 存储管理平台

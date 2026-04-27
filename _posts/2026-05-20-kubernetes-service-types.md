@@ -631,7 +631,7 @@ spec:
         severity: critical
       annotations:
         summary: "Service endpoints down"
-        description: "Service {{ $labels.service }} in namespace {{ $labels.namespace }} has no available endpoints."
+        description: "Service {{ "{{" }} $labels.service }} in namespace {{ "{{" }} $labels.namespace }} has no available endpoints."
 
     - alert: ServiceUnavailable
       expr: probe_success{job="service-monitor"} == 0
@@ -640,7 +640,7 @@ spec:
         severity: critical
       annotations:
         summary: "Service unavailable"
-        description: "Service {{ $labels.service }} is unavailable."
+        description: "Service {{ "{{" }} $labels.service }} is unavailable."
 
     - alert: ServiceHighLatency
       expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)) > 1
@@ -649,7 +649,7 @@ spec:
         severity: warning
       annotations:
         summary: "Service high latency"
-        description: "Service {{ $labels.service }} has high latency."
+        description: "Service {{ "{{" }} $labels.service }} has high latency."
 ```
 
 ### 9.3 监控Dashboard

@@ -100,7 +100,7 @@ ls -la /proc/$$/ns/
 unshare --pid --mount-proc /bin/bash
 
 # 查看容器的命名空间
-docker inspect --format '{{.State.Pid}}' <容器名>
+docker inspect --format '{{ "{{" }}.State.Pid}}' <容器名>
 ls -la /proc/<PID>/ns/
 ```
 
@@ -127,7 +127,7 @@ ls -la /proc/<PID>/ns/
  docker run -d --name pid-isolation nginx
 
 # 查看容器PID
-docker inspect --format '{{.State.Pid}}' pid-isolation
+docker inspect --format '{{ "{{" }}.State.Pid}}' pid-isolation
 
 # 进入容器查看进程
 docker exec -it pid-isolation ps aux
@@ -241,7 +241,7 @@ docker network create my-network
 docker run -d --name network-isolation --network my-network nginx
 
 # 查看容器网络配置
-docker inspect --format '{{.NetworkSettings.Networks}}' network-isolation
+docker inspect --format '{{ "{{" }}.NetworkSettings.Networks}}' network-isolation
 
 # 测试网络隔离
  docker run --rm --network my-network busybox ping network-isolation
@@ -351,7 +351,7 @@ hostname
   nginx
 
 # 查看资源限制
-docker inspect --format '{{.HostConfig}}' resource-limited
+docker inspect --format '{{ "{{" }}.HostConfig}}' resource-limited
 ```
 
 ### 3.2 安全增强
@@ -374,7 +374,7 @@ docker inspect --format '{{.HostConfig}}' resource-limited
   nginx
 
 # 查看容器安全配置
-docker inspect --format '{{.HostConfig.SecurityOpt}}' secure-container
+docker inspect --format '{{ "{{" }}.HostConfig.SecurityOpt}}' secure-container
 ```
 
 ---
@@ -548,19 +548,19 @@ docker system df
 
 ```bash
 # 检查容器网络配置
-docker inspect --format '{{.NetworkSettings}}' <容器名>
+docker inspect --format '{{ "{{" }}.NetworkSettings}}' <容器名>
 
 # 检查容器用户配置
-docker inspect --format '{{.Config.User}}' <容器名>
+docker inspect --format '{{ "{{" }}.Config.User}}' <容器名>
 
 # 检查容器进程
 docker exec -it <容器名> ps aux
 
 # 检查容器挂载点
-docker inspect --format '{{.Mounts}}' <容器名>
+docker inspect --format '{{ "{{" }}.Mounts}}' <容器名>
 
 # 检查容器主机名
-docker inspect --format '{{.Config.Hostname}}' <容器名>
+docker inspect --format '{{ "{{" }}.Config.Hostname}}' <容器名>
 ```
 
 ### 5.2 故障案例分析
@@ -579,8 +579,8 @@ docker inspect --format '{{.Config.Hostname}}' <容器名>
 
 2. **检查容器网络配置**：
    ```bash
-   docker inspect --format '{{.NetworkSettings.Networks}}' app
-   docker inspect --format '{{.NetworkSettings.Networks}}' db
+   docker inspect --format '{{ "{{" }}.NetworkSettings.Networks}}' app
+   docker inspect --format '{{ "{{" }}.NetworkSettings.Networks}}' db
    ```
 
 3. **测试网络连通性**：
@@ -602,7 +602,7 @@ docker inspect --format '{{.Config.Hostname}}' <容器名>
 **排查步骤**：
 1. **检查容器用户**：
    ```bash
-   docker inspect --format '{{.Config.User}}' <容器名>
+   docker inspect --format '{{ "{{" }}.Config.User}}' <容器名>
    ```
 
 2. **检查卷权限**：

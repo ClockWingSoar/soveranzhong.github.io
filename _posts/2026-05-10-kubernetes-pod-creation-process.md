@@ -377,10 +377,10 @@ spec:
 docker ps | grep pause
 
 # 查看Pause容器的网络命名空间
-docker inspect <pause-container-id> --format '{{.NetworkMode}}'
+docker inspect <pause-container-id> --format '{{ "{{" }}.NetworkMode}}'
 
 # 查看Pause容器的PID命名空间
-docker inspect <pause-container-id> --format '{{.HostConfig.PidMode}}'
+docker inspect <pause-container-id> --format '{{ "{{" }}.HostConfig.PidMode}}'
 ```
 
 ### 4.4 CNI网络配置

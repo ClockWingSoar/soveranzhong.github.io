@@ -523,7 +523,7 @@ docker run -d --name myapp -v /host/data:/app/data myapp:1.0
 
 ```bash
 # 监控镜像体积
-docker image ls --format "{{.Repository}}:{{.Tag}} {{.Size}}"
+docker image ls --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}} {{ "{{" }}.Size}}"
 
 # 监控容器启动时间
 time docker run --rm myapp:1.0 echo "Hello World"
@@ -667,7 +667,7 @@ deploy:
 **推荐命令**：
 - **构建镜像**：`export DOCKER_BUILDKIT=1 && docker build -t myapp .`
 - **扫描镜像**：`trivy image myapp`
-- **查看镜像体积**：`docker image ls --format "{{.Repository}}:{{.Tag}} {{.Size}}"`
+- **查看镜像体积**：`docker image ls --format "{{ "{{" }}.Repository}}:{{ "{{" }}.Tag}} {{ "{{" }}.Size}}"`
 - **清理未使用的镜像**：`docker image prune -a`
 - **推送镜像**：`docker push registry.example.com/myapp:1.0`
 

@@ -938,7 +938,7 @@ groups:
       severity: critical
     annotations:
       summary: "正向代理错误率高"
-      description: "错误率为 {{ $value | printf '%.2f' }}%"
+      description: "错误率为 {{ "{{" }} $value | printf '%.2f' }}%"
 
   - alert: ForwardProxyHighConnections
     expr: nginx_connections_active > 1000
@@ -947,7 +947,7 @@ groups:
       severity: warning
     annotations:
       summary: "正向代理连接数高"
-      description: "当前连接数为 {{ $value }}"
+      description: "当前连接数为 {{ "{{" }} $value }}"
 
 # 反向代理告警规则
 groups:
@@ -960,7 +960,7 @@ groups:
       severity: critical
     annotations:
       summary: "反向代理错误率高"
-      description: "错误率为 {{ $value | printf '%.2f' }}%"
+      description: "错误率为 {{ "{{" }} $value | printf '%.2f' }}%"
 
   - alert: BackendServerDown
     expr: nginx_upstream_server_state{state="down"} == 1
@@ -969,7 +969,7 @@ groups:
       severity: critical
     annotations:
       summary: "后端服务器不可用"
-      description: "后端服务器 {{ $labels.server }} 不可用"
+      description: "后端服务器 {{ "{{" }} $labels.server }} 不可用"
 
   - alert: ReverseProxyHighResponseTime
     expr: histogram_quantile(0.95, sum(rate(nginx_http_request_duration_seconds_bucket[5m])) by (le)) > 1
@@ -978,7 +978,7 @@ groups:
       severity: warning
     annotations:
       summary: "反向代理响应时间长"
-      description: "95%响应时间超过 {{ $value }} 秒"
+      description: "95%响应时间超过 {{ "{{" }} $value }} 秒"
 ```
 
 ---

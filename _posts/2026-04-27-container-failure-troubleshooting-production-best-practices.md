@@ -89,10 +89,10 @@ docker ps -a
 docker ps -a | grep <容器名>
 
 # 查看容器详细状态
-docker inspect --format '{{.State}}' <容器名>
+docker inspect --format '{{ "{{" }}.State}}' <容器名>
 
 # 查看容器退出码
-docker inspect --format '{{.State.ExitCode}}' <容器名>
+docker inspect --format '{{ "{{" }}.State.ExitCode}}' <容器名>
 ```
 
 **检查容器日志**：
@@ -121,19 +121,19 @@ docker logs --since 1h <容器名>
 docker inspect <容器名>
 
 # 查看容器命令
-docker inspect --format '{{.Config.Cmd}}' <容器名>
+docker inspect --format '{{ "{{" }}.Config.Cmd}}' <容器名>
 
 # 查看环境变量
-docker inspect --format '{{.Config.Env}}' <容器名>
+docker inspect --format '{{ "{{" }}.Config.Env}}' <容器名>
 
 # 查看挂载卷
-docker inspect --format '{{.Mounts}}' <容器名>
+docker inspect --format '{{ "{{" }}.Mounts}}' <容器名>
 
 # 查看端口映射
 docker port <容器名>
 
 # 查看资源限制
-docker inspect --format '{{.HostConfig}}' <容器名>
+docker inspect --format '{{ "{{" }}.HostConfig}}' <容器名>
 ```
 
 **检查资源情况**：
@@ -160,7 +160,7 @@ top
 
 ```bash
 # 查看容器网络配置
-docker inspect --format '{{.NetworkSettings}}' <容器名>
+docker inspect --format '{{ "{{" }}.NetworkSettings}}' <容器名>
 
 # 查看网络详情
 docker network inspect <网络名>
@@ -199,7 +199,7 @@ docker pull <镜像名>
 - **排查方法**：
   ```bash
   # 检查环境变量
-  docker inspect --format '{{.Config.Env}}' <容器名>
+  docker inspect --format '{{ "{{" }}.Config.Env}}' <容器名>
   
   # 验证环境变量文件
   cat .env
@@ -247,7 +247,7 @@ docker pull <镜像名>
   free -h
   
   # 查看容器内存限制
-  docker inspect --format '{{.HostConfig.Memory}}' <容器名>
+  docker inspect --format '{{ "{{" }}.HostConfig.Memory}}' <容器名>
   ```
 - **解决方案**：
   - 增加容器内存限制
@@ -277,7 +277,7 @@ docker pull <镜像名>
   top
   
   # 查看容器CPU限制
-  docker inspect --format '{{.HostConfig.CpuShares}}' <容器名>
+  docker inspect --format '{{ "{{" }}.HostConfig.CpuShares}}' <容器名>
   ```
 - **解决方案**：
   - 增加容器CPU限制
@@ -291,7 +291,7 @@ docker pull <镜像名>
 - **排查方法**：
   ```bash
   # 检查容器网络模式
-  docker inspect --format '{{.HostConfig.NetworkMode}}' <容器名>
+  docker inspect --format '{{ "{{" }}.HostConfig.NetworkMode}}' <容器名>
   
   # 查看网络详情
   docker network inspect <网络名>
@@ -309,7 +309,7 @@ docker pull <镜像名>
   docker run --rm busybox nslookup google.com
   
   # 检查容器DNS配置
-  docker inspect --format '{{.HostConfig.Dns}}' <容器名>
+  docker inspect --format '{{ "{{" }}.HostConfig.Dns}}' <容器名>
   ```
 - **解决方案**：
   - 配置正确的DNS服务器
@@ -368,7 +368,7 @@ docker pull <镜像名>
 - **排查方法**：
   ```bash
   # 查看容器启动命令
-  docker inspect --format '{{.Config.Cmd}}' <容器名>
+  docker inspect --format '{{ "{{" }}.Config.Cmd}}' <容器名>
   
   # 测试启动命令
   docker run --rm <镜像名> <启动命令>
@@ -441,7 +441,7 @@ docker pull <镜像名>
 
 3. **检查容器内存限制**：
    ```bash
-   docker inspect --format '{{.HostConfig.Memory}}' app
+   docker inspect --format '{{ "{{" }}.HostConfig.Memory}}' app
    # 输出：536870912 (512MB)
    ```
 
@@ -685,7 +685,7 @@ docker run -d \
 |:--------|:------|:----------|:----------|
 | 容器状态 | `docker ps -a` | 容器存在，状态为Exited | 检查退出码 |
 | 容器日志 | `docker logs <容器名>` | 无错误信息 | 分析错误原因 |
-| 环境变量 | `docker inspect --format '{{.Config.Env}}' <容器名>` | 所有必需变量存在 | 添加缺失变量 |
+| 环境变量 | `docker inspect --format '{{ "{{" }}.Config.Env}}' <容器名>` | 所有必需变量存在 | 添加缺失变量 |
 | 端口映射 | `docker port <容器名>` | 端口映射正确 | 检查端口冲突 |
 | 资源使用 | `docker stats <容器名>` | 资源使用正常 | 调整资源限制 |
 | 网络连接 | `docker run --rm busybox ping <目标>` | 网络连通 | 检查网络配置 |
@@ -716,7 +716,7 @@ echo "1. 容器状态："
 docker ps -a | grep $CONTAINER
 
 # 2. 检查退出码
-exit_code=$(docker inspect --format '{{.State.ExitCode}}' $CONTAINER 2>/dev/null)
+exit_code=$(docker inspect --format '{{ "{{" }}.State.ExitCode}}' $CONTAINER 2>/dev/null)
 if [ -n "$exit_code" ]; then
     echo "2. 退出码：$exit_code"
     case $exit_code in
@@ -735,20 +735,20 @@ docker logs --tail 50 $CONTAINER
 
 # 4. 检查容器配置
 echo "\n4. 容器配置："
-echo "   命令：$(docker inspect --format '{{.Config.Cmd}}' $CONTAINER)"
-echo "   环境变量：$(docker inspect --format '{{.Config.Env}}' $CONTAINER)"
-echo "   挂载卷：$(docker inspect --format '{{.Mounts}}' $CONTAINER)"
+echo "   命令：$(docker inspect --format '{{ "{{" }}.Config.Cmd}}' $CONTAINER)"
+echo "   环境变量：$(docker inspect --format '{{ "{{" }}.Config.Env}}' $CONTAINER)"
+echo "   挂载卷：$(docker inspect --format '{{ "{{" }}.Mounts}}' $CONTAINER)"
 echo "   端口映射：$(docker port $CONTAINER)"
 
 # 5. 检查资源限制
 echo "\n5. 资源限制："
-echo "   内存：$(docker inspect --format '{{.HostConfig.Memory}}' $CONTAINER)"
-echo "   CPU：$(docker inspect --format '{{.HostConfig.CpuShares}}' $CONTAINER)"
+echo "   内存：$(docker inspect --format '{{ "{{" }}.HostConfig.Memory}}' $CONTAINER)"
+echo "   CPU：$(docker inspect --format '{{ "{{" }}.HostConfig.CpuShares}}' $CONTAINER)"
 
 # 6. 检查网络配置
 echo "\n6. 网络配置："
-echo "   网络模式：$(docker inspect --format '{{.HostConfig.NetworkMode}}' $CONTAINER)"
-echo "   网络配置：$(docker inspect --format '{{.NetworkSettings}}' $CONTAINER)"
+echo "   网络模式：$(docker inspect --format '{{ "{{" }}.HostConfig.NetworkMode}}' $CONTAINER)"
+echo "   网络配置：$(docker inspect --format '{{ "{{" }}.NetworkSettings}}' $CONTAINER)"
 
 # 7. 检查宿主机资源
 echo "\n7. 宿主机资源："
@@ -758,7 +758,7 @@ echo "   CPU使用：$(top -bn1 | grep Cpu)"
 
 # 8. 检查端口占用
 echo "\n8. 端口占用："
-ports=$(docker inspect --format '{{range $p, $conf := .NetworkSettings.Ports}}{{$p}}{{end}}' $CONTAINER)
+ports=$(docker inspect --format '{{ "{{" }}range $p, $conf := .NetworkSettings.Ports}}{{ "{{" }}$p}}{{ "{{" }}end}}' $CONTAINER)
 if [ -n "$ports" ]; then
     for port in $ports; do
         host_port=$(echo $port | cut -d/ -f1)

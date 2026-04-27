@@ -40,16 +40,16 @@ tags: [Docker, 容器网络, IP地址, 网络模式, 生产环境]
 
 ```bash
 # 查看容器在bridge网络中的IP地址
-docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' <容器名或ID>
+docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' <容器名或ID>
 
 # 查看容器所有网络的IP地址
-docker inspect -f '{{.NetworkSettings.Networks}}' <容器名或ID>
+docker inspect -f '{{ "{{" }}.NetworkSettings.Networks}}' <容器名或ID>
 
 # 格式化输出为JSON
-docker inspect -f '{{json .NetworkSettings.Networks}}' <容器名或ID> | python -m json.tool
+docker inspect -f '{{ "{{" }}json .NetworkSettings.Networks}}' <容器名或ID> | python -m json.tool
 
 # 查看容器完整的网络配置
-docker inspect --format '{{json .NetworkSettings}}' <容器名或ID> | python -m json.tool
+docker inspect --format '{{ "{{" }}json .NetworkSettings}}' <容器名或ID> | python -m json.tool
 ```
 
 **docker exec 命令**：
@@ -75,7 +75,7 @@ docker network ls
 docker network inspect <网络名>
 
 # 查看网络中的所有容器
-docker network inspect -f '{{range .Containers}}{{.Name}}: {{.IPv4Address}}{{end}}' <网络名>
+docker network inspect -f '{{ "{{" }}range .Containers}}{{ "{{" }}.Name}}: {{ "{{" }}.IPv4Address}}{{ "{{" }}end}}' <网络名>
 
 # 查找特定容器的网络信息
 docker network inspect <网络名> | grep -A 10 <容器名>
@@ -87,7 +87,7 @@ docker network inspect <网络名> | grep -A 10 <容器名>
 
 ```bash
 # 查看容器在bridge网络中的IP
-docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' <容器名>
+docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' <容器名>
 
 # 查看bridge网络的子网信息
 docker network inspect bridge | grep -A 5 Subnet
@@ -101,14 +101,14 @@ docker network inspect bridge | grep -A 5 Subnet
 hostname -I
 
 # 验证容器是否使用host模式
-docker inspect -f '{{.HostConfig.NetworkMode}}' <容器名>
+docker inspect -f '{{ "{{" }}.HostConfig.NetworkMode}}' <容器名>
 ```
 
 **自定义网络**：
 
 ```bash
 # 查看容器在自定义网络中的IP
-docker inspect -f '{{.NetworkSettings.Networks.<网络名>.IPAddress}}' <容器名>
+docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.<网络名>.IPAddress}}' <容器名>
 
 # 查看自定义网络的详细信息
 docker network inspect <网络名>
@@ -119,7 +119,7 @@ docker network inspect <网络名>
 ```bash
 # none模式下容器无网络连接
 # 验证容器是否使用none模式
-docker inspect -f '{{.HostConfig.NetworkMode}}' <容器名>
+docker inspect -f '{{ "{{" }}.HostConfig.NetworkMode}}' <容器名>
 ```
 
 ### 1.3 批量查看容器IP
@@ -138,21 +138,21 @@ containers=$(docker ps -aq)
 
 for container in $containers; do
     # 获取容器名
-    name=$(docker inspect -f '{{.Name}}' $container | sed 's/^\///')
+    name=$(docker inspect -f '{{ "{{" }}.Name}}' $container | sed 's/^\///')
     
     # 获取网络模式
-    network_mode=$(docker inspect -f '{{.HostConfig.NetworkMode}}' $container)
+    network_mode=$(docker inspect -f '{{ "{{" }}.HostConfig.NetworkMode}}' $container)
     
     # 获取IP地址（根据网络模式）
     if [ "$network_mode" = "bridge" ]; then
-        ip=$(docker inspect -f '{{.NetworkSettings.Networks.bridge.IPAddress}}' $container)
+        ip=$(docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.bridge.IPAddress}}' $container)
     elif [ "$network_mode" = "host" ]; then
         ip="与宿主机共用"
     elif [ "$network_mode" = "none" ]; then
         ip="无网络"
     else
         # 自定义网络
-        networks=$(docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}:{{$v.IPAddress}} {{end}}' $container)
+        networks=$(docker inspect -f '{{ "{{" }}range $k, $v := .NetworkSettings.Networks}}{{ "{{" }}$k}}:{{ "{{" }}$v.IPAddress}} {{ "{{" }}end}}' $container)
         ip="$networks"
     fi
     
@@ -205,7 +205,7 @@ docker network inspect bridge
 docker run -d --name nginx02 --network host nginx
 
 # 验证网络模式
-docker inspect -f '{{.HostConfig.NetworkMode}}' nginx02
+docker inspect -f '{{ "{{" }}.HostConfig.NetworkMode}}' nginx02
 ```
 
 **none模式**：
@@ -215,7 +215,7 @@ docker inspect -f '{{.HostConfig.NetworkMode}}' nginx02
 docker run -d --name nginx03 --network none nginx
 
 # 验证网络模式
-docker inspect -f '{{.HostConfig.NetworkMode}}' nginx03
+docker inspect -f '{{ "{{" }}.HostConfig.NetworkMode}}' nginx03
 ```
 
 **自定义网络**：
@@ -360,7 +360,7 @@ docker exec <容器> ping <宿主机IP>
 
 ```bash
 # 检查容器网络配置
-docker inspect --format '{{json .NetworkSettings}}' <容器名> | python -m json.tool
+docker inspect --format '{{ "{{" }}json .NetworkSettings}}' <容器名> | python -m json.tool
 
 # 检查网络驱动
 docker network inspect <网络名> | grep Driver
@@ -581,19 +581,19 @@ docker ps -a | grep $CONTAINER
 
 # 检查容器网络配置
 echo "\n2. 网络配置："
-docker inspect --format '{{json .NetworkSettings}}' $CONTAINER | python -m json.tool
+docker inspect --format '{{ "{{" }}json .NetworkSettings}}' $CONTAINER | python -m json.tool
 
 # 检查网络模式
 echo "\n3. 网络模式："
-docker inspect -f '{{.HostConfig.NetworkMode}}' $CONTAINER
+docker inspect -f '{{ "{{" }}.HostConfig.NetworkMode}}' $CONTAINER
 
 # 检查IP地址
 echo "\n4. IP地址："
-docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}: {{$v.IPAddress}}{{end}}' $CONTAINER
+docker inspect -f '{{ "{{" }}range $k, $v := .NetworkSettings.Networks}}{{ "{{" }}$k}}: {{ "{{" }}$v.IPAddress}}{{ "{{" }}end}}' $CONTAINER
 
 # 测试网络连通性
 echo "\n5. 网络连通性测试："
-IP=$(docker inspect -f '{{.NetworkSettings.Networks.*.IPAddress}}' $CONTAINER | tr ' ' '\n' | grep -v '^$' | head -1)
+IP=$(docker inspect -f '{{ "{{" }}.NetworkSettings.Networks.*.IPAddress}}' $CONTAINER | tr ' ' '\n' | grep -v '^$' | head -1)
 
 if [ -n "$IP" ]; then
   echo "测试容器内部网络："

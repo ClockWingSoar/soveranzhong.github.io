@@ -435,8 +435,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Pod {{ $labels.pod }} is crash looping"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been restarting {{ $value }} times in the last 5 minutes."
+        summary: "Pod {{ "{{" }} $labels.pod }} is crash looping"
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} has been restarting {{ "{{" }} $value }} times in the last 5 minutes."
 
     - alert: PodImagePullBackOff
       expr: kube_pod_container_status_waiting_reason{reason="ImagePullBackOff"} == 1
@@ -444,8 +444,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Pod {{ $labels.pod }} image pull backoff"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is stuck in ImagePullBackOff state."
+        summary: "Pod {{ "{{" }} $labels.pod }} image pull backoff"
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} is stuck in ImagePullBackOff state."
 
     - alert: PodPending
       expr: kube_pod_status_phase{phase="Pending"} == 1
@@ -453,8 +453,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Pod {{ $labels.pod }} is pending"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been pending for more than 10 minutes."
+        summary: "Pod {{ "{{" }} $labels.pod }} is pending"
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} has been pending for more than 10 minutes."
 
     - alert: PodNotReady
       expr: kube_pod_status_ready{condition="true"} == 0
@@ -462,8 +462,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Pod {{ $labels.pod }} is not ready"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is not ready for more than 5 minutes."
+        summary: "Pod {{ "{{" }} $labels.pod }} is not ready"
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} is not ready for more than 5 minutes."
 ```
 
 ### 4.3 日志管理

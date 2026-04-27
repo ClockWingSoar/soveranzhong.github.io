@@ -654,7 +654,7 @@ groups:
         severity: critical
       annotations:
         summary: "Redis实例宕机"
-        description: "Redis实例 {{ $labels.instance }} 已宕机超过5分钟"
+        description: "Redis实例 {{ "{{" }} $labels.instance }} 已宕机超过5分钟"
     
     - alert: RedisMemoryUsageHigh
       expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
@@ -663,7 +663,7 @@ groups:
         severity: warning
       annotations:
         summary: "Redis内存使用过高"
-        description: "Redis实例 {{ $labels.instance }} 内存使用超过80%"
+        description: "Redis实例 {{ "{{" }} $labels.instance }} 内存使用超过80%"
     
     - alert: RedisReplicationLag
       expr: redis_replication_offset_master - redis_replication_offset_replica > 10000
@@ -672,7 +672,7 @@ groups:
         severity: warning
       annotations:
         summary: "Redis复制延迟"
-        description: "Redis从节点 {{ $labels.instance }} 复制延迟超过10000字节"
+        description: "Redis从节点 {{ "{{" }} $labels.instance }} 复制延迟超过10000字节"
 ```
 
 ### 8.4 备份与恢复

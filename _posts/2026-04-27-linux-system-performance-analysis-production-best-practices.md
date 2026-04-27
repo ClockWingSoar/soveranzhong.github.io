@@ -868,7 +868,7 @@ groups:
         severity: critical
       annotations:
         summary: "高CPU使用率"
-        description: "{{ $labels.instance }} CPU使用率超过90%持续5分钟"
+        description: "{{ "{{" }} $labels.instance }} CPU使用率超过90%持续5分钟"
 
     - alert: HighMemoryUsage
       expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
@@ -877,7 +877,7 @@ groups:
         severity: critical
       annotations:
         summary: "高内存使用率"
-        description: "{{ $labels.instance }} 内存使用率超过90%持续5分钟"
+        description: "{{ "{{" }} $labels.instance }} 内存使用率超过90%持续5分钟"
 
     - alert: DiskSpaceLow
       expr: (node_filesystem_size_bytes{mountpoint="/"} - node_filesystem_free_bytes{mountpoint="/"}) / node_filesystem_size_bytes{mountpoint="/"} * 100 > 85
@@ -886,7 +886,7 @@ groups:
         severity: warning
       annotations:
         summary: "磁盘空间不足"
-        description: "{{ $labels.instance }} 根分区使用率超过85%持续10分钟"
+        description: "{{ "{{" }} $labels.instance }} 根分区使用率超过85%持续10分钟"
 
     - alert: HighIoWait
       expr: avg by(instance) (irate(node_cpu_seconds_total{mode="iowait"}[5m])) * 100 > 30
@@ -895,7 +895,7 @@ groups:
         severity: warning
       annotations:
         summary: "高I/O等待"
-        description: "{{ $labels.instance }} I/O等待超过30%持续5分钟"
+        description: "{{ "{{" }} $labels.instance }} I/O等待超过30%持续5分钟"
 ```
 
 **Zabbix监控**：

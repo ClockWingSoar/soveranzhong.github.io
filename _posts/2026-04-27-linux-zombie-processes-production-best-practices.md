@@ -412,7 +412,7 @@ groups:
         severity: warning
       annotations:
         summary: "发现僵尸进程"
-        description: "服务器 {{ $labels.instance }} 存在 {{ $value }} 个僵尸进程"
+        description: "服务器 {{ "{{" }} $labels.instance }} 存在 {{ "{{" }} $value }} 个僵尸进程"
     
     - alert: TooManyZombieProcesses
       expr: node_zombie_processes > 10
@@ -421,7 +421,7 @@ groups:
         severity: critical
       annotations:
         summary: "僵尸进程数量过多"
-        description: "服务器 {{ $labels.instance }} 存在 {{ $value }} 个僵尸进程，可能影响系统稳定"
+        description: "服务器 {{ "{{" }} $labels.instance }} 存在 {{ "{{" }} $value }} 个僵尸进程，可能影响系统稳定"
 ```
 
 **自动化监控脚本**：

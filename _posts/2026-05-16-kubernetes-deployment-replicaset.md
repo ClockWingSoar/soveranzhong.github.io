@@ -524,8 +524,8 @@ spec:
       labels:
         severity: warning
       annotations:
-        summary: "Deployment {{ $labels.deployment }} replicas mismatch"
-        description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has {{ $value }} available replicas, expected {{ $labels.replicas }}."
+        summary: "Deployment {{ "{{" }} $labels.deployment }} replicas mismatch"
+        description: "Deployment {{ "{{" }} $labels.deployment }} in namespace {{ "{{" }} $labels.namespace }} has {{ "{{" }} $value }} available replicas, expected {{ "{{" }} $labels.replicas }}."
 
     - alert: DeploymentRolloutStuck
       expr: kube_deployment_status_observed_generation{job="kube-state-metrics"} < kube_deployment_metadata_generation{job="kube-state-metrics"}
@@ -533,8 +533,8 @@ spec:
       labels:
         severity: critical
       annotations:
-        summary: "Deployment {{ $labels.deployment }} rollout stuck"
-        description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has been stuck in rollout for more than 10 minutes."
+        summary: "Deployment {{ "{{" }} $labels.deployment }} rollout stuck"
+        description: "Deployment {{ "{{" }} $labels.deployment }} in namespace {{ "{{" }} $labels.namespace }} has been stuck in rollout for more than 10 minutes."
 ```
 
 ### 6.3 日志管理

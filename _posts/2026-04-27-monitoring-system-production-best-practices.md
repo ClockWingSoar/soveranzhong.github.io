@@ -194,7 +194,7 @@ groups:
         severity: warning
       annotations:
         summary: "CPU使用率过高"
-        description: "CPU使用率超过80%，当前值: {{ $value }}%"
+        description: "CPU使用率超过80%，当前值: {{ "{{" }} $value }}%"
 
     # 同比告警
     - alert: HighCPUUsageComparedToYesterday
@@ -433,7 +433,7 @@ groups:
         severity: critical
         level: P1
       annotations:
-        summary: "服务 {{ $labels.instance }} 不可用"
+        summary: "服务 {{ "{{" }} $labels.instance }} 不可用"
         runbook: "https://runbook.example.com/service-down"
 
     # P2: 资源告警
@@ -445,7 +445,7 @@ groups:
         level: P2
       annotations:
         summary: "内存使用率超过85%"
-        description: "当前值: {{ $value }}%"
+        description: "当前值: {{ "{{" }} $value }}%"
 
     # P3: 趋势预警
     - alert: DiskSpaceLowTrend

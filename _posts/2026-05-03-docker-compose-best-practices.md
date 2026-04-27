@@ -845,7 +845,7 @@ jobs:
           docker compose build
       - name: Push images
         run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker login -u ${{ "{{" }} secrets.DOCKER_USERNAME }} -p ${{ "{{" }} secrets.DOCKER_PASSWORD }}
           docker compose push
   deploy:
     needs: build
@@ -854,7 +854,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy to production
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          ssh ${{ "{{" }} secrets.SERVER_USER }}@${{ "{{" }} secrets.SERVER_HOST }} << 'EOF'
             cd /app
             git pull
             docker compose -f compose.yaml -f compose.prod.yaml pull

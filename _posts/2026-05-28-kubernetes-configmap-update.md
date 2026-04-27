@@ -541,7 +541,7 @@ spec:
         severity: info
       annotations:
         summary: "ConfigMap changed"
-        description: "ConfigMap {{ $labels.configmap }} in namespace {{ $labels.namespace }} has been changed."
+        description: "ConfigMap {{ "{{" }} $labels.configmap }} in namespace {{ "{{" }} $labels.namespace }} has been changed."
 
     - alert: PodConfigMismatch
       expr: kube_pod_config_hash != on(pod, namespace) kube_configmap_metadata_resource_version
@@ -550,7 +550,7 @@ spec:
         severity: warning
       annotations:
         summary: "Pod config mismatch"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has config mismatch with ConfigMap."
+        description: "Pod {{ "{{" }} $labels.pod }} in namespace {{ "{{" }} $labels.namespace }} has config mismatch with ConfigMap."
 
     - alert: ConfigReloadFailed
       expr: config_reload_failures_total > 0
@@ -559,7 +559,7 @@ spec:
         severity: critical
       annotations:
         summary: "Config reload failed"
-        description: "Config reload failed for application {{ $labels.app }} in namespace {{ $labels.namespace }}."
+        description: "Config reload failed for application {{ "{{" }} $labels.app }} in namespace {{ "{{" }} $labels.namespace }}."
 ```
 
 ### 8.3 监控Dashboard

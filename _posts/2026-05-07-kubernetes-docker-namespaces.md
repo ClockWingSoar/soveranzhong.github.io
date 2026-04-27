@@ -102,7 +102,7 @@ flowchart TD
 ```bash
 # 查看容器的PID
 CONTAINER_ID=$(docker run -d --name test busybox sleep 3600)
-CONTAINER_PID=$(docker inspect --format '{{.State.Pid}}' $CONTAINER_ID)
+CONTAINER_PID=$(docker inspect --format '{{ "{{" }}.State.Pid}}' $CONTAINER_ID)
 
 # 查看容器的命名空间
 ls -la /proc/$CONTAINER_PID/ns/
@@ -751,7 +751,7 @@ groups:
       severity: warning
     annotations:
       summary: "命名空间资源配额即将耗尽"
-      description: "命名空间 {{ $labels.namespace }} 的CPU请求已使用90%以上"
+      description: "命名空间 {{ "{{" }} $labels.namespace }} 的CPU请求已使用90%以上"
 
   - alert: NamespacePodLimitExceeded
     expr: kube_namespace_status_pods_available{namespace=~"dev|staging|prod"} > kube_resourcequota{resource="pods"} by (namespace)
@@ -760,7 +760,7 @@ groups:
       severity: critical
     annotations:
       summary: "命名空间Pod数量超过限制"
-      description: "命名空间 {{ $labels.namespace }} 的Pod数量已超过限制"
+      description: "命名空间 {{ "{{" }} $labels.namespace }} 的Pod数量已超过限制"
 ```
 
 ---
