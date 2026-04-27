@@ -2523,6 +2523,8 @@ redis-cli dbsize
 
 > **面试加分点**：能详细说明**copy-on-write机制**在RDB中的应用，以及如何通过**rdb-tools**分析RDB文件内容，证明你对Redis持久化机制有深入理解。
 
+> **延伸阅读**：想了解更多RDB文件备份策略生产环境最佳实践？请参考 [RDB文件备份策略生产环境最佳实践：从配置到恢复的完整方案]({% post_url 2026-04-27-redis-rdb-backup-strategy-production-best-practices %})。
+
 ### 29. RDB和AOF备份的区别是啥？
 
 **Why - 为什么要理解RDB和AOF的区别？**
