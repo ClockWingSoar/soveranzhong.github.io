@@ -6797,6 +6797,9 @@ kubectl get events -n namespace --sort-by='.metadata.creationTimestamp'
 
 > "Pod故障排查我总结为三步法：第一步kubectl get pods看状态，判断是CrashLoopBackOff、ImagePullBackOff还是Pending；第二步kubectl describe pod看Events事件日志；第三步kubectl logs看应用日志。CrashLoopBackOff就用kubectl logs --previous查看崩溃前的日志。ImagePullBackOff检查镜像名称和私有仓库Secret。Pending检查节点资源和调度配置。我的经验是：describe的Events信息量很大，大多数问题都能在这里找到线索。生产环境一定要配置日志收集系统。"
 
+> **延伸阅读**：想了解更多Kubernetes Pod故障排查的最佳实践？请参考 [Kubernetes Pod故障排查深度解析：从原理到实践]({% post_url 2026-05-09-kubernetes-pod-troubleshooting %})。
+
+
 
 ### 62. pod的创建流程是啥？
 
