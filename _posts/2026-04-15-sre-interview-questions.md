@@ -547,6 +547,8 @@ SHOW SLAVE STATUS\G
 
 > **面试加分点**：能说清**binlog三种格式（Statement/Row/Mixed）的区别**，以及何时选择哪种格式，证明你有生产环境MySQL调优经验。
 
+> **延伸阅读**：想了解更多MySQL生产环境最佳实践？请参考 [MySQL生产环境最佳实践：从日志管理到主从复制的完整指南]({% post_url 2026-04-27-mysql-production-best-practices %})。
+
 ### 11. Linux常用命令分类
 
 **Why - 为什么Linux是SRE的主战场？**
