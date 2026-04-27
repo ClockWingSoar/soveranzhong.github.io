@@ -741,6 +741,8 @@ flowchart TB
 
 > **面试加分点**：能说清**Prometheus的Pull vs Push采集模式区别**，以及如何设计合理的告警收敛策略，证明你有大规模监控体系设计经验。
 
+> **延伸阅读**：想了解更多监控系统生产环境最佳实践？请参考 [监控系统生产环境最佳实践：从架构设计到告警收敛]({% post_url 2026-04-27-monitoring-system-production-best-practices %})。
+
 ### 14. 脚本开发经验
 
 **Why - 为什么脚本能力是SRE核心竞争力？**
