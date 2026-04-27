@@ -2742,6 +2742,8 @@ graph TD
 
 > "生产环境推荐主从+Sentinel（<10GB）或Redis Cluster（>10GB）。Sentinel实现自动故障转移，Cluster实现水平扩展。配置时要注意Sentinel至少3节点，Cluster至少6节点（3主3从）。"
 
+> **延伸阅读**：想了解更多Redis工作模式生产环境最佳实践？请参考 [Redis工作模式生产环境最佳实践：从单机到集群的完整指南]({% post_url 2026-04-27-redis-work-modes-production-best-practices %})。
+
 ### 31. 更改了docker.service文件后你需要做什么？
 
 > 🎯 **核心目标**：掌握systemd服务配置生效的完整流程
