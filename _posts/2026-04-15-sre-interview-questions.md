@@ -6883,6 +6883,10 @@ flowchart TD
 
 > "Pod创建流程是：第一步kubectl提交请求到API Server；第二步API Server认证授权后写入etcd，状态为Pending；第三步Scheduler通过预选和优选选择最佳节点；第四步Kubelet收到通知后拉取镜像，创建Pause容器（基础设施容器），配置CNI网络，启动Init容器，最后启动业务容器；第五步Kubelet上报状态，Pod变为Running。我的经验是：Pending通常是调度问题，ContainerCreating通常是镜像或网络问题，describe events能看出大多数问题在哪一步失败。"
 
+> **延伸阅读**：想了解更多Kubernetes Pod创建流程的最佳实践？请参考 [Kubernetes Pod创建流程深度解析：从请求到运行]({% post_url 2026-05-10-kubernetes-pod-creation-process %})。
+
+### 63. k8s是如何实现会话保持的？
+
 ### 63. k8s的组件都有啥？
 
 > 🎯 **核心目标**：掌握Kubernetes核心组件及其职责
