@@ -146,15 +146,15 @@ class SLICollector:
         
         output = f'''# HELP {self.service_name}_availability Service availability
 # TYPE {self.service_name}_availability gauge
-{self.service_name}_availability {{service="{self.service_name}"}} {sli["availability"]}
+{self.service_name}_availability {{ "{{" }}service="{self.service_name}"}} {sli["availability"]}
 
 # HELP {self.service_name}_error_rate Error rate
 # TYPE {self.service_name}_error_rate gauge
-{self.service_name}_error_rate {{service="{self.service_name}"}} {sli["error_rate"]}
+{self.service_name}_error_rate {{ "{{" }}service="{self.service_name}"}} {sli["error_rate"]}
 
 # HELP {self.service_name}_latency_p99 Latency P99
 # TYPE {self.service_name}_latency_p99 gauge
-{self.service_name}_latency_p99 {{service="{self.service_name}"}} {sli["latency_p99"]}
+{self.service_name}_latency_p99 {{ "{{" }}service="{self.service_name}"}} {sli["latency_p99"]}
 '''
         return output
 
@@ -219,7 +219,7 @@ groups:
       severity: warning
     annotations:
       summary: "SLO可用性接近阈值"
-      description: "{{ $value | humanizePercentage }} 可用性低于99.95% SLO"
+      description: "{{ "{{" }} $value | humanizePercentage }} 可用性低于99.95% SLO"
   
   - alert: SLOBreachCritical
     expr: job:slo_availability:ratio90d < 0.999
@@ -228,7 +228,7 @@ groups:
       severity: critical
     annotations:
       summary: "SLO可用性已突破阈值"
-      description: "{{ $value | humanizePercentage }} 可用性低于99.9% SLA"
+      description: "{{ "{{" }} $value | humanizePercentage }} 可用性低于99.9% SLA"
 ```
 
 ---
@@ -362,7 +362,7 @@ groups:
       severity: critical
     annotations:
       summary: "服务错误率过高"
-      description: "服务 {{ $labels.instance }} 错误率超过1%，当前值: {{ $value | humanizePercentage }}"
+      description: "服务 {{ "{{" }} $labels.instance }} 错误率超过1%，当前值: {{ "{{" }} $value | humanizePercentage }}"
   
   - alert: HighLatency
     expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 2
@@ -371,7 +371,7 @@ groups:
       severity: warning
     annotations:
       summary: "服务延迟过高"
-      description: "服务 {{ $labels.instance }} P99延迟超过2秒，当前值: {{ $value }}s"
+      description: "服务 {{ "{{" }} $labels.instance }} P99延迟超过2秒，当前值: {{ "{{" }} $value }}s"
   
   - alert: ServiceDown
     expr: up{job="my-app"} == 0
@@ -380,7 +380,7 @@ groups:
       severity: critical
     annotations:
       summary: "服务不可用"
-      description: "服务 {{ $labels.instance }} 已经宕机超过1分钟"
+      description: "服务 {{ "{{" }} $labels.instance }} 已经宕机超过1分钟"
 ```
 
 ### 2.2 故障响应流程
