@@ -3872,6 +3872,8 @@ docker volume prune -f
 
 > "Docker垃圾清理要定期执行，推荐使用system prune进行全面清理。生产环境建议在低峰期执行，清理前备份重要数据，使用-f参数避免交互式确认。对于重要的卷和镜像，建议使用标签进行保护，防止误删。结合监控工具跟踪磁盘使用情况，及时发现并处理空间不足问题。"
 
+> **延伸阅读**：想了解更多Docker垃圾清理生产环境最佳实践？请参考 [Docker垃圾清理生产环境最佳实践：从原理到自动化]({% post_url 2026-04-28-docker-garbage-cleanup-production-best-practices %})。
+
 **常见问题与解决方案**：
 
 **问题1：清理时误删重要资源**
@@ -4005,6 +4007,8 @@ docker load -i nginx.tar
 **面试加分话术**：
 
 > "docker export和docker save的核心区别在于操作对象和包含内容。export操作容器，只导出文件系统，体积小，适合创建基础镜像；save操作镜像，导出完整信息，体积大，适合完整备份和跨环境迁移。生产环境中，根据需求选择合适的导出方式，如需保留镜像完整信息用save，如需精简传输用export。"
+
+> **延伸阅读**：想了解更多Docker导出方法生产环境最佳实践？请参考 [Docker导出方法生产环境最佳实践：export vs save 深度解析]({% post_url 2026-04-28-docker-export-methods-production-best-practices %})。
 
 ### 41. 不小心删除了一个很老的docker容器，如何找回当初的启动命令再重开一个？
 
