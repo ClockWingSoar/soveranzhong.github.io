@@ -11186,4 +11186,250 @@ helm repo add private https://charts.example.com
 
 > **延伸阅读**：想了解更多Helm 2.0与3.0的区别及迁移最佳实践？请参考 [Helm 2.0 vs 3.0 深度对比与迁移指南]({% post_url 2026-06-06-helm-v2-v3-difference %})。
 
+---
+
+### 91. StatefulSet的四个特性是啥？
+
+> 🎯 **核心目标**：掌握StatefulSet四大核心特性，理解有状态应用管理机制
+
+**问题分析**：StatefulSet是Kubernetes中管理有状态应用的核心控制器，与Deployment不同，它提供了稳定的网络标识、有序操作、持久化存储等关键特性，适用于数据库、消息队列等需要持久化状态的应用场景。
+
+---
+
+**StatefulSet简介**：
+
+**什么是StatefulSet**：StatefulSet是Kubernetes用于管理有状态应用的工作负载API对象，为Pod提供稳定的网络标识和持久化存储。
+
+**适用场景**：
+- 数据库（MySQL、PostgreSQL、MongoDB）
+- 消息队列（Kafka、RabbitMQ）
+- 分布式存储（Redis Cluster、Elasticsearch）
+- 需要固定网络标识的应用
+
+---
+
+**特性一：稳定的网络标识（Stable Network Identity）**
+
+**核心机制**：
+- Pod名称格式：`<statefulset-name>-<序号>`（从0开始）
+- 配合Headless Service提供固定DNS记录
+- Pod重建后名称和DNS保持不变
+
+**DNS记录格式**：
+```
+<pod-name>.<service-name>.<namespace>.svc.cluster.local
+
+示例：
+mysql-0.mysql-svc.default.svc.cluster.local
+mysql-1.mysql-svc.default.svc.cluster.local
+mysql-2.mysql-svc.default.svc.cluster.local
+```
+
+**配置示例**：
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+spec:
+  clusterIP: None  # Headless Service
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+```
+
+---
+
+**特性二：有序的部署和扩缩容（Ordered Deployment & Scaling）**
+
+**部署顺序**：
+```
+创建顺序：mysql-0 → mysql-1 → mysql-2
+规则：前一个Pod Ready后才创建下一个
+```
+
+**扩容顺序**：
+```bash
+# 从3个副本扩容到5个
+kubectl scale statefulset mysql --replicas=5
+
+# 创建顺序：mysql-3 → mysql-4
+```
+
+**缩容顺序**：
+```
+删除顺序：mysql-4 → mysql-3 → mysql-2 → mysql-1 → mysql-0
+规则：逆序删除，先删除序号最大的Pod
+```
+
+**配置示例**：
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql-svc  # 必须关联Headless Service
+  replicas: 3
+  podManagementPolicy: OrderedReady  # 默认值
+```
+
+---
+
+**特性三：有序的滚动更新（Ordered Rolling Update）**
+
+**更新顺序**：
+```
+更新顺序：mysql-2 → mysql-1 → mysql-0
+规则：逆序更新，从最大序号开始
+```
+
+**Partition控制**：
+```yaml
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 1  # 只更新序号 >= 1 的Pod
+```
+
+**Partition使用场景**：
+- `partition=0`：更新所有Pod（默认）
+- `partition=1`：只更新mysql-1和mysql-2
+- `partition=2`：只更新mysql-2
+- `partition=3`：不更新任何Pod
+
+**金丝雀发布示例**：
+```bash
+# 第一阶段：只更新最后一个Pod
+kubectl patch statefulset mysql -p '{"spec":{"updateStrategy":{"rollingUpdate":{"partition":2}}}}'
+
+# 第二阶段：验证后扩大范围
+kubectl patch statefulset mysql -p '{"spec":{"updateStrategy":{"rollingUpdate":{"partition":1}}}}'
+
+# 第三阶段：全量更新
+kubectl patch statefulset mysql -p '{"spec":{"updateStrategy":{"rollingUpdate":{"partition":0}}}}'
+```
+
+---
+
+**特性四：稳定的持久化存储（Stable Persistent Storage）**
+
+**核心机制**：
+- 通过volumeClaimTemplates自动创建PVC
+- 每个Pod绑定独立的PVC
+- Pod重建后PVC保持不变
+
+**PVC命名规则**：
+```
+<volumeClaimTemplate-name>-<statefulset-name>-<序号>
+
+示例：
+data-mysql-0
+data-mysql-1
+data-mysql-2
+```
+
+**配置示例**：
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 10Gi
+  template:
+    spec:
+      containers:
+      - name: mysql
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+```
+
+**存储行为**：
+- 扩容时：自动为新Pod创建PVC
+- 缩容时：PVC不会自动删除（保护数据）
+- 重建时：Pod重新绑定到原PVC
+
+---
+
+**生产环境最佳实践**：
+
+**1. Pod管理策略选择**
+```yaml
+# OrderedReady（默认）：严格顺序，适合主从架构
+podManagementPolicy: OrderedReady
+
+# Parallel：并行操作，适合独立启动的应用
+podManagementPolicy: Parallel
+```
+
+**2. 更新策略优化**
+```yaml
+# RollingUpdate：自动滚动更新
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    partition: 0
+
+# OnDelete：手动控制更新
+updateStrategy:
+  type: OnDelete
+```
+
+**3. 存储安全配置**
+```yaml
+# 使用ReadWriteOncePod访问模式（生产推荐）
+accessModes: ["ReadWriteOncePod"]
+
+# 设置合理的存储类
+storageClassName: fast-ssd  # 高性能SSD
+
+# 配置资源限制
+resources:
+  requests:
+    storage: 10Gi
+  limits:
+    storage: 20Gi
+```
+
+**4. 监控与告警**
+- 监控Pod启动顺序
+- 监控PVC绑定状态
+- 监控存储使用量
+- 设置Pod就绪时间告警
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 原因 | 解决方案 |
+|:------|:------|:------|
+| Pod卡在Pending状态 | PVC无法创建 | 检查StorageClass配置 |
+| DNS解析失败 | Headless Service未创建 | 确保Service存在且clusterIP为None |
+| 更新卡住 | Pod无法Ready | 检查健康检查配置 |
+| 数据丢失 | PVC被误删除 | 定期备份，设置PVC保护 |
+
+---
+
+**💡 记忆口诀**：
+
+> **StatefulSet四特性**：网络标识稳如山，有序部署不混乱，滚动更新可控制，存储绑定保数据
+
+**面试加分话术**：
+
+> "StatefulSet是Kubernetes管理有状态应用的核心控制器，有四个关键特性。第一是稳定的网络标识，Pod名称格式为<statefulset-name>-<序号>，配合Headless Service提供固定DNS记录，即使Pod重建后名称和DNS也不变。第二是有序的部署和扩缩容，创建时从0到N-1顺序创建，删除时逆序删除，确保前一个Pod Ready后才操作下一个。第三是有序的滚动更新，默认逆序更新，可以通过partition参数控制更新范围，实现金丝雀发布。第四是稳定的持久化存储，通过volumeClaimTemplates自动为每个Pod创建独立PVC，Pod重建后仍绑定同一PVC，保证数据不丢失。这四个特性使StatefulSet非常适合运行数据库、消息队列等有状态应用。"
+
+> **延伸阅读**：想了解更多StatefulSet四大特性的深度解析？请参考 [StatefulSet四大特性深度解析：有状态应用管理最佳实践]({% post_url 2026-06-07-statefulset-features %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
