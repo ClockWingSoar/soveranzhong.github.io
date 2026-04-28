@@ -10976,4 +10976,214 @@ pt-heartbeat -D percona -h slave_ip -u root --monitor
 
 > **延伸阅读**：想了解更多MySQL主从复制状态检查的最佳实践？请参考 [MySQL主从复制状态检查与监控最佳实践]({% post_url 2026-06-05-mysql-replication-status %})。
 
+---
+
+### 90. Helm 2.0 和 3.0 的区别？
+
+> 🎯 **核心目标**：理解Helm架构演进，掌握v2到v3的关键变化及迁移要点
+
+**问题分析**：Helm是Kubernetes的包管理工具，从v2到v3经历了重大架构变革，核心变化是移除Tiller组件，带来更简洁的架构和更好的安全性。
+
+---
+
+**Helm简介与核心概念**：
+
+**Helm是什么**：Helm是Kubernetes的包管理器，用于简化应用的部署、升级和管理。
+
+**核心概念**：
+- **Chart**：打包好的Kubernetes应用模板
+- **Release**：Chart的一次部署实例
+- **Repository**：Chart仓库
+
+**基本用法**：
+```bash
+# 安装Chart
+helm install my-release stable/nginx
+
+# 查看Release
+helm list
+
+# 更新Release
+helm upgrade my-release stable/nginx
+
+# 回滚Release
+helm rollback my-release 1
+
+# 删除Release
+helm uninstall my-release
+```
+
+---
+
+**Helm 2.0 架构**：
+
+**Client-Server架构**：
+```
+┌──────────┐      gRPC      ┌──────────┐      API Server
+│  Helm    │ ──────────────> │  Tiller  │ ──────────────>
+│  Client  │                │ (Server) │                Kubernetes
+└──────────┘                └──────────┘
+```
+
+**Tiller角色**：
+- 部署在kube-system命名空间
+- 作为中间层处理所有Kubernetes操作
+- 需要高权限ServiceAccount
+
+**安全隐患**：
+- Tiller拥有集群级权限
+- 单点故障风险
+- 多用户共享Tiller导致权限混乱
+
+---
+
+**Helm 3.0 架构**：
+
+**Client-Only架构**：
+```
+┌──────────┐      API Server
+│  Helm    │ ──────────────>  Kubernetes
+│  Client  │
+└──────────┘
+```
+
+**核心变化**：
+- 移除Tiller组件
+- 直接通过kubeconfig连接API Server
+- Release信息存储在Secret中（而非ConfigMap）
+
+**安全性提升**：
+- 继承Kubernetes RBAC权限
+- 每个用户使用自己的权限操作
+- 无需额外的ServiceAccount配置
+
+---
+
+**关键差异对比**：
+
+| 特性 | Helm 2.0 | Helm 3.0 |
+|:------|:------|:------|
+| **架构** | Client-Server | Client-Only |
+| **Tiller** | 需要部署 | 已移除 |
+| **Release存储** | ConfigMap | Secret |
+| **Chart API版本** | v1 | v2 |
+| **requirements.yaml** | 需要 | 合并到Chart.yaml |
+| **命名空间隔离** | 较弱 | 强隔离 |
+| **安全性** | Tiller权限集中 | 用户RBAC继承 |
+| **三方资源支持** | 有限 | 全面支持CRD |
+
+---
+
+**Chart格式变化**：
+
+**Chart.yaml变化**：
+```yaml
+# Helm 2
+apiVersion: v1
+name: mychart
+version: 1.0.0
+
+# Helm 3
+apiVersion: v2
+name: mychart
+version: 1.0.0
+dependencies:
+  - name: nginx
+    version: "1.16.0"
+    repository: "@stable"
+```
+
+**requirements.yaml合并**：
+```yaml
+# Helm 2 需要单独的requirements.yaml
+dependencies:
+  - name: nginx
+    version: "1.16.0"
+    repository: "https://kubernetes-charts.storage.googleapis.com"
+
+# Helm 3 直接在Chart.yaml中定义
+```
+
+---
+
+**生产环境最佳实践**：
+
+**1. 迁移策略**
+```bash
+# 使用helm-2to3工具迁移
+helm3 2to3 convert my-release
+
+# 备份Helm 2配置
+helm repo list > helm2-repos.txt
+
+# 重新添加仓库到Helm 3
+helm repo add stable https://charts.helm.sh/stable
+```
+
+**2. Chart兼容性处理**
+```bash
+# 检查Chart兼容性
+helm lint mychart/
+
+# 转换Chart API版本
+helm convert mychart/ --api-version v2
+```
+
+**3. 安全配置**
+```yaml
+# 使用最小权限ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: helm-user
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: helm-user-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: edit
+subjects:
+- kind: ServiceAccount
+  name: helm-user
+```
+
+**4. 仓库管理**
+```bash
+# 添加官方仓库
+helm repo add stable https://charts.helm.sh/stable
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+# 更新仓库索引
+helm repo update
+
+# 使用私有仓库
+helm repo add private https://charts.example.com
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 原因 | 解决方案 |
+|:------|:------|:------|
+| Chart安装失败 | API版本不兼容 | 使用helm convert转换 |
+| Release找不到 | 存储方式变更 | 使用2to3工具迁移 |
+| 权限不足 | RBAC配置问题 | 检查ServiceAccount权限 |
+| 依赖解析失败 | requirements.yaml不存在 | 合并到Chart.yaml |
+
+---
+
+**💡 记忆口诀**：
+
+> **Helm3**：Tiller被移除，架构更简洁；API升v2，依赖合并写；安全靠RBAC，权限更精细
+
+**面试加分话术**：
+
+> "Helm是Kubernetes的包管理工具，用于简化应用部署。Helm 2.0采用Client-Server架构，需要在集群中部署Tiller组件，存在安全隐患。Helm 3.0移除了Tiller，采用Client-Only架构，直接通过kubeconfig连接API Server，安全性更好。主要区别包括：1）架构从Client-Server变为Client-Only；2）Release信息从ConfigMap存储改为Secret；3）Chart的apiVersion从v1升级到v2；4）requirements.yaml合并到Chart.yaml中。迁移时可以使用helm-2to3工具，需要注意Chart兼容性和RBAC权限配置。"
+
+> **延伸阅读**：想了解更多Helm 2.0与3.0的区别及迁移最佳实践？请参考 [Helm 2.0 vs 3.0 深度对比与迁移指南]({% post_url 2026-06-06-helm-v2-v3-difference %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
