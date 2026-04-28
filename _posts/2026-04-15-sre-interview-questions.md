@@ -9986,4 +9986,145 @@ spec:
 
 > **延伸阅读**：想了解更多Pod集群外访问的最佳实践？请参考 [Pod集群外访问深度解析：选择合适的服务暴露方式]({% post_url 2026-05-30-pod-external-access %})。
 
+### 84. 啥叫eBPF？新的k8s网络插件？
+
+> 🎯 **核心目标**：掌握eBPF技术原理，理解其在Kubernetes网络、安全和可观测性中的应用
+
+**问题分析**：eBPF（extended Berkeley Packet Filter）是Linux内核中的革命性技术，允许在运行时将安全、网络和可观测性逻辑动态插入到内核中。Cilium等新型Kubernetes网络插件基于eBPF，提供了传统方案无法比拟的性能和功能。理解eBPF和Cilium，是SRE工程师跟进云原生技术趋势的必修课。
+
+---
+
+**eBPF核心概念**：
+
+| 特性 | 说明 |
+|:------|:------|
+| **定义** | 扩展伯克利包过滤器，Linux内核中的革命性技术 |
+| **核心能力** | 在内核运行时动态插入安全、网络和可观测性逻辑 |
+| **优势** | 内核级执行，无需修改代码或重启服务 |
+| **典型应用** | Cilium（网络）、Tetragon（安全）、Hubble（可观测性） |
+
+---
+
+**eBPF vs 传统方案对比**：
+
+| 指标 | iptables/kube-proxy | eBPF/Cilium |
+|:------|:------|:------|
+| **性能开销** | 高（用户空间上下文切换） | 低（内核直接执行） |
+| **规则扩展性** | O(n²) 增长 | O(1) 常量 |
+| **更新延迟** | 秒级 | 毫秒级（热更新） |
+| **L7可见性** | 无 | 完整HTTP/gRPC解析 |
+| **安全模型** | 基于IP | 基于身份（标签） |
+
+---
+
+**Kubernetes eBPF网络插件**：
+
+**1. Cilium（CNCF毕业项目）**
+- 替代kube-proxy，完全基于eBPF实现Service负载均衡
+- 支持L3/L4/L7网络策略
+- 内置Hubble可观测性组件
+- 性能数据：940万包/秒，TCP时延从56μs降至8μs
+
+**2. Tetragon（安全）**
+- 基于eBPF的运行时安全检测
+- 无需Sidecar，零侵入
+- 支持系统调用追踪、入侵检测
+
+**3. Hubble（可观测性）**
+- 实时流量可视化
+- 服务依赖图
+- HTTP/gRPC/Kafka协议解析
+
+---
+
+**Cilium配置示例**：
+
+**安装Cilium**：
+```bash
+curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
+sudo tar xzvf cilium-linux-amd64.tar.gz /usr/local/bin
+cilium install
+cilium status
+```
+
+**Helm安装**：
+```bash
+helm repo add cilium https://helm.cilium.io/
+helm install cilium cilium/cilium \
+  --namespace kube-system \
+  --set ipam.mode=kubernetes \
+  --set kubeProxyReplacement=strict
+```
+
+**L7网络策略**：
+```yaml
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-access-control
+spec:
+  endpointSelector:
+    matchLabels:
+      app: api-gateway
+  ingress:
+  - toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+      rules:
+        http:
+        - method: "GET"
+          path: "/api/v1/.*"
+```
+
+---
+
+**最佳实践**：
+
+**1. 升级内核版本**
+- 生产环境推荐内核版本 ≥ 5.10
+- eBPF功能需要较新内核支持
+
+**2. 渐进式迁移**
+- 先在非关键业务测试
+- 验证网络策略和可观测性
+- 逐步切换CNI插件
+
+**3. 性能优化**
+- 启用XDP快速路径
+- 合理配置eBPF Map大小
+- 监控eBPF程序加载状态
+
+**4. 安全策略**
+- 使用CiliumNetworkPolicy替代NetworkPolicy
+- 启用身份感知安全模型
+- 配合Tetragon实现运行时检测
+
+**5. 可观测性建设**
+- 启用Hubble全量流量采集
+- 配置Prometheus指标导出
+- 使用Hubble UI实时监控
+
+---
+
+**常见问题**：
+
+- **eBPF不支持**：检查内核版本，低版本内核可能不支持eBPF全部特性
+- **Cilium安装失败**：确认Kubernetes版本兼容性，Cilium要求K8s 1.16+
+- **网络不通**：检查eBPF程序加载状态，使用cilium status诊断
+- **策略不生效**：确认策略选择器和端口配置正确
+- **性能提升不明显**：检查是否启用XDP，确认eBPF Map配置合理
+
+---
+
+**💡 记忆口诀**：
+
+> **eBPF**：内核黑科技，性能高安全，eBPF加Cilium，网络安全可视化
+
+**面试加分话术**：
+
+> "eBPF是Linux内核中的革命性技术，它允许在内核运行时动态插入程序，实现高性能的网络处理、安全检测和可观测性。相比传统的iptables方案，eBPF具有O(1)规则查找、热更新无需重启、内核级执行低开销等优势。在Kubernetes中，基于eBPF的Cilium是最代表性的网络插件，它完全替代kube-proxy实现Service负载均衡，支持L7网络策略，并内置Hubble组件提供深度流量可视化。生产环境中，使用eBPF+Cilium组合，TCP延迟可以从56微秒降低到8微秒，规则更新从秒级降到毫秒级。对于SRE来说，掌握eBPF技术是跟上云原生发展趋势的必修课。"
+
+> **延伸阅读**：想了解更多eBPF和Cilium的最佳实践？请参考 [eBPF与Cilium深度解析：下一代云原生网络基础设施]({% post_url 2026-05-31-ebpf-cilium %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
