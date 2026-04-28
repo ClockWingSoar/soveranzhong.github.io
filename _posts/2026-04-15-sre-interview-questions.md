@@ -10127,4 +10127,169 @@ spec:
 
 > **延伸阅读**：想了解更多eBPF和Cilium的最佳实践？请参考 [eBPF与Cilium深度解析：下一代云原生网络基础设施]({% post_url 2026-05-31-ebpf-cilium %})。
 
+### 85. 啥叫Gateway API？替代Ingress的新产品？
+
+> 🎯 **核心目标**：掌握Gateway API核心概念，理解其相比Ingress的升级点和适用场景
+
+**问题分析**：Gateway API是Kubernetes官方推荐的下一代流量管理标准，相比Ingress在多协议支持、细粒度流量控制、角色分工、扩展性等方面有显著提升。Ingress-NGINX已于2026年3月进入EOL阶段，Gateway API正在成为云原生流量管理的新标准。
+
+---
+
+**Gateway API核心概念**：
+
+| 组件 | 说明 |
+|:------|:------|
+| **GatewayClass** | 网关模板/蓝图，定义网关类型（如Envoy、云厂商LB） |
+| **Gateway** | 实际处理流量的入口点，配置监听端口、TLS证书 |
+| **HTTPRoute** | HTTP流量路由规则，基于URL路径、Header、主机名等 |
+| **GRPCRoute** | gRPC流量路由规则 |
+| **TCPRoute/UDPRoute** | L4协议路由 |
+
+---
+
+**Ingress vs Gateway API对比**：
+
+| 特性 | Ingress | Gateway API |
+|:------|:------|:------|
+| **协议支持** | 仅HTTP/HTTPS | HTTP/gRPC/TCP/UDP全覆盖 |
+| **流量控制** | 基础路由 | 权重路由/金丝雀/A/B测试 |
+| **角色分工** | 职责混合 | 基础设施/运维/开发分离 |
+| **扩展方式** | 依赖注解（厂商锁定） | 标准化扩展点 |
+| **跨命名空间** | 受限 | 支持 |
+| **可移植性** | 差 | 强 |
+
+---
+
+**核心优势**：
+
+**1. 多协议支持**
+- 原生支持L4（TCP/UDP）和L7（HTTP/gRPC）
+- 一套Gateway管理所有协议流量
+
+**2. 角色分离**
+- **基础设施提供商**：管理GatewayClass
+- **集群运维**：管理Gateway
+- **应用开发**：管理HTTPRoute
+
+**3. 丰富路由能力**
+- 权重路由（金丝雀发布）
+- Header匹配
+- 基于Query参数的路由
+- 重试/超时/限流策略
+
+**4. 标准可移植**
+- 标准化API，无需注解
+- 跨厂商迁移成本低
+
+---
+
+**配置示例**：
+
+**Gateway配置**：
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: production-gateway
+spec:
+  gatewayClassName: envoy
+  listeners:
+  - name: https
+    port: 443
+    protocol: HTTPS
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: app-cert
+    allowedRoutes:
+      namespaces:
+        from: Same
+```
+
+**HTTPRoute配置**：
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: app-route
+spec:
+  parentRefs:
+  - name: production-gateway
+  hostnames:
+  - "app.example.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+    backendRefs:
+    - name: api-service
+      port: 8080
+      weight: 90
+    - name: api-service-v2
+      port: 8080
+      weight: 10
+```
+
+**金丝雀发布配置**：
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: canary-route
+spec:
+  rules:
+  - backendRefs:
+    - name: app-v1
+      weight: 90
+    - name: app-v2
+      weight: 10
+```
+
+---
+
+**最佳实践**：
+
+**1. 迁移策略**
+- 使用ingress2gateway工具转换现有Ingress配置
+- 先在测试环境验证Gateway API资源
+- 分阶段迁移，逐步切换流量
+
+**2. 角色配置**
+- 为不同团队配置适当的RBAC权限
+- 基础设施团队管理GatewayClass和Gateway
+- 应用团队管理各自的HTTPRoute
+
+**3. 证书管理**
+- 配合cert-manager自动管理TLS证书
+- 使用Let's Encrypt等免费证书
+- 配置证书自动续期
+
+**4. 监控告警**
+- 监控Gateway资源状态
+- 告警配置HTTPRoute故障
+- 集成Prometheus/Grafana
+
+---
+
+**常见问题**：
+
+- **Gateway API不支持**：确认集群版本，Gateway API需要K8s 1.19+
+- **路由不生效**：检查parentRefs引用正确，allowedRoutes配置
+- **证书问题**：确认CertificateRef引用存在的Secret
+- **性能问题**：选择合适的Gateway实现（如Envoy）
+- **迁移冲突**：使用ingress2gateway工具，避免手动转换错误
+
+---
+
+**💡 记忆口诀**：
+
+> **Gateway API**：四类资源记心间，Class蓝图Gateway入口，Route路由分角色，协议全支持更灵活
+
+**面试加分话术**：
+
+> "Gateway API是Kubernetes官方推荐的下一代流量管理标准，是Ingress的真正继任者。相比Ingress，Gateway API有四大核心优势：多协议支持（原生支持HTTP/gRPC/TCP/UDP）、角色分离（基础设施/运维/开发分工明确）、丰富路由能力（权重路由、Header匹配、A/B测试）、标准可移植（无需注解，跨厂商迁移简单）。我在生产中会优先选择Gateway API，特别是需要金丝雀发布、多团队协作的场景。Ingress-NGINX已在2026年3月进入EOL，建议大家尽早了解Gateway API，为未来的平滑迁移做准备。"
+
+> **延伸阅读**：想了解更多Gateway API的最佳实践？请参考 [Gateway API深度解析：Kubernetes下一代流量管理标准]({% post_url 2026-06-01-gateway-api %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
