@@ -10649,4 +10649,194 @@ curl -I https://example.com | grep -i set-cookie
 
 > **延伸阅读**：想了解更多HTTP协议和Cookie安全的最佳实践？请参考 [HTTP协议深度解析：请求响应结构与Cookie安全配置]({% post_url 2026-06-03-http-protocol-cookie %})。
 
+### 88. K8s中的金丝雀和蓝绿部署怎么实现的？？多种方法
+
+> 🎯 **核心目标**：掌握K8s中金丝雀和蓝绿部署的实现方法，理解不同方案的适用场景
+
+**问题分析**：金丝雀和蓝绿部署是Kubernetes中两种主流的发布策略，用于降低发布风险、实现零停机。蓝绿部署适合需要全量切换的快速发布，金丝雀部署适合需要渐进式验证的复杂变更。
+
+---
+
+**金丝雀部署（Canary）**：
+
+**核心思想**：将新版本像"金丝雀"一样逐步投放生产环境，先让少量用户使用，观察无问题后再全量发布。
+
+**方法1：Deployment副本数调整（原生方案）**
+```bash
+# 旧版本9个副本，新版本1个副本（10%流量）
+kubectl scale deployment myapp-stable --replicas=9
+kubectl scale deployment myapp-canary --replicas=1
+
+# 逐步增加新版本比例（25%）
+kubectl scale deployment myapp-stable --replicas=3
+kubectl scale deployment myapp-canary --replicas=1
+
+# 50%流量
+kubectl scale deployment myapp-stable --replicas=1
+kubectl scale deployment myapp-canary --replicas=1
+
+# 全量切换
+kubectl delete deployment myapp-stable
+kubectl scale deployment myapp-canary --replicas=9
+```
+
+**方法2：Nginx Ingress权重分流**
+```yaml
+# 主Ingress（90%流量）
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-main
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-stable
+            port:
+              number: 80
+---
+# 金丝雀Ingress（10%流量）
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-canary
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-canary
+            port:
+              number: 80
+```
+
+**方法3：基于Header路由**
+```yaml
+# 当X-Canary为v2时路由到金丝雀版本
+nginx.ingress.kubernetes.io/canary-by-header: "X-Canary"
+nginx.ingress.kubernetes.io/canary-by-header-value: "v2"
+```
+
+**方法4：基于Cookie路由**
+```yaml
+# 当cookie中包含canary=v2时路由到金丝雀版本
+nginx.ingress.kubernetes.io/canary-by-cookie: "canary"
+```
+
+---
+
+**蓝绿部署（Blue-Green）**：
+
+**核心思想**：新旧版本并行运行，通过切换Service标签实现流量一键切换。
+
+**方法1：Service标签切换（原生方案）**
+```bash
+# 1. 部署蓝环境（旧版本）
+kubectl apply -f blue-deployment.yaml
+
+# 2. 部署绿环境（新版本）
+kubectl apply -f green-deployment.yaml
+
+# 3. 切换流量（修改Service标签）
+kubectl patch service myapp -p '{"spec":{"selector":{"version":"green"}}}'
+
+# 4. 回滚（如有问题）
+kubectl patch service myapp -p '{"spec":{"selector":{"version":"blue"}}}'
+
+# 5. 确认正常后删除蓝环境
+kubectl delete deployment myapp-blue
+```
+
+**方法2：Ingress切换**
+```yaml
+# 初始指向蓝环境
+kubectl patch ingress myapp -p '{"spec":{"rules":[{"http":{"paths":[{"backend":{"service":{"name":"myapp-blue"}}}]}}]}}'
+
+# 验证后切换到绿环境
+kubectl patch ingress myapp -p '{"spec":{"rules":[{"http":{"paths":[{"backend":{"service":{"name":"myapp-green"}}}]}}]}}'
+```
+
+---
+
+**金丝雀 vs 蓝绿对比**：
+
+| 特性 | 金丝雀部署 | 蓝绿部署 |
+|:------|:------|:------|
+| **流量切换** | 渐进式（10%→50%→100%） | 全量切换（0→100%） |
+| **资源消耗** | 较低（新版本仅部分副本） | 双倍资源 |
+| **回滚速度** | 较慢（逐步减少流量） | 秒级（切回旧标签） |
+| **风险控制** | 细粒度可控 | 全量风险 |
+| **适用场景** | 高风险变更、性能验证 | 重大版本、安全更新 |
+| **复杂度** | 较高 | 较低 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 监控驱动的自动化发布（Argo Rollouts）**
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: myapp
+spec:
+  strategy:
+    canary:
+      steps:
+      - setWeight: 5
+      - pause: {duration: 10m}
+      - setWeight: 20
+      - pause: {duration: 10m}
+      - setWeight: 50
+      - pause: {duration: 30m}
+      - setWeight: 100
+      analysis:
+        templates:
+        - templateName: success-rate
+      canaryService: myapp-canary
+      stableService: myapp-stable
+```
+
+**2. 金丝雀发布周期建议**
+- 内部验证阶段：1小时
+- 5%流量阶段：2小时
+- 50%流量阶段：4小时
+- 100%全量：观察30分钟
+
+**3. 自动回滚配置**
+```yaml
+# 错误率>5%自动回滚
+metrics:
+- name: error-rate
+  successCondition: result[0] < 0.05
+  failureLimit: 3
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **金丝雀**：副本调比例，Ingress加权重，Header/Cookie来路由，逐步放量更安全
+> **蓝绿**：双环境并行，Service改标签，一键切流秒回滚，资源翻倍快切换
+
+**面试加分话术**：
+
+> "K8s中实现金丝雀和蓝绿部署有多种方法。金丝雀部署的核心是渐进式放量，方法包括：1）通过kubectl scale调整新旧版本副本比例实现基础分流；2）使用Nginx Ingress的canary-weight注解实现精确权重分流；3）基于Header（如X-Canary）或Cookie实现精细化路由。蓝绿部署的核心是双环境切换，方法包括：1）通过kubectl patch修改Service的selector标签实现秒级切流；2）通过Ingress规则切换实现HTTP层切换。生产环境中推荐使用Argo Rollouts实现监控驱动的自动化发布，设置错误率、延迟等指标，当指标异常时自动回滚。金丝雀适合高风险变更和性能验证，蓝绿适合重大版本和快速回滚需求。"
+
+> **延伸阅读**：想了解更多K8s金丝雀和蓝绿部署的最佳实践？请参考 [K8s金丝雀与蓝绿部署深度解析：多种发布策略详解]({% post_url 2026-06-04-canary-blue-green-deployment %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
