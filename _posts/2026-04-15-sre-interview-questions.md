@@ -10456,4 +10456,197 @@ kubectl get configmap kube-proxy -n kube-system -o yaml | grep mode
 
 > **延伸阅读**：想了解更多Ingress访问Pod的实现原理？请参考 [Ingress流量转发深度解析：从入口到Pod的完整链路]({% post_url 2026-06-02-ingress-pod-access %})。
 
+### 87. HTTP协议的结构，请求头，响应头，Cookie的设置，Cookie与Set-Cookie的区别？
+
+> 🎯 **核心目标**：深入理解HTTP协议结构，掌握Cookie机制和安全配置最佳实践
+
+**问题分析**：HTTP协议是Web通信的基础，理解其报文结构、请求头/响应头的作用，以及Cookie机制是SRE工程师的必备技能。特别是Cookie的安全配置（HttpOnly、Secure、SameSite等）对于防止XSS、CSRF攻击至关重要。
+
+---
+
+**HTTP报文结构**：
+
+```
+起始行（请求行/状态行）
+首部字段（0个或多个）
+空行（CRLF）
+报文主体（可选）
+```
+
+**请求报文示例**：
+```http
+GET /api/users HTTP/1.1
+Host: api.example.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+Accept: application/json
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Cookie: sessionid=abc123; userid=456
+
+(空行)
+```
+
+**响应报文示例**：
+```http
+HTTP/1.1 200 OK
+Date: Wed, 28 Apr 2026 10:00:00 GMT
+Server: nginx/1.24.0
+Content-Type: application/json; charset=utf-8
+Content-Length: 128
+Set-Cookie: sessionid=xyz789; Max-Age=3600; Path=/; HttpOnly; Secure; SameSite=Lax
+
+(空行)
+{"status":"success","data":[...]}
+```
+
+---
+
+**请求头详解**：
+
+| 请求头 | 说明 | 示例 |
+|:------|:------|:------|
+| **Host** | 目标主机（必需） | `Host: api.example.com` |
+| **User-Agent** | 客户端信息 | `User-Agent: Mozilla/5.0` |
+| **Accept** | 可接受的内容类型 | `Accept: application/json` |
+| **Accept-Encoding** | 可接受的编码 | `Accept-Encoding: gzip, deflate` |
+| **Content-Type** | 请求体类型 | `Content-Type: application/json` |
+| **Content-Length** | 请求体长度 | `Content-Length: 128` |
+| **Authorization** | 认证信息 | `Authorization: Bearer token` |
+| **Cookie** | 客户端携带的Cookie | `Cookie: sessionid=abc123` |
+| **Referer** | 来源页面 | `Referer: https://example.com/login` |
+| **Connection** | 连接控制 | `Connection: keep-alive` |
+
+---
+
+**响应头详解**：
+
+| 响应头 | 说明 | 示例 |
+|:------|:------|:------|
+| **Status** | 状态码和原因短语 | `HTTP/1.1 200 OK` |
+| **Date** | 响应时间 | `Date: Wed, 28 Apr 2026 10:00:00 GMT` |
+| **Server** | 服务器软件 | `Server: nginx/1.24.0` |
+| **Content-Type** | 响应体类型 | `Content-Type: application/json; charset=utf-8` |
+| **Content-Length** | 响应体长度 | `Content-Length: 128` |
+| **Content-Encoding** | 响应体编码 | `Content-Encoding: gzip` |
+| **Location** | 重定向目标 | `Location: https://new.example.com` |
+| **Set-Cookie** | 设置Cookie | `Set-Cookie: session=xxx; HttpOnly; Secure` |
+| **Cache-Control** | 缓存控制 | `Cache-Control: max-age=3600` |
+| **ETag** | 资源版本标识 | `ETag: "abc123"` |
+| **Access-Control-Allow-Origin** | CORS允许的源 | `Access-Control-Allow-Origin: *` |
+
+---
+
+**Cookie与Set-Cookie的区别**：
+
+| 特性 | Cookie（请求头） | Set-Cookie（响应头） |
+|:------|:------|:------|
+| **方向** | 客户端→服务器 | 服务器→客户端 |
+| **作用** | 携带已存储的Cookie | 设置/更新Cookie |
+| **出现位置** | 请求报文 | 响应报文 |
+| **格式** | `name=value; name2=value2` | `name=value; 属性=值` |
+| **属性支持** | 不支持属性 | 支持Max-Age、HttpOnly、Secure等 |
+| **示例** | `Cookie: sessionid=abc123` | `Set-Cookie: sessionid=abc123; HttpOnly; Secure` |
+
+---
+
+**Cookie属性详解**：
+
+| 属性 | 说明 | 安全意义 |
+|:------|:------|:------|
+| **name=value** | Cookie的名称和值 | 基础数据存储 |
+| **Max-Age** | 存活时间（秒） | 控制Cookie有效期 |
+| **Expires** | 过期时间（绝对时间） | 与Max-Age二选一 |
+| **Domain** | 适用域名 | 限制Cookie作用范围 |
+| **Path** | 适用路径 | 限制Cookie作用路径 |
+| **Secure** | 仅HTTPS传输 | 防止明文传输泄露 |
+| **HttpOnly** | 禁止JS访问 | 防止XSS窃取Cookie |
+| **SameSite** | 控制跨站发送 | 防止CSRF攻击 |
+
+**SameSite取值**：
+- `Strict`：仅同站请求发送
+- `Lax`：允许顶级导航（默认）
+- `None`：跨站也发送（需配合Secure）
+
+---
+
+**Cookie安全配置示例**：
+
+**安全的Set-Cookie配置**：
+```http
+Set-Cookie: sessionid=abc123; Max-Age=3600; Path=/; Domain=.example.com; HttpOnly; Secure; SameSite=Lax
+```
+
+**Session Cookie（浏览器关闭即失效）**：
+```http
+Set-Cookie: sessionid=abc123; Path=/; HttpOnly; Secure; SameSite=Strict
+```
+
+**第三方Cookie（跨域场景）**：
+```http
+Set-Cookie: tracking=xyz; Max-Age=86400; Domain=.example.com; SameSite=None; Secure
+```
+
+---
+
+**生产环境Cookie最佳实践**：
+
+**1. 安全配置必须项**
+```http
+# 必须设置HttpOnly防止XSS
+Set-Cookie: session=xxx; HttpOnly
+
+# 必须设置Secure（生产环境强制HTTPS）
+Set-Cookie: session=xxx; Secure
+
+# 必须设置SameSite防止CSRF
+Set-Cookie: session=xxx; SameSite=Lax
+```
+
+**2. 有效期管理**
+```http
+# Session Cookie（敏感信息，短期有效）
+Set-Cookie: session=xxx; HttpOnly; Secure; SameSite=Lax
+
+# 持久化Cookie（非敏感信息）
+Set-Cookie: remember=xxx; Max-Age=604800; HttpOnly; Secure; SameSite=Lax
+```
+
+**3. 作用域限制**
+```http
+# 限制到必要的域名和路径
+Set-Cookie: session=xxx; Path=/api; Domain=.example.com
+```
+
+**4. Cookie安全检测脚本**
+```bash
+# 检查Cookie安全配置
+curl -I https://example.com | grep -i set-cookie
+
+# 安全的Cookie应该包含：HttpOnly、Secure、SameSite
+```
+
+---
+
+**常见安全问题**：
+
+| 安全风险 | 原因 | 解决方案 |
+|:------|:------|:------|
+| **XSS攻击窃取Cookie** | JS可访问Cookie | 设置HttpOnly属性 |
+| **CSRF攻击** | 跨站请求自动携带Cookie | 设置SameSite属性 |
+| **Cookie明文传输** | HTTP传输Cookie | 设置Secure属性，强制HTTPS |
+| **会话劫持** | Cookie被截获 | 使用HTTPS，设置合理有效期 |
+| **子域名Cookie泄露** | Domain设置过宽 | 精确设置Domain |
+
+---
+
+**💡 记忆口诀**：
+
+> **HTTP协议**：起始行加首部，空行分隔主体；请求头发信息，响应头回数据；Cookie客户端带，Set-Cookie服务端发；安全三要素，HttpOnly、Secure、SameSite别忘记
+
+**面试加分话术**：
+
+> "HTTP协议是无状态的应用层协议，其报文结构由起始行、首部字段、空行和主体组成。请求头负责传递客户端信息和请求参数，如Host、User-Agent、Cookie等；响应头负责返回服务器状态和响应元数据，如Content-Type、Set-Cookie等。Cookie和Set-Cookie的核心区别在于方向：Cookie是客户端向服务器发送已存储的Cookie，而Set-Cookie是服务器向客户端设置新的Cookie。在生产环境中，Cookie的安全配置至关重要，必须设置HttpOnly防止XSS攻击、Secure确保HTTPS传输、SameSite防止CSRF攻击。此外，还要合理设置Max-Age控制有效期，精确配置Domain和Path限制作用范围。作为SRE，我会定期检查Cookie配置，确保所有敏感Cookie都具备完整的安全属性。"
+
+> **延伸阅读**：想了解更多HTTP协议和Cookie安全的最佳实践？请参考 [HTTP协议深度解析：请求响应结构与Cookie安全配置]({% post_url 2026-06-03-http-protocol-cookie %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
