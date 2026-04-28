@@ -10839,4 +10839,141 @@ metrics:
 
 > **延伸阅读**：想了解更多K8s金丝雀和蓝绿部署的最佳实践？请参考 [K8s金丝雀与蓝绿部署深度解析：多种发布策略详解]({% post_url 2026-06-04-canary-blue-green-deployment %})。
 
+---
+
+### 89. MySQL中如何知道你的主节点，从节点状态是正常？
+
+> 🎯 **核心目标**：掌握MySQL主从复制状态检查方法，理解关键状态字段含义
+
+**问题分析**：MySQL主从复制是高可用架构的核心，准确判断主从状态是否正常是保障数据一致性的关键。需要掌握主从节点识别方法、状态检查命令及核心字段解读。
+
+---
+
+**识别主从节点**：
+
+**方法1：查看read_only参数**
+```sql
+-- 主库：read_only通常为OFF（允许写入）
+SHOW VARIABLES LIKE 'read_only';
+-- 从库：read_only通常为ON（只读模式）
+
+-- 查看super_read_only（MySQL 5.7+）
+SHOW VARIABLES LIKE 'super_read_only';
+```
+
+**方法2：查看复制相关参数**
+```sql
+-- 查看是否启用复制
+SHOW VARIABLES LIKE 'log_bin';      -- 主库应为ON
+SHOW VARIABLES LIKE 'relay_log';    -- 从库应有值
+SHOW VARIABLES LIKE 'server_id';    -- 主从必须不同
+```
+
+**方法3：检查进程列表**
+```sql
+-- 主库有Binlog Dump线程
+SHOW PROCESSLIST;
+-- 从库有两个system user线程（IO和SQL线程）
+```
+
+---
+
+**从节点状态检查（核心命令）**：
+
+```sql
+-- 在从库执行，垂直显示更清晰
+SHOW SLAVE STATUS\G
+```
+
+**核心字段解读**：
+
+**Slave_IO_Running**：IO线程状态，必须为Yes
+- Yes：IO线程正常连接主库并拉取binlog
+- No：连接失败，需检查Last_IO_Error
+
+**Slave_SQL_Running**：SQL线程状态，必须为Yes
+- Yes：SQL线程正常回放中继日志
+- No：执行SQL出错，需检查Last_SQL_Error
+
+**Seconds_Behind_Master**：同步延迟秒数
+- 0或接近0：同步正常
+- 持续大于60秒：存在明显延迟
+- NULL：复制中断或未启动
+
+**关键错误字段**：
+```sql
+-- IO线程错误
+Last_IO_Error: 'error connecting to master'
+-- SQL线程错误  
+Last_SQL_Error: 'Duplicate entry for key PRIMARY'
+```
+
+---
+
+**主库状态检查**：
+
+```sql
+-- 查看主库binlog状态
+SHOW MASTER STATUS;
+-- 输出：File（当前binlog文件）、Position（当前位置）
+
+-- 查看所有binlog文件
+SHOW BINARY LOGS;
+
+-- 查看活跃的复制连接
+SHOW PROCESSLIST LIKE 'Binlog Dump';
+```
+
+---
+
+**生产环境最佳实践**：
+
+**1. 定期巡检脚本**
+```bash
+#!/bin/bash
+mysql -e "SHOW SLAVE STATUS\G" | grep -E "Slave_IO_Running|Slave_SQL_Running|Seconds_Behind_Master"
+```
+
+**2. 监控告警配置**
+- 告警条件：Slave_IO_Running != Yes 或 Slave_SQL_Running != Yes
+- 延迟告警：Seconds_Behind_Master > 60秒触发警告，> 300秒触发严重告警
+
+**3. 数据一致性校验**
+```sql
+-- 使用pt-table-checksum校验主从数据一致性
+pt-table-checksum h=master_ip,u=root,p=xxx
+```
+
+**4. 延迟精确测量**
+```sql
+-- 使用pt-heartbeat测量微秒级延迟
+pt-heartbeat -D percona -h master_ip -u root --update
+pt-heartbeat -D percona -h slave_ip -u root --monitor
+```
+
+---
+
+**常见问题排查**：
+
+| 问题现象 | 可能原因 | 排查方向 |
+|:------|:------|:------|
+| Slave_IO_Running=No | 网络不通 | 检查主从网络、防火墙、端口 |
+| Slave_IO_Running=No | 权限不足 | 检查复制用户权限 |
+| Slave_SQL_Running=No | 主键冲突 | 检查Last_SQL_Error |
+| Slave_SQL_Running=No | 表结构不一致 | 对比主从表结构 |
+| Seconds_Behind_Master持续增大 | 从库性能不足 | 检查从库CPU、IO、慢查询 |
+| Seconds_Behind_Master=NULL | 复制未启动 | 检查START SLAVE状态 |
+
+---
+
+**💡 记忆口诀**：
+
+> **主从状态检查**：先看两个线程是否Yes，再看延迟是否接近0，最后查错误字段找原因
+
+**面试加分话术**：
+
+> "MySQL主从状态检查核心是三个字段：Slave_IO_Running和Slave_SQL_Running必须都是Yes，Seconds_Behind_Master应接近0。识别主从节点可以通过read_only参数判断，主库通常为OFF，从库为ON。在从库执行SHOW SLAVE STATUS\G是最直接的方法，IO线程负责从主库拉取binlog写入中继日志，SQL线程负责回放中继日志。生产环境中需要定期巡检，设置监控告警，当Slave_IO_Running或Slave_SQL_Running为No时立即告警，延迟超过阈值时也要告警。还需要定期使用pt-table-checksum校验数据一致性，使用pt-heartbeat进行精确延迟测量。"
+
+> **延伸阅读**：想了解更多MySQL主从复制状态检查的最佳实践？请参考 [MySQL主从复制状态检查与监控最佳实践]({% post_url 2026-06-05-mysql-replication-status %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
