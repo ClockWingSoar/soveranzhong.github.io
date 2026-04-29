@@ -13549,4 +13549,303 @@ netstat -antp | grep -E 'ESTABLISHED|SYN_SENT'
 
 > **延伸阅读**：想了解更多日常巡检的实践经验？请参考 [运维日常巡检体系建设与最佳实践]({% post_url 2026-06-15-daily-inspection-best-practices %})。
 
+---
+
+### 100. CI/CD发布流程是怎样的？
+
+> 🎯 **核心目标**：掌握CI/CD流水线的完整流程，理解持续集成、持续交付、持续部署的区别，了解常见的发布策略和最佳实践
+
+**问题分析**：CI/CD是现代软件开发的核心实践，面试中常问到流程设计、工具选择、发布策略等问题。需要深入理解CI/CD的各个环节及其技术实现。
+
+---
+
+**CI/CD核心概念**：
+
+| 概念 | 核心定义 | 人工干预 | 目标 |
+|:------|:------|:------|:------|
+| **持续集成（CI）** | 频繁合并代码，自动构建测试 | 无 | 快速发现集成问题 |
+| **持续交付（CD）** | 自动部署到预生产，人工确认发布 | 审批后发布 | 随时可发布 |
+| **持续部署（CD）** | 自动部署到生产环境 | 完全自动化 | 自动发布 |
+
+---
+
+**CI/CD流水线流程**：
+
+```
+┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐
+│ 代码提交   │───→│ 持续集成   │───→│ 持续交付   │───→│ 持续部署   │
+└───────────┘    └───────────┘    └───────────┘    └───────────┘
+     │               │               │               │
+     ↓               ↓               ↓               ↓
+  Git推送        代码检查        预生产部署      生产环境部署
+              单元测试        自动化测试        蓝绿/金丝雀
+              构建打包        人工审批          发布验证
+```
+
+---
+
+**1. 持续集成（CI）阶段**：
+
+**代码提交与触发**：
+```bash
+# 开发者提交代码
+git checkout -b feature/new-feature
+git add .
+git commit -m "feat: 添加新功能"
+git push origin feature/new-feature
+
+# 创建MR触发CI流水线
+```
+
+**代码质量检查**：
+```bash
+# 静态代码分析
+eslint src/
+pylint app/
+
+# 代码格式化检查
+prettier --check .
+
+# SonarQube质量扫描
+mvn sonar:sonar -Dsonar.projectKey=my-project
+```
+
+**构建与测试**：
+```bash
+# Maven构建
+mvn clean package -DskipTests
+
+# 单元测试
+mvn test
+
+# 测试覆盖率要求：核心模块≥80%
+```
+
+---
+
+**2. 持续交付（CD）阶段**：
+
+**镜像构建**：
+```dockerfile
+# 多阶段构建
+FROM maven:3.8.6-jdk-11 AS build
+COPY . /app
+RUN mvn clean package -DskipTests
+
+FROM openjdk:11-jre-slim
+COPY --from=build /app/target/*.jar /app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+```
+
+**镜像推送**：
+```bash
+docker build -t myapp:${BUILD_NUMBER} .
+docker tag myapp:${BUILD_NUMBER} registry.example.com/myapp:${BUILD_NUMBER}
+docker push registry.example.com/myapp:${BUILD_NUMBER}
+```
+
+**预生产环境部署**：
+```bash
+# Kubernetes部署
+kubectl set image deployment/myapp myapp=registry.example.com/myapp:${BUILD_NUMBER}
+kubectl rollout status deployment/myapp
+```
+
+---
+
+**3. 持续部署（CD）阶段**：
+
+**发布策略**：
+
+| 策略 | 特点 | 适用场景 |
+|:------|:------|:------|
+| **蓝绿部署** | 双环境切换，零停机 | 高可用要求，需双倍资源 |
+| **金丝雀发布** | 渐进式流量切换 | 新功能验证，风险可控 |
+| **滚动更新** | 逐实例替换 | 标准发布，平衡稳定性 |
+| **A/B测试** | 多版本并行 | 功能对比，用户体验测试 |
+
+**蓝绿部署示例**：
+```bash
+# 部署到绿环境
+kubectl apply -f deployment-green.yaml
+
+# 验证绿环境
+curl http://green.example.com/health
+
+# 切换流量到绿环境
+kubectl apply -f service-green.yaml
+
+# 监控运行状态
+kubectl get pods -l env=green
+```
+
+**金丝雀发布示例**：
+```bash
+# 部署新版本，流量占比10%
+kubectl set image deployment/myapp myapp=myapp:v2
+kubectl patch deployment/myapp -p '{"spec":{"replicas":1}}'
+
+# 逐步增加流量
+kubectl scale deployment/myapp --replicas=3
+kubectl scale deployment/myapp --replicas=5
+
+# 全量发布
+kubectl scale deployment/myapp --replicas=10
+```
+
+---
+
+**CI/CD工具链**：
+
+| 层级 | 工具 | 用途 |
+|:------|:------|:------|
+| **代码仓库** | GitLab, GitHub | 版本控制 |
+| **CI引擎** | GitLab CI, Jenkins, GitHub Actions | 自动化构建 |
+| **构建工具** | Maven, Gradle, npm | 项目构建 |
+| **容器化** | Docker, Podman | 镜像构建 |
+| **镜像仓库** | Harbor, Docker Hub | 镜像存储 |
+| **部署工具** | Argo CD, Spinnaker | 自动化部署 |
+| **监控告警** | Prometheus, Grafana | 运行监控 |
+
+---
+
+**GitLab CI配置示例**：
+
+```yaml
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_REGISTRY: registry.example.com
+
+build:
+  stage: build
+  script:
+    - mvn clean package -DskipTests
+    - docker build -t $DOCKER_REGISTRY/myapp:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_REGISTRY/myapp:$CI_COMMIT_SHORT_SHA
+
+test:
+  stage: test
+  script:
+    - mvn test
+    - sonar-scanner -Dsonar.projectKey=myapp
+
+deploy_staging:
+  stage: deploy
+  environment: staging
+  script:
+    - kubectl apply -f k8s/deployment.yaml
+    - kubectl set image deployment/myapp myapp=$DOCKER_REGISTRY/myapp:$CI_COMMIT_SHORT_SHA
+
+deploy_production:
+  stage: deploy
+  environment: production
+  only:
+    - main
+  when: manual
+  script:
+    - kubectl apply -f k8s/deployment.yaml
+    - kubectl set image deployment/myapp myapp=$DOCKER_REGISTRY/myapp:$CI_COMMIT_SHORT_SHA
+```
+
+---
+
+**回滚机制**：
+
+**自动回滚**：
+```bash
+# Kubernetes自动回滚
+kubectl rollout undo deployment/myapp
+
+# Jenkins流水线回滚
+stage('Rollback') {
+    when {
+        expression { currentBuild.result == 'FAILURE' }
+    }
+    steps {
+        sh 'kubectl rollout undo deployment/myapp'
+    }
+}
+```
+
+**版本回退**：
+```bash
+# 回退到上一个稳定版本
+git revert HEAD
+git push origin main
+```
+
+---
+
+**CI/CD关键指标**：
+
+| 指标 | 目标值 | 说明 |
+|:------|:------|:------|
+| **构建时间** | <5分钟 | Google SRE标准 |
+| **测试覆盖率** | ≥80% | 核心模块 |
+| **反馈速度** | ≤10分钟 | 代码提交到反馈 |
+| **部署频率** | 根据业务需求 | 高效团队可达每日多次 |
+| **故障恢复时间** | <15分钟 | MTTR |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 质量门禁**：
+```bash
+# 设置质量门禁条件
+- 代码检查通过
+- 单元测试覆盖率≥80%
+- 无高危安全漏洞
+- SonarQube质量门通过
+```
+
+**2. 环境隔离**：
+```bash
+# 开发环境 → 测试环境 → 预生产环境 → 生产环境
+# 每个环境独立，配置隔离
+```
+
+**3. 配置管理**：
+```bash
+# 使用ConfigMap/Secret管理配置
+# 敏感信息加密存储
+# 配置变更需经过审批
+```
+
+**4. 安全扫描**：
+```bash
+# SAST静态分析
+# DAST动态测试
+# 依赖安全扫描（OWASP）
+# 容器镜像扫描（Trivy）
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 现象 | 解决方案 |
+|:------|:------|:------|
+| **构建时间过长** | CI流水线耗时>10分钟 | 依赖缓存、增量构建、并行测试 |
+| **测试环境不稳定** | 测试经常失败 | 独立测试环境、数据隔离、环境清理 |
+| **配置漂移** | 运行环境与配置不一致 | GitOps、配置审计、定期同步 |
+| **回滚失败** | 回滚后服务异常 | 版本标签管理、回滚验证、备份机制 |
+
+---
+
+**💡 记忆口诀**：
+
+> **CI/CD流程**：代码提交触发CI，构建测试不休息；通过验证进CD，预生产环境走一遍；人工审批或自动，生产发布用策略；蓝绿金丝雀滚动，回滚机制要牢记。
+
+**面试加分话术**：
+
+> "CI/CD发布流程主要包括持续集成、持续交付和持续部署三个环节。持续集成阶段，开发者提交代码后会触发自动化的代码检查、构建和测试，确保代码质量。持续交付阶段，通过验证的代码会自动部署到预生产环境进行进一步验证，由人工决定是否发布。持续部署阶段，代码会自动部署到生产环境。常用的发布策略包括蓝绿部署、金丝雀发布和滚动更新。蓝绿部署通过双环境切换实现零停机发布，金丝雀发布通过渐进式流量切换降低风险，滚动更新逐实例替换保证服务可用性。生产环境中需要设置质量门禁，确保只有通过所有检查的代码才能进入生产。同时需要建立完善的回滚机制，确保发布失败时能够快速恢复。关键指标包括构建时间、测试覆盖率、反馈速度和部署频率。"
+
+> **延伸阅读**：想了解更多CI/CD实践经验？请参考 [CI/CD持续集成与部署最佳实践]({% post_url 2026-06-16-cicd-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
