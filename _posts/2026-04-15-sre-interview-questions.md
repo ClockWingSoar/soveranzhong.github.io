@@ -14410,4 +14410,379 @@ spec:
 
 > **延伸阅读**：想了解更多Pod故障排查经验？请参考 [Pod频繁重启原因分析与故障排查指南]({% post_url 2026-06-18-pod-restart-troubleshooting %})。
 
+---
+
+### 103. Pod生命周期包含哪些阶段？各阶段有什么特点？
+
+> 🎯 **核心目标**：掌握Pod生命周期的完整流程，理解各阶段的状态转换，熟悉Init容器、探针和重启策略的作用
+
+**问题分析**：Pod生命周期是K8s的核心概念，面试中常问到Phase状态、Init容器、探针机制、重启策略等。需要深入理解Pod从创建到终止的完整过程。
+
+---
+
+**Pod生命周期总览**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Pod 生命周期完整流程                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  创建请求                                                       │
+│     │                                                          │
+│     ▼                                                          │
+│  ┌──────────────┐                                             │
+│  │   Pending    │  → API Server创建Pod → Scheduler调度 → 拉取镜像│
+│  └──────┬───────┘                                             │
+│         │                                                      │
+│         ▼                                                      │
+│  ┌──────────────┐                                             │
+│  │   Init       │  → 初始化容器按顺序执行（可多个）               │
+│  │ Containers   │     全部成功后启动主容器                       │
+│  └──────┬───────┘                                             │
+│         │                                                      │
+│         ▼                                                      │
+│  ┌──────────────┐                                             │
+│  │   Running    │  → 主容器运行 → 探针监控 → Hook执行           │
+│  └──────┬───────┘                                             │
+│         │                                                      │
+│    ┌────┴────┐                                                 │
+│    ▼         ▼                                                 │
+│ ┌────────┐ ┌────────┐                                         │
+│ │Succeeded│ │ Failed │  → 所有容器终止                          │
+│ └────────┘ └────────┘                                         │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**1. Pod Phase（阶段）详解**：
+
+**Pending（挂起）**：
+```bash
+# Pod已被创建但尚未就绪
+# 原因：调度中、镜像拉取中、资源不足
+
+kubectl get pods
+# NAME      READY   STATUS    RESTARTS   AGE
+# my-pod    0/1     Pending   0          2s
+
+# 查看详细原因
+kubectl describe pod my-pod | grep Events
+```
+
+**Running（运行中）**：
+```bash
+# Pod已调度到节点，所有容器已创建
+# 至少有一个容器正在运行或启动中
+
+kubectl get pods
+# NAME      READY   STATUS    RESTARTS   AGE
+# my-pod    1/1     Running   0          1m
+```
+
+**Succeeded（成功）**：
+```bash
+# 所有容器正常终止（退出码0），不会重启
+# 适用于一次性任务（Job）
+
+kubectl get pods
+# NAME      READY   STATUS     RESTARTS   AGE
+# job-pod   0/1     Succeeded  0          5m
+```
+
+**Failed（失败）**：
+```bash
+# 所有容器已终止，至少一个非零退出码
+# 原因：应用崩溃、OOM、探针失败
+
+kubectl get pods
+# NAME      READY   STATUS    RESTARTS   AGE
+# my-pod    0/1     Failed    3          2m
+```
+
+**Unknown（未知）**：
+```bash
+# 无法获取Pod状态
+# 原因：节点通信中断、kubelet异常
+
+kubectl get pods
+# NAME      READY   STATUS    RESTARTS   AGE
+# my-pod    0/1     Unknown   0          1m
+```
+
+---
+
+**2. Init容器（初始化容器）**：
+
+**定义与特性**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  initContainers:
+  - name: wait-db
+    image: busybox:1.35
+    command: ["sh", "-c", "until nc -z db-service 3306; do echo waiting for db; sleep 2; done"]
+  - name: fetch-config
+    image: busybox:1.35
+    command: ["sh", "-c", "wget -O /config/app.conf http://config-server/config"]
+    volumeMounts:
+    - name: config-volume
+      mountPath: /config
+  containers:
+  - name: app
+    image: myapp:latest
+    volumeMounts:
+    - name: config-volume
+      mountPath: /app/config
+  volumes:
+  - name: config-volume
+    emptyDir: {}
+```
+
+**核心特点**：
+- 按顺序执行，前一个成功后才启动下一个
+- 完成后立即终止，不持续运行
+- 失败后Pod会重启（除非restartPolicy=Never）
+- 与主容器共享网络和存储
+
+---
+
+**3. 探针机制（Probe）**：
+
+**三种探针类型**：
+
+| 探针类型 | 作用 | 失败后果 | 适用场景 |
+|:------|:------|:------|:------|
+| **LivenessProbe** | 检测容器是否存活 | 重启容器 | 应用崩溃后自动恢复 |
+| **ReadinessProbe** | 检测容器是否就绪 | 从Service端点移除 | 避免流量发送到未就绪容器 |
+| **StartupProbe** | 检测容器是否启动完成 | 重启容器 | 慢启动应用（如Spring Boot） |
+
+**探针配置示例**：
+```yaml
+containers:
+- name: app
+  image: springboot-app:latest
+  ports:
+  - containerPort: 8080
+  startupProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 5
+```
+
+---
+
+**4. 钩子函数（Hook）**：
+
+**PostStart Hook**（容器启动后执行）：
+```yaml
+containers:
+- name: app
+  image: myapp:latest
+  lifecycle:
+    postStart:
+      exec:
+        command: ["/bin/sh", "-c", "echo 'Container started' >> /var/log/startup.log"]
+```
+
+**PreStop Hook**（容器终止前执行）：
+```yaml
+containers:
+- name: app
+  image: myapp:latest
+  lifecycle:
+    preStop:
+      exec:
+        command: ["/bin/sh", "-c", "curl -X POST http://localhost:8080/shutdown"]
+```
+
+---
+
+**5. 重启策略（RestartPolicy）**：
+
+**三种策略**：
+
+| 策略 | 含义 | 适用场景 |
+|:------|:------|:------|
+| **Always** | 容器失败时始终重启（默认） | Deployment、ReplicaSet |
+| **OnFailure** | 仅当容器异常退出（非零码）时重启 | Job（一次性任务） |
+| **Never** | 不重启容器 | 测试环境、无需恢复的任务 |
+
+**配置示例**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  restartPolicy: Always  # Always / OnFailure / Never
+  containers:
+  - name: app
+    image: myapp:latest
+```
+
+---
+
+**6. Pod终止流程（优雅关闭）**：
+
+```bash
+# 终止流程步骤：
+# 1. API Server设置deletionTimestamp
+# 2. 从Service endpoints移除Pod
+# 3. 执行PreStop Hook
+# 4. 发送SIGTERM信号
+# 5. 等待terminationGracePeriodSeconds（默认30秒）
+# 6. 发送SIGKILL强制终止
+```
+
+**配置优雅停机**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: graceful-pod
+spec:
+  terminationGracePeriodSeconds: 60  # 优雅停机时间
+  containers:
+  - name: app
+    image: myapp:latest
+    lifecycle:
+      preStop:
+        exec:
+          command: ["/bin/sh", "-c", "sleep 10"]
+```
+
+---
+
+**Pod状态转换流程**：
+
+```
+                    ┌─────────────────┐
+                    │   创建Pod请求    │
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │    Pending      │
+                    │ (调度/拉取镜像) │
+                    └────────┬────────┘
+                             │ 调度成功/镜像就绪
+                             ▼
+                    ┌─────────────────┐
+                    │   Init容器执行   │
+                    └────────┬────────┘
+                             │ 全部成功
+                             ▼
+                    ┌─────────────────┐
+                    │    Running      │
+                    │ (探针监控中)    │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+        ┌─────────┐    ┌─────────┐    ┌─────────┐
+        │Succeeded│    │  Failed │    │ Running │
+        │(正常结束)│    │(异常退出)│    │ (持续运行)│
+        └─────────┘    └─────────┘    └─────────┘
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | 核心原因 | 解决方案 |
+|:------|:------|:------|
+| **Pod一直Pending** | 调度失败、资源不足、镜像拉取失败 | 查看Events、检查节点资源、验证镜像地址 |
+| **Init容器阻塞** | 依赖服务未就绪、死循环 | 添加超时机制、检查依赖服务状态 |
+| **Liveness探针误重启** | initialDelaySeconds太短 | 根据应用启动时间调整参数 |
+| **Readiness探针失败** | 应用未就绪、配置错误 | 检查探针路径和端口配置 |
+| **优雅停机不生效** | terminationGracePeriodSeconds太短 | 增加优雅停机时间 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 合理配置初始化容器**：
+```yaml
+initContainers:
+- name: wait-dependencies
+  image: busybox:1.35
+  command: ["sh", "-c", "timeout 120 bash -c 'until nc -z db 3306; do sleep 2; done'"]
+```
+
+**2. 使用Startup探针处理慢启动应用**：
+```yaml
+startupProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  failureThreshold: 30
+  periodSeconds: 10
+```
+
+**3. 配置适当的优雅停机时间**：
+```yaml
+terminationGracePeriodSeconds: 60
+```
+
+**4. 结合HPA实现弹性伸缩**：
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **Pod生命周期**：Pending等待调度中，Running运行探针对；Init容器先执行，顺序完成主容器起；探针有三种，Liveness保存活，Readiness控流量，Startup应对慢启动；重启策略三选一，Always默认永重启，OnFailure异常才重启，Never永不重启；终止流程要优雅，PreStop先执行，SIGTERM给时间，超时SIGKILL强制停。
+
+**面试加分话术**：
+
+> "Pod生命周期包含五个主要阶段：Pending、Running、Succeeded、Failed和Unknown。Pending阶段表示Pod已创建但尚未调度或镜像正在拉取；Running阶段表示Pod已调度到节点，主容器正在运行；Succeeded表示所有容器正常终止；Failed表示至少一个容器异常退出；Unknown表示无法获取Pod状态。
+
+Pod启动时会先执行Init容器，按顺序完成初始化工作如等待依赖服务就绪，全部成功后才启动主容器。运行期间通过三种探针监控：Liveness探针检测容器是否存活，失败时重启容器；Readiness探针检测容器是否就绪，失败时从Service端点移除；Startup探针专门用于慢启动应用。
+
+重启策略有三种：Always始终重启、OnFailure仅异常退出时重启、Never不重启。Pod终止时遵循优雅停机流程：先设置删除时间戳，从Service移除，执行PreStop钩子，发送SIGTERM信号，等待宽限期后发送SIGKILL强制终止。
+
+生产环境中需要合理配置初始化容器的超时机制，为慢启动应用配置Startup探针，设置适当的优雅停机时间，结合HPA实现弹性伸缩。"
+
+> **延伸阅读**：想了解更多Pod生命周期知识？请参考 [Pod生命周期详解与最佳实践]({% post_url 2026-06-19-pod-lifecycle-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
