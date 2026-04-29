@@ -11635,4 +11635,207 @@ scrape_configs:
 
 > **延伸阅读**：想了解更多Prometheus数据采集模式的深度解析？请参考 [Prometheus Pull vs Push模式深度对比：监控架构设计指南]({% post_url 2026-06-08-prometheus-pull-push %})。
 
+---
+
+### 93. Prometheus获取数据什么时候会用pull，什么时候会用push？
+
+> 🎯 **核心目标**：理解Prometheus在不同场景下选择Pull或Push模式的决策依据，掌握Pushgateway的正确使用场景
+
+**问题分析**：这是对上一题的深化，需要明确区分两种模式的适用场景，理解Pushgateway的设计初衷和使用边界，避免滥用。
+
+---
+
+**默认使用Pull模式的场景**：
+
+**1. 长期运行的服务**：
+```
+- Web服务、API网关、数据库等持续运行的服务
+- 通过Exporter或内置/metrics端点暴露指标
+- Prometheus定期主动拉取
+```
+
+**配置示例**：
+```yaml
+scrape_configs:
+  - job_name: 'web-service'
+    scrape_interval: 15s
+    targets:
+      - 'api-server:8080'
+      - 'auth-service:8080'
+```
+
+**2. Kubernetes环境**：
+```yaml
+scrape_configs:
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        regex: 'true'
+        action: keep
+```
+
+**3. 需要服务发现的场景**：
+- 动态扩缩容的微服务
+- 容器化环境中的短暂实例
+- 自动发现新增监控目标
+
+---
+
+**使用Push模式（Pushgateway）的场景**：
+
+**1. 短生命周期批处理任务**：
+```
+- ETL数据处理任务
+- 定时备份任务
+- CI/CD流水线任务
+- 一次性脚本执行
+```
+
+**推送示例**：
+```bash
+# 批处理任务完成后推送指标
+echo "batch_job_duration_seconds 120.5" | curl --data-binary @- http://pushgateway:9091/metrics/job/etl_job
+```
+
+**2. 服务级别的批量作业**：
+```
+- 不与特定机器绑定的任务
+- 服务层面的统计指标
+- 如：每日账单生成、月度报表计算
+```
+
+**3. 网络隔离环境**：
+```
+- Prometheus无法直接访问目标
+- 防火墙或NAT限制
+- 跨网络监控场景
+```
+
+---
+
+**Pushgateway使用原则**：
+
+**官方推荐的唯一有效场景**：
+```
+用于捕获服务级批处理作业的执行结果
+```
+
+**使用Pushgateway的风险**：
+```
+1. 单点故障风险
+2. 失去自动健康检测（up指标）
+3. 指标不会自动过期，需手动清理
+```
+
+**最佳实践**：
+```yaml
+scrape_configs:
+  - job_name: 'pushgateway'
+    honor_labels: true
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['pushgateway:9091']
+```
+
+---
+
+**场景决策矩阵**：
+
+| 场景类型 | 推荐模式 | 说明 |
+|:------|:------|:------|
+| **长期运行服务** | Pull | 默认方式，服务发现集成 |
+| **批处理/定时任务** | Push（Pushgateway） | 任务完成前推送结果 |
+| **CI/CD流水线** | Push（Pushgateway） | 构建/部署指标 |
+| **网络隔离环境** | Push或PushProx | 解决网络穿透问题 |
+| **IoT/边缘设备** | Push | 设备主动上报 |
+
+---
+
+**避免使用Pushgateway的场景**：
+
+**1. 机器级别的指标**：
+```
+推荐使用Node Exporter的textfile collector
+而非Pushgateway
+```
+
+**替代方案**：
+```bash
+# 使用textfile collector
+echo "custom_metric 42" > /var/lib/node_exporter/custom.prom
+```
+
+**2. 高基数指标**：
+```
+Pushgateway内存存储，不适合大量指标
+```
+
+**3. 需要高可用的场景**：
+```
+Pushgateway单点风险，需额外设计高可用方案
+```
+
+---
+
+**生产环境配置示例**：
+
+**标准Pull配置**：
+```yaml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  
+  - job_name: 'node-exporter'
+    kubernetes_sd_configs:
+      - role: node
+  
+  - job_name: 'kubernetes-services'
+    kubernetes_sd_configs:
+      - role: service
+```
+
+**Pushgateway配置**：
+```yaml
+scrape_configs:
+  - job_name: 'pushgateway'
+    honor_labels: true
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['pushgateway:9091']
+    relabel_configs:
+      - source_labels: [__name__]
+        regex: 'batch_job.*'
+        action: keep
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 原因 | 解决方案 |
+|:------|:------|:------|
+| Pushgateway数据积压 | 指标未及时清理 | 任务完成后主动删除或定期清理 |
+| 指标标签冲突 | honor_labels未启用 | 设置honor_labels: true |
+| 单点故障 | Pushgateway单实例 | 部署多副本+负载均衡 |
+| 内存占用过高 | 存储过多指标 | 限制推送指标数量 |
+
+---
+
+**💡 记忆口诀**：
+
+> **Pull**：长期服务、K8s环境、服务发现
+> **Push**：批处理、短任务、网络隔离
+
+**面试加分话术**：
+
+> "Prometheus默认使用Pull模式采集数据，适用于长期运行的服务、Kubernetes环境和需要服务发现的场景。Pull模式的优势在于灵活性、自动服务发现和集中控制。而Push模式主要通过Pushgateway实现，适用于短生命周期的批处理任务、服务级别的批量作业和网络隔离环境。官方明确指出，Pushgateway仅推荐用于捕获服务级批处理作业的执行结果，不适用于机器级别的指标采集，否则会带来单点故障、指标过期等问题。对于机器级别指标，应该使用Node Exporter的textfile collector。生产环境中建议采用Pull模式为主、Push模式为辅的混合策略，根据具体场景选择合适的采集方式。"
+
+> **延伸阅读**：想了解更多Prometheus Pull/Push模式的使用场景详解？请参考 [Prometheus Pull与Push模式应用场景深度解析]({% post_url 2026-06-09-prometheus-pull-push-scenarios %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
