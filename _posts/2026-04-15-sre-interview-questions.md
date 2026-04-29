@@ -19402,4 +19402,185 @@ kubectl uncordon node-01
 
 > **延伸阅读**：想了解更多Kubernetes版本管理知识？请参考 [Kubernetes版本管理与升级最佳实践]({% post_url 2026-07-06-kubernetes-version-management-best-practices %})。
 
+---
+
+### 121. 节点扩容是怎么触发的？最开始是什么情况？
+
+> 🎯 **核心目标**：了解节点扩容的触发机制和初始状态，展示对Kubernetes自动扩缩容的理解，体现对资源管理和弹性伸缩的思考
+
+**问题分析**：这个问题考察候选人对Kubernetes节点扩容机制的理解。需要从触发条件、扩容流程、初始状态等方面回答，展示对集群资源管理的深入理解。
+
+---
+
+**节点扩容触发机制**：
+
+| 触发方式 | 触发条件 | 适用场景 |
+|:------|:------|:------|
+| **自动扩容(HPA/VPA)** | Pod资源不足，调度失败 | 业务高峰期 |
+| **手动扩容** | 运维人员手动操作 | 计划性扩容 |
+| **事件触发** | 特定事件发生 | 特殊场景 |
+
+---
+
+**扩容触发流程**：
+
+**1. 初始状态**：
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    节点扩容初始状态                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    集群初始状态                          │   │
+│  ├─────────────────────────────────────────────────────────┤   │
+│  │                                                         │   │
+│  │  节点数：3个工作节点                                     │   │
+│  │  CPU使用率：70%                                         │   │
+│  │  内存使用率：65%                                        │   │
+│  │  Pod调度：正常                                          │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**2. 触发条件**：
+```yaml
+# Cluster Autoscaler配置
+apiVersion: autoscaling/v1
+kind: ClusterAutoscaler
+metadata:
+  name: cluster-autoscaler
+spec:
+  scaleDownDelayAfterAdd: 10m
+  scaleDownDelayAfterDelete: 10m
+  scaleDownUnneededTime: 10m
+  minNodeCount: 3
+  maxNodeCount: 10
+```
+
+**3. 扩容流程**：
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    节点扩容流程                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  Pod调度失败 → 检测资源不足 → 触发扩容 → 创建新节点 → 节点就绪  │
+│       │              │              │            │             │
+│       ▼              ▼              ▼            ▼             │
+│  调度器检查    CA检测      云提供商     kubelet注册          │
+│  节点资源     扩容条件      创建实例    加入集群             │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**自动扩缩容配置**：
+
+**1. Horizontal Pod Autoscaler**：
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+**2. Cluster Autoscaler**：
+```bash
+# 部署Cluster Autoscaler
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+```
+
+---
+
+**初始状态分析**：
+
+**1. 集群初始配置**：
+```bash
+# 初始节点状态
+kubectl get nodes
+
+# 输出示例
+NAME       STATUS   ROLES    AGE   VERSION
+node-01    Ready    worker   30d   v1.28.0
+node-02    Ready    worker   30d   v1.28.0
+node-03    Ready    worker   30d   v1.28.0
+```
+
+**2. 资源使用情况**：
+```bash
+# 查看节点资源使用
+kubectl top nodes
+
+# 输出示例
+NAME       CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
+node-01    700m         70%    3.5Gi           65%       
+node-02    680m         68%    3.2Gi           60%       
+node-03    720m         72%    3.8Gi           70%       
+```
+
+**3. 触发扩容的信号**：
+- Pod调度失败（Insufficient CPU/Memory）
+- 节点资源使用率超过阈值
+- HPA扩容导致Pod数量增加
+
+---
+
+**面试回答技巧**：
+
+**1. 描述触发机制**：
+- 自动扩容：Cluster Autoscaler检测Pod调度失败
+- 手动扩容：运维人员根据业务需求操作
+
+**2. 说明初始状态**：
+- 初始节点数量和配置
+- 资源使用情况
+- 触发扩容的具体场景
+
+**3. 展示技术深度**：
+- HPA和VPA的区别
+- Cluster Autoscaler的工作原理
+- 云提供商集成方式
+
+---
+
+**示例回答**：
+
+> "节点扩容主要通过Cluster Autoscaler自动触发。最开始的情况是集群运行在最小节点数配置下，所有节点资源使用率处于正常水平。
+
+当业务高峰期到来，Pod数量增加，现有节点资源不足导致Pod调度失败时，Cluster Autoscaler会检测到这个情况，然后向云提供商发送请求创建新节点。新节点启动后会自动注册到集群，调度器开始将Pending状态的Pod调度到新节点上。
+
+我们配置了HPA根据CPU使用率自动调整Pod副本数，当Pod数量增加到现有节点无法容纳时，就会触发节点扩容。"
+
+---
+
+**💡 记忆口诀**：
+
+> **节点扩容**：初始状态资源足，业务增长Pod增；调度失败触发扩，CA自动创节点；新节点加入集群，资源充足Pod调度。
+
+**面试加分话术**：
+
+> "节点扩容主要通过Cluster Autoscaler自动触发。最开始集群处于稳定状态，运行3个工作节点，资源使用率在60-70%左右。
+
+当业务流量增加，HPA根据CPU使用率自动增加Pod副本数。当Pod数量增加到现有节点无法容纳时，调度器会返回Insufficient CPU或Insufficient Memory错误。Cluster Autoscaler通过监听这些事件，检测到需要扩容后，会调用云提供商API创建新的EC2实例。新节点启动后会自动加入集群，kubelet完成注册后，调度器就会将Pending的Pod调度到新节点上。
+
+我们还配置了VPA（Vertical Pod Autoscaler）来优化Pod资源配置，结合HPA实现更精准的弹性伸缩。"
+
+> **延伸阅读**：想了解更多Kubernetes节点扩容知识？请参考 [Kubernetes节点扩容与弹性伸缩最佳实践]({% post_url 2026-07-07-kubernetes-node-scaling-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！

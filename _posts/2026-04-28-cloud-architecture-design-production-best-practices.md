@@ -222,7 +222,8 @@ NATGateway:
 ### 3.2 IAM最佳实践
 
 ```yaml
-# IAM角色最小权限原则
+
+‘# IAM角色最小权限原则
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   ECSServiceRole:
