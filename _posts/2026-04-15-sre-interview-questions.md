@@ -17454,4 +17454,353 @@ done
 
 > **延伸阅读**：想了解更多Redis缓存优化知识？请参考 [Redis缓存命中率优化实战指南]({% post_url 2026-06-27-redis-cache-hit-rate-optimization %})。
 
+---
+
+### 112. ES索引迁移怎么做？
+
+> 🎯 **核心目标**：掌握Elasticsearch索引迁移的常用方法，理解不同迁移场景的适用方案，能够安全高效地完成索引迁移任务
+
+**问题分析**：ES索引迁移是日常运维中的常见任务，可能涉及索引结构变更、数据迁移、集群升级等场景。需要了解多种迁移方案的优缺点，选择合适的迁移策略，确保数据完整性和业务连续性。
+
+---
+
+**索引迁移的常见场景**：
+
+| 场景 | 说明 | 迁移策略 |
+|:------|:------|:------|
+| **索引结构变更** | Mapping或Settings需要修改 | Reindex API |
+| **集群迁移** | 将数据迁移到新集群 | Cross-cluster replication + Reindex |
+| **数据分片调整** | 修改分片数或副本数 | 新建索引+Reindex |
+| **冷热数据分离** | 将旧数据迁移到冷节点 | ILM策略或Reindex |
+| **索引别名切换** | 零停机迁移 | 别名切换+Reindex |
+
+---
+
+**迁移方案对比**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ES索引迁移方案对比                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐ │
+│  │   Reindex API    │  │   Logstash       │  │   Snapshot   │ │
+│  │                  │  │                  │  │  Restore     │ │
+│  ├──────────────────┤  ├──────────────────┤  ├──────────────┤ │
+│  │ • 在线迁移       │  │ • 支持多数据源   │  │ • 离线迁移   │ │
+│  │ • 数据转换       │  │ • 复杂ETL处理    │  │ • 速度快     │ │
+│  │ • 可控性强       │  │ • 实时同步       │  │ • 需停机     │ │
+│  ├──────────────────┤  ├──────────────────┤  ├──────────────┤ │
+│  │ • 大索引耗时    │  │ • 配置复杂       │  │ • 数据一致   │ │
+│  │ • 资源消耗高    │  │ • 性能开销大     │  │ • 版本兼容   │ │
+│  └──────────────────┘  └──────────────────┘  └──────────────┘ │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**方案一：使用Reindex API**
+
+**适用场景**：在线迁移、结构变更、数据转换
+
+**基本用法**：
+```bash
+# 创建目标索引（配置好新的mapping和settings）
+curl -X PUT "http://localhost:9200/new_index" -H 'Content-Type: application/json' -d '{
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "title": {"type": "text"},
+      "content": {"type": "text"},
+      "created_at": {"type": "date"}
+    }
+  }
+}'
+
+# 执行reindex
+curl -X POST "http://localhost:9200/_reindex" -H 'Content-Type: application/json' -d '{
+  "source": {
+    "index": "old_index",
+    "query": {
+      "match_all": {}
+    }
+  },
+  "dest": {
+    "index": "new_index"
+  }
+}'
+```
+
+**带数据转换的reindex**：
+```bash
+curl -X POST "http://localhost:9200/_reindex" -H 'Content-Type: application/json' -d '{
+  "source": {
+    "index": "old_index"
+  },
+  "dest": {
+    "index": "new_index"
+  },
+  "script": {
+    "source": "ctx._source.new_field = ctx._source.old_field; ctx._source.remove(\"old_field\")"
+  }
+}'
+```
+
+---
+
+**方案二：使用Logstash**
+
+**适用场景**：复杂ETL处理、多数据源迁移、实时同步
+
+**配置示例**：
+```bash
+# logstash.conf
+input {
+  elasticsearch {
+    hosts => ["http://old-es:9200"]
+    index => "old_index"
+    query => '{ "query": { "match_all": {} } }'
+    scroll => "5m"
+    docinfo => true
+  }
+}
+
+filter {
+  mutate {
+    add_field => { "migrated_at" => "%{@timestamp}" }
+    remove_field => ["old_field"]
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://new-es:9200"]
+    index => "new_index"
+    document_id => "%{[@metadata][_id]}"
+  }
+}
+```
+
+**启动Logstash**：
+```bash
+logstash -f logstash.conf
+```
+
+---
+
+**方案三：使用Snapshot/Restore**
+
+**适用场景**：离线迁移、大规模数据迁移、版本升级
+
+**创建快照**：
+```bash
+# 注册快照仓库
+curl -X PUT "http://localhost:9200/_snapshot/my_backup" -H 'Content-Type: application/json' -d '{
+  "type": "fs",
+  "settings": {
+    "location": "/backup/es_snapshots",
+    "compress": true
+  }
+}'
+
+# 创建快照
+curl -X PUT "http://localhost:9200/_snapshot/my_backup/snapshot_20240101" -H 'Content-Type: application/json' -d '{
+  "indices": "old_index",
+  "ignore_unavailable": true,
+  "include_global_state": false
+}'
+```
+
+**恢复快照**：
+```bash
+# 在目标集群注册相同的仓库
+curl -X PUT "http://new-es:9200/_snapshot/my_backup" -H 'Content-Type: application/json' -d '{
+  "type": "fs",
+  "settings": {
+    "location": "/backup/es_snapshots",
+    "compress": true
+  }
+}'
+
+# 恢复到新索引
+curl -X POST "http://new-es:9200/_snapshot/my_backup/snapshot_20240101/_restore" -H 'Content-Type: application/json' -d '{
+  "indices": "old_index",
+  "rename_pattern": "old_index",
+  "rename_replacement": "new_index"
+}'
+```
+
+---
+
+**方案四：跨集群复制（CCR）**
+
+**适用场景**：跨集群实时同步、灾备场景
+
+**配置步骤**：
+```bash
+# 在目标集群创建跟随索引
+curl -X PUT "http://new-es:9200/follower_index" -H 'Content-Type: application/json' -d '{
+  "settings": {
+    "index.soft_deletes.enabled": true
+  },
+  "remote": {
+    "seeds": ["old-es:9300"]
+  },
+  "follow": {
+    "remote_cluster": "old-es",
+    "leader_index": "leader_index",
+    "max_read_request_operation_count": 1024,
+    "max_outstanding_read_requests": 16,
+    "max_read_request_size": "1024kb",
+    "max_write_request_operation_count": 1024,
+    "max_write_request_size": "1024kb",
+    "max_outstanding_write_requests": 16,
+    "max_write_buffer_count": 512,
+    "max_write_buffer_size": "512mb",
+    "max_retry_delay": "5m",
+    "read_poll_timeout": "30s"
+  }
+}'
+```
+
+---
+
+**零停机迁移方案**：
+
+**使用索引别名实现无缝切换**：
+```bash
+# 1. 创建新索引
+curl -X PUT "http://localhost:9200/my_index_v2" -H 'Content-Type: application/json' -d '{...}'
+
+# 2. 执行reindex
+curl -X POST "http://localhost:9200/_reindex" -H 'Content-Type: application/json' -d '{
+  "source": {"index": "my_index_v1"},
+  "dest": {"index": "my_index_v2"}
+}'
+
+# 3. 创建/更新别名指向新索引
+curl -X POST "http://localhost:9200/_aliases" -H 'Content-Type: application/json' -d '{
+  "actions": [
+    {"remove": {"index": "my_index_v1", "alias": "my_index"}},
+    {"add": {"index": "my_index_v2", "alias": "my_index"}}
+  ]
+}'
+
+# 4. 删除旧索引（可选）
+curl -X DELETE "http://localhost:9200/my_index_v1"
+```
+
+---
+
+**迁移前准备工作**：
+
+| 检查项 | 说明 | 命令 |
+|:------|:------|:------|
+| **集群健康** | 确保源集群健康 | `curl http://localhost:9200/_cluster/health` |
+| **索引状态** | 检查索引状态 | `curl http://localhost:9200/_cat/indices` |
+| **数据量估算** | 计算迁移数据量 | `curl http://localhost:9200/_cat/indices?v` |
+| **Mapping对比** | 确认目标mapping | `curl http://localhost:9200/new_index/_mapping` |
+| **资源评估** | 检查集群资源 | `curl http://localhost:9200/_cat/nodes?v` |
+
+---
+
+**迁移过程监控**：
+
+```bash
+# 查看reindex进度
+curl -X GET "http://localhost:9200/_tasks?detailed=true&actions=*reindex"
+
+# 查看快照状态
+curl -X GET "http://localhost:9200/_snapshot/my_backup/snapshot_20240101"
+
+# 查看集群健康
+watch -n 5 'curl -s http://localhost:9200/_cluster/health | jq .'
+```
+
+---
+
+**数据一致性验证**：
+
+```bash
+# 对比文档数量
+curl -s http://localhost:9200/old_index/_count | jq .count
+curl -s http://localhost:9200/new_index/_count | jq .count
+
+# 随机抽样验证
+curl -s "http://localhost:9200/old_index/_search?size=10&sort=_id:asc"
+curl -s "http://localhost:9200/new_index/_search?size=10&sort=_id:asc"
+
+# 使用_checksum API（ES 7.10+）
+curl -X POST "http://localhost:9200/_data_frame/_validate" -H 'Content-Type: application/json' -d '{
+  "source": {"index": "old_index"},
+  "dest": {"index": "new_index"}
+}'
+```
+
+---
+
+**生产环境最佳实践**：
+
+**1. 选择合适的迁移窗口**：
+```bash
+# 选择低峰期进行迁移
+# 监控业务流量
+curl -s http://localhost:9200/_cat/nodes?v | grep "cpu"
+```
+
+**2. 分批迁移策略**：
+```bash
+# 使用scroll分批获取数据
+# 设置合理的batch size
+curl -X POST "http://localhost:9200/_reindex" -H 'Content-Type: application/json' -d '{
+  "source": {"index": "old_index", "size": 1000},
+  "dest": {"index": "new_index"},
+  "conflicts": "proceed"
+}'
+```
+
+**3. 监控告警配置**：
+```yaml
+groups:
+- name: es-migration
+  rules:
+  - alert: ReindexSlowProgress
+    expr: es_reindex_progress < 100
+    for: 1h
+    labels:
+      severity: warning
+    annotations:
+      summary: "Reindex进度缓慢"
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | 核心原因 | 解决方案 |
+|:------|:------|:------|
+| **Reindex速度慢** | 资源不足或batch过小 | 增加batch size，调整线程池 |
+| **数据不一致** | 迁移过程中有写入 | 使用CCR或暂停写入 |
+| **内存溢出** | 单次处理数据过多 | 减小scroll size |
+| **索引冲突** | 目标索引已存在 | 使用conflicts:proceed |
+| **网络超时** | 跨集群网络不稳定 | 增加timeout参数 |
+
+---
+
+**💡 记忆口诀**：
+
+> **ES索引迁移**：Reindex在线转，Logstash做ETL，快照离线快，CCR跨集群，别名无缝切，数据要验证。
+
+**面试加分话术**：
+
+> "ES索引迁移有多种方案，需要根据场景选择合适的方法。Reindex API适合在线迁移和数据转换，配置简单但大索引耗时较长；Logstash适合复杂ETL处理和多数据源迁移，支持实时同步但配置复杂；Snapshot/Restore适合离线大规模迁移，速度快但需要停机；CCR适合跨集群实时同步和灾备场景。
+
+在生产环境中，通常会使用索引别名实现零停机迁移：先创建新索引，执行reindex，然后切换别名指向新索引。迁移过程中需要监控进度、验证数据一致性，并选择低峰期进行迁移以减少对业务的影响。"
+
+> **延伸阅读**：想了解更多ES索引迁移知识？请参考 [ES索引迁移实战指南]({% post_url 2026-06-28-es-index-migration-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
