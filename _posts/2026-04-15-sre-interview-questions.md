@@ -16961,4 +16961,273 @@ kubectl get service -o yaml > services-backup.yaml
 
 > **延伸阅读**：想了解更多K8s故障排查知识？请参考 [K8s故障案例分析与实战指南]({% post_url 2026-06-25-k8s-troubleshooting-case-studies %})。
 
+---
+
+### 110. 存活探针、启动探针、就绪探针，这些是什么作用？
+
+> 🎯 **核心目标**：理解K8s健康检查探针的三种类型，掌握每种探针的作用和配置方法，能够根据应用场景合理配置探针
+
+**问题分析**：健康检查是K8s保障应用高可用的核心机制，面试中常问到三种探针的区别、作用、配置参数和使用场景。需要深入理解每种探针的触发条件和影响。
+
+---
+
+**三种探针作用对比**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    K8s健康检查探针对比                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    │
+│  │  存活探针    │    │  就绪探针    │    │  启动探针    │    │
+│  │ (Liveness)  │    │ (Readiness)  │    │ (Startup)   │    │
+│  ├──────────────┤    ├──────────────┤    ├──────────────┤    │
+│  │ 检查Pod存活  │    │ 检查Pod就绪  │    │ 检查启动完成  │    │
+│  │ 失败→重启容器│    │ 失败→移除    │    │ 失败→等待    │    │
+│  │             │    │  Service     │    │             │    │
+│  └──────────────┘    └──────────────┘    └──────────────┘    │
+│         │                   │                   │              │
+│         ▼                   ▼                   ▼              │
+│  保护Pod不陷入死循环   保证流量不发往未就绪Pod   处理慢启动应用    │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**1. 存活探针（Liveness Probe）**：
+
+**作用**：检测容器是否存活，失败则重启容器
+
+**适用场景**：
+- 应用可能陷入死循环或无响应
+- 需要自动恢复故障应用
+
+**配置示例**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 10  # 启动后10秒开始探测
+      periodSeconds: 5         # 每5秒探测一次
+      timeoutSeconds: 2        # 超时时间2秒
+      failureThreshold: 3      # 连续失败3次触发重启
+      successThreshold: 1      # 成功1次即认为健康
+```
+
+**探针类型**：
+| 类型 | 说明 | 适用场景 |
+|:------|:------|:------|
+| **httpGet** | HTTP请求检查 | Web应用 |
+| **tcpSocket** | TCP连接检查 | 数据库、MQ |
+| **exec** | 执行命令检查 | 自定义检查逻辑 |
+
+---
+
+**2. 就绪探针（Readiness Probe）**：
+
+**作用**：检测容器是否就绪，未就绪则从Service Endpoint移除
+
+**适用场景**：
+- 应用启动需要时间初始化
+- 依赖服务未就绪时不应接收流量
+
+**配置示例**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+      successThreshold: 2      # 连续成功2次才认为就绪
+```
+
+**就绪探针工作流程**：
+```bash
+# Pod启动
+# Readiness Probe失败 → Pod状态为NotReady → 不从Service接收流量
+# Readiness Probe成功 → Pod状态为Ready → 加入Service Endpoint → 接收流量
+```
+
+---
+
+**3. 启动探针（Startup Probe）**：
+
+**作用**：检测应用是否启动完成，处理慢启动场景
+
+**适用场景**：
+- 应用启动时间较长（如数据库、大型Java应用）
+- 避免Liveness Probe在启动阶段误判
+
+**配置示例**：
+```yaml
+spec:
+  containers:
+  - name: slow-app
+    image: slow-app:latest
+    startupProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      failureThreshold: 30     # 最多探测30次
+      periodSeconds: 10        # 每10秒探测一次
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      periodSeconds: 5
+```
+
+**启动探针优先级**：
+```bash
+# 启动探针成功前，Liveness和Readiness探针不会执行
+# 启动探针成功后，才会开始执行Liveness和Readiness探针
+```
+
+---
+
+**三种探针配合使用**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    探针配合工作流程                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  Pod启动                                                       │
+│     │                                                          │
+│     ▼                                                          │
+│  ┌────────────────┐                                            │
+│  │ Startup Probe  │ → 成功后开始Liveness/Readiness检查         │
+│  │  (慢启动保护)  │                                            │
+│  └────────────────┘                                            │
+│         │                                                      │
+│         ▼                                                      │
+│  ┌────────────────┐     ┌────────────────┐                     │
+│  │ Liveness Probe │     │ Readiness Probe│                     │
+│  │  (存活检测)    │     │  (就绪检测)    │                     │
+│  └──────┬─────────┘     └──────┬─────────┘                     │
+│         │                      │                                │
+│         ▼                      ▼                                │
+│   失败→重启容器          失败→从Service移除                     │
+│   成功→继续运行          成功→接收流量                          │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**配置参数详解**：
+
+| 参数 | 说明 | 默认值 |
+|:------|:------|:------|
+| **initialDelaySeconds** | 容器启动后多久开始探测 | 0秒 |
+| **periodSeconds** | 探测间隔时间 | 10秒 |
+| **timeoutSeconds** | 探测超时时间 | 1秒 |
+| **failureThreshold** | 连续失败多少次触发动作 | 3次 |
+| **successThreshold** | 连续成功多少次认为正常 | 1次 |
+
+---
+
+**常见配置错误**：
+
+| 错误配置 | 后果 | 正确配置 |
+|:------|:------|:------|
+| Liveness Probe初始延迟太短 | 应用未启动完成就被重启 | 增加initialDelaySeconds |
+| Readiness Probe缺失 | 未就绪的Pod接收流量 | 添加Readiness Probe |
+| 慢启动应用没有Startup Probe | Liveness Probe误判重启 | 添加Startup Probe |
+| failureThreshold设置过小 | 短暂抖动导致重启 | 适当增大failureThreshold |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 为所有容器配置探针**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+```
+
+**2. 慢启动应用配置Startup Probe**：
+```yaml
+spec:
+  containers:
+  - name: db
+    image: mysql:8.0
+    startupProbe:
+      tcpSocket:
+        port: 3306
+      failureThreshold: 30
+      periodSeconds: 10
+    livenessProbe:
+      tcpSocket:
+        port: 3306
+      periodSeconds: 5
+```
+
+**3. 使用exec探针检查复杂状态**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    livenessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - curl -f http://localhost:8080/health || exit 1
+      initialDelaySeconds: 15
+      periodSeconds: 5
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | 核心原因 | 解决方案 |
+|:------|:------|:------|
+| **Pod频繁重启** | Liveness Probe配置过严 | 增加initialDelaySeconds或failureThreshold |
+| **服务无法访问** | Readiness Probe失败 | 检查应用就绪状态，调整探针配置 |
+| **应用启动被中断** | 缺少Startup Probe | 添加Startup Probe处理慢启动 |
+| **探针超时** | timeoutSeconds设置过小 | 增加timeoutSeconds |
+| **探针日志过多** | periodSeconds设置过小 | 增大periodSeconds |
+
+---
+
+**💡 记忆口诀**：
+
+> **三种探针**：Liveness管存活，失败重启保健康；Readiness管就绪，就绪才接流量；Startup管启动，慢启动应用靠它保护；三者配合，应用高可用有保障。
+
+**面试加分话术**：
+
+> "K8s的健康检查探针有三种：Liveness Probe检测容器是否存活，如果失败会重启容器，用于防止应用陷入死循环；Readiness Probe检测容器是否就绪，未就绪的Pod不会被加入Service Endpoint，确保只有准备好的Pod才能接收流量；Startup Probe专门处理慢启动应用，在启动探针成功前，不会执行Liveness和Readiness探针，避免慢启动应用被误判重启。
+
+在生产环境中，应该为所有容器配置Liveness和Readiness探针，对于启动时间较长的应用需要添加Startup Probe。探针参数需要根据应用实际情况调整，比如initialDelaySeconds要足够长以允许应用完成初始化，failureThreshold要适当避免短暂抖动导致的重启。"
+
+> **延伸阅读**：想了解更多K8s健康检查知识？请参考 [K8s健康检查探针详解与最佳实践]({% post_url 2026-06-26-k8s-health-check-probes-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
