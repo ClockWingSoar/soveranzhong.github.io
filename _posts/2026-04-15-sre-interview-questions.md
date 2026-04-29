@@ -15505,4 +15505,389 @@ spec:
 
 > **延伸阅读**：想了解更多Pod调度知识？请参考 [Pod调度机制详解与最佳实践]({% post_url 2026-06-21-pod-scheduling-best-practices %})。
 
+---
+
+### 106. K8s怎么保证应用高可用？
+
+> 🎯 **核心目标**：理解K8s高可用架构设计，掌握保障应用高可用的关键机制，熟悉生产环境中的高可用配置实践
+
+**问题分析**：应用高可用是K8s的核心价值之一，面试中常问到Pod副本管理、自愈能力、故障转移、服务发现、网络稳定性等方面。需要深入理解Deployment、ReplicaSet、Service、健康检查等核心组件如何协同工作。
+
+---
+
+**K8s高可用保障机制总览**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   K8s高可用保障体系                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    │
+│  │  副本管理     │    │  健康检查     │    │  服务发现     │    │
+│  │  Deployment  │    │  Probe       │    │  Service     │    │
+│  │  ReplicaSet  │    │  Readiness   │    │  Endpoint    │    │
+│  │  StatefulSet │    │  Liveness    │    │  DNS         │    │
+│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘    │
+│         │                   │                   │              │
+│         ▼                   ▼                   ▼              │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    │
+│  │  故障自愈     │    │  负载均衡     │    │  网络稳定     │    │
+│  │  自动重建    │    │  Service LB  │    │  NetworkP    │    │
+│  │  节点漂移    │    │  Ingress     │    │  PodAntiAff │    │
+│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘    │
+│         │                   │                   │              │
+│         └───────────────────┴───────────────────┘              │
+│                              │                                 │
+│                              ▼                                 │
+│                    ┌──────────────┐                            │
+│                    │   应用高可用   │                            │
+│                    │  (99.99%+)   │                            │
+│                    └──────────────┘                            │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**1. 副本管理机制**：
+
+**Deployment（无状态应用）**：
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3  # 保证3个副本
+  selector:
+    matchLabels:
+      app: web
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%        # 滚动更新时最大额外副本数
+      maxUnavailable: 0    # 滚动更新时最大不可用副本数
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: nginx:latest
+```
+
+**StatefulSet（有状态应用）**：
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  replicas: 3
+  serviceName: mysql-headless
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+```
+
+---
+
+**2. 健康检查机制**：
+
+**存活探针（Liveness Probe）**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 10  # 启动后10秒开始探测
+      periodSeconds: 5         # 每5秒探测一次
+      timeoutSeconds: 2        # 超时时间
+      failureThreshold: 3      # 连续失败3次重启容器
+```
+
+**就绪探针（Readiness Probe）**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+      successThreshold: 2      # 连续成功2次才认为就绪
+```
+
+**启动探针（Startup Probe）**：
+```yaml
+spec:
+  containers:
+  - name: slow-app
+    image: slow-app:latest
+    startupProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      failureThreshold: 30     # 最多探测30次
+      periodSeconds: 10        # 每10秒探测一次
+```
+
+---
+
+**3. 服务发现与负载均衡**：
+
+**Service（ClusterIP）**：
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  type: ClusterIP
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+**Service（NodePort）**：
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 8080
+    nodePort: 30080
+```
+
+**Service（LoadBalancer）**：
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+**Ingress**：
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+spec:
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 80
+```
+
+---
+
+**4. 故障自愈机制**：
+
+**Pod自动重建**：
+```bash
+# Pod异常退出时自动重建
+kubectl get pod -w  # 实时查看Pod状态
+
+# 场景：Pod崩溃
+# 1. kubelet检测到容器退出
+# 2. 根据restartPolicy决定是否重启
+# 3. 重启策略：Always、OnFailure、Never
+
+# 场景：节点故障
+# 1. Controller Manager检测到节点不可用
+# 2. 将Pod标记为Terminating
+# 3. 在其他健康节点重新创建Pod
+```
+
+**Pod反亲和性（高可用分布）**：
+```yaml
+spec:
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: web
+        topologyKey: kubernetes.io/hostname
+```
+
+**拓扑分布约束**：
+```yaml
+spec:
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app: web
+```
+
+---
+
+**5. 控制平面高可用**：
+
+**多Master节点部署**：
+```yaml
+# 使用kubeadm部署多Master
+kubeadm init --control-plane-endpoint "lb.example.com:6443"
+
+# 加入其他Master节点
+kubeadm join lb.example.com:6443 --token xxx \
+  --discovery-token-ca-cert-hash sha256:xxx \
+  --control-plane
+```
+
+**etcd高可用集群**：
+```bash
+# etcd集群配置
+etcd --name=master-01 \
+  --initial-advertise-peer-urls=http://master-01:2380 \
+  --listen-peer-urls=http://0.0.0.0:2380 \
+  --listen-client-urls=http://0.0.0.0:2379 \
+  --advertise-client-urls=http://master-01:2379 \
+  --initial-cluster=master-01=http://master-01:2380,master-02=http://master-02:2380,master-03=http://master-03:2380
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | 核心原因 | 解决方案 |
+|:------|:------|:------|
+| **Pod无法启动** | 镜像拉取失败、资源不足、配置错误 | 检查镜像地址、节点资源、Pod配置 |
+| **服务不可访问** | Service配置错误、网络策略限制、Pod未就绪 | 检查Service selector、NetworkPolicy、Readiness Probe |
+| **Pod频繁重启** | Liveness Probe配置过严、应用自身问题 | 调整Probe参数、排查应用日志 |
+| **流量不均** | 负载均衡算法问题、Pod分布不均 | 使用PodAntiAffinity、调整调度策略 |
+| **节点故障导致服务中断** | 单点故障、副本数不足 | 增加副本数、配置Pod反亲和性 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 合理设置副本数**：
+```yaml
+spec:
+  replicas: 3  # 至少3个副本保证高可用
+```
+
+**2. 配置健康检查**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 5
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+```
+
+**3. 使用Pod反亲和性**：
+```yaml
+spec:
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: web
+        topologyKey: kubernetes.io/hostname
+```
+
+**4. 配置Pod拓扑分布约束**：
+```yaml
+spec:
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app: web
+```
+
+**5. 使用就绪探针控制流量**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **高可用**：副本管理保数量，健康检查判状态，服务发现连后端，故障自愈自动扛；Deployment管无状态，StatefulSet管有状态，Probe分存活就绪启动三类，Service负载均衡流量分配。
+
+**面试加分话术**：
+
+> "K8s通过多层次机制保证应用高可用。首先是副本管理，Deployment和StatefulSet确保指定数量的Pod运行，即使某个Pod失败也会自动重建。其次是健康检查机制，Liveness Probe检测容器是否存活，Readiness Probe检测容器是否就绪，Startup Probe处理慢启动应用。第三是服务发现和负载均衡，Service通过标签选择器自动发现Pod，实现流量分发和故障转移。第四是故障自愈能力，当节点故障时，Controller Manager会将Pod调度到其他健康节点。
+
+生产环境中需要配置合理的副本数，至少3个副本；使用Pod反亲和性和拓扑分布约束确保Pod均匀分布在不同节点和可用区；配置完善的健康检查探针；使用Ingress和Service实现外部访问和负载均衡。同时控制平面也需要高可用部署，多Master节点配合etcd集群确保控制平面的可靠性。"
+
+> **延伸阅读**：想了解更多K8s高可用知识？请参考 [K8s应用高可用架构详解与最佳实践]({% post_url 2026-06-22-k8s-high-availability-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
