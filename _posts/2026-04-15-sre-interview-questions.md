@@ -13848,4 +13848,287 @@ git push origin main
 
 > **延伸阅读**：想了解更多CI/CD实践经验？请参考 [CI/CD持续集成与部署最佳实践]({% post_url 2026-06-16-cicd-best-practices %})。
 
+---
+
+### 101. K8s里边组件都有哪些呢？然后功能是什么？
+
+> 🎯 **核心目标**：掌握Kubernetes核心组件架构，理解Control Plane和Node组件的职责分工
+
+**问题分析**：K8s组件架构是面试高频问题，需要清楚区分控制平面和节点组件，理解每个组件的核心功能和协作方式。
+
+---
+
+**K8s架构总览**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Kubernetes 集群架构                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │              Control Plane (控制平面)                    │   │
+│  │  ┌──────────┐  ┌──────────────┐  ┌─────────────────┐   │   │
+│  │  │ API Server│  │ Controller  │  │   Scheduler    │   │   │
+│  │  │  (入口)   │  │   Manager   │  │   (调度器)     │   │   │
+│  │  └────┬─────┘  └──────┬───────┘  └────────┬────────┘   │   │
+│  │       │               │                    │             │   │
+│  │       └───────────────┼────────────────────┘             │   │
+│  │                       ▼                                  │   │
+│  │              ┌──────────────┐                            │   │
+│  │              │    etcd      │  (分布式键值存储)          │   │
+│  │              └──────────────┘                            │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                              │                                 │
+│                              ▼                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    Node (工作节点)                       │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐      │   │
+│  │  │  Kubelet │  │ Kube-    │  │ Container       │      │   │
+│  │  │  (代理)  │  │ proxy    │  │ Runtime         │      │   │
+│  │  └──────────┘  └──────────┘  └──────────────────┘      │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**1. 控制平面组件（Control Plane）**：
+
+**kube-apiserver**：
+```bash
+# 集群的唯一入口，所有操作都经过它
+# 功能：
+# - 提供RESTful API接口
+# - 认证、授权、准入控制
+# - 请求转发和校验
+# - 唯一与etcd直接交互的组件
+
+# 高可用部署：至少3个实例，负载均衡
+```
+
+**etcd**：
+```bash
+# 分布式键值数据库，集群的"大脑"
+# 功能：
+# - 存储集群所有状态数据（Pod、Service、Node等）
+# - Raft算法保证强一致性
+# - Watch机制支持实时监听
+
+# 生产建议：3/5/7节点集群，定期备份
+```
+
+**kube-scheduler**：
+```bash
+# 集群调度器，决定Pod运行位置
+# 功能：
+# - 监听未调度的Pod
+# - 预选策略：过滤不满足条件的节点
+# - 优选策略：打分排序选择最优节点
+# - 只做调度决策，不创建Pod
+
+# 调度策略：资源需求、亲和性、污点容忍等
+```
+
+**kube-controller-manager**：
+```bash
+# 控制器管理器，维持期望状态
+# 包含多个子控制器：
+# - Replication Controller：副本数管理
+# - Deployment Controller：部署管理
+# - Node Controller：节点状态监控
+# - Service Controller：Service管理
+# - Endpoint Controller：端点管理
+
+# 工作模式：监听→对比→调谐（Reconcile Loop）
+```
+
+**cloud-controller-manager**（可选）：
+```bash
+# 云厂商适配器
+# 功能：
+# - 对接云厂商API
+# - 管理云资源（负载均衡、存储、网络）
+# - 实现云中立架构
+```
+
+---
+
+**2. 节点组件（Node Components）**：
+
+**kubelet**：
+```bash
+# 节点代理，控制平面与容器运行时的桥梁
+# 功能：
+# - Pod生命周期管理（创建/启动/停止/删除）
+# - 状态同步（上报Node/Pod状态）
+# - 卷管理（挂载/卸载PV/PVC）
+# - 网络配置（调用CNI插件）
+# - 健康检查（Liveness/Readiness/Startup Probe）
+# - 资源管理（QoS保障）
+
+# 通过CRI调用containerd/docker
+```
+
+**kube-proxy**：
+```bash
+# 节点网络代理，实现Service网络
+# 功能：
+# - 监听Service和Endpoint变化
+# - 维护网络规则（iptables/ipvs模式）
+# - ClusterIP流量转发到后端Pod
+# - 实现服务发现和负载均衡
+
+# 工作模式：iptables（默认）、ipvs（高性能）
+```
+
+**Container Runtime**：
+```bash
+# 容器运行时，负责运行容器
+# 功能：
+# - 镜像管理（拉取/存储/删除）
+# - 容器生命周期管理
+# - 资源隔离（cgroups + namespaces）
+
+# 主流选择：containerd（推荐）、CRI-O
+```
+
+---
+
+**3. 附加组件（Addons）**：
+
+**DNS服务**（CoreDNS/KubeDNS）：
+```bash
+# 提供集群内DNS解析
+# Pod通过Service名称访问服务
+# 配置示例：
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: my-service
+# spec:
+#   selector:
+#     app: MyApp
+#   ports:
+#   - port: 80
+```
+
+**网络插件**（Calico/Flannel/Weave）：
+```bash
+# 实现Pod网络互通
+# 支持CNI标准接口
+# 提供网络策略（NetworkPolicy）
+```
+
+**Ingress控制器**（Nginx/Traefik/HAProxy）：
+```bash
+# 管理外部访问集群服务
+# 提供负载均衡、SSL终止、路径路由
+```
+
+**监控组件**（Prometheus/Grafana）：
+```bash
+# 采集和展示集群指标
+# 实现告警和可视化
+```
+
+---
+
+**组件通信流程**：
+
+```bash
+# 用户提交Deployment
+kubectl apply -f deployment.yaml
+
+# 1. 请求发送到kube-apiserver
+# 2. apiserver验证并存储到etcd
+# 3. controller-manager监听到变化
+# 4. controller-manager创建Pod
+# 5. scheduler调度Pod到合适节点
+# 6. kubelet接收指令，创建容器
+# 7. kube-proxy配置网络规则
+```
+
+---
+
+**组件高可用配置**：
+
+| 组件 | 高可用策略 | 建议配置 |
+|:------|:------|:------|
+| **API Server** | 多实例+负载均衡 | 至少3个实例 |
+| **etcd** | Raft集群 | 3/5/7节点 |
+| **Scheduler** | 多实例选举 | 至少2个实例 |
+| **Controller Manager** | 多实例选举 | 至少2个实例 |
+| **kubelet** | 节点级冗余 | 多节点部署 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 控制平面高可用**：
+```bash
+# 使用kubeadm部署高可用集群
+kubeadm init --control-plane-endpoint "vip.example.com:6443" --upload-certs
+
+# 加入额外控制平面节点
+kubeadm join vip.example.com:6443 --token xxx \
+  --discovery-token-ca-cert-hash sha256:xxx \
+  --control-plane --certificate-key xxx
+```
+
+**2. etcd备份恢复**：
+```bash
+# 备份etcd
+ETCDCTL_API=3 etcdctl snapshot save snapshot.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+
+# 恢复etcd
+ETCDCTL_API=3 etcdctl snapshot restore snapshot.db
+```
+
+**3. 资源限制**：
+```bash
+# 为控制平面组件设置资源请求和限制
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+spec:
+  containers:
+  - name: kube-apiserver
+    resources:
+      requests:
+        cpu: "2"
+        memory: "4Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 现象 | 解决方案 |
+|:------|:------|:------|
+| **API Server不可用** | kubectl命令超时 | 检查负载均衡、实例状态、网络连通性 |
+| **etcd数据不一致** | 集群状态异常 | 检查Raft状态、网络分区、磁盘空间 |
+| **调度失败** | Pod处于Pending状态 | 检查节点资源、污点容忍、亲和性配置 |
+| **kubelet离线** | Node状态NotReady | 检查kubelet状态、网络、容器运行时 |
+| **Service无法访问** | 服务调用失败 | 检查kube-proxy、网络策略、Endpoint状态 |
+
+---
+
+**💡 记忆口诀**：
+
+> **K8s组件**：控制平面四核心，API Server是入口，etcd存储记心中，调度器Scheduler，控制器Manager；节点组件有三个，kubelet管容器，kube-proxy管网络，Runtime跑容器。
+
+**面试加分话术**：
+
+> "Kubernetes集群分为控制平面和工作节点两部分。控制平面包含四个核心组件：kube-apiserver是集群的唯一入口，负责接收所有请求并进行认证授权；etcd是分布式键值存储，保存集群所有状态数据；kube-scheduler负责调度Pod到合适的节点；kube-controller-manager包含多个控制器，维持集群期望状态。工作节点上有kubelet负责管理Pod生命周期，kube-proxy负责Service网络代理，还有容器运行时负责运行容器。控制平面组件通过API Server与etcd交互，节点组件通过API Server接收指令并上报状态。生产环境中需要部署多节点高可用集群，确保控制平面组件的冗余性，同时配置适当的资源限制和监控告警。"
+
+> **延伸阅读**：想了解更多K8s架构知识？请参考 [Kubernetes核心组件架构与最佳实践]({% post_url 2026-06-17-k8s-components-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
