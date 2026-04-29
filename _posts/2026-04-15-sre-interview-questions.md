@@ -16207,4 +16207,348 @@ spec:
 
 > **延伸阅读**：想了解更多K8s网络问题排查知识？请参考 [K8s网络故障排查指南与最佳实践]({% post_url 2026-06-23-k8s-network-troubleshooting-best-practices %})。
 
+---
+
+### 108. K8s YAML必含核心字段有哪些？
+
+> 🎯 **核心目标**：掌握K8s YAML配置文件的核心结构，理解每个必含字段的作用，能够编写正确的资源配置文件
+
+**问题分析**：K8s YAML文件是操作K8s集群的基础，面试中常问到YAML的核心字段、各字段的含义、不同资源类型的配置差异等。需要深入理解apiVersion、kind、metadata、spec等核心字段的作用。
+
+---
+
+**K8s YAML核心结构**：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    K8s YAML核心结构                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                           │
+│  apiVersion: v1             # API版本                      │
+│  kind: Pod                  # 资源类型                      │
+│  metadata:                  # 元数据                        │
+│    name: my-pod             # 资源名称                      │
+│    namespace: default       # 命名空间                      │
+│    labels:                  # 标签                          │
+│      app: myapp             #   key: value                   │
+│    annotations:             # 注解                          │
+│      description: "My app"  #   额外描述信息                 │
+│  spec:                      # 规格定义                      │
+│    containers:              # 容器配置                      │
+│    - name: container-name   #   容器名称                    │
+│      image: nginx:latest     #   镜像地址                    │
+│      ports:                 #   端口配置                    │
+│      - containerPort: 80    #     容器端口                  │
+│                                                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**1. apiVersion（API版本）**：
+
+```yaml
+# 常见API版本
+apiVersion: v1                    # 核心资源（Pod、Service、ConfigMap、Secret）
+apiVersion: apps/v1               # 应用资源（Deployment、StatefulSet、ReplicaSet）
+apiVersion: networking.k8s.io/v1  # 网络资源（Ingress、NetworkPolicy）
+apiVersion: batch/v1              # 批处理资源（Job、CronJob）
+apiVersion: rbac.authorization.k8s.io/v1  # RBAC资源
+```
+
+**API版本选择原则**：
+- 使用稳定版（v1）而非beta版
+- 根据K8s版本选择合适的API版本
+- 避免使用已废弃的API版本
+
+---
+
+**2. kind（资源类型）**：
+
+```yaml
+# 常见资源类型
+kind: Pod                          # 最小部署单元
+kind: Service                      # 服务发现和负载均衡
+kind: Deployment                   # 无状态应用部署
+kind: StatefulSet                  # 有状态应用部署
+kind: ConfigMap                    # 配置管理
+kind: Secret                       # 敏感信息管理
+kind: Ingress                      # 外部访问入口
+kind: PersistentVolumeClaim        # 持久化存储申请
+```
+
+**资源类型分类**：
+| 类别 | 资源类型 | 用途 |
+|:------|:------|:------|
+| **核心资源** | Pod、Service、ConfigMap、Secret | 基础资源 |
+| **应用资源** | Deployment、StatefulSet、ReplicaSet | 应用部署 |
+| **网络资源** | Ingress、NetworkPolicy、Service | 网络管理 |
+| **存储资源** | PersistentVolume、PersistentVolumeClaim | 存储管理 |
+| **RBAC资源** | Role、ClusterRole、RoleBinding | 权限管理 |
+
+---
+
+**3. metadata（元数据）**：
+
+```yaml
+metadata:
+  name: my-pod                    # 资源名称（必需）
+  namespace: default              # 命名空间（默认default）
+  labels:                         # 标签（用于选择器）
+    app: myapp
+    tier: frontend
+    version: v1.0
+  annotations:                    # 注解（用于额外信息）
+    description: "This is a web application"
+    author: "dev-team"
+  finalizers:                     # 终结器（资源删除前的清理）
+    - foregroundDeletion
+```
+
+**metadata常用字段**：
+| 字段 | 说明 | 是否必需 |
+|:------|:------|:------|
+| **name** | 资源名称 | 是 |
+| **namespace** | 命名空间 | 否（默认default） |
+| **labels** | 标签 | 否 |
+| **annotations** | 注解 | 否 |
+| **finalizers** | 终结器 | 否 |
+
+---
+
+**4. spec（规格定义）**：
+
+**Pod spec示例**：
+```yaml
+spec:
+  containers:                     # 容器列表（必需）
+  - name: nginx                   # 容器名称（必需）
+    image: nginx:latest           # 镜像地址（必需）
+    imagePullPolicy: Always       # 镜像拉取策略
+    ports:                        # 端口配置
+    - containerPort: 80           # 容器端口
+      name: http                  # 端口名称
+      protocol: TCP               # 协议类型
+    resources:                    # 资源限制
+      requests:                   # 资源请求
+        cpu: "100m"
+        memory: "128Mi"
+      limits:                     # 资源限制
+        cpu: "200m"
+        memory: "256Mi"
+    env:                          # 环境变量
+    - name: ENV_VAR
+      value: "value"
+    volumeMounts:                 # 卷挂载
+    - name: data
+      mountPath: /data
+  volumes:                        # 卷定义
+  - name: data
+    emptyDir: {}
+```
+
+**Deployment spec示例**：
+```yaml
+spec:
+  replicas: 3                     # 副本数
+  selector:                       # 选择器（必需）
+    matchLabels:
+      app: myapp
+  strategy:                       # 更新策略
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:                       # Pod模板（必需）
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: myapp:latest
+```
+
+---
+
+**5. status（状态信息）**：
+
+```yaml
+# status字段由K8s自动生成，不可手动设置
+status:
+  phase: Running                  # Pod状态
+  conditions:                     # 状态条件
+    - type: Ready
+      status: "True"
+      lastProbeTime: ...
+      lastTransitionTime: ...
+  podIP: 10.244.0.10             # Pod IP地址
+  hostIP: 192.168.1.100          # 节点IP地址
+```
+
+---
+
+**常见资源YAML模板**：
+
+**Pod**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: container-name
+    image: nginx:latest
+```
+
+**Service**：
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: myapp
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+**Deployment**：
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: container-name
+        image: myapp:latest
+```
+
+**ConfigMap**：
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  database: "mysql"
+  host: "db-service"
+  port: "3306"
+```
+
+**Secret**：
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret
+type: Opaque
+data:
+  username: dXNlcjE=              # base64编码
+  password: cGFzc3dvcmQ=          # base64编码
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | 核心原因 | 解决方案 |
+|:------|:------|:------|
+| **API版本错误** | 使用了错误的API版本 | 检查K8s版本，使用正确的apiVersion |
+| **kind拼写错误** | kind字段值错误 | 确认资源类型拼写正确 |
+| **缺少必需字段** | spec.containers为空或缺少name/image | 添加必需字段 |
+| **标签不匹配** | Service selector与Pod标签不匹配 | 检查标签配置 |
+| **镜像拉取失败** | 镜像地址错误或权限不足 | 检查镜像地址和镜像仓库凭证 |
+| **资源不足** | Pod资源请求超过节点可用资源 | 调整资源请求或增加节点资源 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 使用标准API版本**：
+```yaml
+apiVersion: apps/v1  # 使用稳定版API
+kind: Deployment
+```
+
+**2. 添加有意义的标签**：
+```yaml
+metadata:
+  labels:
+    app: myapp
+    tier: frontend
+    version: v1.0.0
+    environment: production
+```
+
+**3. 配置资源限制**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "200m"
+        memory: "256Mi"
+```
+
+**4. 使用ConfigMap管理配置**：
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  application.yml: |
+    server:
+      port: 8080
+    database:
+      url: jdbc:mysql://db:3306/mydb
+```
+
+**5. 使用Secret管理敏感信息**：
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  username: <base64-encoded-username>
+  password: <base64-encoded-password>
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **YAML核心字段**：apiVersion定版本，kind定类型，metadata存元数据，spec定规格；name是必需，labels用于选择，containers是核心，image和name不能少。
+
+**面试加分话术**：
+
+> "K8s YAML配置文件包含四个核心部分：apiVersion、kind、metadata和spec。apiVersion指定使用的K8s API版本，不同资源类型有不同的API版本，比如核心资源使用v1，Deployment使用apps/v1。kind指定资源类型，比如Pod、Service、Deployment等。metadata包含资源的元数据，其中name是必需的，用于标识资源，labels用于标签选择，annotations用于存储额外信息。spec定义资源的规格，对于Pod来说，containers是必需的，每个容器必须有name和image字段。
+
+编写YAML时需要注意API版本的正确性，使用稳定版API而非beta版；添加有意义的标签便于资源管理和查询；为容器配置资源请求和限制以避免资源竞争；使用ConfigMap和Secret分别管理配置和敏感信息。"
+
+> **延伸阅读**：想了解更多K8s YAML配置知识？请参考 [K8s YAML配置最佳实践指南]({% post_url 2026-06-24-k8s-yaml-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
