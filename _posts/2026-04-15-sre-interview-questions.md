@@ -11432,4 +11432,207 @@ resources:
 
 > **延伸阅读**：想了解更多StatefulSet四大特性的深度解析？请参考 [StatefulSet四大特性深度解析：有状态应用管理最佳实践]({% post_url 2026-06-07-statefulset-features %})。
 
+---
+
+### 92. Prometheus获取数据用的是pull还是push？
+
+> 🎯 **核心目标**：理解Prometheus的数据采集模式，对比Pull与Push的优缺点及适用场景
+
+**问题分析**：Prometheus作为云原生监控系统的事实标准，其数据采集模式是面试高频考点。需要深入理解Pull模式的设计理念、优缺点，以及Push模式的补充使用场景。
+
+---
+
+**Prometheus核心采集模式**：
+
+**Pull模式（主动拉取）**：
+```
+Prometheus Server主动向目标发起HTTP请求，从/metrics端点拉取数据
+```
+
+**工作流程**：
+```
+1. 配置监控目标（静态配置或服务发现）
+2. Prometheus Server定期发起HTTP GET请求
+3. 目标服务暴露/metrics端点返回指标数据
+4. Prometheus存储时间序列数据并进行分析
+```
+
+**配置示例**：
+```yaml
+scrape_configs:
+  - job_name: 'node_exporter'
+    scrape_interval: 15s
+    targets:
+      - 'localhost:9100'
+      - 'node1:9100'
+      - 'node2:9100'
+```
+
+---
+
+**Pull模式的优势**：
+
+**1. 灵活性与自管理**：
+- 目标服务只需暴露标准/metrics端点
+- Prometheus主动拉取，无需在目标端配置推送逻辑
+- 适合动态环境和微服务架构
+
+**2. 服务发现集成**：
+- 支持Kubernetes、Consul、DNS等服务发现机制
+- 自动发现新增的监控目标
+- 无需手动维护目标列表
+
+**3. 集中控制**：
+- 采集频率和范围由Prometheus集中管理
+- 便于统一配置和调整
+- 支持分片和联邦部署
+
+**4. 故障检测**：
+- 自动检测目标不可达
+- 无需等待推送超时
+- 快速发现服务故障
+
+---
+
+**Pull模式的局限性**：
+
+**1. 网络穿透问题**：
+- 需要从Prometheus访问目标的/metrics端点
+- 防火墙或网络隔离环境下可能受限
+
+**2. 短生命周期任务**：
+- 批处理任务、临时脚本存在时间短
+- Prometheus可能来不及采集
+
+**3. 网络依赖**：
+- 网络延迟直接影响数据采集
+- 需要稳定的网络连接
+
+---
+
+**Push模式的补充场景**：
+
+**Pushgateway的作用**：
+```
+用于采集短生命周期任务的指标
+任务先推送到Pushgateway，再由Prometheus拉取
+```
+
+**配置示例**：
+```yaml
+scrape_configs:
+  - job_name: 'pushgateway'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['pushgateway:9091']
+```
+
+**推送命令**：
+```bash
+# 使用curl推送指标
+echo "batch_job_duration_seconds 12.5" | curl --data-binary @- http://pushgateway:9091/metrics/job/batch_job
+
+# 使用promtool推送
+promtool tsdb create-blocks-from openmetrics /path/to/metrics.txt --output-dir=/tmp/blocks
+```
+
+---
+
+**Prometheus vs Zabbix对比**：
+
+| 特性 | Prometheus | Zabbix |
+|:------|:------|:------|
+| **默认模式** | Pull（主动拉取） | Push（被动推送） |
+| **Agent要求** | 无需Agent，Exporter可选 | 需要部署Zabbix Agent |
+| **服务发现** | 原生支持多种服务发现 | 有限支持 |
+| **数据格式** | 开放标准（OpenMetrics） | 私有协议 |
+| **生态集成** | 强（Grafana、Thanos） | 中等 |
+| **适用场景** | 云原生、微服务 | 传统IT、跨网络监控 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 标准Pull模式配置**：
+```yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  
+  - job_name: 'kubernetes-nodes'
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_node_name]
+        target_label: node
+  
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+```
+
+**2. Pushgateway使用策略**：
+```yaml
+# 配置Pushgateway
+scrape_configs:
+  - job_name: 'pushgateway'
+    honor_labels: true  # 保留原始标签
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['pushgateway:9091']
+```
+
+**3. Remote Write扩展**：
+```yaml
+remote_write:
+  - url: 'http://thanos-receive:19291/api/v1/write'
+    remote_timeout: 30s
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'job_duration_seconds.*'
+        action: keep
+```
+
+**4. 高可用配置**：
+```yaml
+# 多副本配置
+global:
+  external_labels:
+    cluster: prod
+
+scrape_configs:
+  - job_name: 'node'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 原因 | 解决方案 |
+|:------|:------|:------|
+| 目标不可达 | 网络不通或端口未开放 | 检查网络连通性，配置防火墙规则 |
+| 指标缺失 | Exporter未部署或配置错误 | 检查Exporter状态，验证/metrics端点 |
+| Pushgateway数据过期 | 任务完成后未清理 | 使用grouping标签，定期清理 |
+| 数据延迟 | 采集间隔过长 | 调整scrape_interval参数 |
+
+---
+
+**💡 记忆口诀**：
+
+> **Prometheus**：默认Pull模式好，服务发现集成早；短任务用Pushgateway，Zabbix默认是Push
+
+**面试加分话术**：
+
+> "Prometheus默认采用Pull模式获取数据，Prometheus Server主动向目标的/metrics端点发起HTTP请求拉取指标。这种设计有几个优势：首先是灵活性，目标服务只需暴露标准接口，无需配置推送逻辑；其次是原生支持服务发现，能自动适应动态环境；再者是集中控制，采集频率由Prometheus统一管理。对于短生命周期任务，Prometheus提供Pushgateway作为补充，任务先将指标推送到Pushgateway，再由Prometheus定期拉取。相比之下，Zabbix默认使用Push模式，需要在每个目标部署Agent主动推送数据。Pull模式更适合云原生和微服务环境，而Push模式在跨网络、防火墙隔离的场景下更有优势。生产环境中建议使用标准Pull模式配合服务发现，仅对批处理任务使用Pushgateway，同时配置Remote Write实现长期存储和高可用。"
+
+> **延伸阅读**：想了解更多Prometheus数据采集模式的深度解析？请参考 [Prometheus Pull vs Push模式深度对比：监控架构设计指南]({% post_url 2026-06-08-prometheus-pull-push %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
