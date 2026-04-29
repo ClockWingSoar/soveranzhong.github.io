@@ -15106,4 +15106,403 @@ K8s默认有四个Namespace：default是未指定Namespace时的默认归属，k
 
 > **延伸阅读**：想了解更多Namespace知识？请参考 [K8s命名空间详解与多租户最佳实践]({% post_url 2026-06-20-k8s-namespace-best-practices %})。
 
+---
+
+### 105. Pod怎么调度到节点？
+
+> 🎯 **核心目标**：理解K8s调度器的工作原理，掌握Pod调度的两阶段流程，熟悉节点选择机制和调度策略
+
+**问题分析**：Pod调度是K8s的核心功能之一，面试中常问到调度流程、筛选和打分机制、亲和性配置、污点和容忍等。需要深入理解kube-scheduler的工作流程和调度策略。
+
+---
+
+**Pod调度流程总览**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Pod调度完整流程                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  Pod创建                                                       │
+│     │                                                          │
+│     ▼                                                          │
+│  ┌──────────────┐                                              │
+│  │ Scheduler    │  → 监听未调度Pod（spec.nodeName为空）        │
+│  │   监听       │                                              │
+│  └──────┬───────┘                                              │
+│         │                                                      │
+│         ▼                                                      │
+│  ┌──────────────┐     ┌─────────────────────┐                  │
+│  │  预选阶段    │ →→→ │  过滤不符合条件节点  │                  │
+│  │  (Filtering) │     │  PodFitsResources  │                  │
+│  │              │     │  NodeSelector      │                  │
+│  │              │     │  Taints/Tolerations│                  │
+│  └──────┬───────┘     └─────────────────────┘                  │
+│         │                                                      │
+│         ▼                                                      │
+│  ┌──────────────┐     ┌─────────────────────┐                  │
+│  │  优选阶段    │ →→→ │  为节点打分(0-100)  │                  │
+│  │  (Scoring)   │     │  LeastRequested    │                  │
+│  │              │     │  BalancedResource  │                  │
+│  │              │     │  NodeAffinity      │                  │
+│  └──────┬───────┘     └─────────────────────┘                  │
+│         │                                                      │
+│         ▼                                                      │
+│  ┌──────────────┐                                              │
+│  │   绑定节点   │  → 创建Binding对象，通知kubelet启动Pod      │
+│  └──────────────┘                                              │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**1. 调度流程详解**：
+
+**第一阶段：预选（Filtering）**：
+```bash
+# 调度器遍历所有节点，排除不符合条件的节点
+# 常见过滤规则：
+
+# 1. PodFitsResources - 检查资源是否充足
+# 节点可用资源 >= Pod requests
+
+# 2. PodFitsHostPorts - 检查端口是否被占用
+# spec.containers[].ports[].hostPort
+
+# 3. NodeSelector - 检查节点标签匹配
+spec:
+  nodeSelector:
+    disktype: ssd
+
+# 4. Taints/Tolerations - 检查污点容忍
+spec:
+  tolerations:
+  - key: "node.kubernetes.io/memory-pressure"
+    operator: "Exists"
+
+# 5. NodeAffinity - 检查节点亲和性
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: zone
+            operator: In
+            values: ["zone-a", "zone-b"]
+```
+
+**第二阶段：优选（Scoring）**：
+```bash
+# 为通过预选的节点打分（0-100分）
+# 常见打分规则：
+
+# 1. LeastRequestedPriority - 资源使用率低的节点得分高
+# 计算公式：(capacity - requests) / capacity * 100
+
+# 2. BalancedResourceAllocation - 资源使用均衡的节点得分高
+# 避免CPU或内存某一项过度使用
+
+# 3. NodeAffinityPriority - 满足软亲和性的节点加分
+spec:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: node-type
+            operator: In
+            values: ["high-performance"]
+
+# 4. ImageLocalityPriority - 已有镜像的节点得分高
+# 减少镜像拉取时间
+
+# 5. SelectorSpreadPriority - Pod分散到不同节点
+# 提高可用性
+```
+
+---
+
+**2. 调度机制详解**：
+
+**nodeName（直接指定节点）**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-pod
+spec:
+  nodeName: node-01  # 直接绑定到指定节点
+  containers:
+  - name: nginx
+    image: nginx
+```
+
+**nodeSelector（节点标签匹配）**：
+```yaml
+# 步骤1：为节点打标签
+kubectl label nodes node-01 disktype=ssd
+
+# 步骤2：配置Pod的nodeSelector
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ssd-pod
+spec:
+  nodeSelector:
+    disktype: ssd  # 只调度到有ssd标签的节点
+  containers:
+  - name: nginx
+    image: nginx
+```
+
+**NodeAffinity（节点亲和性）**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-affinity-pod
+spec:
+  affinity:
+    nodeAffinity:
+      # 硬亲和性：必须满足
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/os
+            operator: In
+            values: ["linux"]
+      # 软亲和性：优先满足
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 80
+        preference:
+          matchExpressions:
+          - key: node-type
+            operator: In
+            values: ["gpu"]
+      - weight: 20
+        preference:
+          matchExpressions:
+          - key: zone
+            operator: In
+            values: ["zone-a"]
+  containers:
+  - name: app
+    image: myapp:latest
+```
+
+**PodAffinity/PodAntiAffinity（Pod间亲和性）**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-affinity-pod
+spec:
+  affinity:
+    # Pod亲和性：与指定Pod在同一节点
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values: ["cache"]
+        topologyKey: kubernetes.io/hostname
+    # Pod反亲和性：不与指定Pod在同一节点
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values: ["web"]
+          topologyKey: kubernetes.io/hostname
+  containers:
+  - name: app
+    image: myapp:latest
+```
+
+---
+
+**3. 污点与容忍（Taints & Tolerations）**：
+
+**Taint（污点）**：
+```bash
+# 为节点添加污点
+kubectl taint nodes node-01 key=value:effect
+
+# effect类型：
+# - NoSchedule: 不容忍此污点的Pod不能调度到该节点
+# - PreferNoSchedule: 尽量不调度
+# - NoExecute: 已运行的Pod会被驱逐
+
+# 示例：标记节点为不可调度
+kubectl taint nodes node-01 dedicated=special:NoSchedule
+
+# 示例：标记节点内存压力
+kubectl taint nodes node-01 node.kubernetes.io/memory-pressure:NoSchedule
+
+# 移除污点
+kubectl taint nodes node-01 dedicated-
+```
+
+**Toleration（容忍）**：
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerant-pod
+spec:
+  tolerations:
+  # 容忍特定污点
+  - key: "dedicated"
+    operator: "Equal"
+    value: "special"
+    effect: "NoSchedule"
+  # 容忍所有污点
+  - key: "node.kubernetes.io/memory-pressure"
+    operator: "Exists"
+  containers:
+  - name: app
+    image: myapp:latest
+```
+
+---
+
+**4. 节点选择流程**：
+
+```bash
+# 完整调度流程示例：
+
+# 1. 创建Pod
+kubectl apply -f pod.yaml
+
+# 2. Scheduler监听未调度Pod
+# 通过List-Watch机制发现Pending状态的Pod
+
+# 3. 预选阶段 - 过滤节点
+# 检查：资源充足、端口可用、标签匹配、污点容忍
+
+# 4. 优选阶段 - 节点打分
+# 计算：资源使用率、亲和性权重、镜像本地性等
+
+# 5. 绑定节点
+kubectl get pod <pod-name> -o jsonpath='{.spec.nodeName}'
+
+# 6. kubelet启动容器
+# kubelet监听到绑定事件，调用容器运行时启动Pod
+```
+
+---
+
+**5. 调度策略配置**：
+
+**Scheduler配置文件**：
+```yaml
+apiVersion: kubescheduler.config.k8s.io/v1beta3
+kind: KubeSchedulerConfiguration
+profiles:
+- schedulerName: default-scheduler
+  plugins:
+    filter:
+      enabled:
+      - name: PodFitsResources
+      - name: PodFitsHostPorts
+      - name: NodeAffinity
+      - name: TaintToleration
+    score:
+      enabled:
+      - name: LeastRequestedPriority
+        weight: 1
+      - name: BalancedResourceAllocation
+        weight: 1
+      - name: NodeAffinityPriority
+        weight: 2
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | 核心原因 | 解决方案 |
+|:------|:------|:------|
+| **Pod一直Pending** | 调度失败、无可用节点 | 查看Events、检查资源、污点配置 |
+| **Pod调度到错误节点** | 亲和性配置错误 | 检查nodeSelector/nodeAffinity配置 |
+| **节点资源浪费** | 调度策略不合理 | 调整优选策略权重 |
+| **Pod被驱逐** | 节点有NoExecute污点 | 配置Toleration或移除污点 |
+| **Pod分布不均** | 缺少反亲和性配置 | 配置PodAntiAffinity |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 使用节点亲和性控制调度**：
+```yaml
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: region
+            operator: In
+            values: ["us-west"]
+```
+
+**2. 配置Pod反亲和性提高可用性**：
+```yaml
+spec:
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: web
+        topologyKey: kubernetes.io/hostname
+```
+
+**3. 使用污点保护特殊节点**：
+```bash
+# 为GPU节点添加污点
+kubectl taint nodes gpu-node-01 nvidia.com/gpu:NoSchedule
+
+# Pod配置容忍
+spec:
+  tolerations:
+  - key: "nvidia.com/gpu"
+    operator: "Exists"
+```
+
+**4. 配置Pod拓扑分布约束**：
+```yaml
+spec:
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app: web
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **Pod调度**：调度分为两阶段，预选过滤不符合，优选打分选最优；nodeName硬绑定，nodeSelector标签配，Affinity更灵活，污点容忍来控制；预选规则看资源、端口、标签、污点，优选规则看资源均衡、亲和性权重、镜像本地性。
+
+**面试加分话术**：
+
+> "Pod调度是由kube-scheduler完成的，分为两个阶段：预选阶段和优选阶段。预选阶段会遍历所有节点，根据一系列硬性规则过滤掉不符合条件的节点，比如资源是否充足、端口是否被占用、节点标签是否匹配、污点是否被容忍等。通过预选的节点称为可行节点。优选阶段会为每个可行节点打分，打分维度包括资源使用率、资源均衡度、节点亲和性权重、镜像本地性等，得分范围是0-100分。最后选择得分最高的节点，创建Binding对象将Pod绑定到该节点，kubelet监听到绑定事件后启动容器。
+
+除了默认的调度流程，K8s还提供了多种调度机制：nodeName可以直接指定节点，跳过调度器；nodeSelector通过节点标签匹配；NodeAffinity提供更灵活的节点选择，支持硬亲和性和软亲和性；PodAffinity/PodAntiAffinity可以控制Pod之间的部署位置；Taints和Tolerations用于节点级别的排斥控制。
+
+生产环境中应该合理配置节点亲和性和Pod反亲和性，使用污点保护特殊节点，配置Pod拓扑分布约束确保Pod均匀分布，提高集群的可用性和资源利用率。"
+
+> **延伸阅读**：想了解更多Pod调度知识？请参考 [Pod调度机制详解与最佳实践]({% post_url 2026-06-21-pod-scheduling-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
