@@ -15890,4 +15890,321 @@ spec:
 
 > **延伸阅读**：想了解更多K8s高可用知识？请参考 [K8s应用高可用架构详解与最佳实践]({% post_url 2026-06-22-k8s-high-availability-best-practices %})。
 
+---
+
+### 107. 容器内部服务互相调用正常、外部无法访问，如何解决？
+
+> 🎯 **核心目标**：掌握K8s网络访问故障排查方法，理解Service、Ingress、NetworkPolicy等网络组件的工作原理，能够快速定位并解决外部访问问题
+
+**问题分析**：这是K8s网络中常见的问题，内部通外部不通通常涉及Service配置、Ingress配置、网络策略、防火墙规则等多个层面。需要系统地排查网络链路中的各个环节。
+
+---
+
+**网络访问排查流程图**：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    外部访问故障排查流程                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                           │
+│  外部请求                                                   │
+│     │                                                      │
+│     ▼                                                      │
+│  ┌──────────────┐     失败     ┌──────────────┐            │
+│  │  Ingress     │ ─────────→ │  检查Ingress │            │
+│  │  (可选)      │            │  配置/状态    │            │
+│  └──────┬───────┘            └──────────────┘            │
+│         │ 成功                                             │
+│         ▼                                                  │
+│  ┌──────────────┐     失败     ┌──────────────┐            │
+│  │  Service     │ ─────────→ │  检查Service │            │
+│  │              │            │  配置/Endpoint│            │
+│  └──────┬───────┘            └──────────────┘            │
+│         │ 成功                                             │
+│         ▼                                                  │
+│  ┌──────────────┐     失败     ┌──────────────┐            │
+│  │   Pod        │ ─────────→ │  检查Pod     │            │
+│  │              │            │  状态/探针    │            │
+│  └──────┬───────┘            └──────────────┘            │
+│         │ 成功                                             │
+│         ▼                                                  │
+│     服务正常响应                                            │
+│                                                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**1. 排查Service配置**：
+
+**检查Service类型**：
+```bash
+# 查看Service类型
+kubectl get service <service-name> -o yaml
+
+# Service类型说明：
+# - ClusterIP: 仅集群内部访问
+# - NodePort: 通过节点IP+端口访问
+# - LoadBalancer: 通过负载均衡器IP访问
+```
+
+**检查Endpoint状态**：
+```bash
+# 查看Endpoint是否有Pod
+kubectl get endpoints <service-name>
+
+# 正常输出应包含Pod IP列表
+# 如果为空，检查Pod标签是否匹配Service selector
+```
+
+**检查标签选择器**：
+```yaml
+# Service配置示例
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  selector:
+    app: web  # 必须与Pod标签匹配
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+---
+
+**2. 排查Pod状态**：
+
+**检查Pod是否就绪**：
+```bash
+# 查看Pod状态
+kubectl get pod <pod-name> -o wide
+
+# 检查READY状态
+# READY列显示"1/1"表示就绪，"0/1"表示未就绪
+```
+
+**检查Readiness Probe**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+```
+
+**检查Pod网络**：
+```bash
+# 进入Pod内部测试
+kubectl exec -it <pod-name> -- curl localhost:8080
+
+# 从其他Pod访问
+kubectl exec -it <another-pod> -- curl <pod-ip>:8080
+```
+
+---
+
+**3. 排查Ingress配置**：
+
+**检查Ingress规则**：
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+spec:
+  rules:
+  - host: example.com  # 外部访问域名
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service  # 必须存在对应的Service
+            port:
+              number: 80
+```
+
+**检查Ingress Controller**：
+```bash
+# 检查Ingress Controller Pod状态
+kubectl get pods -n ingress-nginx
+
+# 查看Ingress Controller日志
+kubectl logs -n ingress-nginx <ingress-controller-pod>
+```
+
+**检查Ingress状态**：
+```bash
+kubectl describe ingress <ingress-name>
+```
+
+---
+
+**4. 排查网络策略**：
+
+**检查NetworkPolicy**：
+```bash
+# 查看命名空间下的NetworkPolicy
+kubectl get networkpolicy
+
+# 如果存在NetworkPolicy，检查是否允许外部访问
+```
+
+**NetworkPolicy示例**：
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: []  # 禁止所有入站流量
+```
+
+---
+
+**5. 排查节点网络**：
+
+**检查节点端口**：
+```bash
+# NodePort类型Service
+kubectl get service <service-name>
+
+# 检查节点端口是否开放
+nc -zv <node-ip> <node-port>
+```
+
+**检查防火墙规则**：
+```bash
+# 检查节点防火墙
+iptables -L -n | grep <node-port>
+
+# 云平台检查安全组/网络ACL
+```
+
+**检查CNI网络**：
+```bash
+# 检查Calico/Flannel等CNI插件状态
+kubectl get pods -n kube-system -l k8s-app=calico-node
+```
+
+---
+
+**6. 排查DNS解析**：
+```bash
+# 检查Service DNS解析
+kubectl exec -it <pod-name> -- nslookup <service-name>
+
+# 检查外部DNS解析
+kubectl exec -it <pod-name> -- nslookup example.com
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | 核心原因 | 解决方案 |
+|:------|:------|:------|
+| **Service没有Endpoint** | Pod标签与Service selector不匹配 | 检查Pod标签和Service selector |
+| **Pod未就绪** | Readiness Probe失败 | 检查Probe配置和应用健康状态 |
+| **Ingress无法访问** | Ingress Controller未部署或配置错误 | 检查Ingress Controller状态和配置 |
+| **NodePort无法访问** | 防火墙阻止或节点端口未开放 | 检查防火墙规则和安全组 |
+| **网络策略阻止访问** | NetworkPolicy禁止外部流量 | 调整NetworkPolicy规则 |
+| **DNS解析失败** | CoreDNS配置问题 | 检查CoreDNS状态和配置 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 正确配置Service**：
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  type: ClusterIP  # 或NodePort/LoadBalancer
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+**2. 配置Readiness Probe**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+```
+
+**3. 使用Ingress进行外部访问**：
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 80
+```
+
+**4. 合理配置NetworkPolicy**：
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+  - Ingress
+  ingress:
+  - from: []  # 允许所有入站流量
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **外部访问排查**：先看Service Endpoint，再查Pod就绪状态，Ingress规则要匹配，网络策略别阻挡，防火墙规则要开放，DNS解析要正常。
+
+**面试加分话术**：
+
+> "当容器内部服务互相调用正常但外部无法访问时，需要从多个层面进行排查。首先检查Service配置，确认Service类型是否正确（ClusterIP只能内部访问，NodePort或LoadBalancer才能外部访问），检查Endpoint是否包含Pod IP，如果为空则说明Pod标签与Service selector不匹配。其次检查Pod状态，确保Pod处于Running状态且Readiness Probe通过，未就绪的Pod不会被加入Endpoint。第三检查Ingress配置，确认Ingress Controller正常运行，Ingress规则正确指向Service。第四检查NetworkPolicy，确保没有禁止外部访问的策略。最后检查节点防火墙和云平台安全组，确保端口已开放。
+
+排查顺序应该是从外到内：先检查外部访问入口（Ingress/LoadBalancer），再检查Service层，最后检查Pod层。每个环节都需要确认配置正确、状态正常。"
+
+> **延伸阅读**：想了解更多K8s网络问题排查知识？请参考 [K8s网络故障排查指南与最佳实践]({% post_url 2026-06-23-k8s-network-troubleshooting-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
