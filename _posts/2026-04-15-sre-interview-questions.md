@@ -12975,4 +12975,258 @@ JedisSentinelPool pool = new JedisSentinelPool("mymaster", sentinels, poolConfig
 
 > **延伸阅读**：想了解更多Redis主从切换的原理和最佳实践？请参考 [Redis主从切换与哨兵监控最佳实践]({% post_url 2026-06-13-redis-sentinel-best-practices %})。
 
+---
+
+### 98. HTTPS访问Nginx需要怎么做？
+
+> 🎯 **核心目标**：掌握Nginx配置HTTPS的完整流程，包括证书获取、配置文件编写、安全优化和性能调优
+
+**问题分析**：HTTPS是现代Web服务的基本要求，面试中常问到证书获取方式、配置步骤、安全头设置等问题。需要深入理解SSL/TLS协议、证书类型、加密套件选择和性能优化策略。
+
+---
+
+**HTTPS配置步骤**：
+
+**1. 准备SSL证书**：
+
+**方式一：使用Let's Encrypt免费证书**：
+```bash
+# 安装Certbot
+sudo apt-get update && sudo apt-get install certbot python3-certbot-nginx
+
+# 自动申请并配置证书
+sudo certbot --nginx -d example.com -d www.example.com
+
+# 手动申请证书（不自动配置）
+sudo certbot certonly --nginx -d example.com
+```
+
+**方式二：使用商业证书**：
+```bash
+# 从CA机构购买证书
+# 证书文件通常包含：
+# - fullchain.pem（域名证书+中间证书）
+# - privkey.pem（私钥）
+```
+
+**证书格式要求**：
+```bash
+# Nginx只支持PEM格式
+# 检查证书格式
+openssl x509 -in certificate.crt -text -noout
+
+# 检查私钥格式
+openssl rsa -in private.key -check
+```
+
+---
+
+**2. Nginx基础配置**：
+
+**最小HTTPS配置**：
+```nginx
+server {
+    # HTTP重定向到HTTPS
+    listen 80;
+    server_name example.com www.example.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    # HTTPS监听端口
+    listen 443 ssl http2;
+    server_name example.com www.example.com;
+    
+    # SSL证书配置
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    
+    # SSL协议版本
+    ssl_protocols TLSv1.2 TLSv1.3;
+    
+    # SSL密码套件
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    
+    location / {
+        root /var/www/html;
+        index index.html;
+    }
+}
+```
+
+**关键配置说明**：
+| 配置项 | 说明 |
+|:------|:------|
+| `listen 443 ssl http2` | 启用HTTPS和HTTP/2 |
+| `ssl_certificate` | 证书文件路径（包含完整证书链） |
+| `ssl_certificate_key` | 私钥文件路径 |
+| `ssl_protocols` | 支持的TLS版本 |
+| `ssl_ciphers` | 加密套件列表 |
+
+---
+
+**3. 安全配置优化**：
+
+**HSTS（HTTP严格传输安全）**：
+```nginx
+# 基础配置（有效期1年）
+add_header Strict-Transport-Security "max-age=31536000" always;
+
+# 包含子域名
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+# 预加载（需提交到浏览器预加载列表）
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+```
+
+**安全响应头**：
+```nginx
+add_header X-Frame-Options DENY always;
+add_header X-Content-Type-Options nosniff always;
+add_header Referrer-Policy strict-origin-when-cross-origin always;
+add_header Content-Security-Policy "default-src 'self'" always;
+```
+
+**OCSP装订**：
+```nginx
+ssl_stapling on;
+ssl_stapling_verify on;
+resolver 8.8.8.8 8.8.4.4 valid=300s;
+resolver_timeout 5s;
+```
+
+---
+
+**4. 性能优化**：
+
+**SSL会话缓存**：
+```nginx
+# 共享会话缓存（10MB约存储40000个会话）
+ssl_session_cache shared:SSL:10m;
+ssl_session_timeout 10m;
+ssl_session_tickets on;
+```
+
+**SSL缓冲区**：
+```nginx
+# 减小缓冲区大小，降低内存占用
+ssl_buffer_size 4k;
+```
+
+**HTTP/2配置**：
+```nginx
+# 启用HTTP/2
+listen 443 ssl http2;
+
+# HTTP/2多路复用优化
+http2_max_field_size 64k;
+http2_max_header_size 128k;
+```
+
+---
+
+**5. 证书自动续期**：
+
+**Certbot自动续期**：
+```bash
+# 测试续期
+certbot renew --dry-run
+
+# 实际续期
+certbot renew --quiet
+
+# 设置定时任务（每天凌晨2点执行）
+# /etc/cron.d/certbot
+0 2 * * * root certbot renew --quiet && systemctl reload nginx
+```
+
+---
+
+**6. 配置验证与测试**：
+
+**验证配置语法**：
+```bash
+nginx -t
+```
+
+**测试HTTPS连接**：
+```bash
+# 查看证书信息
+openssl s_client -connect example.com:443 -servername example.com
+
+# 测试HTTP/2支持
+curl -I --http2 https://example.com
+
+# SSL安全评分
+ssllabs-scan example.com
+```
+
+---
+
+**证书类型对比**：
+
+| 类型 | 验证方式 | 适用场景 | 价格 |
+|:------|:------|:------|:------|
+| **DV证书** | 域名验证 | 个人网站、博客 | 免费/低价 |
+| **OV证书** | 组织验证 | 企业官网 | 中等 |
+| **EV证书** | 扩展验证 | 金融、电商 | 较高 |
+
+**TLS版本对比**：
+
+| 版本 | 安全性 | 兼容性 | 推荐 |
+|:------|:------|:------|:------|
+| TLS 1.0 | 低（已废弃） | 高 | 不推荐 |
+| TLS 1.1 | 低（已废弃） | 较高 | 不推荐 |
+| TLS 1.2 | 高 | 良好 | 推荐 |
+| TLS 1.3 | 最高 | 较好 | 推荐 |
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 现象 | 解决方案 |
+|:------|:------|:------|
+| **证书不被信任** | 浏览器提示证书无效 | 确保证书包含完整证书链（fullchain.pem） |
+| **证书过期** | 浏览器提示证书过期 | 配置Certbot自动续期 |
+| **SSL握手失败** | HTTPS连接无法建立 | 检查证书路径、权限、格式是否正确 |
+| **混合内容警告** | 部分资源通过HTTP加载 | 将所有资源改为HTTPS |
+| **HTTP/2不生效** | 无法使用HTTP/2特性 | 确认配置了`listen 443 ssl http2` |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 证书管理**：
+```bash
+# 使用Let's Encrypt免费证书
+# 定期备份证书文件
+# 在多节点部署时同步证书
+```
+
+**2. 安全审计**：
+```bash
+# 定期使用SSL Labs测试
+# 及时更新密码套件
+# 禁用不安全的协议和算法
+```
+
+**3. 性能监控**：
+```bash
+# 监控SSL握手时间
+# 跟踪证书过期时间
+# 监控HTTPS请求成功率
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **HTTPS配置**：证书获取用Certbot，配置文件要完整；协议只留TLS1.2和1.3，密码套件选强的；HSTS加安全头，OCSP装订不能少；会话缓存提性能，自动续期保安全。
+
+**面试加分话术**：
+
+> "配置Nginx支持HTTPS主要有几个步骤。首先需要获取SSL证书，可以使用Let's Encrypt的免费证书，通过Certbot工具自动申请和配置。然后在Nginx配置文件中添加HTTPS的server块，配置443端口监听，指定证书文件和私钥路径，设置TLS协议版本（推荐TLS 1.2和1.3）和安全的密码套件。接下来需要配置HTTP到HTTPS的重定向，确保所有请求都通过HTTPS访问。安全方面，要设置HSTS头部强制使用HTTPS，添加X-Frame-Options、X-Content-Type-Options等安全响应头，启用OCSP装订加速证书验证。性能优化方面，配置SSL会话缓存减少握手开销，启用HTTP/2协议提升并发性能。最后配置证书自动续期，确保证书不会过期。生产环境中还需要定期进行SSL安全审计，监控证书状态和HTTPS性能指标。"
+
+> **延伸阅读**：想了解更多Nginx HTTPS配置的最佳实践？请参考 [Nginx HTTPS配置与安全优化最佳实践]({% post_url 2026-06-14-nginx-https-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
