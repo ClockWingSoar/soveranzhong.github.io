@@ -16551,4 +16551,414 @@ data:
 
 > **延伸阅读**：想了解更多K8s YAML配置知识？请参考 [K8s YAML配置最佳实践指南]({% post_url 2026-06-24-k8s-yaml-best-practices %})。
 
+---
+
+### 109. 请列举几个典型的K8s故障案例及解决方案？
+
+> 🎯 **核心目标**：掌握K8s常见故障的排查思路和解决方法，积累实战经验，能够快速定位和解决生产环境中的问题
+
+**问题分析**：面试中经常会问到实际的故障案例，考察候选人的实战经验和问题解决能力。需要准备几个典型的故障案例，包括现象描述、原因分析和解决方案。
+
+---
+
+**故障案例一：Pod一直处于Pending状态**
+
+**现象**：
+```bash
+kubectl get pod my-pod
+# NAME      READY   STATUS    RESTARTS   AGE
+# my-pod    0/1     Pending   0          5m
+```
+
+**原因分析**：
+- 资源不足：节点可用资源不足Pod的requests
+- 节点选择器不匹配：nodeSelector/nodeAffinity配置错误
+- 污点容忍问题：节点有污点，Pod没有对应的容忍
+- 镜像拉取失败：镜像地址错误或凭证问题
+- Volume绑定失败：PVC无法绑定PV
+
+**解决方案**：
+```bash
+# 1. 查看Pod事件
+kubectl describe pod my-pod
+
+# 2. 检查节点资源
+kubectl top nodes
+
+# 3. 检查污点配置
+kubectl describe node <node-name> | grep Taints
+
+# 4. 检查镜像拉取
+kubectl describe pod my-pod | grep -A 5 "Failed to pull"
+
+# 5. 检查PVC状态
+kubectl get pvc
+```
+
+---
+
+**故障案例二：Pod频繁重启**
+
+**现象**：
+```bash
+kubectl get pod my-pod
+# NAME      READY   STATUS    RESTARTS   AGE
+# my-pod    1/1     Running   5          10m
+```
+
+**原因分析**：
+- Liveness Probe配置过严：探针检测失败导致重启
+- 应用自身崩溃：代码bug、资源不足、依赖服务不可用
+- 内存/CPU资源耗尽：Pod被OOM killed
+- 配置错误：环境变量、配置文件错误
+
+**解决方案**：
+```bash
+# 1. 查看重启原因
+kubectl describe pod my-pod | grep -A 10 "Last State"
+
+# 2. 查看应用日志
+kubectl logs my-pod --previous
+
+# 3. 检查资源使用
+kubectl top pod my-pod
+
+# 4. 检查Liveness Probe配置
+kubectl get pod my-pod -o yaml | grep -A 10 livenessProbe
+
+# 5. 调整探针配置
+kubectl patch deployment my-deployment -p '{
+  "spec": {
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "name": "app",
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8080
+              },
+              "initialDelaySeconds": 30,
+              "periodSeconds": 10
+            }
+          }
+        ]
+      }
+    }
+  }
+}'
+```
+
+---
+
+**故障案例三：Service无法访问后端Pod**
+
+**现象**：
+```bash
+# Service存在但Endpoint为空
+kubectl get endpoints my-service
+# NAME          ENDPOINTS   AGE
+# my-service    <none>      5m
+```
+
+**原因分析**：
+- Pod标签与Service selector不匹配
+- Pod未就绪：Readiness Probe失败
+- 网络策略阻止：NetworkPolicy禁止访问
+- Service配置错误：端口映射错误
+
+**解决方案**：
+```bash
+# 1. 检查标签匹配
+kubectl get service my-service -o jsonpath='{.spec.selector}'
+kubectl get pod --show-labels
+
+# 2. 检查Pod就绪状态
+kubectl get pod -o wide
+
+# 3. 检查Readiness Probe
+kubectl describe pod my-pod | grep -A 10 "Readiness probe"
+
+# 4. 检查NetworkPolicy
+kubectl get networkpolicy
+
+# 5. 修复标签
+kubectl label pod my-pod app=my-app --overwrite
+```
+
+---
+
+**故障案例四：节点故障导致Pod不可用**
+
+**现象**：
+```bash
+# 节点状态变为NotReady
+kubectl get node node-01
+# NAME      STATUS     ROLES    AGE    VERSION
+# node-01   NotReady   worker   10d    v1.28.0
+
+# Pod状态变为Unknown或Terminating
+kubectl get pod -o wide | grep node-01
+# NAME      READY   STATUS        NODE      AGE
+# my-pod    1/1     Unknown      node-01   5m
+```
+
+**原因分析**：
+- 节点宕机：硬件故障、系统崩溃
+- 网络分区：节点与Master失联
+- kubelet故障：kubelet进程停止
+- 资源耗尽：节点CPU/内存不足
+
+**解决方案**：
+```bash
+# 1. 检查节点状态
+kubectl describe node node-01
+
+# 2. 远程登录节点检查
+ssh node-01
+systemctl status kubelet
+dmesg | tail -20
+
+# 3. 驱逐节点上的Pod
+kubectl drain node-01 --ignore-daemonsets --delete-local-data
+
+# 4. 标记节点为不可调度
+kubectl cordon node-01
+
+# 5. 修复节点后恢复调度
+kubectl uncordon node-01
+```
+
+---
+
+**故障案例五：Ingress无法访问**
+
+**现象**：
+```bash
+curl http://example.com
+# curl: (7) Failed to connect to example.com port 80: Connection refused
+```
+
+**原因分析**：
+- Ingress Controller未部署或异常
+- Ingress规则配置错误：后端Service不存在或端口错误
+- DNS解析问题：域名未正确解析到Ingress Controller
+- TLS证书问题：HTTPS访问时证书无效
+
+**解决方案**：
+```bash
+# 1. 检查Ingress Controller状态
+kubectl get pods -n ingress-nginx
+
+# 2. 检查Ingress配置
+kubectl describe ingress my-ingress
+
+# 3. 检查后端Service
+kubectl get service
+
+# 4. 查看Ingress Controller日志
+kubectl logs -n ingress-nginx <controller-pod>
+
+# 5. 测试Ingress Controller直连
+curl http://<node-ip>:<ingress-port> -H "Host: example.com"
+```
+
+---
+
+**故障案例六：数据卷挂载失败**
+
+**现象**：
+```bash
+kubectl describe pod my-pod | grep -A 5 "MountVolume"
+# Warning  FailedMount  5m    kubelet  MountVolume.SetUp failed for volume "data" : hostPath type check failed: /data is not a directory
+```
+
+**原因分析**：
+- hostPath路径不存在或类型错误
+- PVC绑定失败：没有可用的PV
+- StorageClass配置错误：provisioner不存在
+- 权限问题：容器没有挂载目录的权限
+
+**解决方案**：
+```bash
+# 1. 检查PVC状态
+kubectl get pvc my-pvc
+
+# 2. 检查PV状态
+kubectl get pv
+
+# 3. 检查StorageClass
+kubectl get storageclass
+
+# 4. 检查hostPath目录
+ssh node-01
+ls -la /data
+
+# 5. 创建目录并设置权限
+ssh node-01
+mkdir -p /data
+chown 1000:1000 /data
+```
+
+---
+
+**故障案例七：DNS解析失败**
+
+**现象**：
+```bash
+kubectl exec -it my-pod -- nslookup my-service
+# nslookup: can't resolve 'my-service'
+```
+
+**原因分析**：
+- CoreDNS Pod未运行或异常
+- DNS配置错误：/etc/resolv.conf配置错误
+- NetworkPolicy阻止DNS访问
+- 命名空间问题：跨命名空间访问需要完整域名
+
+**解决方案**：
+```bash
+# 1. 检查CoreDNS状态
+kubectl get pods -n kube-system -l k8s-app=kube-dns
+
+# 2. 查看CoreDNS日志
+kubectl logs -n kube-system <coredns-pod>
+
+# 3. 检查Pod的DNS配置
+kubectl exec -it my-pod -- cat /etc/resolv.conf
+
+# 4. 使用完整域名访问
+kubectl exec -it my-pod -- nslookup my-service.default.svc.cluster.local
+
+# 5. 检查NetworkPolicy
+kubectl get networkpolicy
+```
+
+---
+
+**故障排查方法论**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    故障排查流程                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                               │
+│  1. 观察现象                                                    │
+│     └── kubectl get, kubectl describe                          │
+│                                                               │
+│  2. 收集信息                                                    │
+│     └── kubectl logs, kubectl events                           │
+│                                                               │
+│  3. 定位根因                                                    │
+│     └── 从现象到本质，逐层排查                                  │
+│                                                               │
+│  4. 验证假设                                                    │
+│     └── 小范围测试，确认问题                                    │
+│                                                               │
+│  5. 实施修复                                                    │
+│     └── 应用解决方案                                           │
+│                                                               │
+│  6. 验证效果                                                    │
+│     └── 确认问题已解决                                          │
+│                                                               │
+│  7. 记录总结                                                    │
+│     └── 文档化问题和解决方案                                    │
+│                                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+**常见问题与解决方案汇总**：
+
+| 故障现象 | 核心原因 | 排查方法 | 解决方案 |
+|:------|:------|:------|:------|
+| **Pod Pending** | 资源不足/配置错误 | `kubectl describe pod` | 检查资源、标签、污点 |
+| **Pod频繁重启** | Liveness Probe/应用崩溃 | `kubectl logs --previous` | 调整探针、修复代码 |
+| **Service无Endpoint** | 标签不匹配/Pod未就绪 | `kubectl get endpoints` | 检查标签、Readiness Probe |
+| **节点NotReady** | kubelet故障/网络问题 | `systemctl status kubelet` | 重启kubelet、检查网络 |
+| **Ingress无法访问** | Controller异常/配置错误 | `kubectl logs ingress-controller` | 检查Controller、规则配置 |
+| **DNS解析失败** | CoreDNS异常/策略阻止 | `kubectl get pods -n kube-system` | 检查CoreDNS、NetworkPolicy |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 建立监控告警体系**：
+```yaml
+# Prometheus告警规则
+groups:
+- name: k8s-alerts
+  rules:
+  - alert: PodCrashLooping
+    expr: increase(kube_pod_container_status_restarts_total[5m]) > 3
+    for: 5m
+    labels:
+      severity: critical
+  - alert: NodeNotReady
+    expr: kube_node_status_condition{condition="Ready",status="false"} == 1
+    for: 5m
+    labels:
+      severity: critical
+```
+
+**2. 配置健康检查探针**：
+```yaml
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 3
+```
+
+**3. 实现Pod反亲和性**：
+```yaml
+spec:
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: web
+        topologyKey: kubernetes.io/hostname
+```
+
+**4. 定期备份关键配置**：
+```bash
+# 备份Deployment配置
+kubectl get deployment -o yaml > deployments-backup.yaml
+
+# 备份Service配置
+kubectl get service -o yaml > services-backup.yaml
+
+# 定期执行备份脚本
+0 2 * * * kubectl get all -o yaml > /backup/k8s-backup-$(date +%Y%m%d).yaml
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **故障排查**：先看状态再看事件，日志是关键；从外到内逐层查，Pod→Service→网络；资源不足扩节点，配置错误查YAML；探针过严调参数，标签不匹配改选择器。
+
+**面试加分话术**：
+
+> "在生产环境中，我遇到过多种K8s故障。比如Pod一直Pending的情况，通常是资源不足或标签不匹配导致的，可以通过kubectl describe pod查看事件来定位原因。还有Pod频繁重启的问题，大部分是Liveness Probe配置过严或者应用自身崩溃，需要查看日志和调整探针参数。Service无法访问后端Pod通常是标签不匹配或Pod未就绪，需要检查Endpoint状态和Readiness Probe。
+
+故障排查的关键是建立系统化的排查流程：首先观察现象，然后收集信息（查看状态、事件、日志），定位根因，验证假设，实施修复，最后验证效果并记录总结。同时，建立完善的监控告警体系可以提前发现问题，减少故障影响。"
+
+> **延伸阅读**：想了解更多K8s故障排查知识？请参考 [K8s故障案例分析与实战指南]({% post_url 2026-06-25-k8s-troubleshooting-case-studies %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
