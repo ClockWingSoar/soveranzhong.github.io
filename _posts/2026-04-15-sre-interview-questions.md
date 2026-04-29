@@ -12663,4 +12663,316 @@ Duration（持续时间）：请求耗时分布
 
 > **延伸阅读**：想了解更多监控指标的设计原则和最佳实践？请参考 [监控指标体系设计与生产环境最佳实践]({% post_url 2026-06-12-monitoring-metrics-best-practices %})。
 
+---
+
+### 97. Redis主从切换怎么做？怎么监控？
+
+> 🎯 **核心目标**：掌握Redis主从切换的流程、哨兵机制的工作原理，以及如何监控主从状态和切换过程
+
+**问题分析**：Redis主从切换是保障高可用性的关键能力，面试中常问到切换流程、哨兵机制、故障检测和监控方法。需要深入理解哨兵的选举机制、故障转移流程和监控指标。
+
+---
+
+**主从切换方式**：
+
+**1. 手动切换**：
+```bash
+# 场景：计划性维护、主节点升级
+# 步骤：
+1. 停止写入主节点
+2. 等待从节点同步完成（INFO replication查看offset）
+3. 从节点执行 SLAVEOF NO ONE 升级为主节点
+4. 其他从节点执行 SLAVEOF 新主节点IP 端口
+5. 更新客户端连接配置
+6. 原主节点恢复后作为从节点加入集群
+```
+
+**2. 自动切换（哨兵模式）**：
+```bash
+# 场景：主节点故障、网络分区
+# 哨兵自动完成故障检测和故障转移
+```
+
+---
+
+**哨兵（Sentinel）机制**：
+
+**哨兵架构**：
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     哨兵集群架构                           │
+├─────────────────────────────────────────────────────────────┤
+│  Client                                                   │
+│    │                                                      │
+│    ├───────────────────────────────────────────────────┐   │
+│    │                                                   │   │
+│    ▼                                                   ▼   │
+│  ┌─────────┐    ┌─────────┐    ┌─────────┐          │   │
+│  │ Sentinel│    │ Sentinel│    │ Sentinel│          │   │
+│  │   S1    │    │   S2    │    │   S3    │          │   │
+│  └────┬────┘    └────┬────┘    └────┬────┘          │   │
+│       │              │              │                │   │
+│       └──────────────┼──────────────┘                │   │
+│                      ▼                               │   │
+│            ┌─────────────────┐                       │   │
+│            │   Master (M1)   │◄──────────────────────┘   │
+│            └────────┬────────┘                           │
+│                     │                                    │
+│        ┌────────────┼────────────┐                      │
+│        ▼            ▼            ▼                      │
+│   ┌─────────┐  ┌─────────┐  ┌─────────┐                │
+│   │ Slave1  │  │ Slave2  │  │ Slave3  │                │
+│   │  (R1)   │  │  (R2)   │  │  (R3)   │                │
+│   └─────────┘  └─────────┘  └─────────┘                │
+└─────────────────────────────────────────────────────────┘
+```
+
+**哨兵核心功能**：
+```bash
+1. 监控（Monitoring）：持续检查主从节点是否正常运行
+2. 通知（Notification）：当节点故障时发送告警通知
+3. 自动故障转移（Automatic failover）：主节点故障时自动选举新主
+4. 配置提供者（Configuration provider）：客户端通过哨兵获取主节点地址
+```
+
+---
+
+**故障转移流程**：
+
+**阶段一：故障检测**：
+```bash
+# 主观下线（SDOWN）：单个哨兵认为主节点不可达
+- 哨兵定期向主节点发送PING命令
+- 如果在down-after-milliseconds时间内没有响应
+- 哨兵标记主节点为主观下线
+
+# 客观下线（ODOWN）：多数哨兵认为主节点不可达
+- 哨兵向其他哨兵询问对主节点的判断
+- 超过quorum数量的哨兵认为主节点下线
+- 标记主节点为客观下线
+```
+
+**阶段二：领头哨兵选举**：
+```bash
+# Raft选举机制
+1. 发现主节点客观下线的哨兵向其他哨兵发送选举请求
+2. 收到请求的哨兵如果还没有投票，就投票给该哨兵
+3. 获得超过半数选票的哨兵成为领头哨兵
+4. 如果没有哨兵获得多数票，重新选举
+```
+
+**阶段三：新主节点选举**：
+```bash
+# 候选从节点筛选条件：
+1. 在线状态：必须处于在线状态
+2. 复制状态：最后一次交互时间不能太久
+3. 优先级：slave-priority不为0
+4. 复制偏移量：数据最新（offset最大）
+
+# 选举优先级：
+1. 优先选择slave-priority最小的从节点
+2. 优先级相同选择复制偏移量最大的
+3. 偏移量相同选择runid字典序最小的
+```
+
+**阶段四：执行故障转移**：
+```bash
+1. 领头哨兵向新主节点发送 SLAVEOF NO ONE
+2. 新主节点升级为主节点
+3. 领头哨兵向其他从节点发送 SLAVEOF 新主节点IP 端口
+4. 等待从节点同步完成
+5. 更新哨兵配置，记录新主节点信息
+6. 原主节点恢复后成为从节点
+```
+
+---
+
+**切换过程中的数据一致性**：
+
+**潜在风险**：
+```bash
+- 脑裂问题：网络分区导致多个主节点
+- 数据丢失：主节点故障时未同步的数据丢失
+- 复制中断：从节点同步失败
+```
+
+**解决方案**：
+```bash
+# 防止脑裂
+- min-slaves-to-write：最少从节点数才能写入
+- min-slaves-max-lag：从节点最大延迟
+
+# 配置示例
+min-slaves-to-write 1
+min-slaves-max-lag 10
+```
+
+---
+
+**主从监控指标**：
+
+**复制状态指标**：
+```bash
+# INFO replication输出
+- role：节点角色（master/slave）
+- connected_slaves：从节点数量
+- master_replid：主节点ID
+- master_repl_offset：主节点复制偏移量
+- slave_repl_offset：从节点复制偏移量
+- lag：复制延迟时间
+```
+
+**哨兵状态指标**：
+```bash
+# INFO sentinel输出
+- sentinel_masters：监控的主节点数量
+- sentinel_tilt：哨兵是否处于tilt模式
+- sentinel_running_scripts：正在运行的脚本数
+- sentinel_scripts_queue_length：脚本队列长度
+```
+
+**关键监控指标**：
+| 指标 | 说明 | 阈值建议 |
+|:------|:------|:------|
+| connected_slaves | 从节点数量 | <配置数量触发告警 |
+| master_repl_offset | 主节点偏移量 | 用于判断复制进度 |
+| slave_repl_offset | 从节点偏移量 | 与主节点差值>1000触发告警 |
+| lag | 复制延迟 | >100ms触发告警 |
+| sentinel_tilt | Tilt模式 | =1触发告警 |
+
+---
+
+**监控方法**：
+
+**1. 命令行监控**：
+```bash
+# 查看主从状态
+redis-cli INFO replication
+
+# 查看哨兵状态
+redis-cli INFO sentinel
+
+# 查看哨兵监控的主节点
+redis-cli SENTINEL masters
+
+# 查看主节点的从节点列表
+redis-cli SENTINEL slaves mymaster
+```
+
+**2. Prometheus监控（redis_exporter）**：
+```bash
+# 复制指标
+redis_connected_slaves
+redis_master_repl_offset
+redis_slave_repl_offset
+redis_slave_lag_seconds
+
+# 哨兵指标
+redis_sentinel_tilt
+redis_sentinel_masters
+redis_sentinel_slaves
+redis_sentinel_down_since_seconds
+```
+
+**3. 告警规则示例**：
+```yaml
+groups:
+- name: redis.rules
+  rules:
+  - alert: RedisMasterDown
+    expr: redis_sentinel_down_since_seconds > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Redis主节点 {{ $labels.instance }} 已下线"
+
+  - alert: RedisSlaveLagHigh
+    expr: redis_slave_lag_seconds > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Redis从节点延迟过高"
+
+  - alert: RedisSlaveDisconnected
+    expr: redis_connected_slaves < 2
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Redis从节点数量不足"
+```
+
+---
+
+**生产环境最佳实践**：
+
+**1. 哨兵部署**：
+```bash
+# 哨兵数量建议
+- 至少3个哨兵节点
+- 奇数个节点（防止脑裂）
+- 分布在不同物理机/可用区
+
+# 哨兵配置示例
+port 26379
+sentinel monitor mymaster 192.168.1.100 6379 2
+sentinel down-after-milliseconds mymaster 30000
+sentinel failover-timeout mymaster 180000
+sentinel parallel-syncs mymaster 1
+```
+
+**2. 切换演练**：
+```bash
+# 定期演练计划
+- 每季度进行一次故障切换演练
+- 模拟主节点故障
+- 验证故障转移时间
+- 检查数据一致性
+
+# 演练步骤
+1. 停止主节点Redis服务
+2. 观察哨兵日志确认故障转移
+3. 检查新主节点状态
+4. 验证客户端自动重连
+5. 恢复原主节点作为从节点
+```
+
+**3. 客户端配置**：
+```bash
+# 使用哨兵获取主节点地址
+# Java示例（Jedis）
+Set<String> sentinels = new HashSet<>();
+sentinels.add("sentinel1:26379");
+sentinels.add("sentinel2:26379");
+sentinels.add("sentinel3:26379");
+JedisPoolConfig poolConfig = new JedisPoolConfig();
+JedisSentinelPool pool = new JedisSentinelPool("mymaster", sentinels, poolConfig);
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题 | 现象 | 解决方案 |
+|:------|:------|:------|
+| **脑裂** | 网络分区导致多个主节点 | 设置min-slaves-to-write，减少数据丢失 |
+| **数据丢失** | 主节点故障时部分数据未同步 | 配置合理的复制策略，定期备份 |
+| **切换时间过长** | 故障转移耗时超过预期 | 调整parallel-syncs参数，优化网络 |
+| **哨兵选举失败** | 无法选出领头哨兵 | 确保哨兵节点数量为奇数，网络通畅 |
+| **从节点不同步** | 从节点复制延迟持续增加 | 检查网络带宽，优化主节点写入速度 |
+
+---
+
+**💡 记忆口诀**：
+
+> **Redis主从切换**：手动切换先停写，等待同步再升级；自动切换靠哨兵，故障检测分主客；选举新主看优先，偏移量最大当选；监控指标看状态，延迟偏移要关注。
+
+**面试加分话术**：
+
+> "Redis主从切换分为手动和自动两种方式。手动切换适用于计划性维护，步骤是停止写入、等待同步、升级从节点、重新配置其他从节点。自动切换依赖哨兵机制，哨兵通过主观下线和客观下线检测主节点故障，然后通过Raft选举选出领头哨兵，再从候选从节点中选择优先级最高、复制偏移量最大的作为新主节点。切换过程中需要关注数据一致性，通过min-slaves-to-write配置防止脑裂。监控方面，需要关注connected_slaves数量、复制偏移量、lag延迟等指标，使用redis_exporter配合Prometheus进行监控告警。生产环境中建议部署至少3个哨兵节点，定期进行故障切换演练，确保高可用性。"
+
+> **延伸阅读**：想了解更多Redis主从切换的原理和最佳实践？请参考 [Redis主从切换与哨兵监控最佳实践]({% post_url 2026-06-13-redis-sentinel-best-practices %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
