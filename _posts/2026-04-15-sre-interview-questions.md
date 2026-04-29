@@ -14131,4 +14131,283 @@ spec:
 
 > **延伸阅读**：想了解更多K8s架构知识？请参考 [Kubernetes核心组件架构与最佳实践]({% post_url 2026-06-17-k8s-components-best-practices %})。
 
+---
+
+### 102. Pod频繁重启核心原因是什么？
+
+> 🎯 **核心目标**：掌握Pod频繁重启的常见原因，学会系统排查方法，理解Exit Code含义和健康检查机制
+
+**问题分析**：Pod频繁重启是K8s运维中最常见的问题之一，面试中常问到排查思路、Exit Code含义、健康检查配置等。需要深入理解容器生命周期、资源管理和健康检查机制。
+
+---
+
+**Pod重启核心原因分类**：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Pod频繁重启核心原因                          │
+├───────────────┬───────────────┬───────────────┬───────────────┤
+│  应用层问题    │   资源层问题   │  健康检查问题  │   配置层问题   │
+│  ExitCode 1   │  ExitCode 137  │ Liveness失败  │ 配置错误      │
+│  代码bug      │  OOM被kill    │ Readiness失败 │ 镜像拉取失败  │
+│  依赖缺失     │  资源限制不足  │ Startup失败  │ 权限问题      │
+└───────────────┴───────────────┴───────────────┴───────────────┘
+```
+
+---
+
+**1. Exit Code分析**：
+
+**Exit Code 1**：
+```bash
+# 应用程序异常退出
+# 常见原因：代码错误、配置错误、依赖缺失
+
+# 排查方法：
+kubectl logs <pod-name> -p  # 查看上一次容器日志
+kubectl describe pod <pod-name>  # 查看Pod事件
+```
+
+**Exit Code 137**：
+```bash
+# 容器被强制杀死（SIGKILL）
+# 常见原因：内存超限（OOM）、资源限制不足
+
+# 排查方法：
+kubectl describe pod <pod-name> | grep -A 5 "Termination Message"
+dmesg | grep -i oom  # 查看系统OOM日志
+```
+
+**Exit Code 143**：
+```bash
+# 容器收到SIGTERM信号正常退出
+# 常见原因：优雅停机、滚动更新
+
+# 排查方法：
+kubectl get events -n <namespace> | grep <pod-name>
+```
+
+---
+
+**2. 资源限制问题**：
+
+**内存不足（OOM）**：
+```bash
+# 查看资源使用情况
+kubectl top pod <pod-name>
+
+# 查看Pod资源配置
+kubectl get pod <pod-name> -o yaml | grep -A 10 resources
+
+# 典型错误配置
+# resources:
+#   limits:
+#     memory: "256Mi"  # 内存限制过低
+#   requests:
+#     memory: "128Mi"
+```
+
+**CPU限制**：
+```bash
+# CPU使用率达到限制会被节流
+kubectl top pod <pod-name> --containers
+
+# 检查是否有CPU throttling
+kubectl describe pod <pod-name> | grep throttling
+```
+
+---
+
+**3. 健康检查配置问题**：
+
+**Liveness Probe失败**：
+```bash
+# Liveness探针失败导致容器重启
+# 常见原因：探针配置不合理
+
+# 查看探针配置
+kubectl get pod <pod-name> -o yaml | grep -A 15 livenessProbe
+
+# 典型错误配置
+# livenessProbe:
+#   httpGet:
+#     path: /health
+#     port: 8080
+#   initialDelaySeconds: 5  # 启动时间太短，应用未就绪
+#   timeoutSeconds: 1
+```
+
+**Readiness Probe失败**：
+```bash
+# Readiness探针失败不会重启容器，但会移除Service端点
+kubectl get endpoints <service-name>
+
+# 正确配置示例
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+```
+
+---
+
+**4. 配置与依赖问题**：
+
+**配置错误**：
+```bash
+# 环境变量配置错误
+kubectl get pod <pod-name> -o yaml | grep env
+
+# 配置文件缺失
+kubectl exec <pod-name> -- ls /config/
+
+# Secret/ConfigMap未正确挂载
+kubectl get secret <secret-name> -o yaml
+```
+
+**镜像拉取失败**：
+```bash
+# 查看镜像拉取状态
+kubectl describe pod <pod-name> | grep -A 5 "Failed to pull"
+
+# 常见原因：镜像不存在、镜像仓库认证失败、网络不通
+
+# 解决方法：
+# 1. 检查镜像名称和标签是否正确
+# 2. 配置imagePullSecrets
+# 3. 检查网络连通性
+```
+
+---
+
+**5. 容器运行时问题**：
+
+**Docker/containerd问题**：
+```bash
+# 检查容器运行时状态
+systemctl status containerd
+docker ps -a | grep <pod-name>
+
+# 查看容器日志
+docker logs <container-id>
+```
+
+**节点资源不足**：
+```bash
+# 查看节点资源使用
+kubectl describe node <node-name>
+
+# 检查节点是否有污点
+kubectl get node <node-name> -o yaml | grep taints
+```
+
+---
+
+**Pod重启排查流程**：
+
+```bash
+# 步骤1：查看Pod状态
+kubectl get pods | grep <pod-name>
+
+# 步骤2：查看Pod事件
+kubectl describe pod <pod-name>
+
+# 步骤3：查看容器日志
+kubectl logs <pod-name>
+kubectl logs <pod-name> -p  # 上一次容器日志
+
+# 步骤4：检查资源使用
+kubectl top pod <pod-name>
+
+# 步骤5：检查节点状态
+kubectl describe node <node-name>
+
+# 步骤6：检查健康检查配置
+kubectl get pod <pod-name> -o yaml | grep -A 20 probe
+
+# 步骤7：查看系统日志
+journalctl -u kubelet -f
+dmesg | grep -i oom
+```
+
+---
+
+**常见问题与解决方案**：
+
+| 问题现象 | Exit Code | 核心原因 | 解决方案 |
+|:------|:------|:------|:------|
+| **CrashLoopBackOff** | 1/137 | 应用启动失败/OOM | 查看日志、调整资源限制 |
+| **OOM Killed** | 137 | 内存超限 | 增加memory limit、优化应用内存 |
+| **Liveness probe failed** | - | 探针配置不合理 | 调整initialDelaySeconds、timeoutSeconds |
+| **ImagePullBackOff** | - | 镜像拉取失败 | 检查镜像名称、配置imagePullSecrets |
+| **ErrImagePull** | - | 镜像不存在 | 确认镜像仓库和标签 |
+| **CreateContainerConfigError** | - | 配置错误 | 检查Secret/ConfigMap挂载 |
+
+---
+
+**生产环境最佳实践**：
+
+**1. 合理配置资源限制**：
+```yaml
+# 根据应用实际需求配置
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+```
+
+**2. 正确配置健康检查**：
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 30  # 确保应用完全启动
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+```
+
+**3. 设置优雅停机**：
+```yaml
+terminationGracePeriodSeconds: 30
+```
+
+**4. 配置Pod Disruption Budget**：
+```yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: my-app-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: my-app
+```
+
+---
+
+**💡 记忆口诀**：
+
+> **Pod重启原因**：ExitCode看1和137，1是应用错，137是OOM；健康检查要配置好，initialDelay不能少；资源限制要合理，镜像拉取要确认。
+
+**面试加分话术**：
+
+> "Pod频繁重启主要有几个核心原因。首先是Exit Code问题，Exit Code 1通常是应用程序异常退出，比如代码错误或配置问题；Exit Code 137是容器被强制杀死，通常是内存超限导致的OOM。其次是资源限制问题，如果内存或CPU限制设置过低，应用运行时会被系统杀死。第三是健康检查配置问题，Liveness探针配置不合理会导致容器被误重启，比如initialDelaySeconds设置太短，应用还没启动就开始探测。还有配置和依赖问题，比如环境变量配置错误、Secret未正确挂载、镜像拉取失败等。排查时应该先查看Pod状态和事件，然后查看容器日志，检查资源使用情况，最后检查健康检查配置和节点状态。生产环境中需要合理配置资源限制、正确设置健康检查参数、配置优雅停机时间，同时设置Pod Disruption Budget保障高可用。"
+
+> **延伸阅读**：想了解更多Pod故障排查经验？请参考 [Pod频繁重启原因分析与故障排查指南]({% post_url 2026-06-18-pod-restart-troubleshooting %})。
+
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
