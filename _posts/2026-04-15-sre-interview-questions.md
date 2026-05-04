@@ -19584,3 +19584,19 @@ node-03    720m         72%    3.8Gi           70%
 > **延伸阅读**：想了解更多Kubernetes节点扩容知识？请参考 [Kubernetes节点扩容与弹性伸缩最佳实践]({% post_url 2026-07-07-kubernetes-node-scaling-best-practices %})。
 
 记住，面试是展示自己能力的机会，保持自信和专业，相信你一定能取得理想的结果！
+
+---
+
+### 122. kafka啥叫分区，啥叫副本？
+
+**1. 分区（Partition）**：为了实现高吞吐和水平扩展，Kafka 将一个 Topic 的数据物理切分成多个 Partition。每个 Partition 是有序的消息队列，分布在不同的机器上，允许并行的读写操作。分区是提高并发处理能力的关键。
+
+**2. 副本（Replica）**：为了保证数据高可用和防丢失，Kafka 为每个 Partition 保存多份冗余数据，这就是副本。其中一个是 Leader（负责处理所有客户端的读写请求），其余是 Follower（只负责从 Leader 同步数据备份）。当 Leader 宕机时，会自动从 Follower 中选举出新的 Leader 顶替。
+
+**3. 生产环境最佳实践**：
+- **副本因子设定**：生产环境强烈建议将副本因子（Replication Factor）设置为 3，以在性能和容错间取得最佳平衡。绝对不可在生产环境使用单副本。
+- **确认机制与最小同步副本**：将 Producer 的 `acks` 设置为 `all`，并将 Broker 的 `min.insync.replicas` 设置为 2（当副本因子为 3 时）。这能保证即使有一台机器宕机，集群仍可接受写入且不丢任何数据。
+- **机架感知**：开启机架感知（Rack Awareness），确保副本分布在不同的物理机架或可用区，防止单机架断电导致某个分区的所有副本集体下线。
+- **监控核心指标**：密切监控 `Under-Replicated Partitions`（未完全复制的分区数），该指标一旦大于0，通常代表集群出现网络延迟、节点高负载或硬件故障。
+
+> **延伸阅读**：了解更多关于 Kafka 核心机制与配置调优的深度解析，请参考 [Kafka 分区与副本：生产环境最佳实践指南]({% post_url 2026-05-05-kafka-partitions-and-replicas-best-practices %})。
