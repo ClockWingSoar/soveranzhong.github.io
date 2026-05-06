@@ -289,3 +289,67 @@ affinity:
 **面试标准答法（口述版）**：我从分层架构落地高可用：网络层做多AZ多LB集群+DNS调度；应用侧无状态改造+3副本跨AZ打散，K8s反亲和+HPA弹性；中间件用MySQL主从+Redis哨兵+MQ多副本；配合熔断限流、超时重试幂等，加上全链路监控和定期故障演练，从架构、部署、治理三个维度保障业务高可用。
 
 > **延伸阅读**：想了解更多高可用架构生产环境最佳实践？请参考 [高可用架构生产环境最佳实践：从设计到实现]({% post_url 2026-05-07-high-availability-architecture-best-practices %})。
+
+### 125. 如何设计一个灾备系统？
+
+**Why - 为什么这个问题重要？**
+
+DR（Disaster Recovery 容灾备份/灾难恢复）是保障极端情况下业务连续性的最后一道防线，**生产故障后快速切换到灾备环境，业务不中断、数据不丢**。这是SRE/DevOps面试的高频核心题，直接关系到企业的业务韧性和数据安全。
+
+**How - DR核心概念与架构**
+
+```mermaid
+flowchart TB
+    A["DR灾备系统"] --> B["核心指标"]
+    A --> C["主流架构"]
+    A --> D["核心流程"]
+    
+    B --> B1["RTO 恢复时间"]
+    B --> B2["RPO 数据丢失量"]
+    
+    C --> C1["冷备"]
+    C --> C2["温备"]
+    C --> C3["热备"]
+    C --> C4["双活/多活"]
+    
+    D --> D1["梳理→规划→部署→演练"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#fff3e0
+```
+
+**What - 实操配置与落地步骤**
+
+```bash
+# 1. MySQL 数据库DR配置（主从半同步复制）
+# my.cnf
+[mysqld]
+server-id = 1
+log-bin = mysql-bin
+binlog-format = ROW
+relay-log = relay-bin
+read-only = 0
+replicate-do-db = my_database
+plugin-load-add = rpl_semi_sync_master.so
+rpl-semi-sync-master-enabled = 1
+rpl-semi-sync-slave-enabled = 1
+```
+
+**DR环境搭建7步标准流程**
+
+| 步骤 | 核心内容 | 关键动作 |
+|:----:|--------|--------|
+| 1 | 业务梳理 | 梳理核心链路、定义RTO/RPO |
+| 2 | 基础设施DR | 专线/IPsec VPN打通、K8s集群搭建 |
+| 3 | 数据层DR | MySQL主从、Redis哨兵、MQ镜像同步 |
+| 4 | 应用层DR | IaC代码化、Helm/GitOps部署 |
+| 5 | 配置与中间件DR | Nacos同步、注册中心集群 |
+| 6 | 监控与告警 | 跨环境统一监控、P0告警触发DR |
+| 7 | 预案与演练 | DR切换手册、定期容灾演练 |
+
+**记忆口诀**：梳理规划定指标，数据同步是核心，IaC代码化部署，定期演练保切换。
+
+**面试标准答法（口述版）**：我在公司负责搭建和落地**两地三中心DR灾备环境**，整体流程是：首先梳理核心业务链路和依赖，定义各业务RTO/RPO指标；然后打通生产和灾备机房专线网络，搭建同版本K8s灾备集群；数据层面做MySQL主从半同步复制、Redis哨兵跨机房同步、MQ消息镜像同步，同时把重要文件和配置定时归档到对象存储；应用全部采用Helm+GitOps管理，通过ArgoCD同时发布到生产和DR集群，保证配置版本一致；同时搭建跨环境统一监控告警和全链路日志追踪，编写完整DR切换预案，定期做容灾演练，模拟机房故障进行流量切换和数据库主从切换，验证灾备可用性。
+
+> **延伸阅读**：想了解更多DR灾备系统生产环境最佳实践？请参考 [DR灾备环境完整搭建流程生产环境最佳实践：SRE/DevOps面试版+实操步骤]({% post_url 2026-05-07-disaster-recovery-best-practices %})。
