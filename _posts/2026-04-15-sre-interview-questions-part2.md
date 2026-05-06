@@ -146,3 +146,57 @@ spring:
 > **面试加分点**：能说清**Nacos配置推送的长轮询机制**（默认30秒），以及**服务健康检查的两种模式**（TCP/HTTP），证明你有Nacos生产环境实战经验。
 
 > **延伸阅读**：想了解更多Nacos生产环境最佳实践？请参考 [Nacos生产环境最佳实践：从配置管理到服务发现]({% post_url 2026-05-06-nacos-production-best-practices %})。
+
+### 123. ip_nonlocal_bind内核参数的作用？
+
+**Why - 为什么这个问题重要？**
+
+在负载均衡和高可用架构中，**VIP（虚拟IP）漂移**是常见场景。如果服务进程只能绑定本机IP，则VIP漂移后服务将无法正常接收流量。`ip_nonlocal_bind`参数允许进程绑定非本机IP地址，是实现HAProxy、Nginx等负载均衡器高可用的关键配置。
+
+**How - 核心机制解析**
+
+```mermaid
+flowchart LR
+    A["VIP漂移场景"] --> B["未设置ip_nonlocal_bind=0"]
+    A --> C["设置ip_nonlocal_bind=1"]
+    
+    B --> B1["进程无法绑定VIP<br>服务中断"]
+    
+    C --> C1["进程成功绑定VIP<br>服务正常"]
+    
+    style B fill:#ffcdd2
+    style C fill:#c8e6c9
+```
+
+**What - 实战配置与验证**
+
+```bash
+# 1. 查看当前值
+sysctl net.ipv4.ip_nonlocal_bind
+
+# 2. 临时生效
+sysctl -w net.ipv4.ip_nonlocal_bind=1
+
+# 3. 永久生效
+echo "net.ipv4.ip_nonlocal_bind = 1" >> /etc/sysctl.conf
+sysctl -p
+
+# 4. 验证HAProxy绑定VIP
+haproxy -f /etc/haproxy/haproxy.cfg
+ss -tlnp | grep :80
+```
+
+**典型应用场景**
+
+| 场景 | 配置要求 | 说明 |
+|:----:|:--------:|------|
+| **HAProxy Keepalived** | 必须开启 | VIP漂移后HAProxy需能接管 |
+| **Nginx Upstream** | 推荐开启 | 配合keepalived实现高可用 |
+| **四层负载均衡** | 必须开启 | 绑定VIP接收流量 |
+| **Docker容器网络** | 必须开启 | 容器绑定宿主机VIP |
+
+**记忆口诀**：VIP漂移要bind，非本机地址靠nonlocal，高可用必备参数
+
+> **面试加分点**：能说清**VIP漂移与ip_nonlocal_bind的关系**，以及如何在Keepalived + HAProxy架构中排查绑定失败问题，证明你有高可用架构实战经验。
+
+> **延伸阅读**：想了解更多高可用架构生产环境最佳实践？请参考 [Linux内核参数生产环境最佳实践：高可用架构必备]({% post_url 2026-05-06-kernel-parameters-production-best-practices %})。
