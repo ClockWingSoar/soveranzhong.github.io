@@ -200,3 +200,92 @@ ss -tlnp | grep :80
 > **面试加分点**：能说清**VIP漂移与ip_nonlocal_bind的关系**，以及如何在Keepalived + HAProxy架构中排查绑定失败问题，证明你有高可用架构实战经验。
 
 > **延伸阅读**：想了解更多高可用架构生产环境最佳实践？请参考 [Linux内核参数生产环境最佳实践：高可用架构必备]({% post_url 2026-05-06-kernel-parameters-production-best-practices %})。
+
+### 124. 如何搭建高可用HA环境？
+
+**Why - 为什么这个问题重要？**
+
+高可用HA架构是保障业务**不中断、不宕机、自动容错**的核心，任何一台服务器、一个组件、一个机房挂了，业务都不受影响。这是DevOps/SRE面试的必考题，直接体现工程师的架构实战能力。
+
+**How - 高可用分层架构设计**
+
+```mermaid
+flowchart TD
+    A["高可用HA架构"] --> B["网络层高可用"]
+    A --> C["接入层高可用"]
+    A --> D["应用层高可用"]
+    A --> E["中间层高可用"]
+    A --> F["配置存储高可用"]
+    A --> G["稳定性防护"]
+    
+    B --> B1["多AZ多机房"]
+    B --> B2["LB集群VIP漂移"]
+    B --> B3["DNS全局调度"]
+    
+    C --> C1["网关集群"]
+    C --> C2["健康检查"]
+    C --> C3["无状态化"]
+    
+    D --> D1["无状态设计"]
+    D --> D2["多副本部署"]
+    D --> D3["K8s反亲和"]
+    
+    E --> E1["MySQL主从"]
+    E --> E2["Redis哨兵"]
+    E --> E3["MQ集群"]
+    
+    G --> G1["熔断限流"]
+    G --> G2["超时重试"]
+    G --> G3["监控告警"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style D fill:#fff3e0
+```
+
+**What - 高可用落地实操**
+
+```bash
+# 1. MySQL主从复制+自动故障切换
+# my.cnf - 开启binlog
+server-id = 1
+log-bin = mysql-bin
+binlog-format = ROW
+
+# 2. Redis Sentinel哨兵配置
+sentinel monitor mymaster 192.168.1.101 6379 2
+sentinel down-after-milliseconds mymaster 5000
+sentinel failover-timeout mymaster 60000
+
+# 3. K8s多副本+反亲和性
+# deployment.yaml
+replicas: 3
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        topologyKey: kubernetes.io/hostname
+        labelSelector:
+          matchLabels:
+            app: my-service
+```
+
+**高可用落地8步标准流程**
+
+| 步骤 | 动作 | 核心要点 |
+|:----:|------|---------|
+| 1 | 梳理业务链路 | 找出所有单点组件 |
+| 2 | 底层网络规划 | 多AZ、多线路、LB集群 |
+| 3 | 应用无状态化 | 多副本跨节点跨AZ |
+| 4 | 中间件集群化 | MySQL/Redis/MQ高可用 |
+| 5 | 接入层集群 | 网关/配置中心集群部署 |
+| 6 | 稳定性防护 | 限流熔断降级、超时重试幂等 |
+| 7 | 监控与发布 | 全链路监控、灰度发布 |
+| 8 | 故障演练 | 混沌工程验证容灾能力 |
+
+**记忆口诀**：分层架构消单点，多AZ部署防故障，中间件集群自动切，监控演练保稳定
+
+**面试标准答法（口述版）**：我从分层架构落地高可用：网络层做多AZ多LB集群+DNS调度；应用侧无状态改造+3副本跨AZ打散，K8s反亲和+HPA弹性；中间件用MySQL主从+Redis哨兵+MQ多副本；配合熔断限流、超时重试幂等，加上全链路监控和定期故障演练，从架构、部署、治理三个维度保障业务高可用。
+
+> **延伸阅读**：想了解更多高可用架构生产环境最佳实践？请参考 [高可用架构生产环境最佳实践：从设计到实现]({% post_url 2026-05-07-high-availability-architecture-best-practices %})。
