@@ -391,3 +391,53 @@ flowchart LR
 **面试标准答法（中级DevOps示例）**：我主要负责公司DevOps平台建设、云原生架构落地、研发效能提升：基于GitLab+ArgoCD+Helm搭建GitOps持续交付体系，实现配置声明式管理、环境一键发布、灰度/滚动发布策略；负责多套K8s生产/测试集群规划、版本升级、节点管理，优化资源调度、HPA自动扩缩容，集群资源利用率提升30%；统一管理Redis、MQ、MySQL中间件部署备份；用Shell/Python写自动化脚本，实现服务器初始化、日志清理、批量部署自动化；制定上线变更流程、故障应急流程，引入变更评审、灰度发布，降低上线故障率。
 
 > **延伸阅读**：想了解更多DevOps/SRE日常工作生产环境最佳实践？请参考 [DevOps/SRE日常工作生产环境最佳实践：三套面试回答模板+工程化落地指南]({% post_url 2026-05-07-devops-sre-daily-work-best-practices %})。
+
+### 127. AWS的服务你都用过哪些？
+
+**Why - 为什么这个问题重要？**
+
+AWS是云原生架构的主流选择，面试官通过这个问题判断你是否有**云上实战经验**，能否将本地技术栈平滑迁移到云端，以及对云原生技术的掌握深度。
+
+**How - AWS服务分类速查图**
+
+```mermaid
+flowchart TB
+    A["AWS核心服务"] --> B["计算"]
+    A --> C["网络"]
+    A --> D["存储"]
+    A --> E["数据库"]
+    A --> F["DevOps"]
+    A --> G["监控安全"]
+    
+    B --> B1["EC2/EKS/Fargate/Lambda"]
+    C --> C1["VPC/ELB/Route53"]
+    D --> D1["S3/EBS/EFS"]
+    E --> E1["RDS/DynamoDB/ElastiCache"]
+    F --> F1["Terraform/CodePipeline"]
+    G --> G1["CloudWatch/IAM"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+```
+
+**What - 服务速记表**
+
+| 类别 | 服务 | 核心用途 |
+|:----:|------|---------|
+| **计算** | EC2 | 虚拟机部署应用 |
+| **计算** | EKS | K8s生产集群 |
+| **计算** | Lambda | 无服务器计算 |
+| **网络** | VPC | 私有网络规划 |
+| **网络** | ELB | 负载均衡 |
+| **网络** | Route53 | DNS+GSLB |
+| **存储** | S3 | 对象存储+备份 |
+| **数据库** | RDS | 托管MySQL/PG |
+| **数据库** | ElastiCache | Redis缓存 |
+| **DevOps** | Terraform | IaC基础设施 |
+| **监控** | CloudWatch | 监控告警 |
+
+**记忆口诀**：计算EC2/EKS，网络VPC/ELB/53，存储S3三剑客，数据库RDS缓存DevOps用Terraform，监控CloudWatch加IAM。
+
+**面试标准答法（1分钟版）**：我用AWS构建高可用云原生架构，核心用过：计算层EC2/EKS/Fargate/Lambda覆盖虚拟机、K8s容器、无服务器场景；网络层VPC/ELB/Route53做多AZ高可用、全局流量调度；存储层S3/EBS/EFS满足对象、块、文件存储；数据库层RDS/DynamoDB/ElastiCache/MSK托管关系型、NoSQL、缓存与消息队列；DevOps用Terraform做IaC，CodePipeline搭建CI/CD流水线，配合SSM管理配置与密钥；监控安全用CloudWatch/X-Ray/CloudTrail/IAM/KMS实现全链路可观测、权限最小化与数据加密。
+
+> **延伸阅读**：想了解更多AWS云服务生产环境最佳实践？请参考 [AWS云服务生产环境最佳实践：DevOps/SRE云原生架构指南]({% post_url 2026-05-07-aws-services-production-best-practices %})。
