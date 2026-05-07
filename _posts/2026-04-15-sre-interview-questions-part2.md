@@ -441,3 +441,49 @@ flowchart TB
 **面试标准答法（1分钟版）**：我用AWS构建高可用云原生架构，核心用过：计算层EC2/EKS/Fargate/Lambda覆盖虚拟机、K8s容器、无服务器场景；网络层VPC/ELB/Route53做多AZ高可用、全局流量调度；存储层S3/EBS/EFS满足对象、块、文件存储；数据库层RDS/DynamoDB/ElastiCache/MSK托管关系型、NoSQL、缓存与消息队列；DevOps用Terraform做IaC，CodePipeline搭建CI/CD流水线，配合SSM管理配置与密钥；监控安全用CloudWatch/X-Ray/CloudTrail/IAM/KMS实现全链路可观测、权限最小化与数据加密。
 
 > **延伸阅读**：想了解更多AWS云服务生产环境最佳实践？请参考 [AWS云服务生产环境最佳实践：DevOps/SRE云原生架构指南]({% post_url 2026-05-07-aws-services-production-best-practices %})。
+
+### 128. AWS和IBM Cloud的区别在哪？
+
+**Why - 为什么这个问题重要？**
+
+这道题考察你对**多云环境的理解**和**厂商选型判断力**。面试官想看你是否理解不同云厂商的定位差异，能否根据业务场景做出合理的技术选型。
+
+**How - 核心区别速查**
+
+```mermaid
+flowchart TB
+    A["AWS vs IBM Cloud"] --> B["AWS"]
+    A --> C["IBM Cloud"]
+    
+    B --> B1["公有云龙头"]
+    B --> B2["全场景+弹性"]
+    B --> B3["全球覆盖广"]
+    B --> B4["自研生态绑定"]
+    
+    C --> C1["混合多云"]
+    C --> C2["企业级强合规"]
+    C --> C3["开源开放"]
+    C --> C4["不锁厂商"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#fff3e0
+```
+
+**What - 核心维度对比**
+
+| 维度 | AWS | IBM Cloud |
+|:----:|-----|----------|
+| **定位** | 公有云绝对龙头 | 混合多云+企业级强合规 |
+| **基础设施** | 38区域/120可用区 | 6区域/18可用区+60数据中心 |
+| **容器K8s** | EKS托管K8s | OpenShift企业级K8s |
+| **合规安全** | 责任共担模型 | 硬件级安全+KYOK密钥 |
+| **生态** | 全栈自研绑定深 | 开源优先多云兼容 |
+| **AI/ML** | SageMaker/Bedrock | Watson行业AI |
+| **适用场景** | 互联网/全球化 | 金融/政府/传统企业 |
+
+**记忆口诀**：AWS全场景弹性广，IBM混合合规开源强，互联网选AWS，强监管选IBM。
+
+**面试标准答法（1分钟版）**：AWS是公有云老大，服务最全、全球节点最多、生态成熟，适合互联网、全球化、快速迭代业务；IBM Cloud是混合多云+企业级强合规，背靠Red Hat OpenShift，擅长统一管理本地、私有云和公有云，开源开放、不锁厂商，特别适合金融、政府等强监管行业。DevOps上，AWS工具链自研深度绑定，IBM更开放多云兼容好。
+
+> **延伸阅读**：想了解更多AWS与IBM Cloud对比的生产环境最佳实践？请参考 [AWS与IBM Cloud多云架构对比生产环境最佳实践：选型指南]({% post_url 2026-05-07-aws-ibm-cloud-comparison-best-practices %})。
