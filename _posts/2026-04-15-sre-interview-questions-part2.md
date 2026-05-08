@@ -1374,3 +1374,46 @@ flowchart TB
 **面试标准答法（1分钟版）**：手工轮换证书的流程是：首先备份现有证书到安全位置，然后使用kubeadm certs check-expiration查看证书状态，确认需要更新的证书。接着执行kubeadm certs renew命令生成新证书，可以指定单个证书或使用all参数更新所有证书。更新完成后需要重启相关组件，包括kube-apiserver、kube-controller-manager、kube-scheduler等控制平面组件，以及各节点的kubelet。最后使用openssl命令验证新证书的有效期。
 
 > **延伸阅读**：想了解更多K8S手工证书轮换最佳实践？请参考 [K8S手工证书轮换实战：步骤详解与组件重启指南]({% post_url 2026-05-08-k8s-manual-certificate-rotation-best-practices %})。
+
+### 149. 做过K8S版本升级吗？具体流程是什么？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你**K8S版本升级**的实战经验。版本升级是保证集群安全性和功能完整性的重要操作，了解升级流程是高级DevOps/SRE工程师的必备技能。
+
+**How - K8S升级流程**
+
+```mermaid
+flowchart TB
+    A["升级准备"] --> B["备份数据"]
+    A --> C["检查兼容性"]
+    B --> D["升级控制平面"]
+    C --> D
+    D --> E["升级工作节点"]
+    E --> F["验证集群"]
+    F --> G["升级插件"]
+    
+    style A fill:#e3f2fd
+    style D fill:#ffcdd2
+    style E fill:#fff3e0
+```
+
+**What - 升级步骤表**
+
+| 阶段 | 步骤 | 操作 |
+|:----:|------|------|
+| **准备阶段** | 1. 备份 | 备份etcd数据和证书 |
+| | 2. 检查 | 检查版本兼容性 |
+| | 3. 通知 | 通知相关团队 |
+| **控制平面** | 4. 升级kubeadm | apt upgrade kubeadm |
+| | 5. 升级控制平面 | kubeadm upgrade apply |
+| **工作节点** | 6. 升级kubelet | apt upgrade kubelet |
+| | 7. 重启kubelet | systemctl restart kubelet |
+| **验证阶段** | 8. 验证状态 | kubectl get nodes |
+| | 9. 升级插件 | 升级CNI、Ingress等 |
+
+**记忆口诀**：备份检查做准备，控制平面先升级，工作节点逐个来，验证插件不能少。
+
+**面试标准答法（1分钟版）**：我们定期进行K8S版本升级。升级流程主要包括：首先备份etcd数据和证书，然后检查目标版本与当前版本的兼容性。升级控制平面时，先升级kubeadm工具，再执行kubeadm upgrade apply命令。工作节点升级时，逐个节点进行，先升级kubelet包，再重启kubelet服务。升级完成后验证集群状态，最后升级CNI、Ingress等插件。整个过程会在维护窗口期进行，并准备回滚方案。
+
+> **延伸阅读**：想了解更多K8S版本升级最佳实践？请参考 [K8S版本升级实战：从准备到验证的完整指南]({% post_url 2026-05-08-k8s-version-upgrade-best-practices %})。
