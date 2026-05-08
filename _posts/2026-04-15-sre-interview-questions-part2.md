@@ -1777,3 +1777,46 @@ flowchart TB
 **面试标准答法（1分钟版）**：是的，我负责过Harbor高可用的部署和维护。我们采用三节点部署方案，Core API和Registry都是多副本运行。数据库使用PostgreSQL Patroni集群实现多主复制，Redis采用Cluster模式3主3从。存储后端使用S3兼容的MinIO分布式存储，确保数据冗余。前端通过Nginx负载均衡实现流量分发和健康检查。这样的架构能够保证任意节点故障时服务不中断，数据不丢失。
 
 > **延伸阅读**：想了解更多Harbor高可用实现细节？请参考 [Harbor高可用实战：从架构设计到故障演练]({% post_url 2026-05-08-harbor-ha-implementation-best-practices %})。
+
+### 158. 应用发版时有没有遇到过拉不到镜像的问题？怎么排查？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你**镜像拉取故障处理**的实战能力。发版时拉不到镜像是生产环境常见问题，涉及网络、认证、配置等多个方面，排查能力是高级DevOps/SRE工程师的必备技能。
+
+**How - 排查流程**
+
+```mermaid
+flowchart TB
+    A["镜像拉取"] --> B["网络连通"]
+    A --> C["认证授权"]
+    A --> D["镜像存在"]
+    A --> E["资源配置"]
+    
+    B --> B1["DNS解析"]
+    B1 --> B2["网络路由"]
+    
+    C --> C1["Secret配置"]
+    C1 --> C2["Token过期"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#ffcdd2
+```
+
+**What - 常见问题表**
+
+| 问题类型 | 表现 | 排查命令 | 解决方案 |
+|:--------:|------|----------|----------|
+| **网络不通** | 连接超时 | ping/telnet | 检查网络策略 |
+| **认证失败** | 401 Unauthorized | kubectl get sa | 配置Secret |
+| **镜像不存在** | 404 Not Found | docker search | 确认镜像名 |
+| **Token过期** | 403 Forbidden | describe pod | 更新Secret |
+| **磁盘空间** | no space left | df -h | 清理磁盘 |
+| **拉取超时** | timeout | describe pod | 增加timeout |
+
+**记忆口诀**：拉不到镜像先看网络，认证Secret要配置，镜像名要确认，Token过期要更新，磁盘空间要检查。
+
+**面试标准答法（1分钟版）**：确实遇到过这个问题。排查思路是：先看Pod事件确认错误类型，如果是网络不通，用ping和telnet检查连通性；如果是401认证失败，检查imagePullSecrets配置是否正确，Secret是否过期；如果是404镜像不存在，确认镜像名称和Tag是否正确；如果是Token过期，需要更新Secret。我们还配置了镜像预热策略，在发版前提前拉取镜像，避免发版时拉取失败。
+
+> **延伸阅读**：想了解更多镜像拉取问题排查？请参考 [K8S镜像拉取问题排查与解决方案：从网络到认证全解析]({% post_url 2026-05-08-image-pull-debugging-best-practices %})。
