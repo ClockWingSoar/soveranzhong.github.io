@@ -1684,3 +1684,49 @@ flowchart TB
 **面试标准答法（1分钟版）**：微服务镜像的分工是这样的：开发团队负责业务代码编写，DevOps团队负责Dockerfile编写和CI/CD流水线配置，运维团队负责基础镜像的维护和管理。基础镜像我们采用Harbor进行统一管理，配置了镜像版本标签策略，每个基础镜像都有版本号和安全补丁日期标签。镜像安全方面，我们使用Trivy进行漏洞扫描，发现高危漏洞会自动告警并阻止部署。基础镜像每月更新一次，确保包含最新的安全补丁。
 
 > **延伸阅读**：想了解更多微服务镜像管理最佳实践？请参考 [微服务镜像管理体系：构建、安全与分发最佳实践]({% post_url 2026-05-08-microservice-image-management-best-practices %})。
+
+### 156. Harbor版本是多少？单机还是高可用？用什么协议？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Harbor镜像仓库**的实际运维经验。Harbor是企业级镜像仓库的首选方案，了解其版本、部署模式和协议配置是DevOps/SRE工程师的必备技能。
+
+**How - Harbor架构**
+
+```mermaid
+flowchart TB
+    A["Harbor架构"] --> B["Proxy层"]
+    A --> C["核心服务"]
+    A --> D["数据存储"]
+    
+    B --> B1["Nginx"]
+    B1 --> B2["HTTPS协议"]
+    
+    C --> C1["Core API"]
+    C --> C2["Registry"]
+    C --> C3["Notary"]
+    
+    D --> D1["PostgreSQL"]
+    D --> D2["Redis"]
+    D --> D3["Storage"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style D fill:#fff3e0
+```
+
+**What - Harbor配置表**
+
+| 配置项 | 当前值 | 说明 |
+|:------:|--------|------|
+| **版本** | v2.10.0 | 当前稳定版 |
+| **部署模式** | 高可用 | 多节点集群 |
+| **协议** | HTTPS | TLS/SSL加密 |
+| **存储后端** | S3兼容 | MinIO/云存储 |
+| **数据库** | PostgreSQL | 多主复制 |
+
+**记忆口诀**：Harbor版本看官方，高可用用多节点，协议首选HTTPS，存储后端用S3。
+
+**面试标准答法（1分钟版）**：我们当前使用的Harbor版本是v2.10.0，采用高可用部署模式，通过Nginx负载均衡实现多节点集群。协议方面，我们配置了HTTPS，使用SSL证书加密传输。存储后端采用S3兼容存储（MinIO），支持数据冗余备份。数据库使用PostgreSQL多主复制，确保数据高可用。这种架构能够支撑大规模镜像存储和高并发访问需求。
+
+> **延伸阅读**：想了解更多Harbor部署与管理最佳实践？请参考 [Harbor镜像仓库高可用部署：从单机到企业级架构]({% post_url 2026-05-08-harbor-ha-deployment-best-practices %})。
