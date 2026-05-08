@@ -546,3 +546,43 @@ flowchart TB
 **面试标准答法（1分钟版）**：常见RAID级别有0、1、5、6、10。RAID 0是条带化，无冗余但速度最快；RAID 1是镜像，100%冗余，读快写慢；RAID 5用分布式奇偶校验，允许1盘故障，性价比高；RAID 6双奇偶校验，允许2盘故障更安全；RAID 10是1+0组合，高性能高可靠但成本高。选择时，临时数据用RAID 0，系统盘用RAID 1，通用存储用RAID 5，重要数据用RAID 6，关键业务用RAID 10。
 
 > **延伸阅读**：想了解更多RAID生产环境最佳实践？请参考 [RAID存储技术详解：生产环境选型与部署指南]({% post_url 2026-05-07-raid-production-best-practices %})。
+
+### 130. ELK怎么收集日志，流程是啥？
+
+**Why - 为什么这个问题重要？**
+
+ELK是日志收集分析的主流方案，考察你对**日志收集、存储、检索、可视化**全流程的理解。面试官想知道你是否能独立设计和部署日志系统，处理大规模日志场景。
+
+**How - ELK日志收集流程**
+
+```mermaid
+flowchart LR
+    A["日志源"] --> B["Filebeat"]
+    B --> C["Kafka（可选）"]
+    C --> D["Logstash"]
+    D --> E["Elasticsearch"]
+    E --> F["Kibana"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#fff3e0
+    style D fill:#ffcdd2
+    style E fill:#f3e5f5
+    style F fill:#bbdefb
+```
+
+**What - ELK核心组件**
+
+| 组件 | 功能 | 作用 |
+|:----:|------|------|
+| **Filebeat** | 轻量日志采集器 | 部署在目标主机，实时采集日志 |
+| **Logstash** | 日志处理管道 | 过滤、转换、丰富日志数据 |
+| **Elasticsearch** | 分布式搜索存储 | 存储和索引日志，支持快速检索 |
+| **Kibana** | 可视化平台 | 日志查询、仪表盘、告警 |
+| **Kafka** | 消息队列（可选） | 解耦采集与处理，削峰填谷 |
+
+**记忆口诀**：Filebeat采、Logstash转、ES存、Kibana看，Kafka中间解耦担。
+
+**面试标准答法（1分钟版）**：ELK日志收集流程是Filebeat采集、Logstash处理、Elasticsearch存储、Kibana展示。Filebeat部署在各主机上轻量采集日志，通过TCP或Kafka发送给Logstash；Logstash做过滤、解析、字段提取；然后写入Elasticsearch建立索引；最后通过Kibana进行查询分析和可视化。大型场景会用Kafka做缓冲，实现采集与处理解耦，提高系统稳定性。
+
+> **延伸阅读**：想了解更多ELK日志系统生产环境最佳实践？请参考 [ELK日志系统生产环境最佳实践：从采集到可视化全流程指南]({% post_url 2026-05-08-elk-log-collection-best-practices %})。
