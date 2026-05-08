@@ -1730,3 +1730,50 @@ flowchart TB
 **面试标准答法（1分钟版）**：我们当前使用的Harbor版本是v2.10.0，采用高可用部署模式，通过Nginx负载均衡实现多节点集群。协议方面，我们配置了HTTPS，使用SSL证书加密传输。存储后端采用S3兼容存储（MinIO），支持数据冗余备份。数据库使用PostgreSQL多主复制，确保数据高可用。这种架构能够支撑大规模镜像存储和高并发访问需求。
 
 > **延伸阅读**：想了解更多Harbor部署与管理最佳实践？请参考 [Harbor镜像仓库高可用部署：从单机到企业级架构]({% post_url 2026-05-08-harbor-ha-deployment-best-practices %})。
+
+### 157. Harbor高可用有没有试过？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Harbor高可用架构**的实际部署经验。高可用是生产环境的基本要求，了解Harbor高可用方案是高级DevOps/SRE工程师的核心竞争力。
+
+**How - Harbor高可用架构**
+
+```mermaid
+flowchart TB
+    A["高可用架构"] --> B["负载均衡层"]
+    A --> C["核心服务层"]
+    A --> D["数据层"]
+    
+    B --> B1["Nginx/HAProxy"]
+    B1 --> B2["健康检查"]
+    
+    C --> C1["Core API"]
+    C --> C2["Registry"]
+    C --> C3["Jobservice"]
+    
+    D --> D1["PostgreSQL集群"]
+    D --> D2["Redis集群"]
+    D --> D3["共享存储"]
+    
+    style A fill:#e3f2fd
+    style B fill:#ffcdd2
+    style D fill:#c8e6c9
+```
+
+**What - 高可用配置表**
+
+| 组件 | 部署方式 | 副本数 | 说明 |
+|:----:|----------|:------:|------|
+| **Core API** | 多节点部署 | 3+ | 无状态服务 |
+| **Registry** | 多节点部署 | 3+ | 共享存储 |
+| **PostgreSQL** | Patroni集群 | 3 | 多主复制 |
+| **Redis** | Cluster模式 | 6 | 3主3从 |
+| **Storage** | S3兼容 | 多副本 | MinIO/Ceph |
+| **LB** | Nginx/HAProxy | 2 | 双机热备 |
+
+**记忆口诀**：Harbor高可用，多节点部署，LB做负载，PostgreSQL多主，Redis集群，存储用S3。
+
+**面试标准答法（1分钟版）**：是的，我负责过Harbor高可用的部署和维护。我们采用三节点部署方案，Core API和Registry都是多副本运行。数据库使用PostgreSQL Patroni集群实现多主复制，Redis采用Cluster模式3主3从。存储后端使用S3兼容的MinIO分布式存储，确保数据冗余。前端通过Nginx负载均衡实现流量分发和健康检查。这样的架构能够保证任意节点故障时服务不中断，数据不丢失。
+
+> **延伸阅读**：想了解更多Harbor高可用实现细节？请参考 [Harbor高可用实战：从架构设计到故障演练]({% post_url 2026-05-08-harbor-ha-implementation-best-practices %})。
