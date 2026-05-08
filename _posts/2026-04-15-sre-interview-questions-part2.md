@@ -1508,3 +1508,47 @@ flowchart TB
 **面试标准答法（1分钟版）**：监控数据采集频率根据指标类型有所不同，Prometheus默认是15秒，关键业务指标可以配置为10-15秒，非关键指标可以设为30-60秒。HPA配置方面，我们配置基于CPU和内存的自动扩缩容，目标阈值分别设为70%和75%，最小副本数设置为2保证高可用，最大副本数根据业务峰值设置。同时支持基于自定义指标的HPA，如QPS、请求延迟等。
 
 > **延伸阅读**：想了解更多监控采集与HPA配置最佳实践？请参考 [K8S监控采集与HPA配置：弹性伸缩实战指南]({% post_url 2026-05-08-k8s-scraping-hpa-best-practices %})。
+
+### 152. 平台涉及哪些数据库和中间件？你负责哪些？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**平台技术栈**的整体了解。作为高级DevOps/SRE工程师，需要全面掌握数据库和中间件的选型、架构和运维能力。
+
+**How - 数据库与中间件架构**
+
+```mermaid
+flowchart TB
+    A["数据层"] --> B["关系型数据库"]
+    A --> C["NoSQL数据库"]
+    A --> D["消息队列"]
+    A --> E["缓存"]
+    
+    B --> B1["MySQL/PostgreSQL"]
+    C --> C1["MongoDB/Redis"]
+    D --> D1["Kafka/RocketMQ"]
+    E --> E1["Redis Cluster"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#fff3e0
+    style D fill:#ffcdd2
+    style E fill:#f3e5f5
+```
+
+**What - 技术栈对比表**
+
+| 类型 | 组件 | 用途 | 运维负责 |
+|:----:|------|------|:--------:|
+| **关系型** | MySQL/PostgreSQL | 业务数据存储 | DBA团队 |
+| **NoSQL** | MongoDB | 文档存储 | SRE团队 |
+| **缓存** | Redis Cluster | 缓存/会话 | SRE团队 |
+| **消息队列** | Kafka/RocketMQ | 异步通信 | SRE团队 |
+| **搜索** | Elasticsearch | 日志/搜索 | SRE团队 |
+| **对象存储** | MinIO/S3 | 文件存储 | SRE团队 |
+
+**记忆口诀**：关系数据库MySQL，缓存用Redis，消息队列Kafka，搜索分析用ES，对象存储MinIO。
+
+**面试标准答法（1分钟版）**：我们平台涉及多种数据库和中间件。关系型数据库使用MySQL主从集群和PostgreSQL，负责业务数据存储；NoSQL方面使用MongoDB存储文档数据，Redis Cluster做缓存和会话管理；消息队列使用Kafka进行异步通信和日志收集；搜索方面使用Elasticsearch存储日志和业务搜索；对象存储使用MinIO和S3兼容存储。每个组件都有明确的运维分工，SRE团队主要负责MongoDB、Redis、Kafka、ES和MinIO的运维工作，包括部署、监控、备份和故障处理。
+
+> **延伸阅读**：想了解更多数据库与中间件运维最佳实践？请参考 [K8S平台数据库与中间件运维：生产环境实战指南]({% post_url 2026-05-08-database-middleware-ops-best-practices %})。
