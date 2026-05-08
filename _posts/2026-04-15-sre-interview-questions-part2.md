@@ -1335,3 +1335,42 @@ flowchart TB
 **面试标准答法（1分钟版）**：K8S集群证书的默认有效期根据类型不同有所区别。CA根证书默认10年，API Server、kubelet、etcd等证书默认1年有效期。证书轮换方面，kubelet证书支持自动轮换，API Server和etcd证书可以配置自动轮换也可以手动更新。我们采用自动轮换为主、手动干预为辅的策略，确保证书在过期前自动更新，避免影响集群运行。
 
 > **延伸阅读**：想了解更多K8S证书管理与轮换最佳实践？请参考 [K8S证书管理与自动轮换：集群安全保障指南]({% post_url 2026-05-08-k8s-certificate-management-best-practices %})。
+
+### 148. 手工轮换证书的操作是什么样的？更新完需要重启哪些组件？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你**手工证书轮换**的实战能力。自动轮换可能失败或在某些场景下不可用，掌握手工轮换技能是运维工程师的必备能力。
+
+**How - 手工轮换流程**
+
+```mermaid
+flowchart TB
+    A["手工轮换"] --> B["备份证书"]
+    A --> C["生成新证书"]
+    A --> D["分发证书"]
+    A --> E["重启组件"]
+    A --> F["验证"]
+    
+    style A fill:#e3f2fd
+    style E fill:#ffcdd2
+```
+
+**What - 轮换操作表**
+
+| 步骤 | 操作 | 命令/动作 |
+|:----:|------|-----------|
+| **1. 备份** | 备份现有证书 | cp -r /etc/kubernetes/pki /backup/pki-$(date) |
+| **2. 检查** | 查看证书状态 | kubeadm certs check-expiration |
+| **3. 生成** | 生成新证书 | kubeadm certs renew <cert-name> |
+| **4. 分发** | 分发证书 | 复制到各节点 |
+| **5. 重启** | 重启组件 | kube-apiserver等 |
+| **6. 验证** | 验证证书 | openssl x509 -in xxx.crt -text |
+
+**需要重启的组件**：kube-apiserver、kube-controller-manager、kube-scheduler、kubelet（可选）、etcd（如需）
+
+**记忆口诀**：备份先做，检查状态，生成证书，分发到位，重启组件，验证无误。
+
+**面试标准答法（1分钟版）**：手工轮换证书的流程是：首先备份现有证书到安全位置，然后使用kubeadm certs check-expiration查看证书状态，确认需要更新的证书。接着执行kubeadm certs renew命令生成新证书，可以指定单个证书或使用all参数更新所有证书。更新完成后需要重启相关组件，包括kube-apiserver、kube-controller-manager、kube-scheduler等控制平面组件，以及各节点的kubelet。最后使用openssl命令验证新证书的有效期。
+
+> **延伸阅读**：想了解更多K8S手工证书轮换最佳实践？请参考 [K8S手工证书轮换实战：步骤详解与组件重启指南]({% post_url 2026-05-08-k8s-manual-certificate-rotation-best-practices %})。
