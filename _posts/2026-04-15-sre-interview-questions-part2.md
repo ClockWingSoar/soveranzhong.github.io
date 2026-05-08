@@ -586,3 +586,61 @@ flowchart LR
 **面试标准答法（1分钟版）**：ELK日志收集流程是Filebeat采集、Logstash处理、Elasticsearch存储、Kibana展示。Filebeat部署在各主机上轻量采集日志，通过TCP或Kafka发送给Logstash；Logstash做过滤、解析、字段提取；然后写入Elasticsearch建立索引；最后通过Kibana进行查询分析和可视化。大型场景会用Kafka做缓冲，实现采集与处理解耦，提高系统稳定性。
 
 > **延伸阅读**：想了解更多ELK日志系统生产环境最佳实践？请参考 [ELK日志系统生产环境最佳实践：从采集到可视化全流程指南]({% post_url 2026-05-08-elk-log-collection-best-practices %})。
+
+### 131. ES你做了哪些优化？
+
+**Why - 为什么这个问题重要？**
+
+ES优化直接影响系统性能、稳定性和成本。面试官通过这个问题考察你对**ES底层原理**和**生产环境调优**的实战经验，判断你能否解决实际性能问题。
+
+**How - ES优化维度速查**
+
+```mermaid
+flowchart TB
+    A["ES优化"] --> B["内存优化"]
+    A --> C["索引优化"]
+    A --> D["查询优化"]
+    A --> E["集群优化"]
+    A --> F["硬件优化"]
+    
+    B --> B1["堆内存设置"]
+    B --> B2["内存锁定"]
+    B --> B3["GC调优"]
+    
+    C --> C1["分片副本"]
+    C --> C2["Mapping设计"]
+    C --> C3["ILM策略"]
+    
+    D --> D1["查询DSL"]
+    D --> D2["缓存利用"]
+    D --> D3["分页优化"]
+    
+    E --> E1["节点角色"]
+    E --> E2["路由策略"]
+    E --> E3["故障转移"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#fff3e0
+    style D fill:#ffcdd2
+    style E fill:#f3e5f5
+    style F fill:#bbdefb
+```
+
+**What - ES优化要点**
+
+| 优化维度 | 关键要点 | 配置建议 |
+|:--------:|----------|----------|
+| **堆内存** | 物理内存50%，不超30G | `-Xms=Xmx=16g` |
+| **内存锁定** | 防止swap | `bootstrap.memory_lock: true` |
+| **分片数** | 每片10-50GB | 主分片数=节点数倍数 |
+| **副本数** | 生产至少1个 | `number_of_replicas: 2` |
+| **Mapping** | 避免text字段过多 | 使用keyword替代 |
+| **刷新间隔** | 写入密集时调大 | `refresh_interval: 30s` |
+| **GC调优** | CMS转G1GC | `-XX:+UseG1GC` |
+
+**记忆口诀**：堆内存半分不超30G，内存锁定防swap，分片合理副本够，Mapping精简刷新调。
+
+**面试标准答法（1分钟版）**：ES优化主要从这几个方面：内存方面，堆内存设为物理内存一半且不超过30G，开启内存锁定防止swap；索引方面，合理设置分片数（每片10-50GB）、副本数（生产至少1个），优化Mapping避免不必要的text字段，调大刷新间隔减少IO；查询方面，利用filter缓存、避免深分页、使用复合查询；集群方面，按角色分离节点、合理路由分片。这些优化能显著提升ES性能和稳定性。
+
+> **延伸阅读**：想了解更多ES生产环境优化最佳实践？请参考 [Elasticsearch生产环境优化指南：从内存到集群全方位调优]({% post_url 2026-05-08-es-production-optimization-best-practices %})。
