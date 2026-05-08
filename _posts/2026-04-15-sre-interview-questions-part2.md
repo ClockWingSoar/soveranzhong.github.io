@@ -1820,3 +1820,43 @@ flowchart TB
 **面试标准答法（1分钟版）**：确实遇到过这个问题。排查思路是：先看Pod事件确认错误类型，如果是网络不通，用ping和telnet检查连通性；如果是401认证失败，检查imagePullSecrets配置是否正确，Secret是否过期；如果是404镜像不存在，确认镜像名称和Tag是否正确；如果是Token过期，需要更新Secret。我们还配置了镜像预热策略，在发版前提前拉取镜像，避免发版时拉取失败。
 
 > **延伸阅读**：想了解更多镜像拉取问题排查？请参考 [K8S镜像拉取问题排查与解决方案：从网络到认证全解析]({% post_url 2026-05-08-image-pull-debugging-best-practices %})。
+
+### 159. 证书更新用的是什么命令？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**证书管理**的实战经验。证书过期会导致服务不可用，掌握证书更新命令是高级DevOps/SRE工程师的基本技能。
+
+**How - 证书更新流程**
+
+```mermaid
+flowchart TB
+    A["证书更新"] --> B["检查证书"]
+    A --> C["生成新证书"]
+    A --> D["更新配置"]
+    A --> E["验证生效"]
+    
+    B --> B1["openssl命令"]
+    C --> C1["cfssl/openssl"]
+    D --> D1["K8S Secret"]
+    D1 --> D2["Ingress"]
+    
+    style A fill:#e3f2fd
+    style C fill:#c8e6c9
+```
+
+**What - 证书管理命令表**
+
+| 操作 | 命令 | 说明 |
+|:----:|------|------|
+| **查看证书** | openssl x509 -in cert.pem -text -noout | 查看证书信息 |
+| **检查过期** | openssl x509 -in cert.pem -dates -noout | 查看有效期 |
+| **生成证书** | cfssl gencert -ca=ca.pem -ca-key=ca-key.pem config.json | 生成新证书 |
+| **更新K8S** | kubectl create secret tls --dry-run -o yaml | 更新Secret |
+| **更新Ingress** | kubectl apply -f ingress.yaml | 更新Ingress |
+
+**记忆口诀**：证书更新先检查openssl，生成用cfssl，更新K8S Secret，验证用curl。
+
+**面试标准答法（1分钟版）**：我们主要使用openssl和cfssl命令管理证书。查看证书用openssl x509 -in cert.pem -text -noout，可以查看证书的CN、有效期、签发者等信息。检查证书过期用openssl x509 -in cert.pem -dates -noout。生成新证书用cfssl工具，我们有标准化的cfssl配置文件。对于K8S中的证书，通过Secret或Ingress配置更新，更新后用curl验证证书是否生效。生产环境我们还配置了Cert-manager实现证书自动续期。
+
+> **延伸阅读**：想了解更多证书更新最佳实践？请参考 [K8S证书管理全攻略：从命令到自动化]({% post_url 2026-05-08-certificate-management-best-practices %})。
