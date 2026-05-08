@@ -1417,3 +1417,53 @@ flowchart TB
 **面试标准答法（1分钟版）**：我们定期进行K8S版本升级。升级流程主要包括：首先备份etcd数据和证书，然后检查目标版本与当前版本的兼容性。升级控制平面时，先升级kubeadm工具，再执行kubeadm upgrade apply命令。工作节点升级时，逐个节点进行，先升级kubelet包，再重启kubelet服务。升级完成后验证集群状态，最后升级CNI、Ingress等插件。整个过程会在维护窗口期进行，并准备回滚方案。
 
 > **延伸阅读**：想了解更多K8S版本升级最佳实践？请参考 [K8S版本升级实战：从准备到验证的完整指南]({% post_url 2026-05-08-k8s-version-upgrade-best-practices %})。
+
+### 150. 监控用的什么方案？部署在哪里？介绍一下架构。
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**监控体系架构**的理解。监控是保障系统稳定运行的关键，了解监控方案和架构设计是高级DevOps/SRE工程师的核心能力。
+
+**How - 监控架构设计**
+
+```mermaid
+flowchart TB
+    A["监控架构"] --> B["数据采集层"]
+    A --> C["数据存储层"]
+    A --> D["可视化层"]
+    A --> E["告警层"]
+    
+    B --> B1["Node Exporter"]
+    B --> B2["Kube State Metrics"]
+    B --> B3["应用指标"]
+    
+    C --> C1["Prometheus"]
+    C --> C2["Thanos"]
+    
+    D --> D1["Grafana"]
+    
+    E --> E1["Alertmanager"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style C fill:#fff3e0
+    style D fill:#ffcdd2
+    style E fill:#f3e5f5
+```
+
+**What - 监控方案配置表**
+
+| 组件 | 功能 | 部署位置 | 重要性 |
+|:----:|------|----------|:------:|
+| **Prometheus** | 指标采集存储 | 独立监控集群 | 高 |
+| **Grafana** | 可视化展示 | 独立监控集群 | 高 |
+| **Alertmanager** | 告警管理 | 独立监控集群 | 高 |
+| **Node Exporter** | 节点指标 | 所有节点 | 高 |
+| **Kube State Metrics** | K8S状态指标 | K8S集群 | 高 |
+| **Thanos** | 远程存储 | 独立监控集群 | 中 |
+
+**记忆口诀**：采集用Exporter，存储用Prometheus，展示用Grafana，告警用Alertmanager。
+
+**面试标准答法（1分钟版）**：我们采用Prometheus+Grafana的监控方案。监控架构分为四层：数据采集层使用Node Exporter采集节点指标、Kube State Metrics采集K8S状态、应用自定义指标；数据存储层使用Prometheus作为主存储，Thanos做远程存储和联邦查询；可视化层使用Grafana展示监控面板；告警层使用Alertmanager管理告警规则。整个监控系统部署在独立的监控集群中，与业务集群隔离，确保监控服务的高可用性。
+
+> **延伸阅读**：想了解更多K8S监控架构最佳实践？请参考 [K8S监控体系架构设计：从采集到告警的完整方案]({% post_url 2026-05-08-k8s-monitoring-architecture-best-practices %})。
