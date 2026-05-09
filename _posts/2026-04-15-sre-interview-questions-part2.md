@@ -3447,3 +3447,39 @@ flowchart TD
 **面试标准答法（1分钟版）**：K8s高可用从三层部署：1. etcd集群：3或5节点奇数部署，选举机制保证一致性；2. Control Plane：apiserver多实例+负载均衡，scheduler和controller多实例竞争选举；3. Worker Plane：至少3节点部署，Pod使用反亲缘性分散部署，配合PodDisruptionBudget保证可用性。生产环境推荐kubeadm或ACK/ACK等托管方案，支持自动故障恢复和滚动升级。
 
 > **延伸阅读**：想了解更多K8s高可用？请参考 [Kubernetes高可用部署：生产环境架构设计与实践指南]({% post_url 2026-05-09-k8s-high-availability-best-practices %})。
+
+### 200. 我有300个Pod，频繁在重启，怎么优化？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Pod重启问题排查**的能力。Pod频繁重启会影响服务可用性，需要系统性地排查原因并优化。
+
+**How - Pod重启排查流程图**
+
+```mermaid
+flowchart TD
+    A["Pod重启"] --> B["查看Pod状态"]
+    B --> C["kubectl describe"]
+    B --> D["kubectl logs"]
+    C --> E{"OOMKilled?"}
+    C --> F{"Liveness失败?"}
+    C --> G{"Error退出?"}
+    E --> H["增加内存限制"]
+    F --> I["调整探针配置"]
+    G --> J["检查应用日志"]
+```
+
+**What - Pod重启原因表**
+
+| 原因 | 排查方法 | 解决方案 |
+|:----:|----------|----------|
+| **OOMKilled** | exitCode=137 | 增加内存限制 |
+| **Liveness失败** | 探针超时 | 调整探针参数 |
+| **Error退出** | exitCode!=0 | 检查应用日志 |
+| **节点资源不足** | kubectl top node | 扩容或调度优化 |
+
+**记忆口诀**：Pod重启三步查，先看状态和日志，OOM要加内存，探针调参是重点，节点压力要扩容。
+
+**面试标准答法（1分钟版）**：Pod频繁重启排查思路：1. 查看Pod状态：kubectl describe pod查看Events，定位退出原因；2. 常见原因：OOMKilled（exitCode 137）需增加内存限制，探针失败需调整超时和阈值，Error退出需检查应用日志；3. 节点层面：kubectl top node查看节点资源，确认节点是否压力过大；4. 优化方向：优化应用内存使用、合理配置资源限制和探针、扩容节点或优化调度。300个Pod重启频繁，重点检查是否资源限制过紧或节点资源不足。
+
+> **延伸阅读**：想了解更多Pod重启优化？请参考 [Kubernetes Pod频繁重启：排查思路与生产环境优化指南]({% post_url 2026-05-09-pod-restart-optimization-best-practices %})。
