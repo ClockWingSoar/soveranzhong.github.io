@@ -3786,3 +3786,37 @@ flowchart LR
 **面试标准答法（1分钟版）**：副本重复采集去重：1. 原因分析：Prometheus高可用部署时多个副本抓取同一目标、数据回填时重复、联邦集群数据重叠；2. Thanos去重：配置replica_label=prometheus，Thanos Query自动根据标签合并；3. PromQL去重：使用group_left()或sum()聚合；4. dedup插件：使用prometheus/dedup插件做后处理。配置示例：--global.external_labels=replica="$(HOSTNAME)"。生产建议：Thanos架构下使用replica标签自动去重。
 
 > **延伸阅读**：想了解更多数据去重？请参考 [Prometheus副本重复采集：数据去重与冗余处理最佳实践]({% post_url 2026-05-09-prometheus-dedup-best-practices %})。
+
+### 209. Prometheus如何做数据采集和指标设计？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Prometheus指标模型和采集设计**的理解。好的指标设计是监控有效性的基础。
+
+**How - 指标设计四要素图**
+
+```mermaid
+flowchart TD
+    A["指标设计"] --> B["RED方法"]
+    A --> C["USE方法"]
+    A --> D["基数控制"]
+    A --> E["标签设计"]
+    
+    style B fill:#81c784
+    style C fill:#81c784
+```
+
+**What - 指标类型对比表**
+
+| 类型 | 用途 | 示例 | 单位 |
+|:----:|------|------|------|
+| **Counter** | 累计递增 | 请求数 | count |
+| **Gauge** | 可增可减 | CPU使用率 | percent |
+| **Histogram** | 分布统计 | 请求延迟 | seconds |
+| **Summary** | 分位统计 | P99延迟 | seconds |
+
+**记忆口诀**：指标设计有方法，RED看服务USE看资源，Counter累计Gauge瞬，Histogram分布Summary分位。
+
+**面试标准答法（1分钟版）**：Prometheus指标设计：1. 方法论：RED（Rate/Errors/Duration）用于服务监控，USE（Utilization/Saturation/Errors）用于资源监控；2. 指标类型：Counter（累计值如请求数）、Gauge（当前值如CPU）、Histogram（延迟分布）、Summary（分位数）；3. 标签设计：避免高基数标签（如userID、requestID），使用业务标签（如service/endpoint/method）；4. 采集频率：15秒最佳，过频繁影响性能，过稀疏数据不准确。命名规范：{name}_{type}，如http_requests_total。
+
+> **延伸阅读**：想了解更多Prometheus指标设计？请参考 [Prometheus数据采集与指标设计：RED/USE方法论与生产实践指南]({% post_url 2026-05-09-prometheus-metrics-design-best-practices %})。
