@@ -3064,3 +3064,39 @@ flowchart TD
 **面试标准答法（1分钟版）**：K8s分为控制平面和工作平面。控制平面组件：1. kube-apiserver是集群统一入口，提供认证授权、API聚合；2. etcd是高可用键值存储，保存集群所有状态；3. kube-scheduler根据资源需求和策略调度Pod到最优节点；4. kube-controller-manager运行各种控制器（Deployment、ReplicaSet等）；5. cloud-controller-manager对接云厂商。工作平面组件：1. kubelet负责管理节点上Pod的生命周期；2. kube-proxy维护网络规则，实现Service通信；3. Container Runtime负责容器运行（Docker/containerd）。
 
 > **延伸阅读**：想了解更多K8s架构？请参考 [Kubernetes控制平面与工作平面：架构详解与生产环境最佳实践]({% post_url 2026-05-09-k8s-architecture-best-practices %})。
+
+### 190. K8s CNI组件有哪些，区别是什么？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes网络原理**的理解。CNI（容器网络接口）是K8s网络模型的核心，选择合适的CNI插件对集群网络性能和安全至关重要。
+
+**How - CNI工作原理**
+
+```mermaid
+flowchart TD
+    A["Pod创建"] --> B["kubelet调用CNI"]
+    B --> C["CNI插件配置网络"]
+    C --> D["创建veth pair"]
+    D --> E["分配IP地址"]
+    E --> F["配置网桥/路由"]
+    F --> G["Pod网络就绪"]
+    
+    style A fill:#ffcdd2
+    style G fill:#c8e6c9
+```
+
+**What - CNI插件对比表**
+
+| 插件 | 类型 | 优点 | 缺点 | 适用场景 |
+|:----:|------|------|------|----------|
+| **Flannel** | 叠加网络 | 简单易用 | 性能较差 | 开发测试 |
+| **Calico** | 路由+BGP | 性能高、功能丰富 | 配置复杂 | 生产环境 |
+| **Cilium** | eBPF | 高性能、可观测 | 依赖内核版本 | 大规模集群 |
+| **Weave** | 叠加网络 | 简单、自动加密 | 性能一般 | 混合云 |
+
+**记忆口诀**：CNI插件有三类，Flannel简单 overlay，Calico路由+BGP性能高，Cilium用eBPF，Weave自动加密易部署。
+
+**面试标准答法（1分钟版）**：常见CNI插件有：1. Flannel：简单overlay网络，使用vxlan封装，性能一般但易部署；2. Calico：基于BGP的路由网络，支持网络策略，性能高，适合生产环境；3. Cilium：基于eBPF的新一代网络，性能最好，支持L7层可见性，但需要较高内核版本；4. Weave：简单overlay网络，支持自动加密，适合混合云。我们生产环境使用Calico，因为性能高且支持网络策略。
+
+> **延伸阅读**：想了解更多K8s CNI？请参考 [Kubernetes CNI组件：网络插件对比与生产环境最佳实践]({% post_url 2026-05-09-k8s-cni-best-practices %})。
