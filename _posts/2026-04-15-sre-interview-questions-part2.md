@@ -3176,3 +3176,37 @@ flowchart TD
 **面试标准答法（1分钟版）**：我们线上QPS最高达到5万+，主要优化手段：1. 接入层：使用CDN加速静态资源，Nginx做负载均衡；2. 缓存层：Redis集群抗读请求，热点数据缓存；3. 应用层：多实例部署，消息队列削峰，异步处理非核心流程；4. 数据层：MySQL主从读写分离，分库分表，连接池优化。整体遵循CacheAside模式，读多写少场景下缓存命中率能到95%以上。
 
 > **延伸阅读**：想了解更多高并发优化？请参考 [生产环境高并发优化：从架构到实战的完整指南]({% post_url 2026-05-09-high-concurrency-optimization-best-practices %})。
+
+### 193. Service流量路径和实现？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes Service网络**的理解。Service是K8s实现服务发现和负载均衡的核心概念，理解其流量路径对排查网络问题和设计高可用架构至关重要。
+
+**How - Service流量路径图**
+
+```mermaid
+flowchart TD
+    A["客户端Pod"] --> B["kube-proxy"]
+    B --> C["iptables/ipvs规则"]
+    C --> D["目标Pod"]
+    D --> E["Endpoint"]
+    
+    F["Service VIP"] --> B
+    style A fill:#ffcdd2
+    style D fill:#c8e6c9
+```
+
+**What - Service类型对比表**
+
+| 类型 | ClusterIP | NodePort | LoadBalancer | ExternalName |
+|:----:|:---------:|:--------:|:------------:|:------------:|
+| **用途** | 集群内部访问 | 外部访问 | 云厂商LB | 外部服务映射 |
+| **范围** | 集群内 | 集群外 | 集群外 | 集群内 |
+| **端口** | 任意端口 | 30000-32767 | 云厂商分配 | 无 |
+
+**记忆口诀**：Service三类类型，ClusterIP集群内，NodePort外部访问，LoadBalancer云厂商，流量路径kube-proxy，iptables或ipvs。
+
+**面试标准答法（1分钟版）**：Service流量路径：客户端Pod请求Service VIP，通过kube-proxy根据iptables/ipvs规则转发到后端Endpoint（Pod）。kube-proxy通过watch API Server感知Endpoints变化，实时更新转发规则。Service类型：ClusterIP（默认，集群内访问）、NodePort（通过节点端口外部访问）、LoadBalancer（对接云厂商LB）、ExternalName（映射外部域名）。Headless Service的特殊之处是没有ClusterIP，直接DNS解析到Pod IP。
+
+> **延伸阅读**：想了解更多K8s Service？请参考 [Kubernetes Service流量路径与实现原理详解]({% post_url 2026-05-09-k8s-service-traffic-best-practices %})。
