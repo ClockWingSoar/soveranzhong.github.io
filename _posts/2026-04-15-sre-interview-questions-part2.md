@@ -2620,3 +2620,40 @@ flowchart TB
 **面试标准答法（1分钟版）**：镜像命名规则通常为：`registry/namespace/repo:tag`。标签策略包括：语义化版本（v1.0.0）用于正式发布，Git Commit哈希（abc1234）用于开发构建，分支名用于特性开发，latest用于最新稳定版。最佳实践：避免滥用latest，使用多标签策略，保持镜像可追溯，定期清理旧镜像，使用镜像签名验证。
 
 > **延伸阅读**：想了解更多镜像管理？请参考 [容器镜像版本管理与命名规范最佳实践]({% post_url 2026-05-09-image-versioning-best-practices %})。
+
+### 179. 开发分支阶段生成的镜像不要求推到镜像库里，但是我想获取到，如何操作？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**镜像导出和共享**的理解。开发阶段频繁构建镜像但不推送到仓库，需要高效获取和测试这些镜像。
+
+**How - 镜像获取方案**
+
+```mermaid
+flowchart TB
+    A["本地构建"] --> B["导出镜像"]
+    B --> C["传输方式"]
+    C --> D["导入使用"]
+    
+    C --> C1["文件传输"]
+    C --> C2["本地网络共享"]
+    C --> C3["临时Registry"]
+    
+    style A fill:#e3f2fd
+    style D fill:#c8e6c9
+```
+
+**What - 获取方法表**
+
+| 方法 | 操作 | 适用场景 |
+|:----:|------|----------|
+| **docker save/load** | 导出为tar文件，复制后导入 | 需要离线传输 |
+| **docker export/import** | 导出容器为tar，导入为镜像 | 轻量传输 |
+| **本地Registry** | 启动临时Registry，推送拉取 | 团队内部共享 |
+| **docker cp** | 复制容器文件 | 快速验证 |
+
+**记忆口诀**：save导出tar包，load导入本地用，临时Registry共享，docker cp快速验证。
+
+**面试标准答法（1分钟版）**：开发分支镜像获取方法：1. docker save导出为tar文件，scp复制到目标机器后docker load导入；2. 启动本地临时Registry（如registry:2），推送镜像后在目标机器拉取；3. docker export导出容器，docker import导入为镜像。推荐使用本地Registry方式，方便团队共享，也可通过CI/CD工具直接将镜像注入到测试环境。
+
+> **延伸阅读**：想了解更多镜像操作？请参考 [开发阶段镜像获取与共享：不推仓库的最佳实践]({% post_url 2026-05-09-dev-image-retrieval-best-practices %})。
