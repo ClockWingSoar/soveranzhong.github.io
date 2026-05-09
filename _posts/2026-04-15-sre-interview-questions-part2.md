@@ -3006,3 +3006,61 @@ flowchart TD
 **面试标准答法（1分钟版）**：MySQL调优有五个维度：1. SQL层优化（最重要）：索引优化、SQL语句优化、避免全表扫描；2. MySQL层优化：调整innodb_buffer_pool_size、max_connections等参数；3. OS层优化：磁盘调度、网络参数、内核参数；4. 硬件层：根据负载选择SSD、增加内存；5. 架构层：读写分离、分库分表、引入缓存。实际工作中，我们通常先从SQL层入手，因为收益最大。
 
 > **延伸阅读**：想了解更多MySQL调优？请参考 [MySQL全面调优：从SQL到架构的完整指南]({% post_url 2026-05-09-mysql-comprehensive-tuning-best-practices %})。
+
+### 189. K8s控制平面、工作平面组件及功能？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes架构**的掌握程度。理解控制平面和工作平面的组件及其功能，是深入掌握K8s的基础，也是高级运维和架构师的必备技能。
+
+**How - K8s架构全景图**
+
+```mermaid
+flowchart TD
+    subgraph CP["控制平面 Control Plane"]
+        A1["kube-apiserver"]
+        A2["etcd"]
+        A3["kube-scheduler"]
+        A4["kube-controller-manager"]
+        A5["cloud-controller-manager"]
+    end
+    
+    subgraph WP["工作平面 Worker Plane"]
+        B1["kubelet"]
+        B2["kube-proxy"]
+        B3["Container Runtime"]
+        B4["Pod"]
+        B5["DNS"]
+    end
+    
+    C["kubectl"] --> A1
+    A1 --> A2
+    A1 --> A3
+    A1 --> A4
+    A4 --> A5
+    
+    B1 --> A1
+    B2 --> A1
+    B3 --> B4
+    
+    style CP fill:#e3f2fd
+    style WP fill:#c8e6c9
+```
+
+**What - 组件功能表**
+
+| 平面 | 组件 | 功能 |
+|:----:|------|------|
+| **控制平面** | kube-apiserver | API网关、认证授权、资源操作入口 |
+| **控制平面** | etcd | 分布式存储，保存集群所有数据 |
+| **控制平面** | kube-scheduler | 负责Pod调度，选择最佳节点 |
+| **控制平面** | kube-controller-manager | 运行控制器，维持期望状态 |
+| **工作平面** | kubelet | 管理节点Pod生命周期 |
+| **工作平面** | kube-proxy | 网络代理，维护网络规则 |
+| **工作平面** | Container Runtime | 容器运行时（Docker/containerd） |
+
+**记忆口诀**：控制平面五大组件，apiserver是网关，etcd存储数据，scheduler调度，controller管理器；工作平面三组件，kubelet管Pod，proxy管网络，runtime管容器。
+
+**面试标准答法（1分钟版）**：K8s分为控制平面和工作平面。控制平面组件：1. kube-apiserver是集群统一入口，提供认证授权、API聚合；2. etcd是高可用键值存储，保存集群所有状态；3. kube-scheduler根据资源需求和策略调度Pod到最优节点；4. kube-controller-manager运行各种控制器（Deployment、ReplicaSet等）；5. cloud-controller-manager对接云厂商。工作平面组件：1. kubelet负责管理节点上Pod的生命周期；2. kube-proxy维护网络规则，实现Service通信；3. Container Runtime负责容器运行（Docker/containerd）。
+
+> **延伸阅读**：想了解更多K8s架构？请参考 [Kubernetes控制平面与工作平面：架构详解与生产环境最佳实践]({% post_url 2026-05-09-k8s-architecture-best-practices %})。
