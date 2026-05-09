@@ -3518,3 +3518,41 @@ flowchart TD
 **面试标准答法（1分钟版）**：kubectl top排查流程：1. kubectl top node查看节点维度，找出资源使用率高的节点；2. kubectl top pod -n xxx查看Pod维度，按CPU或内存排序找出异常Pod；3. kubectl top pod -n xxx --containers查看容器级别；4. 结合kubectl describe定位具体原因。前提是部署metrics-server组件，如无输出需检查组件状态。生产环境建议配合Prometheus+Grafana做全面监控。
 
 > **延伸阅读**：想了解更多kubectl top？请参考 [kubectl top排查流程：Kubernetes资源监控与性能分析指南]({% post_url 2026-05-09-kubectl-top-troubleshooting-best-practices %})。
+
+### 202. Pod频繁重启会对哪些组件产生压力？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**K8s架构组件负载**的理解。Pod频繁重启会影响多个K8s组件的性能，理解这些影响有助于做出正确的架构决策。
+
+**How - Pod重启影响组件图**
+
+```mermaid
+flowchart TD
+    A["Pod频繁重启"] --> B["kubelet"]
+    A --> C["container runtime"]
+    A --> D["API Server"]
+    A --> E["etcd"]
+    A --> F["Scheduler"]
+    A --> G["CNI"]
+    
+    style B fill:#ffcdd2
+    style D fill:#ffcdd2
+    style E fill:#ffcdd2
+```
+
+**What - 受影响组件表**
+
+| 组件 | 影响原因 | 压力表现 |
+|:----:|----------|----------|
+| **kubelet** | 状态上报、心跳 | CPU升高 |
+| **etcd** | Watch事件、状态存储 | 延迟增加 |
+| **API Server** | 事件处理、Endpoints更新 | 请求堆积 |
+| **Scheduler** | 调度决策 | 调度延迟 |
+| **CNI** | IP分配、网络配置 | 网络抖动 |
+
+**记忆口诀**：Pod重启影响多，kubelet心跳忙，etcd存储压，API事件多，Scheduler调度频，CNI网络抖。
+
+**面试标准答法（1分钟版）**：Pod频繁重启会对多个K8s组件产生压力：1. etcd：每个Pod状态变化产生Watch事件，频繁重启导致事件堆积、存储压力增大；2. API Server：Pod创建销毁产生大量请求，Endpoints变化触发Service端点更新；3. kubelet：负责Pod生命周期管理，频繁重启需要状态上报和健康检查；4. Scheduler：每次重启都需要调度决策，高频调度消耗CPU；5. CNI：每次创建分配IP，销毁释放IP，网络配置频繁变更。优化方向：减少不必要的重启、优化探针配置、使用PreStop钩子优雅退出。
+
+> **延伸阅读**：想了解更多Pod重启影响？请参考 [Pod频繁重启对K8s组件的压力分析与优化指南]({% post_url 2026-05-09-pod-restart-impact-best-practices %})。
