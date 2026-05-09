@@ -2338,3 +2338,43 @@ flowchart TB
 **面试标准答法（1分钟版）**：常用Docker命令包括：容器管理类（docker run创建容器、docker start/stop/restart管理容器、docker rm删除容器）；镜像管理类（docker pull拉取镜像、docker build构建镜像、docker tag打标签、docker push推送镜像）；查看类（docker ps查看容器、docker images查看镜像、docker logs查看日志、docker inspect查看详情）；网络和数据卷管理（docker network/volume create/ls/rm）。这些是日常运维最常用的命令。
 
 > **延伸阅读**：想了解更多Docker实战？请参考 [Docker命令详解与生产环境最佳实践]({% post_url 2026-05-09-docker-commands-best-practices %})。
+
+### 172. K8s 常用 kubectl 命令？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes命令行工具**的掌握程度。kubectl是管理K8s集群的核心工具，熟练使用是高级DevOps/SRE工程师必备技能。
+
+**How - 命令分类架构**
+
+```mermaid
+flowchart TB
+    A["kubectl命令"] --> B["资源管理"]
+    A --> C["集群管理"]
+    A --> D["故障排查"]
+    A --> E["配置管理"]
+    
+    B --> B1["create/apply/delete"]
+    C --> C1["cluster-info/node"]
+    D --> D1["logs/describe/exec"]
+    E --> E1["config/secret"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+```
+
+**What - 常用命令表**
+
+| 命令类别 | 常用命令 | 作用 |
+|:--------:|----------|------|
+| **资源管理** | kubectl create/apply/delete/get/describe | 创建应用删除获取描述资源 |
+| **集群管理** | kubectl cluster-info/node/cordon/uncordon/drain | 查看节点管理节点状态 |
+| **故障排查** | kubectl logs/exec/describe/events | 查看日志执行命令查看事件 |
+| **配置管理** | kubectl config/secret/configmap | 管理配置和密钥 |
+| **工作负载** | kubectl scale/rollout/autoscale | 扩缩容滚动更新自动扩缩容 |
+
+**记忆口诀**：资源管理用apply，查看用get/describe，日志用logs，扩缩容用scale。
+
+**面试标准答法（1分钟版）**：常用kubectl命令包括：资源管理类（kubectl create/apply创建资源、kubectl delete删除资源、kubectl get查看资源、kubectl describe查看详情）；集群管理类（kubectl cluster-info查看集群信息、kubectl get nodes查看节点）；故障排查类（kubectl logs查看日志、kubectl exec进入容器、kubectl describe查看资源详情、kubectl get events查看事件）；配置管理类（kubectl config管理配置、kubectl create secret/configmap）；工作负载类（kubectl scale扩缩容、kubectl rollout管理滚动更新）。这些是日常运维最常用的命令。
+
+> **延伸阅读**：想了解更多kubectl实战？请参考 [Kubernetes kubectl命令详解与生产环境最佳实践]({% post_url 2026-05-09-kubectl-commands-best-practices %})。
