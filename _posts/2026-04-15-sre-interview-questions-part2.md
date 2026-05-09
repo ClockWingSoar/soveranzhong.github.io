@@ -3753,3 +3753,36 @@ flowchart TD
 **面试标准答法（1分钟版）**：Prometheus数据保护策略：1. 本地TSDB：配置合适的存储周期和WAL，保留至少15天数据；2. Remote Write：配置Remote Write到InfluxDB/Thanos等远程存储，实时同步数据；3. Thanos Sidecar：与Prometheus同Pod部署，定期上传数据块到对象存储；4. 告警记录：用AlertManager记录历史告警；5. 定期备份：定时备份TSDB数据目录。生产建议：至少配置Remote Write备份，重要集群配置Thanos。
 
 > **延伸阅读**：想了解更多Prometheus数据保护？请参考 [Prometheus故障数据保护：TSDB、Remote Write与Thanos备份策略详解]({% post_url 2026-05-09-prometheus-data-protection-best-practices %})。
+
+### 208. 副本重复采集数据冗余怎么办？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Prometheus数据去重**的理解。副本采集和数据冗余是监控常见问题，影响查询准确性和存储成本。
+
+**How - 数据去重架构图**
+
+```mermaid
+flowchart LR
+    A["Prometheus-1"] --> B["Thanos Query"]
+    A2["Prometheus-2"] --> B
+    B --> C{"replica标签去重"}
+    C --> D["去重后数据"]
+    
+    style C fill:#64b5f6
+```
+
+**What - 去重方案对比表**
+
+| 方案 | 适用场景 | 配置位置 | 复杂度 |
+|:----:|----------|----------|--------|
+| **replica标签** | Thanos架构 | Prometheus | 低 |
+| **PromQL去重** | 临时查询 | Query | 低 |
+| **Promtool** | 数据修复 | 离线 | 中 |
+| **dedup插件** | 自建系统 | Query | 高 |
+
+**记忆口诀**：副本冗余去重，replica标签是核心，Thanos Query自动去，PromQL手动也行。
+
+**面试标准答法（1分钟版）**：副本重复采集去重：1. 原因分析：Prometheus高可用部署时多个副本抓取同一目标、数据回填时重复、联邦集群数据重叠；2. Thanos去重：配置replica_label=prometheus，Thanos Query自动根据标签合并；3. PromQL去重：使用group_left()或sum()聚合；4. dedup插件：使用prometheus/dedup插件做后处理。配置示例：--global.external_labels=replica="$(HOSTNAME)"。生产建议：Thanos架构下使用replica标签自动去重。
+
+> **延伸阅读**：想了解更多数据去重？请参考 [Prometheus副本重复采集：数据去重与冗余处理最佳实践]({% post_url 2026-05-09-prometheus-dedup-best-practices %})。
