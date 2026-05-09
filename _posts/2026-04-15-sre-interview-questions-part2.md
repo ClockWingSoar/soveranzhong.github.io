@@ -3961,3 +3961,43 @@ flowchart TD
 **面试标准答法（1分钟版）**：区块链节点同步方式：1. 全量同步（Full Sync）：下载完整账本数据，从创世块开始验证每个区块，安全性最高但耗时最长，适合全节点和矿工；2. 快速同步（Fast Sync）：只下载最新状态数据和区块头，跳过历史交易执行，速度快，适合验证节点；3. 轻量级同步（Light Sync）：只下载区块头，通过SPV（简化支付验证）验证交易，数据量最小速度最快，适合轻钱包。核心流程：新节点加入→选择同步模式→下载数据→验证→同步完成。生产建议：根据节点角色选择同步方式，全节点用全量/快速同步，客户端用轻量同步。
 
 > **延伸阅读**：想了解更多区块链节点同步？请参考 [区块链节点同步方式详解：全量/快速/轻量同步实践指南]({% post_url 2026-05-09-blockchain-node-sync-best-practices %})。
+
+### 214. K8s集群搭建全流程？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes集群部署**的完整理解。作为高级SRE/架构师，需要掌握从基础设施准备到集群运维的全流程。
+
+**How - 集群搭建流程图**
+
+```mermaid
+flowchart TD
+    A["基础设施准备"] --> B["系统环境配置"]
+    B --> C["容器运行时安装"]
+    C --> D["K8s组件安装"]
+    D --> E["Master节点初始化"]
+    E --> F["Worker节点加入"]
+    F --> G["网络插件部署"]
+    G --> H["集群验证"]
+    
+    style A fill:#64b5f6
+    style E fill:#81c784
+    style G fill:#ffb74d
+```
+
+**What - 搭建步骤对比表**
+
+| 阶段 | 关键操作 | 工具 | 注意事项 |
+|:----:|----------|------|----------|
+| **基础设施** | 服务器准备、网络配置 | Terraform/云控制台 | 节点规格、网络连通性 |
+| **系统配置** | 主机名、防火墙、SELinux | bash | 关闭Swap、时间同步 |
+| **容器运行时** | Docker/Containerd安装 | apt/yum | 版本兼容性 |
+| **K8s组件** | kubeadm/kubelet/kubectl | apt/yum | 版本一致性 |
+| **Master初始化** | kubeadm init | kubeadm | Pod网络CIDR |
+| **网络插件** | Calico/Flannel/Cilium | kubectl | 与Pod CIDR匹配 |
+
+**记忆口诀**：K8s搭建分七步，基础准备是第一步，系统配置要做好，容器运行时安装好，kubeadm初始化master，worker加入集群中，网络插件最后装，集群验证不能少。
+
+**面试标准答法（1分钟版）**：K8s集群搭建全流程：1. 基础设施准备：准备至少3台服务器（Master+Worker），配置网络；2. 系统环境配置：设置主机名、关闭防火墙/SELinux、禁用Swap、配置时间同步；3. 安装容器运行时：Docker或Containerd；4. 安装K8s组件：kubeadm、kubelet、kubectl；5. Master节点初始化：kubeadm init指定Pod网络CIDR；6. Worker节点加入：使用kubeadm join命令；7. 部署网络插件：Calico或Flannel；8. 验证集群状态：kubectl get nodes/pods。生产建议：使用kubeadm部署，配置高可用Master，选择合适的网络插件。
+
+> **延伸阅读**：想了解更多K8s集群搭建？请参考 [Kubernetes集群搭建全流程：从基础设施到生产环境实践指南]({% post_url 2026-05-09-kubernetes-cluster-setup-best-practices %})。
