@@ -2378,3 +2378,41 @@ flowchart TB
 **面试标准答法（1分钟版）**：常用kubectl命令包括：资源管理类（kubectl create/apply创建资源、kubectl delete删除资源、kubectl get查看资源、kubectl describe查看详情）；集群管理类（kubectl cluster-info查看集群信息、kubectl get nodes查看节点）；故障排查类（kubectl logs查看日志、kubectl exec进入容器、kubectl describe查看资源详情、kubectl get events查看事件）；配置管理类（kubectl config管理配置、kubectl create secret/configmap）；工作负载类（kubectl scale扩缩容、kubectl rollout管理滚动更新）。这些是日常运维最常用的命令。
 
 > **延伸阅读**：想了解更多kubectl实战？请参考 [Kubernetes kubectl命令详解与生产环境最佳实践]({% post_url 2026-05-09-kubectl-commands-best-practices %})。
+
+### 173. 复杂故障案例？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**复杂故障排查能力**的理解。实际生产环境中故障往往涉及多个组件级联影响，需要系统性思维和丰富的排查经验。
+
+**How - 故障场景架构**
+
+```mermaid
+flowchart TD
+    A["节点磁盘满"] --> B["kubelet异常"]
+    B --> C["Pod状态异常"]
+    C --> D["Service Endpoint失效"]
+    D --> E["流量异常"]
+    E --> F["HPA频繁扩容"]
+    F --> G["集群资源耗尽"]
+    
+    style A fill:#ffcdd2
+    style G fill:#ef9a9a
+```
+
+**What - 真实复杂案例分析**
+
+**案例背景**：生产环境K8s集群突然出现服务响应缓慢，部分服务不可用，监控告警频繁触发。
+
+| 排查阶段 | 现象 | 排查方法 | 发现 |
+|:--------:|------|----------|------|
+| **阶段1** | 服务响应慢 | 查看Pod状态 | 大量Pod处于Pending状态 |
+| **阶段2** | Pending Pod | 查看节点状态 | 多个节点磁盘使用率98% |
+| **阶段3** | 磁盘满 | 分析磁盘占用 | Docker镜像和日志占满空间 |
+| **阶段4** | 根因定位 | 查看清理策略 | logrotate配置错误导致日志无限增长 |
+
+**记忆口诀**：先看现象定范围，逐层排查找根因，系统分析解难题，复盘总结防复发。
+
+**面试标准答法（1分钟版）**：一个典型复杂故障案例：生产环境服务响应缓慢，排查发现大量Pod处于Pending状态，进一步检查发现多个节点磁盘使用率98%，最终定位是logrotate配置错误导致容器日志无限增长，填满磁盘空间，导致kubelet异常、Pod调度失败、服务不可用。解决方案：紧急清理日志释放空间，修复logrotate配置，建立监控告警，定期清理镜像。
+
+> **延伸阅读**：想了解更多故障排查？请参考 [生产环境复杂故障案例深度剖析：磁盘耗尽引发的级联故障]({% post_url 2026-05-09-complex-failure-case-study %})。
