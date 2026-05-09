@@ -2849,3 +2849,40 @@ flowchart TD
 **面试标准答法（1分钟版）**：Kafka的partition是Topic的物理分区，用于实现并行处理和水平扩展。每个Topic可以分为多个partition，消息根据分区键路由到特定partition，同一partition内的消息保证有序。每个partition有多个副本（Leader+Follower），Leader负责读写，Follower同步数据，保证高可用。Offset是消息在partition中的唯一标识，消费者通过offset追踪消费进度。
 
 > **延伸阅读**：想了解更多Partition？请参考 [Kafka Partition深度解析：设计原理与最佳实践]({% post_url 2026-05-09-kafka-partition-design-best-practices %})。
+
+### 185. Kafka的partition在系统里是怎么分配的？你们系统里大概有多少个partition？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kafka分区分配机制**的理解。面试官想知道你是否了解分区分配策略、消费者组的工作原理，以及实际生产环境中的分区数量规划。
+
+**How - 分区分配架构**
+
+```mermaid
+flowchart TD
+    A["Consumer Group"] --> B["Partition Assignor"]
+    B --> C["Partition 0"]
+    B --> D["Partition 1"]
+    B --> E["Partition 2"]
+    B --> F["Partition 3"]
+    
+    C --> G["Consumer 1"]
+    D --> G
+    E --> H["Consumer 2"]
+    F --> H
+```
+
+**What - 分区分配策略表**
+
+| 策略 | 说明 | 适用场景 |
+|:----:|------|----------|
+| **Range** | 按范围分配 | 分区数均匀时 |
+| **RoundRobin** | 轮询分配 | 分区数不均匀时 |
+| **Sticky** | 粘性分配 | 减少重平衡影响 |
+| **CooperativeSticky** | 协作粘性分配 | 增量重平衡 |
+
+**记忆口诀**：分区分配有策略，Range范围RoundRobin轮，Sticky粘性减少重平衡，Cooperative增量更高效。
+
+**面试标准答法（1分钟版）**：Kafka分区分配由Consumer Group协调，常见策略：1. Range策略按范围分配，适合分区数均匀；2. RoundRobin轮询分配，适合分区数不均匀；3. Sticky策略保持分配稳定性，减少重平衡影响；4. CooperativeSticky支持增量重平衡。生产环境中，我们根据吞吐量计算分区数，核心Topic通常100-500个分区，普通Topic50-100个，单个broker不超过2000个分区。
+
+> **延伸阅读**：想了解更多分区分配？请参考 [Kafka分区分配策略与数量规划：生产环境最佳实践]({% post_url 2026-05-09-kafka-partition-assignment-best-practices %})。
