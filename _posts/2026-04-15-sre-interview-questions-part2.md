@@ -2695,3 +2695,43 @@ flowchart TD
 **面试标准答法（1分钟版）**：这个问题典型原因是Deployment副本数被意外设置为0或副本全部失败。排查步骤：1. 用`kubectl get endpoints`检查后端Pod是否就绪；2. `kubectl get pods`查看Pod状态；3. `kubectl describe deployment`检查副本数配置和滚动更新事件；4. `kubectl get events`获取集群事件；5. 查看容器日志。常见根因：HPA自动缩容到0、镜像拉取失败、探针失败导致副本被kill、资源不足被驱逐。
 
 > **延伸阅读**：想了解更多故障排查？请参考 [Kubernetes 503错误与副本消失：实战故障排查指南]({% post_url 2026-05-09-k8s-503-troubleshooting-best-practices %})。
+
+### 181. 介绍一个自己熟悉的系统设计（含Kafka组件）
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**分布式系统设计**的理解，特别是消息队列Kafka在系统中的作用。面试官通过追问Kafka细节，评估你对核心组件的深度理解。
+
+**How - 系统架构设计**
+
+```mermaid
+flowchart TB
+    A["用户请求"] --> B["API Gateway"]
+    B --> C["业务服务"]
+    C --> D["Kafka Producer"]
+    D --> E["Kafka Broker"]
+    E --> F["Kafka Consumer"]
+    F --> G["数据处理"]
+    G --> H["数据库"]
+    G --> I["缓存"]
+    
+    style A fill:#e3f2fd
+    style H fill:#c8e6c9
+    style I fill:#c8e6c9
+```
+
+**What - Kafka核心配置表**
+
+| 配置项 | 生产环境建议 | 说明 |
+|:------:|-------------|------|
+| **Replication Factor** | 3 | 数据冗余，保证高可用 |
+| **Partitions** | 按吞吐量计算 | 提高并行处理能力 |
+| **acks** | all | 确保数据不丢失 |
+| **min.insync.replicas** | 2 | 保证至少2个副本同步 |
+| **retention.ms** | 7天 | 消息保留时间 |
+
+**记忆口诀**：Kafka三要素，分区副本吞吐量，acks=all保可靠，副本同步不能少。
+
+**面试标准答法（1分钟版）**：以日志收集系统为例，架构包含：数据采集层（Filebeat/Logstash）→ Kafka消息队列 → 实时处理层（Spark/Flink）→ 存储层（Elasticsearch/ClickHouse）。Kafka设计要点：多分区提高并行度，3副本保证高可用，acks=all确保数据不丢失，合理设置retention策略。关键考虑：消息顺序性、Exactly-Once语义、分区键设计、监控告警。
+
+> **延伸阅读**：想了解更多系统设计？请参考 [Kafka在分布式系统中的设计与实践：从架构到最佳实践]({% post_url 2026-05-09-kafka-system-design-best-practices %})。
