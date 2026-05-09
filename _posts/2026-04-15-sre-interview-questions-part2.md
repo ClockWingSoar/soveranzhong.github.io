@@ -3682,3 +3682,39 @@ flowchart LR
 **面试标准答法（1分钟版）**：Dockerfile多阶段构建：1. 第一阶段（builder）安装编译工具、依赖库，编译代码；2. 第二阶段（runtime）只复制编译产物和运行时必要文件；3. 最终镜像只包含运行所需内容，丢弃构建工具和源码。优势：镜像体积减小70-80%、减少攻击面、构建加速。适用场景：编译型语言（Go/Java/C++）构建产物明确的场景。
 
 > **延伸阅读**：想了解更多Dockerfile多阶段构建？请参考 [Dockerfile多阶段构建：生产环境镜像优化最佳实践]({% post_url 2026-05-09-dockerfile-multi-stage-best-practices %})。
+
+### 206. Prometheus高可用？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Prometheus高可用架构**的掌握。监控是SRE的眼睛，高可用监控保障业务稳定性。
+
+**How - Prometheus高可用架构图**
+
+```mermaid
+flowchart LR
+    subgraph HA["高可用架构"]
+        A1["Prometheus-1"] --> B[" Thanos Query"]
+        A2["Prometheus-2"] --> B
+        A3["Prometheus-N"] --> B
+        B --> C["Grafana"]
+    end
+    
+    style B fill:#64b5f6
+    style C fill:#81c784
+```
+
+**What - 高可用方案对比表**
+
+| 方案 | 数据存储 | 查询能力 | 复杂度 |
+|:----:|----------|----------|--------|
+| **联邦** | 本地 | 一般 | 低 |
+| **Thanos** | 对象存储 | 强 | 高 |
+| **Cortex** | 对象存储 | 强 | 高 |
+| **VictoriaMetrics** | 本地/远程 | 强 | 中 |
+
+**记忆口诀**：Prometheus高可用，联邦集群是基础，Thanos Cortex对象存储，查询去重大全。
+
+**面试标准答法（1分钟版）**：Prometheus高可用方案：1. 基础方案：联邦集群，多个Prometheus实例分别抓取不同目标，通过federation汇聚数据；2. 长期存储方案：Thanos通过Sidecar连接Prometheus，支持数据压缩存储到对象存储，支持全局查询和去重；3. Cortex/VictoriaMetrics提供类似能力。核心关注点：数据一致性、查询去重、故障转移。生产建议：中小规模用联邦，大规模用Thanos。
+
+> **延伸阅读**：想了解更多Prometheus高可用？请参考 [Prometheus高可用架构：生产环境监控高可用设计指南]({% post_url 2026-05-09-prometheus-ha-best-practices %})。
