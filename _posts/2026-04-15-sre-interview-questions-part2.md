@@ -2886,3 +2886,40 @@ flowchart TD
 **面试标准答法（1分钟版）**：Kafka分区分配由Consumer Group协调，常见策略：1. Range策略按范围分配，适合分区数均匀；2. RoundRobin轮询分配，适合分区数不均匀；3. Sticky策略保持分配稳定性，减少重平衡影响；4. CooperativeSticky支持增量重平衡。生产环境中，我们根据吞吐量计算分区数，核心Topic通常100-500个分区，普通Topic50-100个，单个broker不超过2000个分区。
 
 > **延伸阅读**：想了解更多分区分配？请参考 [Kafka分区分配策略与数量规划：生产环境最佳实践]({% post_url 2026-05-09-kafka-partition-assignment-best-practices %})。
+
+### 186. 用过什么数据库，MySQL优化、主从复制原理？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**数据库技术栈**的掌握程度。面试官想了解你使用过的数据库种类、MySQL优化经验以及主从复制原理，这是后端开发和运维的核心技能。
+
+**How - MySQL架构与优化**
+
+```mermaid
+flowchart TD
+    A["客户端"] --> B["MySQL Server"]
+    B --> C["查询缓存"]
+    C --> D["解析器"]
+    D --> E["优化器"]
+    E --> F["执行器"]
+    F --> G["存储引擎"]
+    G --> H["磁盘"]
+    
+    style A fill:#e3f2fd
+    style G fill:#bbdefb
+```
+
+**What - MySQL优化要点表**
+
+| 优化维度 | 方法 | 效果 |
+|:--------:|------|------|
+| **索引优化** | 创建合适索引、避免冗余索引 | 提升查询速度 |
+| **SQL优化** | 避免SELECT *、使用JOIN优化 | 减少查询开销 |
+| **配置优化** | 调整内存参数、连接数 | 提升性能 |
+| **架构优化** | 分库分表、读写分离 | 支持高并发 |
+
+**记忆口诀**：MySQL优化有维度，索引SQL配置架构，索引创建要合理，SQL书写有技巧，配置调优看参数，架构扩展分库表。
+
+**面试标准答法（1分钟版）**：常用数据库包括MySQL、PostgreSQL、Redis。MySQL优化方面：1. 索引优化：创建合适的B+树索引，避免索引失效；2. SQL优化：避免SELECT *、使用覆盖索引、优化JOIN；3. 配置优化：调整innodb_buffer_pool_size、max_connections等参数；4. 架构优化：读写分离、分库分表。主从复制原理：Master记录binlog，Slave通过IO线程拉取binlog到relay log，SQL线程执行relay log实现数据同步，支持异步、半同步、GTID模式。
+
+> **延伸阅读**：想了解更多MySQL优化？请参考 [MySQL优化与主从复制：从原理到生产环境最佳实践]({% post_url 2026-05-09-mysql-optimization-replication-best-practices %})。
