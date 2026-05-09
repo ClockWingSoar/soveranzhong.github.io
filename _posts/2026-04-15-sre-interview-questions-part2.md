@@ -2220,3 +2220,41 @@ flowchart TB
 **面试标准答法（1分钟版）**：我会通过以下步骤分析和优化慢查询：首先启用慢查询日志，设置合理阈值（如1秒）；然后用EXPLAIN分析慢SQL的执行计划，看是否有全表扫描、临时表、文件排序等问题；接着检查索引是否缺失，根据WHERE条件和JOIN字段创建合适的索引；最后验证优化效果，对比优化前后的执行时间。常用工具包括pt-query-digest分析日志，Performance Schema监控性能。
 
 > **延伸阅读**：想了解更多SQL性能优化？请参考 [SQL慢查询分析与优化：从日志到执行计划全攻略]({% post_url 2026-05-09-sql-slow-query-optimization %})。
+
+### 169. Linux 故障定位常用系统日志？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Linux系统日志体系**的理解。系统日志是故障定位的关键信息源，掌握常用日志的位置和用途是高级DevOps/SRE工程师必备技能。
+
+**How - 日志体系架构**
+
+```mermaid
+flowchart TB
+    A["系统日志"] --> B["内核日志"]
+    A --> C["系统服务日志"]
+    A --> D["应用日志"]
+    
+    B --> B1["/var/log/dmesg"]
+    C --> C1["/var/log/syslog"]
+    D --> D1["/var/log/app/"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+```
+
+**What - 常用日志表**
+
+| 日志文件 | 内容 | 用途 |
+|:--------:|------|------|
+| **/var/log/dmesg** | 内核启动信息 | 硬件驱动问题 |
+| **/var/log/syslog** | 系统服务日志 | 服务运行状态 |
+| **/var/log/auth.log** | 认证日志 | 登录失败排查 |
+| **/var/log/kern.log** | 内核日志 | 内核错误排查 |
+| **/var/log/messages** | 系统消息 | 通用系统日志 |
+
+**记忆口诀**：dmesg看内核启动，syslog看系统服务，auth.log看认证，kern.log看内核，messages看消息。
+
+**面试标准答法（1分钟版）**：Linux常用系统日志包括：/var/log/dmesg用于查看内核启动信息和硬件驱动问题；/var/log/syslog记录系统服务运行状态；/var/log/auth.log记录认证和登录信息；/var/log/kern.log记录内核错误；/var/log/messages是通用系统消息日志。此外还有journalctl可以查看systemd日志，/var/log下还有各应用的独立日志目录。排查时先看dmesg和syslog定位问题类型，再深入具体日志。
+
+> **延伸阅读**：想了解更多Linux日志分析？请参考 [Linux系统日志分析与故障定位：从dmesg到journalctl全攻略]({% post_url 2026-05-09-linux-system-logs-troubleshooting %})。
