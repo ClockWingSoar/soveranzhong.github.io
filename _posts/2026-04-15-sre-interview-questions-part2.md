@@ -2735,3 +2735,41 @@ flowchart TB
 **面试标准答法（1分钟版）**：以日志收集系统为例，架构包含：数据采集层（Filebeat/Logstash）→ Kafka消息队列 → 实时处理层（Spark/Flink）→ 存储层（Elasticsearch/ClickHouse）。Kafka设计要点：多分区提高并行度，3副本保证高可用，acks=all确保数据不丢失，合理设置retention策略。关键考虑：消息顺序性、Exactly-Once语义、分区键设计、监控告警。
 
 > **延伸阅读**：想了解更多系统设计？请参考 [Kafka在分布式系统中的设计与实践：从架构到最佳实践]({% post_url 2026-05-09-kafka-system-design-best-practices %})。
+
+### 182. Kafka在这个系统里起什么作用？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kafka核心价值**的理解。面试官想知道你是否真正理解消息队列在分布式系统中的作用，以及Kafka相比其他消息系统的优势。
+
+**How - Kafka角色架构**
+
+```mermaid
+flowchart TB
+    A["Producer"] --> B["Kafka"]
+    B --> C["Consumer 1"]
+    B --> D["Consumer 2"]
+    B --> E["Consumer 3"]
+    
+    style B fill:#e3f2fd
+    style A fill:#bbdefb
+    style C fill:#c8e6c9
+    style D fill:#c8e6c9
+    style E fill:#c8e6c9
+```
+
+**What - Kafka核心作用表**
+
+| 作用 | 说明 | 场景示例 |
+|:----:|------|----------|
+| **解耦** | 生产者与消费者解耦 | 业务服务与数据分析解耦 |
+| **削峰填谷** | 缓冲突发流量 | 秒杀场景 |
+| **异步通信** | 异步处理任务 | 用户注册后发送邮件 |
+| **数据管道** | 实时数据流转 | 日志收集、ETL |
+| **多消费模式** | 支持多消费者组 | 一份数据多系统消费 |
+
+**记忆口诀**：Kafka核心四作用，解耦削峰异步管道，高吞吐低延迟，分布式高可用。
+
+**面试标准答法（1分钟版）**：Kafka在系统中主要起四个核心作用：1. 解耦：生产者和消费者解耦，独立扩展；2. 削峰填谷：缓冲突发流量，保护下游系统；3. 异步通信：实现异步处理，提升响应速度；4. 数据管道：作为实时数据总线，支持多系统消费。此外，Kafka还提供高吞吐、低延迟、分布式高可用的特性，适合大规模数据场景。
+
+> **延伸阅读**：想了解更多Kafka作用？请参考 [Kafka核心作用与应用场景：从解耦到实时数据管道]({% post_url 2026-05-09-kafka-core-roles-best-practices %})。
