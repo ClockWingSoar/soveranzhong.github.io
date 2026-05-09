@@ -3820,3 +3820,69 @@ flowchart TD
 **面试标准答法（1分钟版）**：Prometheus指标设计：1. 方法论：RED（Rate/Errors/Duration）用于服务监控，USE（Utilization/Saturation/Errors）用于资源监控；2. 指标类型：Counter（累计值如请求数）、Gauge（当前值如CPU）、Histogram（延迟分布）、Summary（分位数）；3. 标签设计：避免高基数标签（如userID、requestID），使用业务标签（如service/endpoint/method）；4. 采集频率：15秒最佳，过频繁影响性能，过稀疏数据不准确。命名规范：{name}_{type}，如http_requests_total。
 
 > **延伸阅读**：想了解更多Prometheus指标设计？请参考 [Prometheus数据采集与指标设计：RED/USE方法论与生产实践指南]({% post_url 2026-05-09-prometheus-metrics-design-best-practices %})。
+
+### 210. Prometheus Adapter如何实现？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Prometheus Custom Metrics API**的理解。K8s HPA基于自定义指标扩缩容离不开Prometheus Adapter。
+
+**How - Adapter工作原理图**
+
+```mermaid
+flowchart LR
+    A["应用Metrics"] --> B["Adapter"]
+    B --> C["API Server"]
+    C --> D["HPA"]
+    E["Prometheus"] --> B
+    
+    style B fill:#64b5f6
+    style C fill:#81c784
+```
+
+**What - Adapter配置表**
+
+| 配置项 | 作用 | 示例 |
+|:------:|------|------|
+| **rules** | 指标转换规则 | 从原有指标计算新指标 |
+| **metricsQuery** | 查询模板 | PromQL查询模板 |
+
+**记忆口诀**：Adapter做转换，rules定义规则，metricsQuery是模板，HPA扩缩容全靠它。
+
+**面试标准答法（1分钟版）**：Prometheus Adapter实现Custom Metrics API：1. 工作原理：Adapter从Prometheus查询指标，通过rules或metricsQuery转换为k8s_custom_metrics指标格式；2. 配置方式：编写adapter配置YAML，定义rules（如将nginx_connections_active转换为k8s指标）；3. 部署方式：Helm或YAML部署到k8s；4. 使用场景：K8s HPA基于自定义指标（如业务QPS、队列长度）扩缩容。配置示例：rules配置使用seriesQuery查询原始指标，labels提取标签，name重命名。
+
+> **延伸阅读**：想了解更多Prometheus Adapter？请参考 [Prometheus Adapter实现：K8s自定义指标与HPA扩缩容实践指南]({% post_url 2026-05-09-prometheus-adapter-best-practices %})。
+
+### 211. Prometheus自动发现的规则？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Prometheus服务发现机制**的理解。自动发现是Prometheus动态管理监控目标的核心能力。
+
+**How - 自动发现流程图**
+
+```mermaid
+flowchart TD
+    A["SD配置"] --> B["发现服务"]
+    B --> C["生成target"]
+    C --> D["relabel"]
+    D --> E["抓取指标"]
+    
+    style B fill:#64b5f6
+    style D fill:#81c784
+```
+
+**What - 自动发现方式对比表**
+
+| 方式 | 适用场景 | 配置难度 | 动态性 |
+|:----:|----------|----------|--------|
+| **static_configs** | 静态目标 | 低 | 差 |
+| **file_sd** | 文件配置 | 低 | 中 |
+| **kubernetes_sd** | K8s集群 | 中 | 好 |
+| **dns_sd** | DNS服务发现 | 低 | 好 |
+
+**记忆口诀**：Prometheus自动发现，static配置静态目标，file_sd文件更新，k8s_sd动态监控，dns_sd服务发现。
+
+**面试标准答法（1分钟版）**：Prometheus自动发现规则：1. static_configs：静态配置目标列表，适合固定IP服务；2. file_sd：从文件读取目标，支持热更新；3. kubernetes_sd：发现K8s资源（Pod/Service/Endpoint/Node），根据角色类型自动发现；4. dns_sd：通过DNS SRV记录发现服务。核心流程：SD配置→发现服务→生成target→relabel处理→抓取指标。生产建议：K8s环境用kubernetes_sd，外部服务用dns_sd。
+
+> **延伸阅读**：想了解更多Prometheus自动发现？请参考 [Prometheus自动发现规则：SD配置与动态监控实践指南]({% post_url 2026-05-09-prometheus-service-discovery-best-practices %})。
