@@ -2960,3 +2960,49 @@ flowchart TD
 **面试标准答法（1分钟版）**：排查步骤：1. 使用iostat/iotop查看磁盘IO情况，确认是MySQL进程；2. 使用SHOW PROCESSLIST查看当前会话；3. 分析慢查询日志，找出耗时查询；4. 使用EXPLAIN分析执行计划，看是否全表扫描或索引失效；5. 查看InnoDB状态，检查缓冲池命中率、日志刷盘频率；6. 常见根因：全表扫描、索引失效、排序使用filesort、日志刷盘策略不当。优化方案：添加索引、优化SQL、调整innodb_flush_log_at_trx_commit、增加缓存。
 
 > **延伸阅读**：想了解更多MySQL排查？请参考 [MySQL磁盘IO高问题排查：从现象到根因的完整指南]({% post_url 2026-05-09-mysql-io-troubleshooting-best-practices %})。
+
+### 188. MySQL调优有哪些维度？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**MySQL全面调优**的知识体系。MySQL调优是一个系统性工程，需要从多个维度综合考虑，才能达到最佳效果。
+
+**How - 调优维度全景图**
+
+```mermaid
+flowchart TD
+    A["MySQL调优"] --> B["硬件层"]
+    A --> C["OS层"]
+    A --> D["MySQL层"]
+    A --> E["SQL层"]
+    A --> F["架构层"]
+    
+    B --> B1["CPU/内存/磁盘"]
+    C --> C1["文件系统/网络"]
+    D --> D1["参数/索引/缓存"]
+    E --> E1["查询/事务/锁"]
+    F --> F1["读写分离/分库分表"]
+    
+    style A fill:#e3f2fd
+    style B1 fill:#c8e6c9
+    style C1 fill:#c8e6c9
+    style D1 fill:#c8e6c9
+    style E1 fill:#c8e6c9
+    style F1 fill:#c8e6c9
+```
+
+**What - 调优维度表**
+
+| 维度 | 关键点 | 优先级 |
+|:----:|--------|:------:|
+| **硬件** | CPU/内存/磁盘IO | 低 |
+| **OS** | 文件系统/网络/内核参数 | 中 |
+| **MySQL** | 缓冲区/连接数/日志 | 高 |
+| **SQL** | 索引/查询/事务/锁 | 最高 |
+| **架构** | 读写分离/分库分表/缓存 | 高 |
+
+**记忆口诀**：MySQL调优分五层，硬件OS MySQL SQL架构，SQL层最关键，索引查询事务锁，配置调优看参数，架构扩展分库表。
+
+**面试标准答法（1分钟版）**：MySQL调优有五个维度：1. SQL层优化（最重要）：索引优化、SQL语句优化、避免全表扫描；2. MySQL层优化：调整innodb_buffer_pool_size、max_connections等参数；3. OS层优化：磁盘调度、网络参数、内核参数；4. 硬件层：根据负载选择SSD、增加内存；5. 架构层：读写分离、分库分表、引入缓存。实际工作中，我们通常先从SQL层入手，因为收益最大。
+
+> **延伸阅读**：想了解更多MySQL调优？请参考 [MySQL全面调优：从SQL到架构的完整指南]({% post_url 2026-05-09-mysql-comprehensive-tuning-best-practices %})。
