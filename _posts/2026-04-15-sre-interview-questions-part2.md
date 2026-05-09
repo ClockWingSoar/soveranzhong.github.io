@@ -2416,3 +2416,50 @@ flowchart TD
 **面试标准答法（1分钟版）**：一个典型复杂故障案例：生产环境服务响应缓慢，排查发现大量Pod处于Pending状态，进一步检查发现多个节点磁盘使用率98%，最终定位是logrotate配置错误导致容器日志无限增长，填满磁盘空间，导致kubelet异常、Pod调度失败、服务不可用。解决方案：紧急清理日志释放空间，修复logrotate配置，建立监控告警，定期清理镜像。
 
 > **延伸阅读**：想了解更多故障排查？请参考 [生产环境复杂故障案例深度剖析：磁盘耗尽引发的级联故障]({% post_url 2026-05-09-complex-failure-case-study %})。
+
+### 174. ELK中常用服务的端口是啥？其他DevOps软件的常用端口？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**DevOps服务端口配置**的理解。掌握常用端口是网络配置、防火墙规则、服务通信的基础知识。
+
+**How - 端口分类架构**
+
+```mermaid
+flowchart TB
+    A["DevOps常用端口"] --> B["日志栈"]
+    A --> C["容器编排"]
+    A --> D["数据库"]
+    A --> E["监控"]
+    A --> F["CI/CD"]
+    
+    B --> B1["ES 9200/9300"]
+    C --> C1["K8s 6443/2379"]
+    D --> D1["MySQL 3306"]
+    E --> E1["Prometheus 9090"]
+    F --> F1["Jenkins 8080"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+```
+
+**What - 常用端口表**
+
+| 服务 | 端口 | 协议 | 用途 |
+|:----:|------|:----:|------|
+| **Elasticsearch** | 9200/9300 | HTTP/TCP | 9200客户端通信、9300集群通信 |
+| **Kibana** | 5601 | HTTP | Web界面访问 |
+| **Logstash** | 5044/9600 | TCP/HTTP | 5044数据输入、9600监控API |
+| **Kubernetes API** | 6443 | HTTPS | API Server |
+| **etcd** | 2379/2380 | HTTP/HTTPS | 2379客户端、2380集群通信 |
+| **MySQL** | 3306 | TCP | 数据库连接 |
+| **Redis** | 6379 | TCP | 数据缓存 |
+| **Prometheus** | 9090 | HTTP | 监控数据查询 |
+| **Grafana** | 3000 | HTTP | 可视化界面 |
+| **Jenkins** | 8080 | HTTP | CI/CD服务 |
+
+**记忆口诀**：ES九二零，Kibana五六零一，Logstash五零四四，K8s六四四三，MySQL三三零六，Redis六三七九。
+
+**面试标准答法（1分钟版）**：ELK栈常用端口：Elasticsearch 9200（HTTP客户端）、9300（集群通信）；Kibana 5601（Web界面）；Logstash 5044（数据输入）、9600（监控API）。其他DevOps软件：Kubernetes API 6443、etcd 2379/2380、MySQL 3306、Redis 6379、Prometheus 9090、Grafana 3000、Jenkins 8080、Nginx 80/443、Docker 2375/2376、Harbor 80/443/8080。这些端口需要配置防火墙规则和网络策略。
+
+> **延伸阅读**：想了解更多端口配置？请参考 [DevOps常用服务端口速查与生产环境配置最佳实践]({% post_url 2026-05-09-devops-ports-best-practices %})。
