@@ -2923,3 +2923,40 @@ flowchart TD
 **面试标准答法（1分钟版）**：常用数据库包括MySQL、PostgreSQL、Redis。MySQL优化方面：1. 索引优化：创建合适的B+树索引，避免索引失效；2. SQL优化：避免SELECT *、使用覆盖索引、优化JOIN；3. 配置优化：调整innodb_buffer_pool_size、max_connections等参数；4. 架构优化：读写分离、分库分表。主从复制原理：Master记录binlog，Slave通过IO线程拉取binlog到relay log，SQL线程执行relay log实现数据同步，支持异步、半同步、GTID模式。
 
 > **延伸阅读**：想了解更多MySQL优化？请参考 [MySQL优化与主从复制：从原理到生产环境最佳实践]({% post_url 2026-05-09-mysql-optimization-replication-best-practices %})。
+
+### 187. CPU、内存低，磁盘IO高，排查MySQL问题？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**MySQL性能排查**的实战能力。磁盘IO高但CPU/内存低是典型的IO密集型瓶颈，需要系统性分析才能定位根因。
+
+**How - IO高排查流程**
+
+```mermaid
+flowchart TD
+    A["IO高问题"] --> B["查看磁盘IO"]
+    B --> C["定位进程"]
+    C --> D["分析MySQL状态"]
+    D --> E["检查慢查询"]
+    E --> F["查看InnoDB状态"]
+    F --> G["定位根因"]
+    
+    style A fill:#ffcdd2
+    style G fill:#c8e6c9
+```
+
+**What - IO高原因表**
+
+| 原因 | 现象 | 排查方法 |
+|:----:|------|----------|
+| **全表扫描** | rows_examined高 | EXPLAIN分析 |
+| **索引失效** | key字段为NULL | 检查索引使用 |
+| **排序/分组** | Using filesort | 优化ORDER BY |
+| **日志刷盘** | fsync频繁 | 调整innodb_flush_log_at_trx_commit |
+| **数据写入** | write IO高 | 检查写入频率 |
+
+**记忆口诀**：IO高先看进程，MySQL状态细分析，慢查询日志找问题，InnoDB状态看详情，全表扫描最常见，索引失效是关键。
+
+**面试标准答法（1分钟版）**：排查步骤：1. 使用iostat/iotop查看磁盘IO情况，确认是MySQL进程；2. 使用SHOW PROCESSLIST查看当前会话；3. 分析慢查询日志，找出耗时查询；4. 使用EXPLAIN分析执行计划，看是否全表扫描或索引失效；5. 查看InnoDB状态，检查缓冲池命中率、日志刷盘频率；6. 常见根因：全表扫描、索引失效、排序使用filesort、日志刷盘策略不当。优化方案：添加索引、优化SQL、调整innodb_flush_log_at_trx_commit、增加缓存。
+
+> **延伸阅读**：想了解更多MySQL排查？请参考 [MySQL磁盘IO高问题排查：从现象到根因的完整指南]({% post_url 2026-05-09-mysql-io-troubleshooting-best-practices %})。
