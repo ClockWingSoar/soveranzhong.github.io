@@ -3210,3 +3210,38 @@ flowchart TD
 **面试标准答法（1分钟版）**：Service流量路径：客户端Pod请求Service VIP，通过kube-proxy根据iptables/ipvs规则转发到后端Endpoint（Pod）。kube-proxy通过watch API Server感知Endpoints变化，实时更新转发规则。Service类型：ClusterIP（默认，集群内访问）、NodePort（通过节点端口外部访问）、LoadBalancer（对接云厂商LB）、ExternalName（映射外部域名）。Headless Service的特殊之处是没有ClusterIP，直接DNS解析到Pod IP。
 
 > **延伸阅读**：想了解更多K8s Service？请参考 [Kubernetes Service流量路径与实现原理详解]({% post_url 2026-05-09-k8s-service-traffic-best-practices %})。
+
+### 194. Jenkins构建做了哪些优化？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**CI/CD构建优化**的实践经验。Jenkins是常用的CI/CD工具，构建效率直接影响交付速度，优化构建流程能显著提升研发效率。
+
+**How - 构建优化架构图**
+
+```mermaid
+flowchart TD
+    A["代码提交"] --> B["增量构建"]
+    B --> C["并行阶段"]
+    C --> D["缓存依赖"]
+    D --> E["分布式构建"]
+    E --> F["镜像优化"]
+    
+    style B fill:#ffcdd2
+    style D fill:#c8e6c9
+```
+
+**What - 构建优化维度表**
+
+| 维度 | 优化手段 | 效果 |
+|:----:|----------|------|
+| **代码层** | 增量构建、并行执行 | 减少构建时间 |
+| **依赖层** | 缓存依赖、镜像缓存 | 加速依赖安装 |
+| **配置层** | 分布式构建、Agent池 | 提升并发能力 |
+| **产物层** | 多阶段构建、分层缓存 | 减少镜像体积 |
+
+**记忆口诀**：Jenkins优化有四维，代码层增量并行，依赖层缓存加速，配置层分布式，产物层多阶段。
+
+**面试标准答法（1分钟版）**：Jenkins构建优化主要从四方面入手：1. 代码层：增量构建只构建变更模块，Pipeline并行阶段加速；2. 依赖层：Maven/Gradle本地缓存、npm缓存、构建镜像预热；3. 配置层：分布式构建增加Agent节点，配置JNLP或SSH Agent；4. 产物层：Docker多阶段构建减少镜像体积，分层缓存提高复用。我们项目通过这些优化，单次构建时间从15分钟降到5分钟。
+
+> **延伸阅读**：想了解更多Jenkins构建优化？请参考 [Jenkins构建优化：从流水线到产物的完整实践指南]({% post_url 2026-05-09-jenkins-build-optimization-best-practices %})。
