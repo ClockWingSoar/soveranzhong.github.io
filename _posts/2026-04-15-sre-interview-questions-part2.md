@@ -3718,3 +3718,38 @@ flowchart LR
 **面试标准答法（1分钟版）**：Prometheus高可用方案：1. 基础方案：联邦集群，多个Prometheus实例分别抓取不同目标，通过federation汇聚数据；2. 长期存储方案：Thanos通过Sidecar连接Prometheus，支持数据压缩存储到对象存储，支持全局查询和去重；3. Cortex/VictoriaMetrics提供类似能力。核心关注点：数据一致性、查询去重、故障转移。生产建议：中小规模用联邦，大规模用Thanos。
 
 > **延伸阅读**：想了解更多Prometheus高可用？请参考 [Prometheus高可用架构：生产环境监控高可用设计指南]({% post_url 2026-05-09-prometheus-ha-best-practices %})。
+
+### 207. Prometheus出现故障如何保证数据不丢失？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Prometheus数据保护策略**的理解。监控数据丢失可能导致故障无法追溯，影响业务稳定性分析。
+
+**How - 数据保护架构图**
+
+```mermaid
+flowchart TD
+    A["Prometheus"] --> B["本地TSDB"]
+    A --> C["Remote Write"]
+    C --> D["远程存储"]
+    A --> E["Thanos Sidecar"]
+    E --> F["对象存储"]
+    
+    style D fill:#81c784
+    style F fill:#81c784
+```
+
+**What - 数据保护方案对比表**
+
+| 方案 | 保护能力 | 配置复杂度 | 存储成本 |
+|:----:|----------|------------|----------|
+| **TSDB本地** | 基础 | 低 | 低 |
+| **Remote Write** | 强 | 中 | 中 |
+| **Thanos Sidecar** | 强 | 中 | 中 |
+| **EFK日志** | 补充 | 低 | 高 |
+
+**记忆口诀**：Prometheus防丢失，TSDB本地是基础，Remote Write远程写，Thanos对象存，告警数据要关注。
+
+**面试标准答法（1分钟版）**：Prometheus数据保护策略：1. 本地TSDB：配置合适的存储周期和WAL，保留至少15天数据；2. Remote Write：配置Remote Write到InfluxDB/Thanos等远程存储，实时同步数据；3. Thanos Sidecar：与Prometheus同Pod部署，定期上传数据块到对象存储；4. 告警记录：用AlertManager记录历史告警；5. 定期备份：定时备份TSDB数据目录。生产建议：至少配置Remote Write备份，重要集群配置Thanos。
+
+> **延伸阅读**：想了解更多Prometheus数据保护？请参考 [Prometheus故障数据保护：TSDB、Remote Write与Thanos备份策略详解]({% post_url 2026-05-09-prometheus-data-protection-best-practices %})。
