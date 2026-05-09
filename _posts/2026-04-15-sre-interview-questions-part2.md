@@ -3483,3 +3483,38 @@ flowchart TD
 **面试标准答法（1分钟版）**：Pod频繁重启排查思路：1. 查看Pod状态：kubectl describe pod查看Events，定位退出原因；2. 常见原因：OOMKilled（exitCode 137）需增加内存限制，探针失败需调整超时和阈值，Error退出需检查应用日志；3. 节点层面：kubectl top node查看节点资源，确认节点是否压力过大；4. 优化方向：优化应用内存使用、合理配置资源限制和探针、扩容节点或优化调度。300个Pod重启频繁，重点检查是否资源限制过紧或节点资源不足。
 
 > **延伸阅读**：想了解更多Pod重启优化？请参考 [Kubernetes Pod频繁重启：排查思路与生产环境优化指南]({% post_url 2026-05-09-pod-restart-optimization-best-practices %})。
+
+### 201. 介绍下kubectl top排查流程？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes资源监控**的掌握。kubectl top是日常排查性能问题的重要工具，理解其工作原理和排查流程对SRE至关重要。
+
+**How - kubectl top排查流程图**
+
+```mermaid
+flowchart TD
+    A["资源告警"] --> B["kubectl top node"]
+    B --> C{"CPU高?"}
+    B --> D{"Memory高?"}
+    C --> E["定位进程"]
+    D --> F["定位Pod"]
+    E --> G[" kubectl top pod"]
+    F --> G
+    G --> H["定位容器"]
+    H --> I["优化或扩容"]
+```
+
+**What - kubectl top用法表**
+
+| 命令 | 作用 | 输出内容 |
+|:----:|------|----------|
+| **kubectl top node** | 查看节点资源 | CPU、内存使用 |
+| **kubectl top pod** | 查看Pod资源 | CPU、内存使用 |
+| **--containers** | 查看容器资源 | 容器级别 |
+
+**记忆口诀**：kubectl top排查，node看节点级，pod看应用级，containers看容器，定位瓶颈再优化。
+
+**面试标准答法（1分钟版）**：kubectl top排查流程：1. kubectl top node查看节点维度，找出资源使用率高的节点；2. kubectl top pod -n xxx查看Pod维度，按CPU或内存排序找出异常Pod；3. kubectl top pod -n xxx --containers查看容器级别；4. 结合kubectl describe定位具体原因。前提是部署metrics-server组件，如无输出需检查组件状态。生产环境建议配合Prometheus+Grafana做全面监控。
+
+> **延伸阅读**：想了解更多kubectl top？请参考 [kubectl top排查流程：Kubernetes资源监控与性能分析指南]({% post_url 2026-05-09-kubectl-top-troubleshooting-best-practices %})。
