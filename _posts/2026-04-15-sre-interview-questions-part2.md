@@ -2061,3 +2061,44 @@ flowchart TB
 **面试标准答法（1分钟版）**：我常用这些命令处理Linux问题。磁盘问题用df看使用率，du定位大文件，lsof查看打开文件；IO高用iostat和iotop定位；CPU问题用top和htop，shift+h可看线程；内存问题用free看内存和swap，vmstat看虚拟内存；遇到OOM用dmesg查看内核日志。排查思路是：先看资源使用情况定位问题类型，再找具体进程或文件，最后分析原因并处理。
 
 > **延伸阅读**：想了解更多Linux问题诊断？请参考 [Linux系统问题诊断与排查：从磁盘到OOM全攻略]({% post_url 2026-05-08-linux-system-troubleshooting-best-practices %})。
+
+### 165. 列举常用 SQL 查询场景。
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**SQL查询实战能力**的掌握程度。SQL是数据库操作的基础，高级DevOps/SRE工程师需要熟练处理各种查询场景，包括性能优化和数据统计。
+
+**How - 查询场景分类**
+
+```mermaid
+flowchart TB
+    A["SQL查询"] --> B["基础查询"]
+    A --> C["关联查询"]
+    A --> D["聚合统计"]
+    A --> E["性能优化"]
+    
+    B --> B1["SELECT/WHERE"]
+    C --> C1["JOIN/子查询"]
+    D --> D1["GROUP BY"]
+    E --> E1["索引/EXPLAIN"]
+    
+    style A fill:#e3f2fd
+    style D fill:#c8e6c9
+```
+
+**What - 常用查询场景表**
+
+| 场景类型 | SQL示例 | 说明 |
+|:--------:|---------|------|
+| **条件查询** | WHERE age > 18 AND status = 1 | 基础筛选 |
+| **关联查询** | INNER JOIN/LEFT JOIN | 表连接 |
+| **分组统计** | GROUP BY + HAVING | 聚合分析 |
+| **分页查询** | LIMIT/OFFSET | 数据分页 |
+| **条件更新** | UPDATE SET WHERE | 数据更新 |
+| **批量删除** | DELETE FROM WHERE IN | 批量删除 |
+
+**记忆口诀**：查用SELECT，更新用UPDATE，删除用DELETE，关联用JOIN，统称用GROUP，复杂用子查询。
+
+**面试标准答法（1分钟版）**：常用SQL查询场景包括：基础的条件查询用WHERE；多表关联用JOIN；数据统计用GROUP BY加聚合函数；分页查询用LIMIT；批量更新和删除用IN；复杂查询用子查询。性能优化要注意：避免SELECT *、合理使用索引、用EXPLAIN分析执行计划、避免在索引列上做函数操作。
+
+> **延伸阅读**：想了解更多SQL查询最佳实践？请参考 [SQL查询实战：从基础到性能优化全攻略]({% post_url 2026-05-08-sql-query-best-practices %})。
