@@ -2258,3 +2258,43 @@ flowchart TB
 **面试标准答法（1分钟版）**：Linux常用系统日志包括：/var/log/dmesg用于查看内核启动信息和硬件驱动问题；/var/log/syslog记录系统服务运行状态；/var/log/auth.log记录认证和登录信息；/var/log/kern.log记录内核错误；/var/log/messages是通用系统消息日志。此外还有journalctl可以查看systemd日志，/var/log下还有各应用的独立日志目录。排查时先看dmesg和syslog定位问题类型，再深入具体日志。
 
 > **延伸阅读**：想了解更多Linux日志分析？请参考 [Linux系统日志分析与故障定位：从dmesg到journalctl全攻略]({% post_url 2026-05-09-linux-system-logs-troubleshooting %})。
+
+### 170. Nginx 启动、重启、停止、重载命令？为什么用 reload 不用 restart？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Nginx进程管理**的理解。reload和restart的区别是生产环境中关键的运维知识，直接关系到服务的可用性。
+
+**How - 命令操作流程**
+
+```mermaid
+flowchart TB
+    A["Nginx命令"] --> B["启动"]
+    A --> C["停止"]
+    A --> D["重启"]
+    A --> E["重载"]
+    
+    B --> B1["nginx -c /etc/nginx/nginx.conf"]
+    C --> C1["nginx -s stop"]
+    D --> D1["停止+启动"]
+    E --> E1["平滑重启"]
+    
+    style A fill:#e3f2fd
+    style E fill:#c8e6c9
+```
+
+**What - 命令对比表**
+
+| 命令 | 作用 | 特点 |
+|:----:|------|------|
+| **nginx -s start** | 启动Nginx | 启动服务 |
+| **nginx -s stop** | 强制停止 | 立即终止 |
+| **nginx -s quit** | 优雅停止 | 处理完请求后停止 |
+| **nginx -s reload** | 平滑重载 | 零停机重启 |
+| **systemctl restart nginx** | 重启服务 | 短暂停机 |
+
+**记忆口诀**：启动用start，停止用quit，重载用reload，重启restart。
+
+**面试标准答法（1分钟版）**：Nginx常用命令：启动用`nginx -c /etc/nginx/nginx.conf`，停止用`nginx -s quit`（优雅停止）或`nginx -s stop`（强制停止），重载用`nginx -s reload`。用reload不用restart是因为reload是平滑重启，新进程启动后老进程处理完请求再退出，零停机；而restart会先停止再启动，中间有服务中断时间。生产环境优先用reload保证高可用性。
+
+> **延伸阅读**：想了解更多Nginx运维？请参考 [Nginx运维实战：从启动到平滑重载全解析]({% post_url 2026-05-09-nginx-operations-best-practices %})。
