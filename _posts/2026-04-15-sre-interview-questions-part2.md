@@ -2657,3 +2657,41 @@ flowchart TB
 **面试标准答法（1分钟版）**：开发分支镜像获取方法：1. docker save导出为tar文件，scp复制到目标机器后docker load导入；2. 启动本地临时Registry（如registry:2），推送镜像后在目标机器拉取；3. docker export导出容器，docker import导入为镜像。推荐使用本地Registry方式，方便团队共享，也可通过CI/CD工具直接将镜像注入到测试环境。
 
 > **延伸阅读**：想了解更多镜像操作？请参考 [开发阶段镜像获取与共享：不推仓库的最佳实践]({% post_url 2026-05-09-dev-image-retrieval-best-practices %})。
+
+### 180. 故障分析：Web application返回503，Kubernetes replicas变为0，log有no upstream
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes故障排查**的实战能力。503错误、replicas为0、no upstream是生产环境常见问题组合，需要系统性分析能力。
+
+**How - 故障排查流程**
+
+```mermaid
+flowchart TD
+    A["503错误"] --> B["检查Service"]
+    A --> C["检查Endpoints"]
+    B --> D["Service配置"]
+    C --> E["Pod状态"]
+    E --> F["Deployment状态"]
+    F --> G["事件日志"]
+    G --> H["定位根因"]
+    
+    style A fill:#ffcdd2
+    style H fill:#c8e6c9
+```
+
+**What - 排查步骤表**
+
+| 步骤 | 操作 | 目的 |
+|:----:|------|------|
+| **1** | `kubectl get endpoints` | 检查后端Pod是否就绪 |
+| **2** | `kubectl get pods` | 查看Pod状态 |
+| **3** | `kubectl describe deployment` | 检查Deployment事件 |
+| **4** | `kubectl get events` | 获取集群事件 |
+| **5** | `kubectl logs` | 查看容器日志 |
+
+**记忆口诀**：503先查Endpoint，Pod状态看清楚，Deployment事件追根因，日志里面找线索。
+
+**面试标准答法（1分钟版）**：这个问题典型原因是Deployment副本数被意外设置为0或副本全部失败。排查步骤：1. 用`kubectl get endpoints`检查后端Pod是否就绪；2. `kubectl get pods`查看Pod状态；3. `kubectl describe deployment`检查副本数配置和滚动更新事件；4. `kubectl get events`获取集群事件；5. 查看容器日志。常见根因：HPA自动缩容到0、镜像拉取失败、探针失败导致副本被kill、资源不足被驱逐。
+
+> **延伸阅读**：想了解更多故障排查？请参考 [Kubernetes 503错误与副本消失：实战故障排查指南]({% post_url 2026-05-09-k8s-503-troubleshooting-best-practices %})。
