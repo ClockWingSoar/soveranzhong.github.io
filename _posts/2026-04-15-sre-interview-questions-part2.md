@@ -4001,3 +4001,52 @@ flowchart TD
 **面试标准答法（1分钟版）**：K8s集群搭建全流程：1. 基础设施准备：准备至少3台服务器（Master+Worker），配置网络；2. 系统环境配置：设置主机名、关闭防火墙/SELinux、禁用Swap、配置时间同步；3. 安装容器运行时：Docker或Containerd；4. 安装K8s组件：kubeadm、kubelet、kubectl；5. Master节点初始化：kubeadm init指定Pod网络CIDR；6. Worker节点加入：使用kubeadm join命令；7. 部署网络插件：Calico或Flannel；8. 验证集群状态：kubectl get nodes/pods。生产建议：使用kubeadm部署，配置高可用Master，选择合适的网络插件。
 
 > **延伸阅读**：想了解更多K8s集群搭建？请参考 [Kubernetes集群搭建全流程：从基础设施到生产环境实践指南]({% post_url 2026-05-09-kubernetes-cluster-setup-best-practices %})。
+
+### 215. K8s网络插件中各有什么特性和区别？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes网络模型**的理解。网络插件是K8s集群的核心组件，直接影响Pod通信、网络策略、性能和安全性。
+
+**How - 网络插件架构图**
+
+```mermaid
+flowchart TD
+    subgraph CNI插件
+        A["Calico"] --> B["Flannel"]
+        B --> C["Cilium"]
+        C --> D["Weave"]
+    end
+    
+    subgraph 网络功能
+        E["Pod通信"]
+        F["NetworkPolicy"]
+        G["Service发现"]
+        H["负载均衡"]
+    end
+    
+    A --> E
+    A --> F
+    B --> E
+    C --> E
+    C --> F
+    C --> H
+    
+    style A fill:#64b5f6
+    style C fill:#81c784
+```
+
+**What - 网络插件对比表**
+
+| 插件 | 底层技术 | 网络策略 | 性能 | 可观测性 | 适用场景 |
+|:----:|----------|----------|------|----------|----------|
+| **Calico** | BGP/IPIP/VXLAN | 支持 | 中高 | 好 | 通用生产环境 |
+| **Flannel** | VXLAN/Host-GW | 不支持 | 高 | 一般 | 简单场景 |
+| **Cilium** | eBPF | 支持 | 最高 | 优秀 | 高性能/安全 |
+| **Weave** | VXLAN | 支持 | 中 | 一般 | 快速部署 |
+
+**记忆口诀**：Calico功能全，Flannel速度快，Cilium性能高，Weave易部署。
+
+**面试标准答法（1分钟版）**：K8s主流网络插件特性：1. Calico：基于BGP/VXLAN，支持NetworkPolicy，功能全面，适合生产环境；2. Flannel：基于VXLAN，简单轻量，性能好，但不支持NetworkPolicy；3. Cilium：基于eBPF，性能最优，支持高级网络策略和可观测性；4. Weave：基于VXLAN，自动配置，适合快速部署。选择建议：简单场景用Flannel，生产环境用Calico，高性能需求用Cilium。
+
+> **延伸阅读**：想了解更多K8s网络插件？请参考 [Kubernetes网络插件详解：Calico/Flannel/Cilium特性对比与选型指南]({% post_url 2026-05-09-kubernetes-network-plugins-best-practices %})。
