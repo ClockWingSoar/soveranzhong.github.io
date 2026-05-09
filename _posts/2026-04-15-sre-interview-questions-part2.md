@@ -2298,3 +2298,43 @@ flowchart TB
 **面试标准答法（1分钟版）**：Nginx常用命令：启动用`nginx -c /etc/nginx/nginx.conf`，停止用`nginx -s quit`（优雅停止）或`nginx -s stop`（强制停止），重载用`nginx -s reload`。用reload不用restart是因为reload是平滑重启，新进程启动后老进程处理完请求再退出，零停机；而restart会先停止再启动，中间有服务中断时间。生产环境优先用reload保证高可用性。
 
 > **延伸阅读**：想了解更多Nginx运维？请参考 [Nginx运维实战：从启动到平滑重载全解析]({% post_url 2026-05-09-nginx-operations-best-practices %})。
+
+### 171. 常用 Docker 命令有哪些？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Docker核心命令**的掌握程度。Docker是容器化的基础，熟练使用Docker命令是高级DevOps/SRE工程师必备技能。
+
+**How - 命令分类架构**
+
+```mermaid
+flowchart TB
+    A["Docker命令"] --> B["容器管理"]
+    A --> C["镜像管理"]
+    A --> D["网络管理"]
+    A --> E["数据卷管理"]
+    
+    B --> B1["run/start/stop"]
+    C --> C1["pull/build/tag"]
+    D --> D1["network create"]
+    E --> E1["volume create"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+```
+
+**What - 常用命令表**
+
+| 命令类别 | 常用命令 | 作用 |
+|:--------:|----------|------|
+| **容器管理** | docker run/start/stop/restart/rm | 创建启动停止删除容器 |
+| **镜像管理** | docker pull/build/tag/push/rmi | 拉取构建打标签推送删除镜像 |
+| **查看信息** | docker ps/images/logs/inspect | 查看容器镜像日志详情 |
+| **网络管理** | docker network create/ls/rm | 创建查看删除网络 |
+| **数据卷** | docker volume create/ls/rm | 创建查看删除数据卷 |
+
+**记忆口诀**：容器用run启动，镜像用pull拉取，查看用ps和images，日志用logs查看。
+
+**面试标准答法（1分钟版）**：常用Docker命令包括：容器管理类（docker run创建容器、docker start/stop/restart管理容器、docker rm删除容器）；镜像管理类（docker pull拉取镜像、docker build构建镜像、docker tag打标签、docker push推送镜像）；查看类（docker ps查看容器、docker images查看镜像、docker logs查看日志、docker inspect查看详情）；网络和数据卷管理（docker network/volume create/ls/rm）。这些是日常运维最常用的命令。
+
+> **延伸阅读**：想了解更多Docker实战？请参考 [Docker命令详解与生产环境最佳实践]({% post_url 2026-05-09-docker-commands-best-practices %})。
