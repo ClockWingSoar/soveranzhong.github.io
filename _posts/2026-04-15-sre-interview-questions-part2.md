@@ -2815,3 +2815,37 @@ flowchart TB
 **面试标准答法（1分钟版）**：系统需要Kafka主要有以下原因：1. 解耦：生产者和消费者解耦，各自独立演进；2. 可靠性：Kafka持久化消息，保证数据不丢失；3. 削峰填谷：缓冲突发流量，保护下游系统；4. 异步通信：提升主流程响应速度；5. 扩展性：支持多消费组并行消费，灵活扩展。相比直接调用，Kafka提供了更高的可靠性、吞吐量和系统弹性。
 
 > **延伸阅读**：想了解更多Kafka必要性？请参考 [为什么系统需要Kafka？架构视角下的消息队列价值]({% post_url 2026-05-09-why-kafka-architecture-value %})。
+
+### 184. Kafka的partition是什么意思？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kafka核心概念**的理解。Partition是Kafka实现高吞吐量和并行处理的关键，理解partition机制是掌握Kafka的基础。
+
+**How - Partition架构**
+
+```mermaid
+flowchart TD
+    A["Topic"] --> B["Partition 0"]
+    A --> C["Partition 1"]
+    A --> D["Partition 2"]
+    
+    B --> B1["Replica 0 (Leader)"]
+    B --> B2["Replica 1 (Follower)"]
+    B --> B3["Replica 2 (Follower)"]
+```
+
+**What - Partition特性表**
+
+| 特性 | 说明 | 作用 |
+|:----:|------|------|
+| **分区键** | 决定消息路由到哪个partition | 保证消息顺序性 |
+| **Leader/Follower** | 一个partition有多个副本 | 保证高可用 |
+| **Offset** | 消息在partition中的唯一标识 | 消息定位和消费进度 |
+| **顺序写入** | 消息按顺序写入磁盘 | 提高写入性能 |
+
+**记忆口诀**：Topic分成partition，分区键决定路由，每个分区有副本，Leader写Follower同步，Offset标识位置，顺序写入高性能。
+
+**面试标准答法（1分钟版）**：Kafka的partition是Topic的物理分区，用于实现并行处理和水平扩展。每个Topic可以分为多个partition，消息根据分区键路由到特定partition，同一partition内的消息保证有序。每个partition有多个副本（Leader+Follower），Leader负责读写，Follower同步数据，保证高可用。Offset是消息在partition中的唯一标识，消费者通过offset追踪消费进度。
+
+> **延伸阅读**：想了解更多Partition？请参考 [Kafka Partition深度解析：设计原理与最佳实践]({% post_url 2026-05-09-kafka-partition-design-best-practices %})。
