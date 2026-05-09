@@ -3404,3 +3404,46 @@ flowchart TD
 **面试标准答法（1分钟版）**：灰度到全量是渐进过程：1. 阶段验证：每阶段观察4-8小时，监控错误率、延迟、可用性等核心指标；2. 指标达标：错误率<0.1%、P99<200ms等；3. 手动触发：指标稳定后手动执行全量，或配置Argo Rollouts自动放量；4. 完成切换：全量后保留旧版本Pod一段时间，确认稳定后下线。核心原则是观察-判断-决策，小步快跑发现问题立即回滚。
 
 > **延伸阅读**：想了解更多全量发布？请参考 [灰度到全量：渐进式发布转换与生产环境实践指南]({% post_url 2026-05-09-canary-to-production-best-practices %})。
+
+### 199. K8s高可用怎么部署的？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes高可用架构**的理解。K8s高可用是生产环境的基础设施核心，涉及Control Plane和Worker Plane的多个组件。
+
+**How - K8s高可用架构图**
+
+```mermaid
+flowchart TD
+    subgraph CP["Control Plane"]
+        A1["kube-apiserver-1"] --> A2["etcd-cluster"]
+        A3["kube-apiserver-2"] --> A2
+        A4["kube-apiserver-3"] --> A2
+        B1["kube-controller-1"] --> B2["kube-scheduler"]
+        B3["kube-controller-2"]
+    end
+    
+    subgraph WP["Worker Plane"]
+        C1["Node-1"] --> D1["Pod"]
+        C2["Node-2"] --> D2["Pod"]
+        C3["Node-3"] --> D3["Pod"]
+    end
+    
+    style A2 fill:#ffcdd2
+```
+
+**What - 高可用组件表**
+
+| 组件 | 高可用方式 | 节点要求 |
+|:----:|------------|----------|
+| **etcd** | 奇数节点集群 | 3或5个 |
+| **apiserver** | 多实例负载均衡 | 3个 |
+| **scheduler** | 多实例竞争 | 3个 |
+| **controller** | 多实例竞争 | 3个 |
+| **Worker** | 多节点+Pod高可用 | 3+个 |
+
+**记忆口诀**：K8s高可用三平面，控制面多实例保选举，工作面多节点保负载，etcd奇数防脑裂。
+
+**面试标准答法（1分钟版）**：K8s高可用从三层部署：1. etcd集群：3或5节点奇数部署，选举机制保证一致性；2. Control Plane：apiserver多实例+负载均衡，scheduler和controller多实例竞争选举；3. Worker Plane：至少3节点部署，Pod使用反亲缘性分散部署，配合PodDisruptionBudget保证可用性。生产环境推荐kubeadm或ACK/ACK等托管方案，支持自动故障恢复和滚动升级。
+
+> **延伸阅读**：想了解更多K8s高可用？请参考 [Kubernetes高可用部署：生产环境架构设计与实践指南]({% post_url 2026-05-09-k8s-high-availability-best-practices %})。
