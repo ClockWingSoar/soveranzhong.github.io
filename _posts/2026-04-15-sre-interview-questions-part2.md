@@ -2022,3 +2022,42 @@ flowchart TB
 **面试标准答法（1分钟版）**：我们Harbor采用混合架构，内网开发环境和CI/CD节点通过内网访问Harbor，保证高速稳定；远程办公和外部合作方通过VPN接入内网后访问。同时配置了公网域名和SSL证书，但限制在防火墙白名单IP范围内访问。这种架构兼顾了安全性和便捷性：内网业务不受影响，远程协作也能正常进行，通过网络策略和访问控制保障安全。
 
 > **延伸阅读**：想了解更多Harbor网络架构设计？请参考 [Harbor网络架构设计：从内网到混合云方案]({% post_url 2026-05-08-harbor-network-architecture-best-practices %})。
+
+### 164. Linux 磁盘、CPU、内存典型问题处理方法与常用命令？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你**Linux系统问题诊断**的实战能力。磁盘、CPU、内存是Linux最核心的资源，掌握这些问题处理方法是高级DevOps/SRE工程师的必备技能。
+
+**How - 问题诊断流程**
+
+```mermaid
+flowchart TB
+    A["问题诊断"] --> B["磁盘问题"]
+    A --> C["CPU问题"]
+    A --> D["内存问题"]
+    
+    B --> B1["df/du/lsof"]
+    C --> C1["top/htop"]
+    D --> D1["free/vmstat"]
+    
+    style A fill:#e3f2fd
+    style B fill:#c8e6c9
+    style D fill:#ffcdd2
+```
+
+**What - 问题与命令表**
+
+| 问题类型 | 常用命令 | 排查步骤 |
+|:--------:|----------|----------|
+| **磁盘满** | df/du/lsof | df看使用率，du定位大文件，lsof看打开文件 |
+| **磁盘IO高** | iostat/iotop | iostat看IOPS，iotop定位进程 |
+| **CPU高** | top/htop | top看进程，shift+h看线程 |
+| **内存满** | free/vmstat | free看内存，vmstat看swap |
+| **OOM** | dmesg/journalctl | dmesg\|grep oom，journalctl查日志 |
+
+**记忆口诀**：磁盘满了df/du，IO高用iostat，CPU高top定位，内存free+vmstat，OOM看dmesg。
+
+**面试标准答法（1分钟版）**：我常用这些命令处理Linux问题。磁盘问题用df看使用率，du定位大文件，lsof查看打开文件；IO高用iostat和iotop定位；CPU问题用top和htop，shift+h可看线程；内存问题用free看内存和swap，vmstat看虚拟内存；遇到OOM用dmesg查看内核日志。排查思路是：先看资源使用情况定位问题类型，再找具体进程或文件，最后分析原因并处理。
+
+> **延伸阅读**：想了解更多Linux问题诊断？请参考 [Linux系统问题诊断与排查：从磁盘到OOM全攻略]({% post_url 2026-05-08-linux-system-troubleshooting-best-practices %})。
