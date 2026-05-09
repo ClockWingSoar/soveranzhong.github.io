@@ -3100,3 +3100,40 @@ flowchart TD
 **面试标准答法（1分钟版）**：常见CNI插件有：1. Flannel：简单overlay网络，使用vxlan封装，性能一般但易部署；2. Calico：基于BGP的路由网络，支持网络策略，性能高，适合生产环境；3. Cilium：基于eBPF的新一代网络，性能最好，支持L7层可见性，但需要较高内核版本；4. Weave：简单overlay网络，支持自动加密，适合混合云。我们生产环境使用Calico，因为性能高且支持网络策略。
 
 > **延伸阅读**：想了解更多K8s CNI？请参考 [Kubernetes CNI组件：网络插件对比与生产环境最佳实践]({% post_url 2026-05-09-k8s-cni-best-practices %})。
+
+### 191. Scheduler工作流程、调度策略、污点和污点容忍度？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes调度机制**的深入理解。调度是K8s的核心功能之一，污点和容忍度机制则是实现专机专用、节点管控的重要手段。
+
+**How - 调度流程图**
+
+```mermaid
+flowchart TD
+    A["新Pod创建"] --> B["预选阶段 Predicates"]
+    B --> C{"节点满足条件?"}
+    C -->|否| D["淘汰节点"]
+    C -->|是| E["优选阶段 Priorities"]
+    E --> F["计算节点得分"]
+    F --> G["选择最高分节点"]
+    G --> H["绑定Pod到节点"]
+    
+    style A fill:#ffcdd2
+    style H fill:#c8e6c9
+```
+
+**What - 调度策略与污点表**
+
+| 策略/概念 | 说明 | 示例 |
+|:--------:|------|------|
+| **Predicates** | 预选策略 | PodFitsResources、HostPorts |
+| **Priorities** | 优选策略 | LeastRequested、NodeAffinity |
+| **污点 Taint** | 节点排斥Pod | node-role=master:NoSchedule |
+| **容忍度 Toleration** | Pod接受污点 | key=value:NoSchedule |
+
+**记忆口诀**：调度分为预选优选，预选过滤不合适，优选计算节点分；污点用来排斥Pod，容忍度让Pod能调度。
+
+**面试标准答法（1分钟版）**：Scheduler调度流程：1. 预选阶段遍历所有节点，使用Predicates策略过滤不满足条件的节点；2. 优选阶段对通过的节点打分，常用策略包括LeastRequested、BalancedResource等；3. 选择得分最高的节点绑定Pod。污点（Taint）用于标记节点不被普通Pod调度，如master节点；容忍度（Toleration）让Pod能够调度到有相应污点的节点。常见效果：NoSchedule（不调度）、PreferNoSchedule（尽量不调度）、NoExecute（不调度且驱逐已有Pod）。
+
+> **延伸阅读**：想了解更多K8s调度？请参考 [Kubernetes调度机制：Scheduler工作流程与污点容忍度详解]({% post_url 2026-05-09-k8s-scheduler-taints-best-practices %})。
