@@ -3606,3 +3606,45 @@ sequenceDiagram
 **面试标准答法（1分钟版）**：Pod创建流程：1. 用户提交YAML，API Server接收请求写入etcd；2. Scheduler监听未调度Pod，通过过滤和评分选择最优节点，将Pod绑定到Node；3. kubelet监听到新Pod，开始准备阶段：先配置网络（CNI分配IP）、挂载存储卷；4. kubelet拉取镜像（Registry）、创建容器、启动应用进程；5. kubelet汇报Pod状态到API Server。核心组件：API Server统一入口、etcd存储、Scheduler调度、kubelet执行。
 
 > **延伸阅读**：想了解更多Pod创建流程？请参考 [Kubernetes Pod创建流程：核心组件交互详解]({% post_url 2026-05-09-pod-creation-flow-best-practices %})。
+
+### 204. CI/CD全流程介绍？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**CI/CD完整流程**的掌握。CI/CD是DevOps核心实践，理解全流程有助于设计高效的持续集成和持续部署方案。
+
+**How - CI/CD全流程图**
+
+```mermaid
+flowchart TD
+    A["代码提交"] --> B["代码编译"]
+    B --> C["单元测试"]
+    C --> D["构建镜像"]
+    D --> E["安全扫描"]
+    E --> F["推送镜像"]
+    F --> G["部署测试环境"]
+    G --> H["集成测试"]
+    H --> I["部署预发布"]
+    I --> J["灰度验证"]
+    J --> K["全量发布"]
+    
+    style A fill:#81c784
+    style K fill:#64b5f6
+```
+
+**What - CI/CD阶段表**
+
+| 阶段 | 工具 | 产出物 |
+|:----:|------|--------|
+| **构建** | Maven/npm | 编译产物 |
+| **测试** | JUnit/Pytest | 测试报告 |
+| **镜像** | Docker/BuildKit | 容器镜像 |
+| **安全** | Trivy/Snyk | 漏洞报告 |
+| **部署** | Argo/Flagger | K8s资源 |
+| **发布** | Helm/ArgoCD | 运行服务 |
+
+**记忆口诀**：CI/CD流程八阶段，代码编译测试先，镜像构建安全扫，测试预发灰度全，自动化是核心理念。
+
+**面试标准答法（1分钟版）**：CI/CD全流程：1. 代码阶段：Git提交触发Webhook，代码审查通过后触发流水线；2. 构建阶段：Maven/npm编译代码，执行单元测试生成测试报告；3. 镜像阶段：Dockerfile构建镜像，Trivy安全扫描，推送到Registry；4. 部署阶段：通过ArgoCD/Helm部署到测试环境，执行集成测试；5. 发布阶段：预发布环境验证，灰度发布（如5%流量），逐步放量到全量。核心工具链：GitLab/GitHub管理代码，Jenkins/ArgoCD做流水线，Harbor/ACR存储镜像，K8s运行服务。
+
+> **延伸阅读**：想了解更多CI/CD全流程？请参考 [CI/CD全流程详解：从代码提交到生产发布的完整实践指南]({% post_url 2026-05-09-cicd-full-process-best-practices %})。
