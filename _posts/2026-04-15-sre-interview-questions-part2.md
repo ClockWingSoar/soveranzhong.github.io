@@ -3556,3 +3556,53 @@ flowchart TD
 **面试标准答法（1分钟版）**：Pod频繁重启会对多个K8s组件产生压力：1. etcd：每个Pod状态变化产生Watch事件，频繁重启导致事件堆积、存储压力增大；2. API Server：Pod创建销毁产生大量请求，Endpoints变化触发Service端点更新；3. kubelet：负责Pod生命周期管理，频繁重启需要状态上报和健康检查；4. Scheduler：每次重启都需要调度决策，高频调度消耗CPU；5. CNI：每次创建分配IP，销毁释放IP，网络配置频繁变更。优化方向：减少不必要的重启、优化探针配置、使用PreStop钩子优雅退出。
 
 > **延伸阅读**：想了解更多Pod重启影响？请参考 [Pod频繁重启对K8s组件的压力分析与优化指南]({% post_url 2026-05-09-pod-restart-impact-best-practices %})。
+
+### 203. Pod创建流程？
+
+**Why - 为什么这个问题重要？**
+
+这个问题考察你对**Kubernetes Pod创建机制**的理解。理解Pod创建流程是排查问题、设计高可用架构的基础。
+
+**How - Pod创建时序图**
+
+```mermaid
+sequenceDiagram
+    participant User as 用户/kubectl
+    participant API as API Server
+    participant Etcd as etcd
+    participant Sched as Scheduler
+    participant Kubelet as kubelet
+    participant CNI as CNI
+    
+    User->>API: 创建Pod请求
+    API->>Etcd: 写入Pod对象
+    Etcd-->>API: 确认
+    API-->>User: 返回Pod创建成功
+    API->>Sched: 请求调度
+    Sched->>Etcd: 查询节点信息
+    Sched->>API: 绑定Pod到节点
+    API->>Etcd: 更新绑定信息
+    Sched-->>API: 调度完成
+    Kubelet->>API: Watch到新Pod
+    Kubelet->>CNI: 分配IP/网络
+    CNI-->>Kubelet: 网络配置完成
+    Kubelet->>API: 拉取镜像
+    API-->>Kubelet: 镜像
+    Kubelet->>Kubelet: 启动容器
+    Kubelet->>API: 更新Pod状态
+```
+
+**What - Pod创建阶段表**
+
+| 阶段 | 组件 | 关键操作 |
+|:----:|------|----------|
+| **请求** | API Server | 接收请求、写入etcd |
+| **调度** | Scheduler | 选择节点、绑定Pod |
+| **配置** | kubelet | 网络、镜像、存储 |
+| **启动** | containerd | 创建容器、启动进程 |
+
+**记忆口诀**：Pod创建流程五步走，请求写入etcd，调度绑定节点，kubelet配网络，镜像拉取启动容器。
+
+**面试标准答法（1分钟版）**：Pod创建流程：1. 用户提交YAML，API Server接收请求写入etcd；2. Scheduler监听未调度Pod，通过过滤和评分选择最优节点，将Pod绑定到Node；3. kubelet监听到新Pod，开始准备阶段：先配置网络（CNI分配IP）、挂载存储卷；4. kubelet拉取镜像（Registry）、创建容器、启动应用进程；5. kubelet汇报Pod状态到API Server。核心组件：API Server统一入口、etcd存储、Scheduler调度、kubelet执行。
+
+> **延伸阅读**：想了解更多Pod创建流程？请参考 [Kubernetes Pod创建流程：核心组件交互详解]({% post_url 2026-05-09-pod-creation-flow-best-practices %})。
