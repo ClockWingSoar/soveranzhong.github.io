@@ -63,3 +63,61 @@ flowchart TB
 
 > **延伸阅读**：想了解更多Flannel与VXLAN生产环境最佳实践？请参考 [K8S网络Flannel与VXLAN详解：从原理到生产环境实践]({% post_url 2026-05-10-k8s-flannel-vxlan-best-practices %})。
 
+### 217. logstash和filebeat之间有啥区别？
+
+**Why - 为什么这个问题重要？**
+
+在ELK日志系统中，Filebeat和Logstash是最常用的两个组件。理解它们的定位、功能差异和使用场景，是构建高效日志收集架构的基础。**Filebeat负责轻量级采集，Logstash负责复杂处理，两者是互补关系而非替代关系。**
+
+**How - 组件定位与架构**
+
+```mermaid
+flowchart LR
+    A["日志源"] --> B["Filebeat"]
+    B --> C["Kafka/Redis"]
+    C --> D["Logstash"]
+    D --> E["Elasticsearch"]
+    E --> F["Kibana"]
+
+    style B fill:#c8e6c9
+    style D fill:#fff3e0
+```
+
+**What - 核心区别对比**
+
+| 维度 | Filebeat | Logstash |
+|:----:|----------|----------|
+| **定位** | 轻量级日志采集器 | 重量级日志处理管道 |
+| **资源消耗** | 低（Go语言，单进程~40MB） | 高（JVM，1GB+内存） |
+| **功能** | 采集、初步过滤、多行合并 | 采集、解析、转换、丰富、输出 |
+| **性能** | 高（单实例可处理MB/s日志） | 中等（需要更多资源） |
+| **插件生态** | Input/Module有限 | Input/Filter/Output丰富 |
+| **部署位置** | 靠近日志源（每台主机） | 集中部署（独立服务器） |
+| **配置复杂度** | 简单 | 复杂 |
+| **可靠性** | At-least-once | At-least-once |
+| **适用场景** | 大规模日志采集 | 复杂日志处理 |
+
+**Filebeat优势场景**
+
+| 场景 | 推荐原因 |
+|------|----------|
+| **大规模采集** | 轻量低资源占用，每台主机部署 |
+| **简单日志转发** | 仅需基本过滤和多行合并 |
+| **K8s环境** | 有官方K8s Module自动发现Pod日志 |
+| **资源敏感环境** | 嵌入式应用日志收集 |
+
+**Logstash优势场景**
+
+| 场景 | 推荐原因 |
+|------|----------|
+| **复杂解析** | JSON/XML/CSV等多格式解析 |
+| **数据富化** | 结合GeoIP、数据库丰富日志 |
+| **多输出** | 同时写入ES、HDFS、Kafka等 |
+| **高级转换** | 正则替换、条件分支、聚合统计 |
+
+**记忆口诀**：采集用Filebeat，处理用Logstash，量大轻量选Filebeat，复杂解析用Logstash。
+
+**面试标准答法（1分钟版）**：Filebeat和Logstash是ELK栈的两个核心组件，定位不同：Filebeat是轻量级日志采集器，用Go编写，资源消耗低（单进程约40MB），负责从日志源采集数据、做初步过滤和多行合并，适合大规模部署在每台主机上；Logstash是重量级日志处理管道，用JVM运行，功能强大，支持丰富的Input/Filter/Output插件，能做复杂的数据解析、转换和富化，适合集中部署做复杂处理。生产环境的最佳实践是：Filebeat部署在日志源采集日志，通过Kafka解耦后，Logstash做集中处理和解析，最后写入Elasticsearch。
+
+> **延伸阅读**：想了解更多Filebeat与Logstash生产环境最佳实践？请参考 [Filebeat与Logstash对比分析：ELK日志收集架构最佳实践]({% post_url 2026-05-10-filebeat-logstash-comparison-best-practices %})。
+
