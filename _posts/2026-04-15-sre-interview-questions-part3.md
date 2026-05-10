@@ -349,3 +349,57 @@ flowchart TB
 
 > **延伸阅读**：想了解更多K8s Pod亲和性调度？请参考 [K8s Pod亲和性与反亲和性详解：高可用架构设计最佳实践]({% post_url 2026-05-11-k8s-pod-affinity-anti-affinity-best-practices %})。
 
+### 222. k8s中的节点调度策略有哪些？
+
+**Why - 为什么这个问题重要？**
+
+Pod调度是Kubernetes核心能力之一，理解调度策略的分层设计是构建高效、高可用集群的基础。**K8s调度分预选、优选、抢占三阶段，同时提供丰富的自定义调度机制。**掌握这些策略是高级DevOps/SRE工程师的核心技能。
+
+**How - 调度器工作流程**
+
+```mermaid
+flowchart TB
+    A["Pod创建请求"] --> B["API Server接收"]
+    B --> C["调度器监听"]
+    C --> D["预选阶段（Filter）"]
+    D --> E["优选阶段（Prioritize）"]
+    E --> F["绑定阶段（Bind）"]
+    F --> G["Pod调度到目标节点"]
+
+    style D fill:#e3f2fd
+    style E fill:#c8e6c9
+    style F fill:#fff3e0
+```
+
+**What - 主要调度策略**
+
+| 策略分类 | 具体策略 | 说明 |
+|:-------:|---------|------|
+| **预选阶段** | NodeName | 直接指定节点名，跳过调度器 |
+| | NodeSelector | 根据标签选择节点 |
+| | NodeAffinity | 节点亲和性（required/preferred） |
+| | PodAffinity/AntiAffinity | Pod间亲和性/反亲和性 |
+| | Taints & Tolerations | 污点与容忍 |
+| **优选阶段** | LeastRequestedPriority | 节点使用率最低优先 |
+| | MostRequestedPriority | 节点使用率最高优先 |
+| | BalancedResourceAllocation | 资源均衡分配 |
+| | SelectorSpreadPriority | Pod均匀分布到不同节点 |
+| **高级调度** | Priority & Preemption | 高优先级Pod可抢占低优先级Pod |
+| | 自定义调度器 | 扩展调度器功能 |
+
+**生产环境最佳实践**
+
+| 应用场景 | 推荐策略 | 说明 |
+|:--------:|---------|------|
+| **静态Pod** | NodeName | 直接绑定到特定节点 |
+| **有状态服务** | NodeAffinity+Taints | 标签筛选+污点隔离 |
+| **Web前端多副本** | PodAntiAffinity+SelectorSpread | 分散部署，高可用 |
+| **数据库主从** | PodAntiAffinity | 必须分离到不同节点 |
+| **高优先级业务** | PriorityClass | 配置抢占能力 |
+
+**记忆口诀**：预选过滤不能错，优选打分来排序，NodeName直接指定，NodeSelector选标签，亲和反亲和灵活用，污点容忍需配合。
+
+**面试标准答法（1分钟版）**：K8s节点调度分三个阶段：预选阶段（Filter）根据约束条件筛选可用节点；优选阶段（Prioritize）对候选节点打分；绑定阶段（Bind）选择得分最高的节点。主要调度策略包括：NodeName直接指定、NodeSelector标签筛选、NodeAffinity/PodAffinity节点/Pod亲和、Taints/Tolerations污点与容忍、优先级与抢占机制。生产环境需根据业务场景组合使用，例如有状态服务用NodeAffinity+Taints隔离，Web前端用PodAntiAffinity实现高可用。
+
+> **延伸阅读**：想了解更多K8s调度策略？请参考 [K8s节点调度策略详解：从原理到生产环境最佳实践]({% post_url 2026-05-11-k8s-node-scheduling-strategies-best-practices %})。
+
