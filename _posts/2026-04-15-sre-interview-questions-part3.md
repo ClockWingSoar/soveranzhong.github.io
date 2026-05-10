@@ -121,3 +121,60 @@ flowchart LR
 
 > **延伸阅读**：想了解更多Filebeat与Logstash生产环境最佳实践？请参考 [Filebeat与Logstash对比分析：ELK日志收集架构最佳实践]({% post_url 2026-05-10-filebeat-logstash-comparison-best-practices %})。
 
+### 218. 有一个节点notready，原因是啥？
+
+**Why - 为什么这个问题重要？**
+
+K8s节点NotReady是生产环境最常见的故障之一，直接影响Pod调度和业务可用性。**节点NotReady意味着kubelet无法向API Server报告节点状态，导致该节点上的Pod无法被调度或面临被驱逐的风险。**快速定位NotReady原因是SRE的核心技能。
+
+**How - 排查思路与流程**
+
+```mermaid
+flowchart TB
+    A["节点NotReady"] --> B["检查kubelet状态"]
+    B --> C{"kubelet运行正常?"}
+    C -->|否| D["启动/重启kubelet"]
+    C -->|是| E["检查网络连通性"]
+    E --> F{"API Server可达?"}
+    F -->|否| G["检查网络插件"]
+    F -->|是| H["检查资源状态"]
+    G --> I["重启网络插件"]
+    H --> J{"资源充足?"}
+    J -->|否| K["扩容或驱逐Pod"]
+    J -->|是| L["检查系统服务"]
+
+    style A fill:#ffcdd2
+    style D fill:#c8e6c9
+    style I fill:#c8e6c9
+    style K fill:#c8e6c9
+```
+
+**What - 常见原因与解决方案**
+
+| 原因分类 | 具体原因 | 排查命令 | 解决方案 |
+|---------|---------|----------|----------|
+| **kubelet停止** | kubelet进程异常退出 | `systemctl status kubelet` | 重启kubelet |
+| **网络不通** | 节点到API Server网络中断 | `ping <api-server-ip>` | 检查网络/防火墙 |
+| **网络插件异常** | Flannel/Calico等CNI故障 | `systemctl status flanneld` | 重启网络插件 |
+| **资源不足** | 内存/磁盘/文件描述符耗尽 | `df -h` / `free -m` | 扩容或驱逐Pod |
+| **证书过期** | kubelet证书过期 | `openssl x509 -in /var/lib/kubelet/pki/cert.crt -dates` | 更新证书 |
+| **swap启用** | K8s要求关闭swap | `swapon -s` | 关闭swap |
+| **内核问题** | 内核参数异常 | `dmesg | tail` | 重启节点 |
+| **时间不同步** | NTP时间偏差过大 | `timedatectl status` | 同步NTP |
+
+**排查步骤详解**
+
+| 步骤 | 操作 | 命令 |
+|:----:|------|------|
+| **1. 查看节点状态** | 确认NotReady状态 | `kubectl get nodes` |
+| **2. 查看节点详情** | 查看NotReady原因 | `kubectl describe node <node-name>` |
+| **3. 检查kubelet日志** | 定位具体错误 | `journalctl -u kubelet -n 100` |
+| **4. 检查网络插件** | 确认CNI状态 | `kubectl get pods -n kube-system` |
+| **5. 检查资源使用** | 磁盘/内存/文件描述符 | `df -h && free -m && lsof | wc -l` |
+
+**记忆口诀**：节点NotReady先查kubelet，网络插件要确认，资源不足看磁盘，内核问题查dmesg，证书时间也要问。
+
+**面试标准答法（1分钟版）**：节点NotReady的排查思路：先kubectl describe node看Events信息，同时检查kubelet进程状态和日志；常见原因包括：kubelet停止（systemctl restart kubelet）、网络插件异常（重启flanneld或calico-node）、节点资源耗尽（磁盘满或内存不足）、证书过期、swap未关闭等。生产环境应配置监控告警，在节点NotReady时及时发现，同时准备节点自动恢复脚本。
+
+> **延伸阅读**：想了解更多K8s节点NotReady故障排查？请参考 [K8s节点NotReady故障排查与恢复：生产环境最佳实践]({% post_url 2026-05-11-k8s-node-notready-troubleshooting-best-practices %})。
+
