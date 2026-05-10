@@ -178,3 +178,59 @@ flowchart TB
 
 > **延伸阅读**：想了解更多K8s节点NotReady故障排查？请参考 [K8s节点NotReady故障排查与恢复：生产环境最佳实践]({% post_url 2026-05-11-k8s-node-notready-troubleshooting-best-practices %})。
 
+### 219. k8s中资源不足了，硬驱逐的资源条件是什么？
+
+**Why - 为什么这个问题重要？**
+
+K8s Pod驱逐是保障节点稳定性的最后一道防线，理解硬驱逐（Hard Eviction）和软驱逐（Soft Eviction）的阈值条件，是生产环境避免意外Pod丢失的关键。**硬驱逐阈值触发后会立即杀死Pod，不给宽限期；软驱逐有gracePeriod可以优雅处理。**
+
+**How - 驱逐机制架构**
+
+```mermaid
+flowchart TB
+    A["节点资源紧张"] --> B["kubelet监控"]
+    B --> C{"是否达到阈值?"}
+    C -->|硬驱逐阈值| D["立即杀死Pod"]
+    C -->|软驱逐阈值| E["进入gracePeriod"]
+    E --> F{"超时仍未缓解?"}
+    F -->|是| G["杀死Pod"]
+    F -->|否| H["Pod存活"]
+
+    style D fill:#ffcdd2
+    style G fill:#ffcdd2
+    style H fill:#c8e6c9
+```
+
+**What - 驱逐阈值详解**
+
+| 驱逐信号 | 软驱逐默认值 | 硬驱逐默认值 | 说明 |
+|---------|-------------|-------------|------|
+| **memory.available** | 500Mi | 256Mi | 节点可用内存 |
+| **nodefs.available** | 10% | 5% | nodefs文件系统可用空间 |
+| **nodefs.inodesfree** | 5% | 4% | inode可用数量 |
+| **imagefs.available** | 15% | 10% | imagefs文件系统可用空间 |
+| **imagefs.inodesfree** | 5% | 4% | imagefs inode可用数量 |
+| **pid.available** | 4% | 4% | 可用进程ID数量 |
+
+**imagefs与nodefs区分**
+
+| 文件系统 | 触发条件 | kubelet标志 | 用途 |
+|---------|---------|-------------|------|
+| **nodefs** | `nodefs.available` | `--root-dir` | kubelet工作目录、Pod日志等 |
+| **imagefs** | `imagefs.available` | `--storage-driver-root` | 容器镜像存储 |
+
+**生产环境推荐配置**
+
+| 配置项 | 推荐值 | 说明 |
+|:------:|:------:|------|
+| **硬驱逐内存阈值** | 100Mi-200Mi | 预留足够缓冲 |
+| **硬驱逐磁盘阈值** | 5% | 避免磁盘耗尽 |
+| **软驱逐内存阈值** | 500Mi-1Gi | 给Pod迁移时间 |
+| **gracePeriod** | 30-60秒 | 优雅终止时间 |
+
+**记忆口诀**：硬驱逐立即杀，软驱逐有宽限，memory.available256Mi，nodefs5%inode4%，imagefs10%inode5%。
+
+**面试标准答法（1分钟版）**：K8s硬驱逐的资源条件由kubelet的--eviction-hard参数控制，常见信号包括memory.available（硬驱逐256Mi，软驱逐500Mi）、nodefs.available（硬驱逐5%，软驱逐10%）、imagefs.available（硬驱逐10%，软驱逐15%）以及inode相关信号。硬驱逐触发后立即杀死Pod，软驱逐有gracePeriod（如30秒）作为宽限期。生产环境推荐配置合理的硬驱逐阈值预留缓冲，同时开启软驱逐让Pod有优雅迁移的时间。
+
+> **延伸阅读**：想了解更多K8s Pod驱逐机制？请参考 [K8s Pod硬驱逐与软驱逐详解：资源阈值配置与生产环境最佳实践]({% post_url 2026-05-11-k8s-pod-eviction-threshold-best-practices %})。
+
