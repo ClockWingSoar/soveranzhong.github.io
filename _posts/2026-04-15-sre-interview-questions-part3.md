@@ -403,3 +403,69 @@ flowchart TB
 
 > **延伸阅读**：想了解更多K8s调度策略？请参考 [K8s节点调度策略详解：从原理到生产环境最佳实践]({% post_url 2026-05-11-k8s-node-scheduling-strategies-best-practices %})。
 
+### 223. k8s中的污点和容忍分别是啥？
+
+**Why - 为什么这个问题重要？**
+
+污点（Taint）和容忍（Toleration）是K8s中用于控制Pod调度和节点隔离的核心机制。**污点让节点具有排斥能力，容忍让Pod具有匹配能力，两者配合能精细控制Pod在集群中的分布。**理解这两个概念，是高级DevOps/SRE工程师实现节点资源隔离、专用节点分配的必备技能。
+
+**How - 污点与容忍工作原理**
+
+```mermaid
+flowchart TB
+    A["污点 Taint"] --> B["Key"]
+    A --> C["Value"]
+    A --> D["Effect"]
+
+    D --> E["NoSchedule"]
+    D --> F["PreferNoSchedule"]
+    D --> G["NoExecute"]
+
+    H["容忍 Toleration"] --> I["匹配污点"]
+    I --> J["Pod可调度"]
+
+    K["无容忍"] --> L["Pod被排斥"]
+```
+
+**What - 污点与容忍详解**
+
+| 特性 | 污点 Taint | 容忍 Toleration |
+|:----:|-----------|---------------|
+| **作用对象** | 节点（Node） | Pod |
+| **功能** | 排斥特定Pod | 接受特定污点节点 |
+| **配置位置** | NodeSpec.Taints | PodSpec.Tolerations |
+| **三个Effect** | NoSchedule/PreferNoSchedule/NoExecute | 匹配污点Effect |
+
+**污点Effect详解**
+
+| Effect | 说明 | 适用场景 |
+|:------:|------|---------|
+| **NoSchedule** | 新Pod无法调度（已有Pod不受影响） | 节点资源隔离、专用节点 |
+| **PreferNoSchedule** | 尽量不调度（但不强制） | 软隔离场景 |
+| **NoExecute** | 新Pod不调度+现有Pod驱逐 | 故障节点、维护节点 |
+
+**容忍配置详解**
+
+| 配置项 | 说明 |
+|:------:|------|
+| **key/value** | 匹配污点的key/value |
+| **operator** | Equal（默认值相等）或Exists（只要key存在） |
+| **effect** | 匹配污点的effect，不指定则匹配所有 |
+| **tolerationSeconds** | NoExecute场景下Pod在节点上的存活时间 |
+
+**生产环境最佳实践**
+
+| 场景 | 推荐配置 | 说明 |
+|:----:|---------|------|
+| **专用GPU节点** | 污点dedicated=gpu:NoSchedule + 容忍 | GPU作业专用节点 |
+| **数据库节点** | 污点dedicated=database:NoSchedule + 容忍 | 数据库专用节点 |
+| **Ingress节点** | 污点dedicated=ingress:NoSchedule + 容忍 | 流量入口节点 |
+| **维护中的节点** | 污点node-role.kubernetes.io/worker=:NoExecute | 驱逐Pod准备维护 |
+| **预留控制节点** | 污点node-role.kubernetes.io/control-plane=:NoSchedule | 控制节点隔离 |
+
+**记忆口诀**：污点打在节点上，Pod加容忍才能上，NoSchedule不能调度，PreferNoSchedule尽量不调，NoExecute还驱逐跑。
+
+**面试标准答法（1分钟版）**：K8s的污点（Taint）是给节点添加排斥标签，让特定Pod无法调度到该节点；容忍（Toleration）是给Pod添加配置，让Pod能接受有污点的节点。污点有三个Effect：NoSchedule（不调度新Pod）、PreferNoSchedule（尽量不调度）、NoExecute（不调度新Pod+驱逐现有Pod）。生产环境常用污点实现节点资源隔离（如GPU/DB专用节点）和故障节点维护。
+
+> **延伸阅读**：想了解更多K8s污点与容忍？请参考 [K8s污点与容忍详解：节点隔离与专用节点最佳实践]({% post_url 2026-05-11-k8s-taints-tolerations-best-practices %})。
+
