@@ -469,3 +469,63 @@ flowchart TB
 
 > **延伸阅读**：想了解更多K8s污点与容忍？请参考 [K8s污点与容忍详解：节点隔离与专用节点最佳实践]({% post_url 2026-05-11-k8s-taints-tolerations-best-practices %})。
 
+### 224. k8s中啥叫亲和性？
+
+**Why - 为什么这个问题重要？**
+
+亲和性（Affinity）是Kubernetes高级调度能力的核心特性，包括节点亲和性（NodeAffinity）和Pod间亲和性（PodAffinity/PodAntiAffinity）。**亲和性能让Pod有偏好地调度到某些节点或与某些Pod相近的位置，极大增强了集群的可用性和性能。**掌握亲和性机制，是高级DevOps/SRE工程师的必备技能。
+
+**How - 亲和性工作原理**
+
+```mermaid
+flowchart TB
+    A["亲和性 Affinity"] --> B["节点亲和性 NodeAffinity"]
+    A --> C["Pod亲和性 PodAffinity"]
+    A --> D["Pod反亲和性 PodAntiAffinity"]
+
+    B --> E["requiredDuringScheduling"]
+    B --> F["preferredDuringScheduling"]
+
+    C --> G["Pod尽量在一起"]
+    D --> H["Pod尽量不在一起"]
+```
+
+**What - 亲和性详解**
+
+| 类型 | 作用对象 | 功能 | 适用场景 |
+|:----:|---------|------|---------|
+| **NodeAffinity** | Pod→Node | 根据节点标签筛选 | 特定节点资源调度 |
+| **PodAffinity** | Pod→Pod | 让Pod尽量在一起 | 提升性能，减少延迟 |
+| **PodAntiAffinity** | Pod→Pod | 让Pod尽量不在一起 | 提升可用性，分散风险 |
+
+**亲和性强度对比**
+
+| 强度 | 关键字 | 调度行为 | 风险 |
+|:----:|------|---------|------|
+| **硬亲和** | requiredDuringSchedulingIgnoredDuringExecution | 必须满足，否则Pending | 调度失败风险 |
+| **软亲和** | preferredDuringSchedulingIgnoredDuringExecution | 尽量满足，不强制 | 更灵活但保证弱 |
+
+**拓扑域TopologyKey**
+
+| TopologyKey | 说明 | 隔离级别 |
+|:----------:|------|---------|
+| kubernetes.io/hostname | 节点主机名 | 节点级 |
+| topology.kubernetes.io/zone | 可用区 | AZ级 |
+| topology.kubernetes.io/region | 地域 | 区域级 |
+
+**生产环境最佳实践**
+
+| 场景 | 推荐配置 | 说明 |
+|:----:|---------|------|
+| **Web+Cache** | PodAffinity（同AZ优先） | 减少网络延迟 |
+| **Web多副本** | PodAntiAffinity（不同节点） | 提升可用性 |
+| **DB主从** | PodAntiAffinity（不同AZ） | 灾备隔离 |
+| **GPU作业** | NodeAffinity（required） | 必须调度到GPU节点 |
+| **测试应用** | NodeAffinity（preferred） | 优先但不强制 |
+
+**记忆口诀**：亲和性分三种，节点亲和NodeAffinity，Pod亲和AntiAffinity，硬的必须要满足，软的尽量来配合，拓扑域选好键，调度效果最理想。
+
+**面试标准答法（1分钟版）**：K8s的亲和性（Affinity）包括三类：节点亲和性（NodeAffinity，让Pod调度到特定标签的节点）、Pod亲和性（PodAffinity，让Pod尽量在一起）、Pod反亲和性（PodAntiAffinity，让Pod尽量不在一起）。亲和性强度分硬亲和（required，必须满足否则Pending）和软亲和（preferred，尽量满足）。生产环境常用Pod反亲和性分散多副本提升可用性，用Pod亲和性优化Web与Cache同AZ部署。
+
+> **延伸阅读**：想了解更多K8s亲和性？请参考 [K8s亲和性详解：NodeAffinity/PodAffinity/PodAntiAffinity生产最佳实践]({% post_url 2026-05-11-k8s-affinity-deep-dive-best-practices %})。
+
