@@ -7273,7 +7273,7 @@ startupProbe:
 | 维度 | 优化措施 | 效果 |
 |------|----------|------|
 | **资源管理** | QoS等级、资源配额、LimitRanges | 提升资源利用率 |
-| **网络优化** | CNI插件选择、kube-proxy ipvs模式 | 降低网络延迟 |
+| **网络优化** | CNI插件选择、kube-proxy ipvs模式、本节点代理 | 降低网络延迟 |
 | **调度优化** | 亲和性/反亲和性、污点容忍 | 合理分布Pod |
 | **存储优化** | StorageClass、PV回收策略 | 提升存储性能 |
 | **安全优化** | SecurityContext、RBAC | 增强集群安全性 |
@@ -7282,6 +7282,60 @@ startupProbe:
 ---
 
 **核心优化方案**：
+
+**0. 本节点代理优化（提升Kubelet与API Server通信性能）**
+
+**原理说明**：在每个Worker节点部署本地HAProxy代理，将Kubelet原本直接访问远程API Server的流量，通过本地环回地址127.0.0.1转发，减少网络延迟和单点故障风险。
+
+**部署步骤**：
+
+```bash
+# 1. 在每个Worker节点安装HAProxy
+apt-get update && apt-get install -y haproxy
+
+# 2. 配置HAProxy（/etc/haproxy/haproxy.cfg）
+cat > /etc/haproxy/haproxy.cfg <<EOF
+global
+    daemon
+    maxconn 256
+
+defaults
+    mode http
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+
+frontend k8s-api
+    bind 127.0.0.1:6443
+    default_backend k8s-api-backend
+
+backend k8s-api-backend
+    balance roundrobin
+    server master1 <master1-ip>:6443 check
+    server master2 <master2-ip>:6443 check
+    server master3 <master3-ip>:6443 check
+EOF
+
+# 3. 启动HAProxy服务
+systemctl enable haproxy && systemctl restart haproxy
+
+# 4. 修改hosts文件，将API Server域名映射到本地
+echo "127.0.0.1 kubernetes.default.svc.cluster.local" >> /etc/hosts
+echo "127.0.0.1 <api-server-hostname>" >> /etc/hosts
+
+# 5. 验证配置
+curl -k https://127.0.0.1:6443/healthz
+```
+
+**优化效果**：
+- **降低延迟**：本地环回通信，避免跨节点网络传输
+- **高可用**：HAProxy自动故障转移，避免单点故障
+- **负载均衡**：请求均匀分发到多个Master节点
+
+**注意事项**：
+- 需在所有Worker节点部署相同配置
+- 确保HAProxy服务开机自启
+- 定期检查HAProxy状态和日志
 
 **1. QoS服务质量优化**
 
