@@ -584,3 +584,82 @@ flowchart TB
 
 > **延伸阅读**：想了解更多K8s资源分类？请参考 [K8s资源体系详解：从工作负载到自定义资源生产最佳实践]({% post_url 2026-05-11-k8s-resources-classification-best-practices %})。
 
+### 226. HPA基于自定义的流水线的流程是啥？
+
+**Why - 为什么这个问题重要？**
+
+HPA（Horizontal Pod Autoscaler）是Kubernetes自动扩缩容的核心组件，默认基于CPU和内存指标。**自定义指标HPA能够根据业务指标（如QPS、队列长度、自定义计数器）进行扩缩容，更精准地应对业务波动。**掌握自定义HPA的实现流程，是高级DevOps/SRE工程师的必备技能。
+
+**How - 自定义HPA工作流程**
+
+```mermaid
+flowchart TB
+    A["业务指标产生"] --> B["指标采集"]
+    B --> C["指标暴露"]
+    C --> D["Metrics Server/Prometheus Adapter"]
+    D --> E["HPA控制器"]
+    E --> F["计算副本数"]
+    F --> G["更新Deployment/StatefulSet"]
+    G --> H["Pod扩缩容"]
+```
+
+**What - 自定义HPA详解**
+
+| 组件 | 作用 | 说明 |
+|:----:|------|------|
+| **业务指标** | 来源 | QPS、队列长度、自定义计数器 |
+| **指标采集** | 收集 | Prometheus/Grafana/自定义Exporter |
+| **指标暴露** | 标准化 | 通过Custom Metrics API暴露 |
+| **Metrics Server** | 聚合 | 内置指标聚合器 |
+| **Prometheus Adapter** | 转换 | 将Prometheus指标转换为K8s标准API |
+| **HPA控制器** | 决策 | 根据指标计算目标副本数 |
+
+**自定义HPA配置示例**
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: custom-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Pods
+    pods:
+      metric:
+        name: requests-per-second
+      target:
+        type: AverageValue
+        averageValue: 100
+  - type: External
+    external:
+      metric:
+        name: queue_length
+        selector:
+          matchLabels:
+            queue: orders
+      target:
+        type: AverageValue
+        averageValue: 500
+```
+
+**生产环境最佳实践**
+
+| 场景 | 推荐配置 | 说明 |
+|:----:|---------|------|
+| **API网关** | 基于QPS指标 | 应对流量峰值 |
+| **消息队列消费者** | 基于队列长度 | 处理消息积压 |
+| **批处理任务** | 基于任务队列深度 | 动态调整Worker数量 |
+| **数据库连接池** | 基于连接使用率 | 避免连接池耗尽 |
+
+**记忆口诀**：自定义HPA，指标来驱动，采集转换聚合，HPA做决策，副本数调整，业务更稳定。
+
+**面试标准答法（1分钟版）**：自定义HPA流程包括四个核心环节：1) 业务指标产生（如QPS、队列长度）；2) 指标采集（通过Prometheus等监控系统）；3) 指标转换（通过Prometheus Adapter转换为K8s标准API）；4) HPA控制器根据指标计算目标副本数并执行扩缩容。关键组件包括Prometheus用于采集、Prometheus Adapter用于API转换、HPA控制器负责决策。
+
+> **延伸阅读**：想了解更多自定义HPA？请参考 [K8s自定义HPA详解：从指标采集到扩缩容生产最佳实践]({% post_url 2026-05-11-k8s-custom-hpa-best-practices %})。
+
