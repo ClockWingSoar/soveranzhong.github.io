@@ -529,3 +529,58 @@ flowchart TB
 
 > **延伸阅读**：想了解更多K8s亲和性？请参考 [K8s亲和性详解：NodeAffinity/PodAffinity/PodAntiAffinity生产最佳实践]({% post_url 2026-05-11-k8s-affinity-deep-dive-best-practices %})。
 
+### 225. k8s你熟悉哪些资源，分类回答？
+
+**Why - 为什么这个问题重要？**
+
+Kubernetes以资源（Resources）为中心的设计理念贯穿整个系统，理解K8s资源体系是运维和开发K8s集群的基础。**掌握资源分类和各类资源的作用，是高级DevOps/SRE工程师的核心知识。**
+
+**How - K8s资源分类体系**
+
+```mermaid
+flowchart TB
+    A["K8s资源分类"] --> B["工作负载类"]
+    A --> C["服务发现与负载均衡类"]
+    A --> D["存储类"]
+    A --> E["配置与密钥类"]
+    A --> F["集群管理类"]
+    A --> G["调度类"]
+    A --> H["扩展类"]
+
+    B --> I["Pod/Deployment/StatefulSet"]
+    C --> J["Service/Ingress/Endpoint"]
+    D --> K["PV/PVC/StorageClass"]
+    E --> L["ConfigMap/Secret"]
+    F --> M["Node/Namespace"]
+    G --> N["PriorityClass/HorizontalPodAutoscaler"]
+    H --> O["CRD"]
+```
+
+**What - K8s资源详解**
+
+| 分类 | 核心资源 | 主要作用 |
+|:----:|---------|---------|
+| **工作负载类** | Pod/Deployment/StatefulSet/DaemonSet/Job/CronJob | 管理应用生命周期、部署策略 |
+| **服务发现与负载均衡类** | Service/Ingress/Endpoint/EndpointSlice | 服务访问、流量路由 |
+| **存储类** | PersistentVolume/PersistentVolumeClaim/StorageClass/VolumeSnapshot | 数据持久化、存储管理 |
+| **配置与密钥类** | ConfigMap/Secret | 应用配置、敏感信息管理 |
+| **集群管理类** | Node/Namespace/Role/RoleBinding/ClusterRole/ClusterRoleBinding | 节点、命名空间、权限管理 |
+| **调度与自动扩缩容类** | PriorityClass/HorizontalPodAutoscaler/VerticalPodAutoscaler | Pod调度优先级、自动扩缩容 |
+| **扩展类** | CustomResourceDefinition/CustomResource | 自定义扩展资源 |
+
+**生产环境最佳实践**
+
+| 场景 | 推荐资源组合 | 说明 |
+|:----:|------------|------|
+| **无状态Web应用** | Deployment + Service + ConfigMap + HPA | 自动扩缩容、配置分离 |
+| **有状态数据库** | StatefulSet + Service + PVC + ConfigMap | 稳定网络标识、持久存储 |
+| **日志采集Agent** | DaemonSet + ConfigMap | 每个节点部署一个 |
+| **定时任务** | CronJob + ConfigMap | 定时执行 |
+| **敏感配置管理** | Secret + RBAC | 权限控制、安全存储 |
+
+**记忆口诀**：资源分类要记牢，工作负载最重要，服务发现和存储，配置密钥不能少，集群管理和调度，扩展能力无限好。
+
+**面试标准答法（1分钟版）**：K8s资源可以分为7类：工作负载类（Pod/Deployment/StatefulSet/DaemonSet/Job/CronJob）、服务发现与负载均衡类（Service/Ingress）、存储类（PV/PVC/StorageClass）、配置与密钥类（ConfigMap/Secret）、集群管理类（Node/Namespace/RBAC）、调度与自动扩缩容类（PriorityClass/HPA/VPA）、扩展类（CRD/CR）。生产环境无状态Web应用用Deployment+HPA，有状态数据库用StatefulSet+PVC，定时任务用CronJob。
+
+> **延伸阅读**：想了解更多K8s资源分类？请参考 [K8s资源体系详解：从工作负载到自定义资源生产最佳实践]({% post_url 2026-05-11-k8s-resources-classification-best-practices %})。
+
