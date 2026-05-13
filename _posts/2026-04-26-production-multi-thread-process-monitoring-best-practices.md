@@ -47,7 +47,7 @@ tags: [多线程, 进程监控, 性能优化, 故障排查, 自动化运维]
 | 方法 | 命令 | 识别特征 | 推荐场景 |
 |:----:|------|----------|----------|
 | 进程树 | `pstree -p <pid>` | `{ }`包裹的子节点 | 快速目视检查 |
-| 进程状态 | `ps aux` 或 `ps -eLf` | 状态标志含 `l` | 程序化检查 |
+| 进程状态 | `ps aux` | 状态标志含 `l` | 程序化检查 |
 | Proc文件系统 | `cat /proc/<pid>/status` | `Threads: N` | 获取精确线程数 |
 
 ### 1.2 快速识别脚本
@@ -86,7 +86,7 @@ echo "✓ 精确线程数: $THREADS"
 # 方法3: 进程树
 echo ""
 echo "进程树结构:"
-pstree -p $PID 2>/dev/null || ps --forest -o pid,ppid,stat,args -p $PID 2>/dev/null
+pstree -p $PID 2>/dev/null || ps --forest -p $PID -o pid,ppid,stat,args 2>/dev/null
 
 echo ""
 echo "=========================================="
