@@ -727,3 +727,71 @@ flowchart TD
 
 > **延伸阅读**：想了解更多软件发布流程？请参考 [企业级软件发布流程详解：从CI/CD到灰度发布生产最佳实践]({% post_url 2026-05-13-software-release-process-best-practices %})。
 
+### 228. gitlab密码忘了咋办？重设一下？
+
+**Why - 为什么这个问题重要？**
+
+GitLab作为企业级代码托管平台，管理员密码丢失或遗忘可能导致严重的业务中断。**掌握GitLab密码重置方法，是保障代码仓库安全和业务连续性的关键技能。**
+
+**How - GitLab密码重置流程**
+
+```mermaid
+flowchart TD
+    A["密码遗忘"] --> B{"是否可访问邮箱？"}
+    B -->|是| C["通过Web界面重置"]
+    B -->|否| D["管理员重置"]
+    C --> E["点击'忘记密码'"]
+    E --> F["输入邮箱"]
+    F --> G["接收重置链接"]
+    G --> H["设置新密码"]
+    D --> I["SSH登录GitLab服务器"]
+    I --> J["执行gitlab-rake命令"]
+    J --> K["设置新密码"]
+```
+
+**What - GitLab密码重置详解**
+
+| 方法 | 适用场景 | 步骤 |
+|:----:|---------|------|
+| **Web界面重置** | 用户自己重置 | 点击忘记密码→输入邮箱→接收链接→设置新密码 |
+| **管理员命令行重置** | 用户无法访问邮箱 | SSH登录→执行gitlab-rake→设置新密码 |
+| **LDAP同步重置** | LDAP认证用户 | 在LDAP服务器修改密码→同步到GitLab |
+
+**命令行重置示例**
+
+```bash
+# 方法1：使用gitlab-rake重置指定用户密码
+gitlab-rake "gitlab:password:reset"
+
+# 方法2：直接修改数据库
+gitlab-rails console
+user = User.find_by(email: 'admin@example.com')
+user.password = 'new_password'
+user.password_confirmation = 'new_password'
+user.save!
+exit
+
+# 方法3：通过API重置（需要管理员token）
+curl -X PUT "https://gitlab.example.com/api/v4/users/1" \
+     --header "PRIVATE-TOKEN: <admin-token>" \
+     --header "Content-Type: application/json" \
+     --data '{"password": "new_password"}'
+```
+
+**生产环境最佳实践**
+
+| 实践 | 说明 |
+|------|------|
+| **启用双因素认证** | 防止密码泄露后的未授权访问 |
+| **定期轮换密码** | 遵循企业安全策略 |
+| **使用密码管理器** | 安全存储密码 |
+| **限制管理员权限** | 最小权限原则 |
+| **审计日志监控** | 跟踪密码重置操作 |
+| **邮箱配置测试** | 确保密码重置邮件能正常发送 |
+
+**记忆口诀**：密码遗忘不要慌，Web界面先尝试，邮箱接收重置链接，管理员用命令行。
+
+**面试标准答法（1分钟版）**：GitLab密码重置有两种主要方式：1) Web界面重置，用户点击登录页"忘记密码"，输入注册邮箱接收重置链接；2) 管理员命令行重置，登录GitLab服务器执行`gitlab-rake "gitlab:password:reset"`命令。生产环境建议启用双因素认证、定期轮换密码、使用密码管理器，并监控审计日志。
+
+> **延伸阅读**：想了解更多GitLab安全管理？请参考 [GitLab管理员指南：密码管理与安全最佳实践]({% post_url 2026-05-13-gitlab-password-management-best-practices %})。
+
