@@ -2,7 +2,7 @@
 
 
 
-具体参考文档
+具体参考文档F:\DevOps\马哥教育运维培训\2025-Linux云计算SRE-N98\N98架构班\1-10\马哥教育M66期20260128第9天-堡垒机JumpServer安装管理和Kubernetes架构安装\课件\Kubernetes架构和部署实验手册.pdf
 
 
 
@@ -583,7 +583,8 @@ You can now join any number of control-plane nodes running the following command
 
   kubeadm join kubeapi.zhong.org:6443 --token tv2yhk.9k9usqc5mfywy6cb \
 	--discovery-token-ca-cert-hash sha256:1d8b7d7f82c64fd0e93d9624d195e8ccee22c4a598623aeeaf0fb5c360adbeb7 \
-	--control-plane --certificate-key 0fd23879932514c7453c2a6a2b2d82743dfc960bff4acae6400ca41d33c86354
+	--control-plane --certificate-key 0fd23879932514c7453c2a6a2b2d82743dfc960bff4acae6400ca41d33c86354 \
+	--cri-socket=unix:///run/cri-dockerd.sock
 
 Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
 As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
@@ -592,6 +593,15 @@ As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you c
 Then you can join any number of worker nodes by running the following on each as root:
 
 kubeadm join kubeapi.zhong.org:6443 --token tv2yhk.9k9usqc5mfywy6cb \
-	--discovery-token-ca-cert-hash sha256:1d8b7d7f82c64fd0e93d9624d195e8ccee22c4a598623aeeaf0fb5c360adbeb7 
+	--discovery-token-ca-cert-hash sha256:1d8b7d7f82c64fd0e93d9624d195e8ccee22c4a598623aeeaf0fb5c360adbeb7 \ --cri-socket=unix:///run/cri-dockerd.sock
+```
+
+
+
+## 提前拉kubeadm镜像
+
+```sh
+ kubeadm config images pull --image-repository registry.aliyuncs.com/google_containers --cri-socket=unix:///run/cri-dockerd.sock
+
 ```
 
